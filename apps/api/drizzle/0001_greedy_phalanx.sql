@@ -1,0 +1,1 @@
+ALTER TABLE "organization_units" ADD COLUMN "slug" varchar(120);

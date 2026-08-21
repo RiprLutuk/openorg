@@ -93,7 +93,8 @@ const DEFAULT_SITE: PublicSite = {
     slug: "openorg",
     kind: "association",
     tagline: "Platform Resmi Organisasi",
-    description: "Platform terpadu keanggotaan, tata kelola organisasi, kredit akademi SKP/CPD, dan verifikasi kredensial.",
+    description:
+      "Platform terpadu keanggotaan, tata kelola organisasi, kredit akademi SKP/CPD, dan verifikasi kredensial.",
     logoUrl: null,
     faviconUrl: null,
     locale: "id-ID",
@@ -113,7 +114,12 @@ const DEFAULT_SITE: PublicSite = {
   navigation: [
     { id: "events", label: "Agenda", href: "/events", children: [] },
     { id: "structure", label: "Struktur", href: "/structure", children: [] },
-    { id: "verify", label: "Verifikasi Kredensial", href: "/verify", children: [] },
+    {
+      id: "verify",
+      label: "Verifikasi Kredensial",
+      href: "/verify",
+      children: [],
+    },
   ],
   footer: { links: [] },
   announcement: null,
@@ -136,19 +142,21 @@ export async function publicApi<T>(
     return envelope.data as T;
   } catch (error) {
     if (path === "/site") return DEFAULT_SITE as T;
-    if (path === "/pages/home") return {
-      id: "home",
-      title: "OpenOrg Association",
-      slug: "home",
-      excerpt: "Platform Resmi Organisasi",
-      sections: [],
-      seo: {},
-      updatedAt: new Date().toISOString(),
-    } as T;
+    if (path === "/pages/home")
+      return {
+        id: "home",
+        title: "OpenOrg Association",
+        slug: "home",
+        excerpt: "Platform Resmi Organisasi",
+        sections: [],
+        seo: {},
+        updatedAt: new Date().toISOString(),
+      } as T;
     if (path.startsWith("/pages")) return [] as T;
     if (path.startsWith("/contents")) return [] as T;
     if (path.startsWith("/events")) return [] as T;
-    if (path === "/structure") return { units: [], positions: [], assignments: [] } as T;
+    if (path === "/structure")
+      return { units: [], positions: [], assignments: [] } as T;
     throw error;
   }
 }

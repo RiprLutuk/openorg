@@ -328,17 +328,9 @@ export function MemberPortal() {
         </section>
       </div>
       {compliance && (
-        <MemberCredentials
-          data={compliance}
-          onReload={loadPortal}
-        />
+        <MemberCredentials data={compliance} onReload={loadPortal} />
       )}
-      {learning && (
-        <MemberLearning
-          data={learning}
-          onReload={loadPortal}
-        />
-      )}
+      {learning && <MemberLearning data={learning} onReload={loadPortal} />}
       {billing && <MemberBilling data={billing} />}
       {data.card ? (
         <section className="portal-card-section">
@@ -562,10 +554,10 @@ function MemberLearning({
     setPendingId(activityId);
     setError("");
     try {
-      await memberApi(
-        `/v1/member/learning/activities/${activityId}/enroll`,
-        { method: "POST", body: "{}" },
-      );
+      await memberApi(`/v1/member/learning/activities/${activityId}/enroll`, {
+        method: "POST",
+        body: "{}",
+      });
       onReload();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Enrollment failed.");

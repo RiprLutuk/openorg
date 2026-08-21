@@ -377,10 +377,8 @@ async function ContentFeed({
 
 function ContactSection({
   section,
-  organizationSlug,
 }: {
   section: Extract<PageSection, { type: "contact" }>;
-  organizationSlug: string;
 }) {
   return (
     <section className="contact-section section-space">
@@ -400,9 +398,7 @@ function ContactSection({
             </span>
           </div>
         </div>
-        {section.showForm && (
-          <PublicContactForm />
-        )}
+        {section.showForm && <PublicContactForm />}
       </div>
     </section>
   );

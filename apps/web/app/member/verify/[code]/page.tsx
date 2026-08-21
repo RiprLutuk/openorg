@@ -12,9 +12,7 @@ export default async function VerifyMemberPage({
   return (
     <section className="member-page-shell verification-page">
       <div className="wrap verification-wrap">
-        <MembershipVerification
-          code={code}
-        />
+        <MembershipVerification code={code} />
       </div>
     </section>
   );

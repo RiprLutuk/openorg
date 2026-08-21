@@ -1,9 +1,9 @@
 :root {
-  --color-primary: #3b5bdb;
-  --color-secondary: #182230;
-  --color-accent: #f97066;
+  --color-primary: #0b3b60;
+  --color-secondary: #1e293b;
+  --color-accent: #d97706;
   --color-surface: #f8fafc;
-  --color-foreground: #101828;
+  --color-foreground: #0f172a;
   --font-heading: Manrope;
   --font-body: Inter;
   --radius: 18px;

@@ -2,8 +2,10 @@ import { hash } from "@node-rs/argon2";
 import { eq } from "drizzle-orm";
 import { closeDatabase, db } from "./client";
 import {
+  contents,
   events,
   members,
+  membershipCards,
   organizationUnits,
   permissions,
   positionAssignments,
@@ -15,28 +17,17 @@ import {
   users,
 } from "./schema";
 
-const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@demo.openorg";
+const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@asisi.or.id";
 const adminPassword =
   process.env.SEED_ADMIN_PASSWORD ??
   (process.env.NODE_ENV === "production"
     ? (() => {
         throw new Error("SEED_ADMIN_PASSWORD is required in production.");
       })()
-    : "OpenOrg!2026Demo");
+    : "AsisiIndonesia!2026");
 const now = new Date();
 
 async function seed() {
-  const [existing] = await db
-    .select({ id: siteSettings.id })
-    .from(siteSettings)
-    .where(eq(siteSettings.id, "default"))
-    .limit(1);
-
-  if (existing) {
-    process.stdout.write("Site settings already initialized; seed skipped.\n");
-    return;
-  }
-
   const passwordHash = await hash(adminPassword, {
     algorithm: 2,
     memoryCost: 19_456,
@@ -46,47 +37,70 @@ async function seed() {
   });
 
   await db.transaction(async (tx) => {
+    // Clean old data for clean seed
+    await tx.delete(siteSettings);
+    await tx.delete(userRoles);
+    await tx.delete(rolePermissions);
+    await tx.delete(permissions);
+    await tx.delete(roles);
+    await tx.delete(positionAssignments);
+    await tx.delete(positions);
+    await tx.delete(membershipCards);
+    await tx.delete(members);
+    await tx.delete(organizationUnits);
+    await tx.delete(events);
+    await tx.delete(contents);
+    await tx.delete(users);
+
+    // 1. Site Settings ASISI Indonesia
     await tx.insert(siteSettings).values({
       id: "default",
-      name: "OpenOrg Association",
-      slug: "openorg",
+      name: "ASISI Indonesia",
+      slug: "asisi",
       kind: "association",
-      tagline: "Platform Resmi Keanggotaan & Tata Kelola Organisasi",
+      tagline:
+        "Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia",
       description:
-        "Satu rumah digital terpadu untuk manajemen keanggotaan, pengembangan kompetensi akademi SKP/CPD, dan verifikasi kredensial publik.",
-      email: "sekretariat@openorg.id",
-      phone: "+62 21 555 0101",
-      address: "Jakarta, Indonesia",
-      primaryColor: "#6941C6",
-      secondaryColor: "#12B76A",
+        "Wadah resmi profesionalisme perusahaan pendingin dan teknisi refrigerasi tata udara (HVAC/R) Indonesia. Terintegrasi dengan registri KTA digital resmi, sertifikasi kompetensi BNSP, struktur kepengurusan DPP, DPD & Korwil Nusantara, serta pelatihan teknis terstandarisasi.",
+      email: "sekretariat@asisi.or.id",
+      phone: "+62 812-9000-1980",
+      address:
+        "Gedung ASISI Center, Jl. Jend. Sudirman No. 88, Jakarta Pusat 10220",
+      primaryColor: "#0b3b60",
+      secondaryColor: "#d97706",
       quickContact: {
         channel: "message",
-        label: "Hubungi Sekretariat",
-        value: "sekretariat@openorg.id",
-        href: "mailto:sekretariat@openorg.id",
+        label: "WhatsApp Sekretariat ASISI",
+        value: "+62 812-9000-1980",
+        href: "https://wa.me/6281290001980",
       },
       navigation: [
         { id: "home", label: "Beranda", href: "/" },
-        { id: "events", label: "Agenda", href: "/events" },
-        { id: "structure", label: "Struktur Pengurus", href: "/structure" },
-        { id: "verify", label: "Verifikasi Kredensial", href: "/verify" },
+        { id: "events", label: "Agenda & Sertifikasi", href: "/events" },
+        {
+          id: "structure",
+          label: "Struktur Pengurus (DPP/DPD)",
+          href: "/structure",
+        },
+        { id: "verify", label: "Verifikasi KTA Teknisi", href: "/verify" },
       ],
       footer: {
         description:
-          "Platform resmi organisasi mandiri yang mengintegrasikan tata kelola, keanggotaan, akademi SKP, dan kredensial.",
-        copyright: `© ${now.getFullYear()} OpenOrg Association. All rights reserved.`,
+          "Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia (ASISI). Mewujudkan teknisi AC & pendingin Indonesia yang kompeten, bersertifikat BNSP, dan berstandar internasional.",
+        copyright: `© ${now.getFullYear()} ASISI Indonesia (Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia). All rights reserved.`,
         links: [
-          { label: "Agenda Kegiatan", href: "/events" },
-          { label: "Peta Pengurus", href: "/structure" },
-          { label: "Cek KTA Digital", href: "/verify" },
+          { label: "Agenda Pelatihan & Sertifikasi", href: "/events" },
+          { label: "Struktur DPP & DPD Provinsi", href: "/structure" },
+          { label: "Cek KTA Digital Teknisi", href: "/verify" },
         ],
       },
     });
 
+    // 2. Admin User
     const [owner] = await tx
       .insert(users)
       .values({
-        name: "Administrator Pengurus",
+        name: "Sekretariat DPP ASISI Indonesia",
         email: adminEmail.toLowerCase(),
         passwordHash,
         status: "active",
@@ -98,8 +112,8 @@ async function seed() {
     const [ownerRole] = await tx
       .insert(roles)
       .values({
-        name: "Owner",
-        description: "Akses penuh manajemen organisasi",
+        name: "Administrator ASISI",
+        description: "Akses penuh manajemen asosiasi ASISI Indonesia",
         isSystem: true,
       })
       .returning();
@@ -109,23 +123,23 @@ async function seed() {
       ["*", "Akses penuh platform"],
       ["pages.read", "Melihat halaman"],
       ["pages.write", "Kelola halaman"],
-      ["contents.read", "Melihat konten"],
-      ["contents.write", "Kelola konten"],
-      ["events.read", "Melihat agenda"],
-      ["events.write", "Kelola agenda"],
-      ["members.read", "Melihat data anggota"],
-      ["members.write", "Kelola data anggota"],
-      ["credentials.read", "Melihat kredensial"],
-      ["credentials.write", "Kelola kredensial"],
-      ["credentials.verify", "Verifikasi kredensial"],
-      ["governance.read", "Melihat struktur pengurus"],
-      ["governance.write", "Kelola unit & posisi pengurus"],
-      ["learning.read", "Melihat akademi & SKP"],
-      ["learning.write", "Kelola akademi & SKP"],
-      ["revenue.read", "Melihat tagihan & iuran"],
-      ["revenue.write", "Kelola iuran anggota"],
-      ["settings.write", "Kelola pengaturan organisasi"],
-      ["users.manage", "Kelola pengguna & hak akses"],
+      ["contents.read", "Melihat berita & artikel"],
+      ["contents.write", "Kelola berita & artikel"],
+      ["events.read", "Melihat agenda & sertifikasi"],
+      ["events.write", "Kelola agenda & sertifikasi"],
+      ["members.read", "Melihat data teknisi terdaftar"],
+      ["members.write", "Kelola data teknisi & KTA"],
+      ["credentials.read", "Melihat sertifikat BNSP"],
+      ["credentials.write", "Kelola sertifikat & lisensi"],
+      ["credentials.verify", "Verifikasi KTA & sertifikat"],
+      ["governance.read", "Melihat struktur pengurus DPP/DPD"],
+      ["governance.write", "Kelola unit & posisi DPP/DPD"],
+      ["learning.read", "Melihat pelatihan & SKP"],
+      ["learning.write", "Kelola pelatihan & SKP"],
+      ["revenue.read", "Melihat iuran & sponsorship"],
+      ["revenue.write", "Kelola iuran & sponsorship"],
+      ["settings.write", "Kelola profil & identitas ASISI"],
+      ["users.manage", "Kelola pengurus & hak akses"],
     ] as const;
 
     const createdPermissions = await tx
@@ -146,110 +160,166 @@ async function seed() {
       .insert(userRoles)
       .values({ userId: owner.id, roleId: ownerRole.id });
 
-    // Seed sample Events
-    await tx.insert(events).values([
-      {
-        title: "Forum Kepemimpinan & Rapat Kerja Nasional",
-        slug: "forum-kepemimpinan-rakernas-2026",
-        description:
-          "Ruang bertukar pengalaman bagi koordinator wilayah dan pengurus pusat dalam menyusun arah strategis organisasi.",
-        locationName: "Jakarta Convention Center",
-        startsAt: new Date(now.getTime() + 86_400_000 * 9),
-        endsAt: new Date(now.getTime() + 86_400_000 * 9 + 7_200_000),
-        status: "published",
-        publishedAt: now,
-        capacity: 150,
-      },
-      {
-        title: "Pelatihan Professional SKP: Tata Kelola Digital",
-        slug: "pelatihan-skp-tata-kelola-digital",
-        description:
-          "Pelatihan akademis bersertifikat SKP mengenai transparansi digital dan standar ketaatan organisasi.",
-        locationName: "Daring via Zoom",
-        meetingUrl: "https://openorg.id/zoom-learning",
-        startsAt: new Date(now.getTime() + 86_400_000 * 16),
-        endsAt: new Date(now.getTime() + 86_400_000 * 16 + 10_800_000),
-        status: "published",
-        publishedAt: now,
-        capacity: 300,
-      },
-    ]);
-
-    // Seed Governance Units & Positions
-    const [nationalUnit, regionalUnit] = await tx
+    // 3. Organization Units (DPP, DPD & Korwil)
+    const [dppUnit, dpdJabar, dpdJatim, dpdDki, dpcBdg] = await tx
       .insert(organizationUnits)
       .values([
         {
-          name: "Pengurus Pusat (DPP)",
+          name: "Dewan Pimpinan Pusat (DPP ASISI Indonesia)",
+          slug: "dpp",
           code: "DPP",
           type: "national",
+          description:
+            "Pengurus Pusat Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia",
           sortOrder: 1,
         },
         {
-          name: "Pengurus Daerah Jawa Barat (DPD)",
+          name: "DPD ASISI Jawa Barat",
+          slug: "dpd-jabar",
           code: "DPD-JABAR",
           type: "regional",
+          description: "Dewan Pimpinan Daerah ASISI Provinsi Jawa Barat",
           sortOrder: 2,
+        },
+        {
+          name: "DPD ASISI Jawa Timur",
+          slug: "dpd-jatim",
+          code: "DPD-JATIM",
+          type: "regional",
+          description: "Dewan Pimpinan Daerah ASISI Provinsi Jawa Timur",
+          sortOrder: 3,
+        },
+        {
+          name: "DPD ASISI DKI Jakarta",
+          slug: "dpd-dki",
+          code: "DPD-DKI",
+          type: "regional",
+          description: "Dewan Pimpinan Daerah ASISI Provinsi DKI Jakarta",
+          sortOrder: 4,
+        },
+        {
+          name: "Korwil Bandung Raya (DPC)",
+          slug: "dpc-bdg",
+          code: "DPC-BDG",
+          type: "chapter",
+          description: "Koordinator Wilayah Bandung Raya & Kota Cimahi",
+          sortOrder: 5,
         },
       ])
       .returning();
 
-    if (nationalUnit && regionalUnit) {
+    if (dppUnit && dpdJabar && dpdJatim && dpdDki && dpcBdg) {
       await tx
         .update(organizationUnits)
-        .set({ parentId: nationalUnit.id })
-        .where(eq(organizationUnits.id, regionalUnit.id));
+        .set({ parentId: dppUnit.id })
+        .where(eq(organizationUnits.id, dpdJabar.id));
+      await tx
+        .update(organizationUnits)
+        .set({ parentId: dppUnit.id })
+        .where(eq(organizationUnits.id, dpdJatim.id));
+      await tx
+        .update(organizationUnits)
+        .set({ parentId: dppUnit.id })
+        .where(eq(organizationUnits.id, dpdDki.id));
+      await tx
+        .update(organizationUnits)
+        .set({ parentId: dpdJabar.id })
+        .where(eq(organizationUnits.id, dpcBdg.id));
 
-      const [ketuaUmum, sekjen, ketuaDpd] = await tx
+      // Positions
+      const [ketuaUmum, sekjen, ketuaJabar, ketuaJatim] = await tx
         .insert(positions)
         .values([
           {
-            unitId: nationalUnit.id,
-            title: "Ketua Umum",
+            unitId: dppUnit.id,
+            title: "Ketua Umum DPP ASISI",
+            description:
+              "Memimpin kebijakan strategis asosiasi tingkat nasional",
             sortOrder: 1,
           },
           {
-            unitId: nationalUnit.id,
-            title: "Sekretaris Jenderal",
+            unitId: dppUnit.id,
+            title: "Sekretaris Jenderal DPP",
+            description:
+              "Mengkoordinasikan sekretariat dan operasional organisasi nasional",
             sortOrder: 2,
           },
           {
-            unitId: regionalUnit.id,
-            title: "Ketua DPD Jawa Barat",
+            unitId: dpdJabar.id,
+            title: "Ketua DPD ASISI Jawa Barat",
+            description:
+              "Memimpin jaringan teknisi dan kegiatan wilayah Jawa Barat",
+            sortOrder: 1,
+          },
+          {
+            unitId: dpdJatim.id,
+            title: "Ketua DPD ASISI Jawa Timur",
+            description:
+              "Memimpin jaringan teknisi dan kegiatan wilayah Jawa Timur",
             sortOrder: 1,
           },
         ])
         .returning();
 
+      // Seed Members (Teknisi ASISI)
       const createdMembers = await tx
         .insert(members)
         .values([
           {
-            unitId: nationalUnit.id,
-            memberNumber: "ORG-0001",
-            name: "Dr. Ayu Pradana, M.Si",
-            email: "ayu@openorg.id",
-            phone: "+6281234567890",
-            joinedAt: new Date("2022-01-15"),
+            unitId: dppUnit.id,
+            memberNumber: "KTA-ASISI-DPP-001",
+            name: "Ir. H. Nanang Varian Supriadi",
+            email: "nanang@asisi.or.id",
+            phone: "+6281290001980",
+            joinedAt: new Date("2018-05-10"),
             status: "active",
+            metadata: {
+              competency: "Master Auditor HVAC & Chiller System",
+              certificateNumber: "BNSP-HVAC-2024-0019",
+              company: "PT Central Pendingin Nusantara",
+            },
           },
           {
-            unitId: nationalUnit.id,
-            memberNumber: "ORG-0002",
-            name: "Bima Santoso, S.T",
-            email: "bima@openorg.id",
-            phone: "+6281234567891",
-            joinedAt: new Date("2022-03-20"),
+            unitId: dppUnit.id,
+            memberNumber: "KTA-ASISI-DPP-002",
+            name: "M. Ridwan Syah, ST",
+            email: "ridwan@asisi.or.id",
+            phone: "+6281388991100",
+            joinedAt: new Date("2019-02-14"),
             status: "active",
+            metadata: {
+              competency: "Asesor Sertifikasi Kompetensi BNSP",
+              certificateNumber: "BNSP-HVAC-2024-0082",
+              company: "CV Teknik Utama HVAC",
+            },
           },
           {
-            unitId: regionalUnit.id,
-            memberNumber: "ORG-0028",
-            name: "Citra Lestari, S.H",
-            email: "citra@openorg.id",
-            phone: "+6281234567892",
-            joinedAt: new Date("2023-06-02"),
+            unitId: dpdJabar.id,
+            memberNumber: "KTA-ASISI-JABAR-0142",
+            name: "Dedi Kurniawan, S.Pd",
+            email: "dedi.jabar@asisi.or.id",
+            phone: "+6281577889900",
+            joinedAt: new Date("2020-08-20"),
             status: "active",
+            metadata: {
+              competency: "Teknisi Senior AC Inverter & VRV/VRF",
+              certificateNumber: "BNSP-HVAC-2025-0142",
+              company: "Jabar Aircon Service",
+            },
+          },
+          {
+            unitId: dpdJatim.id,
+            memberNumber: "KTA-ASISI-JATIM-0285",
+            name: "H. Eko Susilo, MT",
+            email: "eko.jatim@asisi.or.id",
+            phone: "+6281233445566",
+            joinedAt: new Date("2021-03-12"),
+            status: "active",
+            metadata: {
+              competency: "Spesialis Cold Storage & Industrial Refrigeration",
+              certificateNumber: "BNSP-HVAC-2025-0285",
+              company: "Surabaya Pendingin Jaya",
+            },
           },
         ])
         .returning();
@@ -257,34 +327,121 @@ async function seed() {
       if (
         ketuaUmum &&
         sekjen &&
-        ketuaDpd &&
+        ketuaJabar &&
+        ketuaJatim &&
         createdMembers[0] &&
         createdMembers[1] &&
-        createdMembers[2]
+        createdMembers[2] &&
+        createdMembers[3]
       ) {
         await tx.insert(positionAssignments).values([
           {
             positionId: ketuaUmum.id,
             memberId: createdMembers[0].id,
-            startsAt: new Date("2025-01-01"),
+            startsAt: new Date("2024-01-01"),
           },
           {
             positionId: sekjen.id,
             memberId: createdMembers[1].id,
-            startsAt: new Date("2025-01-01"),
+            startsAt: new Date("2024-01-01"),
           },
           {
-            positionId: ketuaDpd.id,
+            positionId: ketuaJabar.id,
             memberId: createdMembers[2].id,
+            startsAt: new Date("2024-01-01"),
+          },
+          {
+            positionId: ketuaJatim.id,
+            memberId: createdMembers[3].id,
             startsAt: new Date("2025-01-01"),
           },
         ]);
+
+        // Create Digital KTA Cards for members
+        for (const member of createdMembers) {
+          await tx.insert(membershipCards).values({
+            memberId: member.id,
+            code: member.memberNumber,
+            version: 1,
+            isActive: true,
+            issuedAt: member.joinedAt ?? now,
+          });
+        }
       }
     }
+
+    // 4. Agenda & Sertifikasi ASISI
+    await tx.insert(events).values([
+      {
+        title: "Uji Kompetensi & Sertifikasi Teknisi Pendingin BNSP 2026",
+        slug: "uji-kompetensi-sertifikasi-bnsp-2026",
+        description:
+          "Sertifikasi kompetensi resmi LSP-HVAC dan BNSP untuk teknisi AC Split, VRV/VRF, dan Cold Storage. Peserta yang lulus berhak mendapatkan sertifikat BNSP dan KTA Digital ASISI.",
+        locationName: "Gedung Balai Latihan Kerja (BLK) Jakarta Pusat",
+        startsAt: new Date(now.getTime() + 86_400_000 * 12),
+        endsAt: new Date(now.getTime() + 86_400_000 * 12 + 28_800_000),
+        status: "published",
+        publishedAt: now,
+        capacity: 100,
+      },
+      {
+        title:
+          "Workshop Penanganan Flammable Refrigerant (R290 & R32) dan K3 Kerja",
+        slug: "workshop-flammable-refrigerant-r290-r32",
+        description:
+          "Bimbingan teknis penggunaan freon ramah lingkungan R32 dan Hydrocarbon R290 dengan standar keselamatan K3 tinggi untuk mencegah risiko kecelakaan kerja.",
+        locationName: "Hotel Santika Premier Surabaya & Daring via Zoom",
+        startsAt: new Date(now.getTime() + 86_400_000 * 20),
+        endsAt: new Date(now.getTime() + 86_400_000 * 20 + 18_000_000),
+        status: "published",
+        publishedAt: now,
+        capacity: 250,
+      },
+      {
+        title: "Musyawarah Nasional (MUNAS) & Rakernas ASISI Indonesia 2026",
+        slug: "munas-rakernas-asisi-indonesia-2026",
+        description:
+          "Pertemuan akbar seluruh Pengurus DPP, DPD 38 Provinsi, dan Korwil Cabang ASISI Indonesia untuk menyusun arah kebijakan dan kemitraan dengan produsen AC terkemuka.",
+        locationName: "Grand Ballroom Hotel Patra Semarang",
+        startsAt: new Date(now.getTime() + 86_400_000 * 45),
+        endsAt: new Date(now.getTime() + 86_400_000 * 47),
+        status: "published",
+        publishedAt: now,
+        capacity: 500,
+      },
+    ]);
+
+    // 5. Berita & Artikel Teknis HVAC/R
+    await tx.insert(contents).values([
+      {
+        title:
+          "ASISI Indonesia Resmikan Program Target 10.000 Teknisi AC Bersertifikat BNSP",
+        slug: "asisi-indonesia-target-10000-teknisi-bnsp",
+        type: "post",
+        excerpt:
+          "ASISI Indonesia memperkuat sinergi dengan LSP dan Kementerian Ketenagakerjaan untuk mensertifikasi 10.000 teknisi pendingin di seluruh Indonesia.",
+        body: `<p>Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia (ASISI) secara resmi meluncurkan program akselerasi sertifikasi kompetensi teknisi AC nasional. Program ini bertujuan meningkatkan taraf hidup dan profesionalisme teknisi Indonesia agar mampu bersaing di era pasar global.</p><p>Ketua Umum DPP ASISI menegaskan bahwa setiap anggota ASISI kini dilengkapi KTA Digital terverifikasi QR Code yang terhubung dengan data sertifikasi BNSP resmi.</p>`,
+        status: "published",
+        publishedAt: now,
+        authorId: owner.id,
+      },
+      {
+        title:
+          "Standard Operating Procedure (SOP) Vacuuming & Recovery Freon R32 yang Aman",
+        slug: "sop-vacuuming-recovery-freon-r32",
+        type: "post",
+        excerpt:
+          "Panduan praktis teknisi ASISI dalam melakukan proses vakum dan recovery bahan pendingin R32 tanpa merusak lapisan ozon.",
+        body: `<p>Penggunaan refrigerant R32 memerlukan prosedur khusus vakum minimal 15 menit menggunakan pompa vakum dua tahap (two-stage vacuum pump). Hal ini penting untuk memastikan tidak ada uap air maupun udara terjebak di dalam sistem perpipaan tembaga.</p>`,
+        status: "published",
+        publishedAt: now,
+        authorId: owner.id,
+      },
+    ]);
   });
 
   process.stdout.write(
-    `Seed complete. Admin login: ${adminEmail} / ${adminPassword}\n`,
+    `ASISI Indonesia Seed Complete!\nAdmin login: ${adminEmail} / ${adminPassword}\n`,
   );
 }
 
