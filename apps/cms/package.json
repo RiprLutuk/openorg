@@ -15,6 +15,7 @@
     "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "sonner": "2.0.8",
     "zod": "latest"
   },
   "devDependencies": {

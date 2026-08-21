@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { CSSProperties, ReactNode } from "react";
+import { Toaster } from "sonner";
 import { CampaignAnnouncement } from "@/components/campaign-announcement";
 import { Footer, Header } from "@/components/site-chrome";
 import { getSite } from "@/lib/api";
@@ -64,6 +65,7 @@ export default async function RootLayout({
   return (
     <html lang={site.organization.locale.split("-")[0]}>
       <body style={variables}>
+        <Toaster richColors position="top-right" closeButton />
         <a className="skip-link" href="#main">
           Langsung ke konten
         </a>

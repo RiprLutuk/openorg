@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { Toaster } from "sonner";
 import { App } from "./App";
 import "./styles.css";
 
@@ -14,6 +15,7 @@ if (!rootElement) throw new Error("Missing #root application mount element");
 createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
+      <Toaster richColors position="top-right" closeButton />
       <App />
     </QueryClientProvider>
   </StrictMode>,

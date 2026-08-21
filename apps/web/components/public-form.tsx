@@ -1,7 +1,8 @@
 "use client";
 
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 import { type PublicFormState, submitPublicForm } from "@/app/actions";
 
 const initialState: PublicFormState = { status: "idle", message: "" };
@@ -12,13 +13,21 @@ export function PublicContactForm() {
     initialState,
   );
 
+  useEffect(() => {
+    if (state.status === "success") {
+      toast.success("Pesan Anda telah berhasil terkirim ke Sekretariat!");
+    } else if (state.status === "error") {
+      toast.error(state.message || "Gagal mengirimkan pesan.");
+    }
+  }, [state.status, state.message]);
+
   if (state.status === "success")
     return (
       <div className="form-success" role="status">
         <span>
           <CheckCircle2 size={25} />
         </span>
-        <h3>Message received</h3>
+        <h3>Pesan Terkirim</h3>
         <p>{state.message}</p>
       </div>
     );
@@ -26,7 +35,7 @@ export function PublicContactForm() {
   return (
     <form action={formAction}>
       <label>
-        Your name
+        Nama Lengkap
         <input
           name="name"
           required
@@ -39,7 +48,7 @@ export function PublicContactForm() {
         )}
       </label>
       <label>
-        Email address
+        Alamat Email
         <input
           name="email"
           type="email"
@@ -56,7 +65,7 @@ export function PublicContactForm() {
         <input name="website" tabIndex={-1} autoComplete="off" />
       </label>
       <label className="full">
-        How can we help?
+        Pesan / Pertanyaan Anda
         <textarea
           name="message"
           rows={5}
@@ -75,7 +84,7 @@ export function PublicContactForm() {
         </p>
       )}
       <button className="button primary" type="submit" disabled={pending}>
-        {pending ? "Sending…" : "Send message"} <ArrowRight size={17} />
+        {pending ? "Mengirimkan…" : "Kirim Pesan"} <ArrowRight size={17} />
       </button>
     </form>
   );

@@ -3,6 +3,7 @@
 import { ArrowRight, BadgeCheck, Building2 } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { memberApi } from "@/lib/member-client";
 
 type Unit = { id: string; name: string; type: string };
@@ -47,11 +48,12 @@ export function MembershipRegistration({
           consent: data.get("consent") === "on",
         }),
       });
+      toast.success("Pendaftaran anggota berhasil dikirimkan ke Sekretariat!");
       setStage("done");
     } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : "Registration failed.",
-      );
+      const msg = reason instanceof Error ? reason.message : "Pendaftaran gagal.";
+      setError(msg);
+      toast.error(`Pendaftaran gagal: ${msg}`);
     } finally {
       setPending(false);
     }

@@ -1,5 +1,6 @@
 import type { PageSection, Theme } from "@openorg/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   ArrowRight,
   Award,
@@ -4027,14 +4028,22 @@ function ApplicationsManager() {
           expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
         }),
       }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       setError("");
       setSelected(null);
+      toast.success(
+        variables.decision === "approve"
+          ? "Pendaftaran anggota disetujui & KTA Digital berhasil diterbitkan!"
+          : "Pendaftaran anggota telah ditolak."
+      );
       void client.invalidateQueries({ queryKey: ["membership-applications"] });
       void client.invalidateQueries({ queryKey: ["members"] });
       void client.invalidateQueries({ queryKey: ["dashboard"] });
     },
-    onError: (reason) => setError(reason.message),
+    onError: (reason) => {
+      setError(reason.message);
+      toast.error(`Gagal memproses pendaftaran: ${reason.message}`);
+    },
   });
   const submitReview = (
     form: HTMLFormElement,
@@ -4798,7 +4807,11 @@ function Appearance() {
     onSuccess: () => {
       void organization.refetch();
       setSaved(true);
+      toast.success("Pengaturan tampilan & warna berhasil disimpan secara permanen!");
       setTimeout(() => setSaved(false), 2500);
+    },
+    onError: (err) => {
+      toast.error(`Gagal menyimpan tampilan: ${err.message}`);
     },
   });
   const colorFields: Array<{
@@ -5112,11 +5125,15 @@ function SettingsManager() {
       ]),
     onSuccess: () => {
       setMessage("Saved. Public pages will use these settings automatically.");
+      toast.success("Pengaturan website, kontak & footer berhasil disimpan!");
       void client.invalidateQueries({ queryKey: ["organization-settings"] });
       void client.invalidateQueries({ queryKey: ["public-settings"] });
       setTimeout(() => setMessage(""), 3000);
     },
-    onError: (reason) => setMessage(reason.message),
+    onError: (reason) => {
+      setMessage(reason.message);
+      toast.error(`Gagal menyimpan pengaturan: ${reason.message}`);
+    },
   });
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
