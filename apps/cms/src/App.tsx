@@ -442,6 +442,59 @@ function Dashboard({
       screen: "events" as Screen,
     },
   ];
+  const [showSetupWizard, setShowSetupWizard] = useState(false);
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
+  const [setupComplete, setSetupComplete] = useState<boolean>(() => {
+    return localStorage.getItem("openorg_setup_complete") === "true";
+  });
+
+  const [wizardForm, setWizardForm] = useState({
+    name: session.organization.name,
+    email: session.user.email || "sekretariat@apti.or.id",
+    primaryColor: "#0b3b60",
+    secondaryColor: "#1e293b",
+    accentColor: "#d97706",
+    fontHeading: "Manrope",
+    fontBody: "Inter",
+  });
+
+  const queryClient = useQueryClient();
+  const saveWizard = useMutation({
+    mutationFn: async () => {
+      await api("/v1/admin/organization", {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: wizardForm.name,
+          email: wizardForm.email,
+          theme: {
+            colors: {
+              primary: wizardForm.primaryColor,
+              secondary: wizardForm.secondaryColor,
+              accent: wizardForm.accentColor,
+              surface: "#f8fafc",
+              foreground: "#0f172a",
+            },
+            typography: {
+              heading: wizardForm.fontHeading,
+              body: wizardForm.fontBody,
+            },
+            radius: "18px",
+          },
+        }),
+      });
+    },
+    onSuccess: () => {
+      localStorage.setItem("openorg_setup_complete", "true");
+      setSetupComplete(true);
+      setShowSetupWizard(false);
+      void queryClient.invalidateQueries({ queryKey: ["organization-theme"] });
+      toast.success("Selamat! Penyetelan 3 Langkah Organisasi Selesai 100% dan Aktif!");
+    },
+    onError: (err) => {
+      toast.error(`Gagal menyimpan penyetelan: ${err.message}`);
+    },
+  });
+
   return (
     <>
       <div className="welcome-row">
@@ -524,15 +577,20 @@ function Dashboard({
             automatically.
           </p>
           <div className="progress">
-            <span style={{ width: "66%" }} />
+            <span style={{ width: setupComplete ? "100%" : "66%" }} />
           </div>
-          <small style={{ marginBottom: "12px" }}>2 of 3 steps completed</small>
+          <small style={{ marginBottom: "12px" }}>
+            {setupComplete ? "3 of 3 steps completed (100%)" : "2 of 3 steps completed"}
+          </small>
 
           <div className="onboarding-steps-list">
             <button
               type="button"
               className="onboarding-step-item"
-              onClick={() => navigate("settings")}
+              onClick={() => {
+                setWizardStep(1);
+                setShowSetupWizard(true);
+              }}
             >
               <span className="step-number-badge completed">✓</span>
               <span className="step-content">
@@ -545,7 +603,10 @@ function Dashboard({
             <button
               type="button"
               className="onboarding-step-item"
-              onClick={() => navigate("appearance")}
+              onClick={() => {
+                setWizardStep(2);
+                setShowSetupWizard(true);
+              }}
             >
               <span className="step-number-badge completed">✓</span>
               <span className="step-content">
@@ -558,9 +619,14 @@ function Dashboard({
             <button
               type="button"
               className="onboarding-step-item"
-              onClick={() => navigate("appearance")}
+              onClick={() => {
+                setWizardStep(3);
+                setShowSetupWizard(true);
+              }}
             >
-              <span className="step-number-badge">3</span>
+              <span className={`step-number-badge ${setupComplete ? "completed" : ""}`}>
+                {setupComplete ? "✓" : "3"}
+              </span>
               <span className="step-content">
                 <strong>Tipografi & Font Judul</strong>
                 <small>Atur font heading & body</small>
@@ -570,6 +636,164 @@ function Dashboard({
           </div>
         </section>
       </div>
+
+      {showSetupWizard && (
+        <div className="modal-overlay" onClick={() => setShowSetupWizard(false)}>
+          <div
+            className="modal-card"
+            style={{ maxWidth: "560px", background: "#ffffff", padding: "28px" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Sparkles size={18} style={{ color: "#3b5bdb" }} />
+                <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 700 }}>Panduan Penyetelan 3 Langkah</h3>
+              </div>
+              <button
+                type="button"
+                className="icon-button"
+                onClick={() => setShowSetupWizard(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: "flex", gap: "8px", marginBottom: "20px", background: "#f8fafc", padding: "6px", borderRadius: "10px", border: "1px solid #eaecf0" }}>
+              <button
+                type="button"
+                style={{ flex: 1, padding: "8px", border: 0, borderRadius: "6px", background: wizardStep === 1 ? "#ffffff" : "transparent", fontWeight: wizardStep === 1 ? 700 : 500, cursor: "pointer", boxShadow: wizardStep === 1 ? "0 1px 2px rgba(0,0,0,0.05)" : "none" }}
+                onClick={() => setWizardStep(1)}
+              >
+                1. Identitas
+              </button>
+              <button
+                type="button"
+                style={{ flex: 1, padding: "8px", border: 0, borderRadius: "6px", background: wizardStep === 2 ? "#ffffff" : "transparent", fontWeight: wizardStep === 2 ? 700 : 500, cursor: "pointer", boxShadow: wizardStep === 2 ? "0 1px 2px rgba(0,0,0,0.05)" : "none" }}
+                onClick={() => setWizardStep(2)}
+              >
+                2. Warna
+              </button>
+              <button
+                type="button"
+                style={{ flex: 1, padding: "8px", border: 0, borderRadius: "6px", background: wizardStep === 3 ? "#ffffff" : "transparent", fontWeight: wizardStep === 3 ? 700 : 500, cursor: "pointer", boxShadow: wizardStep === 3 ? "0 1px 2px rgba(0,0,0,0.05)" : "none" }}
+                onClick={() => setWizardStep(3)}
+              >
+                3. Tipografi
+              </button>
+            </div>
+
+            {wizardStep === 1 && (
+              <div className="entity-form" style={{ display: "grid", gap: "14px" }}>
+                <label>
+                  Nama Organisasi
+                  <input
+                    type="text"
+                    value={wizardForm.name}
+                    onChange={(e) => setWizardForm({ ...wizardForm, name: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Email Sekretariat
+                  <input
+                    type="email"
+                    value={wizardForm.email}
+                    onChange={(e) => setWizardForm({ ...wizardForm, email: e.target.value })}
+                  />
+                </label>
+              </div>
+            )}
+
+            {wizardStep === 2 && (
+              <div className="entity-form" style={{ display: "grid", gap: "14px" }}>
+                <label>
+                  Warna Utama (Primary Color)
+                  <input
+                    type="text"
+                    value={wizardForm.primaryColor}
+                    onChange={(e) => setWizardForm({ ...wizardForm, primaryColor: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Warna Sekunder (Secondary Color)
+                  <input
+                    type="text"
+                    value={wizardForm.secondaryColor}
+                    onChange={(e) => setWizardForm({ ...wizardForm, secondaryColor: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Warna Aksen (Accent Color)
+                  <input
+                    type="text"
+                    value={wizardForm.accentColor}
+                    onChange={(e) => setWizardForm({ ...wizardForm, accentColor: e.target.value })}
+                  />
+                </label>
+              </div>
+            )}
+
+            {wizardStep === 3 && (
+              <div className="entity-form" style={{ display: "grid", gap: "14px" }}>
+                <label>
+                  Font Judul (Heading Font)
+                  <select
+                    value={wizardForm.fontHeading}
+                    onChange={(e) => setWizardForm({ ...wizardForm, fontHeading: e.target.value })}
+                  >
+                    <option value="Manrope">Manrope (Default OpenOrg)</option>
+                    <option value="Inter">Inter (Clean Modern)</option>
+                    <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Outfit">Outfit</option>
+                  </select>
+                </label>
+                <label>
+                  Font Teks Utama (Body Font)
+                  <select
+                    value={wizardForm.fontBody}
+                    onChange={(e) => setWizardForm({ ...wizardForm, fontBody: e.target.value })}
+                  >
+                    <option value="Inter">Inter (Default OpenOrg)</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Open Sans">Open Sans</option>
+                  </select>
+                </label>
+              </div>
+            )}
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #eaecf0" }}>
+              {wizardStep > 1 ? (
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => setWizardStep((wizardStep - 1) as 1 | 2 | 3)}
+                >
+                  Kembali
+                </button>
+              ) : <div />}
+
+              {wizardStep < 3 ? (
+                <button
+                  type="button"
+                  className="button primary"
+                  onClick={() => setWizardStep((wizardStep + 1) as 1 | 2 | 3)}
+                >
+                  Lanjut ke Langkah {wizardStep + 1}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="button primary"
+                  onClick={() => saveWizard.mutate()}
+                  disabled={saveWizard.isPending}
+                >
+                  {saveWizard.isPending ? "Menyimpan..." : "Simpan & Selesaikan Setup (100%)"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
