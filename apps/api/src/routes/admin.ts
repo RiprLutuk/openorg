@@ -284,31 +284,59 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         .where(eq(siteSettings.id, "default"))
         .limit(1);
 
+      const rawQuick = (settings?.quickContact ?? {}) as Record<string, unknown>;
+      const rawFooter = (settings?.footer ?? {}) as Record<string, unknown>;
+      const rawAnnounce = (settings as any)?.announcement ?? null;
+
+      const quickContact = {
+        enabled: typeof rawQuick.enabled === "boolean" ? rawQuick.enabled : true,
+        label: typeof rawQuick.label === "string" ? rawQuick.label : "WhatsApp Sekretariat APTI",
+        href: typeof rawQuick.href === "string" ? rawQuick.href : "https://wa.me/6281290001980",
+        channel: typeof rawQuick.channel === "string" ? rawQuick.channel : "message",
+        value: typeof rawQuick.value === "string" ? rawQuick.value : "+62 812-9000-1980",
+      };
+
+      const announcement = rawAnnounce ?? {
+        enabled: false,
+        eyebrow: "Pengumuman Organisasi",
+        title: "Selamat Datang di APTI Indonesia",
+        message: "Wadah resmi profesionalisme pengusaha & teknisi pendingin Indonesia.",
+        imageUrl: null,
+        actionLabel: "Agenda & Sertifikasi",
+        actionUrl: "/events",
+        startsAt: null,
+        endsAt: null,
+      };
+
+      const footer = {
+        description:
+          typeof rawFooter.description === "string"
+            ? rawFooter.description
+            : "Asosiasi Pengusaha & Teknisi Pendingin Indonesia (APTI).",
+        copyright:
+          typeof rawFooter.copyright === "string"
+            ? rawFooter.copyright
+            : "© 2026 APTI Indonesia. All rights reserved.",
+        links: Array.isArray(rawFooter.links)
+          ? rawFooter.links
+          : [
+              { label: "Agenda Pelatihan & Sertifikasi", href: "/events" },
+              { label: "Struktur DPP & DPD Provinsi", href: "/structure" },
+              { label: "Cek KTA Digital Teknisi", href: "/verify" },
+            ],
+      };
+
       return {
         data: {
-          quickContact: settings?.quickContact ?? {
-            enabled: true,
-            label: "WhatsApp Sekretariat ASISI",
-            href: "https://wa.me/6281290001980",
-            channel: "message",
-            value: "+62 812-9000-1980",
-          },
+          quickContact,
           navigation: settings?.navigation ?? [
             { id: "home", label: "Beranda", href: "/" },
             { id: "events", label: "Agenda & Sertifikasi", href: "/events" },
             { id: "structure", label: "Struktur Pengurus", href: "/structure" },
             { id: "verify", label: "Verifikasi KTA", href: "/verify" },
           ],
-          footer: settings?.footer ?? {
-            description: "Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia (ASISI).",
-            copyright: "© 2026 ASISI Indonesia. All rights reserved.",
-            links: [
-              { label: "Agenda Pelatihan & Sertifikasi", href: "/events" },
-              { label: "Struktur DPP & DPD Provinsi", href: "/structure" },
-              { label: "Cek KTA Digital Teknisi", href: "/verify" },
-            ],
-          },
-          announcement: null,
+          footer,
+          announcement,
         },
       };
     },

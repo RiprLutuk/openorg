@@ -5105,9 +5105,27 @@ function SettingsManager() {
 
   useEffect(() => {
     if (!publicSettings.data?.data) return;
-    setSettings(publicSettings.data.data);
+    const data = publicSettings.data.data;
+    const safeSettings: CmsPublicSettings = {
+      ...defaultPublicSettings,
+      ...data,
+      quickContact: {
+        ...defaultPublicSettings.quickContact,
+        ...(data.quickContact ?? {}),
+      },
+      announcement: {
+        ...defaultPublicSettings.announcement,
+        ...(data.announcement ?? {}),
+      },
+      footer: {
+        ...defaultPublicSettings.footer,
+        ...(data.footer ?? {}),
+        links: data.footer?.links ?? defaultPublicSettings.footer.links,
+      },
+    };
+    setSettings(safeSettings);
     setFooterLinks(
-      JSON.stringify(publicSettings.data.data.footer.links, null, 2),
+      JSON.stringify(safeSettings.footer.links, null, 2),
     );
   }, [publicSettings.data]);
 
