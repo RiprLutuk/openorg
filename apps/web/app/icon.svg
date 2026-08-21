@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>OpenOrg</title>
+  <defs>
+    <linearGradient id="brand" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4f6fe8"/>
+      <stop offset="1" stop-color="#182230"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#brand)"/>
+  <path fill="#fff" d="M16 21h10.5c7.2 0 11.5 4.1 11.5 10.6 0 6.6-4.3 10.8-11.5 10.8H16V21Zm10.1 15.5c3.5 0 5.4-1.7 5.4-4.9 0-3.1-1.9-4.7-5.4-4.7h-3.7v9.6h3.7ZM40 21h8.2c5.8 0 9.3 3.1 9.3 8.2s-3.5 8.3-9.3 8.3h-1.8v4.9H40V21Zm7.8 10.8c2.2 0 3.3-.9 3.3-2.6s-1.1-2.5-3.3-2.5h-1.4v5.1h1.4Z"/>
+</svg>

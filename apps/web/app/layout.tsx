@@ -1,0 +1,80 @@
+import type { Metadata, Viewport } from "next";
+import type { CSSProperties, ReactNode } from "react";
+import { CampaignAnnouncement } from "@/components/campaign-announcement";
+import { Footer, Header } from "@/components/site-chrome";
+import { getSite } from "@/lib/api";
+import "./globals.css";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSite();
+  return {
+    title: {
+      default: site.organization.name,
+      template: `%s · ${site.organization.name}`,
+    },
+    description:
+      site.organization.description ?? site.organization.tagline ?? undefined,
+    icons: site.organization.faviconUrl
+      ? { icon: site.organization.faviconUrl }
+      : undefined,
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    ),
+    openGraph: {
+      type: "website",
+      siteName: site.organization.name,
+      title: site.organization.name,
+      description: site.organization.description ?? undefined,
+    },
+  };
+}
+
+export async function generateViewport(): Promise<Viewport> {
+  const site = await getSite();
+  return {
+    width: "device-width",
+    initialScale: 1,
+    themeColor: site.organization.theme.colors.primary,
+  };
+}
+
+export default async function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
+  const site = await getSite();
+  const variables = {
+    "--color-primary": site.organization.theme.colors.primary,
+    "--color-secondary": site.organization.theme.colors.secondary,
+    "--color-accent": site.organization.theme.colors.accent,
+    "--color-surface": site.organization.theme.colors.surface,
+    "--color-foreground": site.organization.theme.colors.foreground,
+    "--font-heading": site.organization.theme.fontHeading,
+    "--font-body": site.organization.theme.fontBody,
+    "--radius":
+      site.organization.theme.radius === "pill"
+        ? "999px"
+        : site.organization.theme.radius === "large"
+          ? "18px"
+          : site.organization.theme.radius === "medium"
+            ? "14px"
+            : site.organization.theme.radius === "small"
+              ? "7px"
+              : "0px",
+  } as CSSProperties;
+  return (
+    <html lang={site.organization.locale.split("-")[0]}>
+      <body style={variables}>
+        <a className="skip-link" href="#main">
+          Langsung ke konten
+        </a>
+        <Header site={site} />
+        <CampaignAnnouncement
+          organizationId={site.organization.id}
+          announcement={site.announcement}
+        />
+        <main id="main">{children}</main>
+        <Footer site={site} />
+      </body>
+    </html>
+  );
+}
