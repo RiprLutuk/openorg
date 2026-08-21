@@ -519,20 +519,55 @@ function Dashboard({
           </span>
           <h2>Make OpenOrg yours</h2>
           <p>
-            Set your colors, logo, and typography. Every public page updates
-            automatically.
+            Konfigurasi identitas, tema warna, dan tipografi publik organisasi Anda.
           </p>
-          <div className="progress">
-            <span style={{ width: "66%" }} />
+          
+          <div className="onboarding-steps-list">
+            <button
+              type="button"
+              className="onboarding-step-item"
+              onClick={() => navigate("settings")}
+            >
+              <div className="step-number-badge completed">
+                <CheckCircle2 size={16} />
+              </div>
+              <div className="step-content">
+                <strong>1. Identitas & Logo Organisasi</strong>
+                <small>Nama, logo, favicon & saluran kontak publik</small>
+              </div>
+              <ArrowRight size={16} className="step-chevron" />
+            </button>
+
+            <button
+              type="button"
+              className="onboarding-step-item"
+              onClick={() => navigate("appearance")}
+            >
+              <div className="step-number-badge completed">
+                <CheckCircle2 size={16} />
+              </div>
+              <div className="step-content">
+                <strong>2. Skema Warna & Palette Tema</strong>
+                <small>Warna utama (primary), aksen & border radius UI</small>
+              </div>
+              <ArrowRight size={16} className="step-chevron" />
+            </button>
+
+            <button
+              type="button"
+              className="onboarding-step-item"
+              onClick={() => navigate("appearance")}
+            >
+              <div className="step-number-badge">
+                3
+              </div>
+              <div className="step-content">
+                <strong>3. Tipografi & Font Heading</strong>
+                <small>Pilih font heading & font teks utama (body)</small>
+              </div>
+              <ArrowRight size={16} className="step-chevron" />
+            </button>
           </div>
-          <small>2 of 3 steps completed</small>
-          <button
-            type="button"
-            className="button secondary"
-            onClick={() => navigate("appearance")}
-          >
-            Continue setup
-          </button>
         </section>
       </div>
     </>

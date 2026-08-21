@@ -623,6 +623,69 @@ h3,
   background: #f97066;
   border-radius: inherit;
 }
+.onboarding-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 16px;
+}
+.onboarding-step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+  width: 100%;
+}
+.onboarding-step-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+.step-number-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.step-number-badge.completed {
+  background: #22c55e;
+  color: #ffffff;
+}
+.step-content {
+  flex: 1;
+}
+.step-content strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+.step-content small {
+  font-size: 11px;
+  color: #dbe4ff !important;
+  margin: 0;
+}
+.step-chevron {
+  opacity: 0.7;
+  transition: transform 0.18s ease;
+}
+.onboarding-step-item:hover .step-chevron {
+  opacity: 1;
+  transform: translateX(3px);
+}
 .table-panel {
   padding: 0;
   overflow: hidden;
