@@ -238,6 +238,90 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
+  app.get(
+    "/settings/public",
+    { preHandler: app.authorize("settings.read") },
+    async () => {
+      const [settings] = await db
+        .select()
+        .from(siteSettings)
+        .where(eq(siteSettings.id, "default"))
+        .limit(1);
+
+      return {
+        data: {
+          quickContact: settings?.quickContact ?? {
+            enabled: true,
+            label: "WhatsApp Sekretariat ASISI",
+            href: "https://wa.me/6281290001980",
+            channel: "message",
+            value: "+62 812-9000-1980",
+          },
+          navigation: settings?.navigation ?? [
+            { id: "home", label: "Beranda", href: "/" },
+            { id: "events", label: "Agenda & Sertifikasi", href: "/events" },
+            { id: "structure", label: "Struktur Pengurus", href: "/structure" },
+            { id: "verify", label: "Verifikasi KTA", href: "/verify" },
+          ],
+          footer: settings?.footer ?? {
+            description: "Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia (ASISI).",
+            copyright: "© 2026 ASISI Indonesia. All rights reserved.",
+            links: [
+              { label: "Agenda Pelatihan & Sertifikasi", href: "/events" },
+              { label: "Struktur DPP & DPD Provinsi", href: "/structure" },
+              { label: "Cek KTA Digital Teknisi", href: "/verify" },
+            ],
+          },
+          announcement: null,
+        },
+      };
+    },
+  );
+
+  app.patch(
+    "/settings/public",
+    { preHandler: app.authorize("settings.write") },
+    async (request) => {
+      const input = z
+        .object({
+          quickContact: z
+            .object({
+              channel: z.string(),
+              value: z.string(),
+              label: z.string(),
+              href: z.string(),
+            })
+            .optional(),
+          navigation: z
+            .array(
+              z.object({
+                id: z.string(),
+                label: z.string(),
+                href: z.string(),
+              }),
+            )
+            .optional(),
+          footer: z.record(z.string(), z.unknown()).optional(),
+        })
+        .parse(request.body);
+
+      const updateSet: Partial<typeof siteSettings.$inferInsert> = {
+        updatedAt: new Date(),
+      };
+      if (input.quickContact) updateSet.quickContact = input.quickContact;
+      if (input.navigation) updateSet.navigation = input.navigation;
+      if (input.footer) updateSet.footer = input.footer;
+
+      const [updated] = await db
+        .update(siteSettings)
+        .set(updateSet)
+        .where(eq(siteSettings.id, "default"))
+        .returning();
+
+      return { data: updated };
+    },
+  );
+
   app.get("/dashboard", { preHandler: app.authenticate }, async () => {
     const [
       pageCount,
