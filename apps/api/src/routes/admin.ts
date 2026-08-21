@@ -153,15 +153,35 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         .from(siteSettings)
         .where(eq(siteSettings.id, "default"))
         .limit(1);
+
+      const site = settings ?? {
+        id: "default",
+        name: "ASISI Indonesia",
+        slug: "asisi",
+        kind: "association",
+        tagline: "Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia",
+        description: "Wadah resmi profesionalisme perusahaan pendingin dan teknisi refrigerasi tata udara (HVAC/R) Indonesia.",
+        primaryColor: "#0b3b60",
+        secondaryColor: "#d97706",
+      };
+
+      const theme = {
+        colors: {
+          primary: site.primaryColor ?? "#0b3b60",
+          secondary: site.secondaryColor ?? "#d97706",
+          accent: "#0284c7",
+          surface: "#f8fafc",
+          foreground: "#0f172a",
+        },
+        radius: "large",
+        fontHeading: "Inter",
+        fontBody: "Inter",
+      };
+
       return {
-        data: settings ?? {
-          id: "default",
-          name: "OpenOrg Association",
-          slug: "openorg",
-          kind: "association",
-          tagline: "Platform Resmi Organisasi",
-          description:
-            "Platform terpadu keanggotaan, tata kelola organisasi, kredit akademi SKP/CPD, dan verifikasi kredensial.",
+        data: {
+          ...site,
+          theme,
         },
       };
     },
@@ -226,6 +246,8 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         })
         .returning();
 
+      if (!updated) throw new Error("Failed to update organization settings.");
+
       await audit(
         request,
         "organization.update",
@@ -234,7 +256,21 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         null,
         updated,
       );
-      return { data: updated };
+
+      const theme = {
+        colors: {
+          primary: updated.primaryColor ?? "#0b3b60",
+          secondary: updated.secondaryColor ?? "#d97706",
+          accent: "#0284c7",
+          surface: "#f8fafc",
+          foreground: "#0f172a",
+        },
+        radius: "large",
+        fontHeading: "Inter",
+        fontBody: "Inter",
+      };
+
+      return { data: { ...updated, theme } };
     },
   );
 
