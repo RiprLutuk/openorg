@@ -175,9 +175,7 @@ async function Section({
         </section>
       );
     case "contact":
-      return (
-        <ContactSection section={section} organizationSlug={organizationSlug} />
-      );
+      return <ContactSection section={section} />;
   }
 }
 

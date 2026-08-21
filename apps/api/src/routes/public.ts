@@ -77,11 +77,11 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
           locale: site.locale,
           theme: {
             colors: {
-              primary: site.primaryColor ?? "#6941C6",
-              secondary: site.secondaryColor ?? "#12B76A",
-              accent: "#7F56D9",
-              surface: "#ffffff",
-              foreground: "#101828",
+              primary: site.primaryColor ?? "#0b3b60",
+              secondary: site.secondaryColor ?? "#d97706",
+              accent: "#0284c7",
+              surface: "#f8fafc",
+              foreground: "#0f172a",
             },
             radius: "large",
             fontHeading: "Inter",

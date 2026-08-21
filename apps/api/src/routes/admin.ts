@@ -185,15 +185,44 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
           timezone: z.string().max(60).optional(),
           primaryColor: z.string().optional(),
           secondaryColor: z.string().optional(),
+          theme: z
+            .object({
+              colors: z
+                .object({
+                  primary: z.string().optional(),
+                  secondary: z.string().optional(),
+                  accent: z.string().optional(),
+                  surface: z.string().optional(),
+                  foreground: z.string().optional(),
+                })
+                .optional(),
+              radius: z.string().optional(),
+              fontHeading: z.string().optional(),
+              fontBody: z.string().optional(),
+            })
+            .optional(),
+          navigation: z.array(z.any()).optional(),
+          footer: z.record(z.string(), z.any()).optional(),
+          quickContact: z.record(z.string(), z.any()).optional(),
+          socialLinks: z.array(z.any()).optional(),
         })
         .parse(request.body);
 
+      const updateData: Record<string, unknown> = { ...input };
+      if (input.theme?.colors?.primary) {
+        updateData.primaryColor = input.theme.colors.primary;
+      }
+      if (input.theme?.colors?.secondary) {
+        updateData.secondaryColor = input.theme.colors.secondary;
+      }
+      delete updateData.theme;
+
       const [updated] = await db
         .insert(siteSettings)
-        .values({ id: "default", ...input })
+        .values({ id: "default", ...updateData })
         .onConflictDoUpdate({
           target: siteSettings.id,
-          set: { ...input, updatedAt: new Date() },
+          set: { ...updateData, updatedAt: new Date() },
         })
         .returning();
 
