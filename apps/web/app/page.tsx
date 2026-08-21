@@ -109,7 +109,7 @@ export default async function HomePage() {
               <div className="bento-icon-badge">
                 <Users size={24} />
               </div>
-              <span className="badge-glow" style={{ background: "rgba(245, 158, 11, 0.2)", color: "#F59E0B", borderColor: "rgba(245, 158, 11, 0.4)", marginBottom: "12px" }}>
+              <span className="badge-glow" style={{ background: "rgba(255, 255, 255, 0.1)", color: "#E2E8F0", borderColor: "rgba(255, 255, 255, 0.2)", marginBottom: "12px" }}>
                 KTA DIGITAL REAL-TIME
               </span>
               <h3 style={{ fontSize: "22px", fontWeight: 700, margin: "8px 0" }}>

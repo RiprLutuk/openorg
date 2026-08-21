@@ -464,8 +464,8 @@ function Dashboard({
       trend: "+12.4%",
       icon: Users,
       screen: "members" as Screen,
-      color: "#2563EB",
-      bgColor: "#EFF6FF",
+      color: "#0F172A",
+      bgColor: "#F1F5F9",
     },
     {
       label: "Agenda & Pelatihan",
@@ -473,8 +473,8 @@ function Dashboard({
       trend: "+8.1%",
       icon: CalendarDays,
       screen: "events" as Screen,
-      color: "#D97706",
-      bgColor: "#FEF3C7",
+      color: "#0F172A",
+      bgColor: "#F1F5F9",
     },
     {
       label: "Berita & Pengumuman",
@@ -482,8 +482,8 @@ function Dashboard({
       trend: "+24.0%",
       icon: Newspaper,
       screen: "content" as Screen,
-      color: "#059669",
-      bgColor: "#ECFDF5",
+      color: "#0F172A",
+      bgColor: "#F1F5F9",
     },
     {
       label: "Halaman Dipublikasi",
@@ -491,8 +491,8 @@ function Dashboard({
       trend: "Terverifikasi",
       icon: FileText,
       screen: "pages" as Screen,
-      color: "#7C3AED",
-      bgColor: "#F3E8FF",
+      color: "#0F172A",
+      bgColor: "#F1F5F9",
     },
   ];
 
@@ -500,7 +500,7 @@ function Dashboard({
     <>
       <div className="welcome-row">
         <div>
-          <span className="eyebrow" style={{ color: "#3B82F6", fontWeight: 700 }}>
+          <span className="eyebrow" style={{ color: "#64748B", fontWeight: 700 }}>
             {new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </span>
           <h1>Selamat Datang, {session.user.name.split(" ")[0]}</h1>
@@ -524,10 +524,11 @@ function Dashboard({
         </div>
       </div>
 
+      {/* Clean Monochromatic Setup Banner */}
       <section className="panel onboarding-hero-card" style={{ marginBottom: "32px" }}>
         <div className="onboarding-hero-header">
           <div>
-            <span className="badge-glow" style={{ background: "rgba(245, 158, 11, 0.15)", color: "#F59E0B", borderColor: "rgba(245, 158, 11, 0.3)", marginBottom: "8px" }}>
+            <span className="badge-glow" style={{ background: "rgba(255, 255, 255, 0.1)", color: "#E2E8F0", borderColor: "rgba(255, 255, 255, 0.2)", marginBottom: "8px" }}>
               <Sparkles size={13} /> PANDUAN PENYETELAN ORGANISASI
             </span>
             <h2 style={{ fontSize: "22px", fontWeight: 800, margin: "6px 0 4px", color: "#FFFFFF" }}>
