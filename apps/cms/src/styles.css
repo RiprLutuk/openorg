@@ -556,12 +556,12 @@ h3,
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 999px;
-  color: #047857;
+  color: #475569;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
 }
 .status-dot-animated {
   width: 7px;

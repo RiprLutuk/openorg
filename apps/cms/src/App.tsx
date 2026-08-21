@@ -378,7 +378,7 @@ function Studio({ session }: { session: Session }) {
             <Search size={15} style={{ color: "#94A3B8" }} />
             <input
               type="text"
-              placeholder="Cari fitur, anggota, atau pengaturan... (⌘K)"
+              placeholder="Cari fitur, anggota, atau pengaturan..."
               onClick={() => navigate("members")}
               readOnly
             />
@@ -388,10 +388,10 @@ function Studio({ session }: { session: Session }) {
           <div className="topbar-actions">
             <span className="api-status-pill">
               <span className="status-dot-animated" />
-              <span>API Live</span>
+              <span>API Server</span>
             </span>
             <div className="user-profile-pill">
-              <span className="user-avatar">
+              <span className="user-avatar" style={{ background: "#0F172A", color: "#FFFFFF" }}>
                 {session.user.name.slice(0, 2).toUpperCase()}
               </span>
               <span className="user-copy">
