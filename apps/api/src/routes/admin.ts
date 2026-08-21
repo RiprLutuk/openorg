@@ -7,11 +7,26 @@ import {
   auditLogs,
   contactSubmissions,
   contents,
+  credentialRequirements,
+  credentialSchemes,
   events,
+  invoices,
+  learningActivities,
+  learningAttendance,
+  learningCreditLedger,
+  learningCreditSchemes,
+  learningEnrollments,
+  media,
   memberApplications,
+  memberCredentials,
   members,
+  membershipCards,
   organizationUnits,
   pages,
+  payments,
+  positionAssignments,
+  positions,
+  revenueProducts,
   siteSettings,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
@@ -959,6 +974,400 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
           total: countRows[0]?.count ?? 0,
         },
       };
+    },
+  );
+
+  // 14. Organization Units List
+  app.get(
+    "/organization-units",
+    { preHandler: app.authorize("governance.read") },
+    async () => {
+      const units = await db
+        .select()
+        .from(organizationUnits)
+        .orderBy(asc(organizationUnits.sortOrder), asc(organizationUnits.name));
+      return { data: units };
+    },
+  );
+
+  // 15. Submission Status Update
+  app.patch(
+    "/submissions/:id",
+    { preHandler: app.authorize("forms.read") },
+    async (request) => {
+      const { id } = idParams.parse(request.params);
+      const input = z
+        .object({ status: submissionStatusInput })
+        .parse(request.body);
+
+      const [updated] = await db
+        .update(contactSubmissions)
+        .set({ status: input.status })
+        .where(eq(contactSubmissions.id, id))
+        .returning();
+
+      if (!updated)
+        throw new AppError(
+          404,
+          "SUBMISSION_NOT_FOUND",
+          "Pesan tidak ditemukan.",
+        );
+
+      return { data: updated };
+    },
+  );
+
+  // 16. Credentials Queue
+  app.get(
+    "/credentials/credentials",
+    { preHandler: app.authorize("credentials.read") },
+    async () => {
+      const list = await db
+        .select()
+        .from(memberCredentials)
+        .orderBy(desc(memberCredentials.createdAt))
+        .limit(100);
+      return { data: list };
+    },
+  );
+
+  app.patch(
+    "/credentials/credentials/:id/review",
+    { preHandler: app.authorize("credentials.write") },
+    async (request) => {
+      const { id } = idParams.parse(request.params);
+      const input = z
+        .object({
+          decision: z.enum(["approve", "reject"]),
+          notes: z.string().optional(),
+        })
+        .parse(request.body);
+
+      const [updated] = await db
+        .update(memberCredentials)
+        .set({
+          status: input.decision === "approve" ? "verified" : "rejected",
+          updatedAt: new Date(),
+        })
+        .where(eq(memberCredentials.id, id))
+        .returning();
+
+      if (!updated)
+        throw new AppError(
+          404,
+          "CREDENTIAL_NOT_FOUND",
+          "Sertifikat tidak ditemukan.",
+        );
+
+      return { data: updated };
+    },
+  );
+
+  // 17. Credential Schemes & Requirements
+  app.get(
+    "/credentials/schemes",
+    { preHandler: app.authorize("credentials.read") },
+    async () => {
+      const list = await db.select().from(credentialSchemes);
+      return { data: list };
+    },
+  );
+
+  app.post(
+    "/credentials/schemes",
+    { preHandler: app.authorize("credentials.write") },
+    async (request) => {
+      const input = z
+        .object({
+          name: z.string().min(2),
+          code: z.string().min(2),
+          description: z.string().optional(),
+        })
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(credentialSchemes)
+        .values({
+          name: input.name,
+          code: input.code,
+          metadata: input.description ? { description: input.description } : {},
+        })
+        .returning();
+
+      return { data: created };
+    },
+  );
+
+  app.get(
+    "/credentials/requirements",
+    { preHandler: app.authorize("credentials.read") },
+    async () => {
+      const list = await db.select().from(credentialRequirements);
+      return { data: list };
+    },
+  );
+
+  app.post(
+    "/credentials/requirements",
+    { preHandler: app.authorize("credentials.write") },
+    async (request) => {
+      const input = z
+        .object({
+          schemeId: z.string().uuid(),
+          prerequisiteSchemeId: z.string().uuid().optional(),
+          ruleType: z.enum(["required", "one_of", "optional"]).optional(),
+        })
+        .parse(request.body);
+
+      const prerequisiteSchemeId =
+        input.prerequisiteSchemeId ?? input.schemeId;
+
+      const [created] = await db
+        .insert(credentialRequirements)
+        .values({
+          schemeId: input.schemeId,
+          prerequisiteSchemeId,
+          ruleType: input.ruleType ?? "required",
+        })
+        .returning();
+
+      return { data: created };
+    },
+  );
+
+  // 18. Learning Overview & Award
+  app.get(
+    "/learning/overview",
+    { preHandler: app.authorize("learning.read") },
+    async () => {
+      const [schemes, activities, enrollments, ledger] = await Promise.all([
+        db.select().from(learningCreditSchemes),
+        db.select().from(learningActivities),
+        db.select().from(learningEnrollments),
+        db.select().from(learningCreditLedger),
+      ]);
+
+      return {
+        data: {
+          schemes,
+          activities,
+          enrollments,
+          ledger,
+        },
+      };
+    },
+  );
+
+  app.post(
+    "/learning/award",
+    { preHandler: app.authorize("learning.write") },
+    async (request) => {
+      const input = z
+        .object({
+          memberId: z.string().uuid(),
+          schemeId: z.string().uuid(),
+          amount: z.number().positive(),
+          description: z.string().optional(),
+        })
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(learningCreditLedger)
+        .values({
+          memberId: input.memberId,
+          schemeId: input.schemeId,
+          entryType: "earned",
+          creditAmountHundredths: Math.round(input.amount * 100),
+          notes: input.description ?? "Pemberian Kredit SKP Pelatihan",
+        })
+        .returning();
+
+      return { data: created };
+    },
+  );
+
+  // 19. Governance Overview, Units, Positions & Assignments
+  app.get(
+    "/governance/overview",
+    { preHandler: app.authorize("governance.read") },
+    async () => {
+      const [units, posList, assignList] = await Promise.all([
+        db
+          .select()
+          .from(organizationUnits)
+          .orderBy(asc(organizationUnits.sortOrder)),
+        db.select().from(positions).orderBy(asc(positions.sortOrder)),
+        db.select().from(positionAssignments),
+      ]);
+
+      return {
+        data: {
+          units,
+          positions: posList,
+          assignments: assignList,
+        },
+      };
+    },
+  );
+
+  app.post(
+    "/governance/units",
+    { preHandler: app.authorize("governance.write") },
+    async (request) => {
+      const input = z
+        .object({
+          name: z.string().min(2),
+          slug: z.string().min(2),
+          code: z.string().min(1),
+          type: z.enum([
+            "national",
+            "regional",
+            "district",
+            "chapter",
+            "committee",
+            "working_group",
+          ]),
+          parentId: z.string().uuid().nullable().optional(),
+          description: z.string().optional(),
+        })
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(organizationUnits)
+        .values({
+          name: input.name,
+          slug: toSlug(input.slug),
+          code: input.code,
+          type: input.type,
+          parentId: input.parentId ?? null,
+          description: input.description ?? null,
+        })
+        .returning();
+
+      return { data: created };
+    },
+  );
+
+  app.post(
+    "/governance/positions",
+    { preHandler: app.authorize("governance.write") },
+    async (request) => {
+      const input = z
+        .object({
+          unitId: z.string().uuid(),
+          title: z.string().min(2),
+          description: z.string().optional(),
+        })
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(positions)
+        .values({
+          unitId: input.unitId,
+          title: input.title,
+          description: input.description ?? null,
+        })
+        .returning();
+
+      return { data: created };
+    },
+  );
+
+  app.post(
+    "/governance/assignments",
+    { preHandler: app.authorize("governance.write") },
+    async (request) => {
+      const input = z
+        .object({
+          positionId: z.string().uuid(),
+          memberId: z.string().uuid(),
+        })
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(positionAssignments)
+        .values({
+          positionId: input.positionId,
+          memberId: input.memberId,
+          startsAt: new Date(),
+        })
+        .returning();
+
+      return { data: created };
+    },
+  );
+
+  app.delete(
+    "/governance/assignments/:id",
+    { preHandler: app.authorize("governance.write") },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      await db
+        .delete(positionAssignments)
+        .where(eq(positionAssignments.id, id));
+      return reply.status(204).send();
+    },
+  );
+
+  // 20. Revenue Overview & Products
+  app.get(
+    "/revenue/overview",
+    { preHandler: app.authorize("revenue.read") },
+    async () => {
+      const [products, invList, payList] = await Promise.all([
+        db.select().from(revenueProducts),
+        db.select().from(invoices),
+        db.select().from(payments),
+      ]);
+
+      return {
+        data: {
+          products,
+          invoices: invList,
+          payments: payList,
+        },
+      };
+    },
+  );
+
+  app.post(
+    "/revenue/products",
+    { preHandler: app.authorize("revenue.write") },
+    async (request) => {
+      const input = z
+        .object({
+          name: z.string().min(2),
+          code: z.string().min(2).optional(),
+          amount: z.number().positive(),
+          productType: z
+            .enum([
+              "membership_dues",
+              "credential_fee",
+              "learning_fee",
+              "event_ticket",
+              "donation",
+              "sponsorship",
+              "service",
+              "other",
+            ])
+            .optional(),
+          description: z.string().optional(),
+        })
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(revenueProducts)
+        .values({
+          name: input.name,
+          code: input.code ?? toSlug(input.name),
+          type: (input.productType ?? "membership_dues") as any,
+          amountMinor: Math.round(input.amount * 100),
+          currency: "IDR",
+          description: input.description ?? null,
+        })
+        .returning();
+
+      return { data: created };
     },
   );
 };
