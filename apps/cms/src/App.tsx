@@ -410,38 +410,7 @@ function Dashboard({
   session: Session;
   navigate: (screen: Screen) => void;
 }) {
-  const query = useQuery({
-    queryKey: ["dashboard"],
-    queryFn: () => api<{ data: DashboardData }>("/v1/admin/dashboard"),
-  });
-  if (query.isLoading) return <PageLoading />;
-  const data = query.data?.data;
-  const stats = [
-    {
-      label: "Published pages",
-      value: data?.counts.pages ?? 0,
-      icon: FileText,
-      screen: "pages" as Screen,
-    },
-    {
-      label: "Stories & news",
-      value: data?.counts.contents ?? 0,
-      icon: Newspaper,
-      screen: "content" as Screen,
-    },
-    {
-      label: "Active members",
-      value: data?.counts.members ?? 0,
-      icon: Users,
-      screen: "members" as Screen,
-    },
-    {
-      label: "Upcoming events",
-      value: data?.counts.events ?? 0,
-      icon: CalendarDays,
-      screen: "events" as Screen,
-    },
-  ];
+  const queryClient = useQueryClient();
   const [showSetupWizard, setShowSetupWizard] = useState(false);
   const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
   const [setupComplete, setSetupComplete] = useState<boolean>(() => {
@@ -458,7 +427,6 @@ function Dashboard({
     fontBody: "Inter",
   });
 
-  const queryClient = useQueryClient();
   const saveWizard = useMutation({
     mutationFn: async () => {
       await api("/v1/admin/organization", {
@@ -494,6 +462,39 @@ function Dashboard({
       toast.error(`Gagal menyimpan penyetelan: ${err.message}`);
     },
   });
+
+  const query = useQuery({
+    queryKey: ["dashboard"],
+    queryFn: () => api<{ data: DashboardData }>("/v1/admin/dashboard"),
+  });
+  if (query.isLoading) return <PageLoading />;
+  const data = query.data?.data;
+  const stats = [
+    {
+      label: "Published pages",
+      value: data?.counts.pages ?? 0,
+      icon: FileText,
+      screen: "pages" as Screen,
+    },
+    {
+      label: "Stories & news",
+      value: data?.counts.contents ?? 0,
+      icon: Newspaper,
+      screen: "content" as Screen,
+    },
+    {
+      label: "Active members",
+      value: data?.counts.members ?? 0,
+      icon: Users,
+      screen: "members" as Screen,
+    },
+    {
+      label: "Upcoming events",
+      value: data?.counts.events ?? 0,
+      icon: CalendarDays,
+      screen: "events" as Screen,
+    },
+  ];
 
   return (
     <>
