@@ -360,45 +360,25 @@ function Studio({ session }: { session: Session }) {
       )}
       <section className="workspace">
         <header className="topbar">
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <button
-              type="button"
-              className="icon-button mobile-only"
-              onClick={() => setMobileNav(true)}
-            >
-              <Menu size={21} />
-            </button>
-            <div>
-              <span>Studio</span>
-              <strong>{label}</strong>
-            </div>
+          <button
+            type="button"
+            className="icon-button mobile-only"
+            onClick={() => setMobileNav(true)}
+          >
+            <Menu size={21} />
+          </button>
+          <div>
+            <span>Studio</span>
+            <strong>{label}</strong>
           </div>
-
-          <div className="topbar-search-command">
-            <Search size={15} style={{ color: "#94A3B8" }} />
-            <input
-              type="text"
-              placeholder="Cari fitur, anggota, atau pengaturan..."
-              onClick={() => navigate("members")}
-              readOnly
-            />
-            <kbd className="cmd-kbd">⌘K</kbd>
-          </div>
-
           <div className="topbar-actions">
-            <span className="api-status-pill">
-              <span className="status-dot-animated" />
-              <span>API Server</span>
+            <span className="user-avatar">
+              {session.user.name.slice(0, 2).toUpperCase()}
             </span>
-            <div className="user-profile-pill">
-              <span className="user-avatar" style={{ background: "#0F172A", color: "#FFFFFF" }}>
-                {session.user.name.slice(0, 2).toUpperCase()}
-              </span>
-              <span className="user-copy">
-                <strong>{session.user.name}</strong>
-                <small>{session.user.email}</small>
-              </span>
-            </div>
+            <span className="user-copy">
+              <strong>{session.user.name}</strong>
+              <small>{session.user.email}</small>
+            </span>
           </div>
         </header>
         <main className="content-area">
@@ -430,172 +410,55 @@ function Dashboard({
   session: Session;
   navigate: (screen: Screen) => void;
 }) {
-  const [quickKtaCode, setQuickKtaCode] = useState("");
-  const [ktaResult, setKtaResult] = useState<any>(null);
-  const [ktaLoading, setKtaLoading] = useState(false);
-
   const query = useQuery({
     queryKey: ["dashboard"],
     queryFn: () => api<{ data: DashboardData }>("/v1/admin/dashboard"),
   });
-
-  const handleQuickKtaCheck = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!quickKtaCode.trim()) return;
-    setKtaLoading(true);
-    setKtaResult(null);
-    try {
-      const res = await api<{ data: any }>(`/v1/public/membership/cards/${encodeURIComponent(quickKtaCode.trim())}`);
-      setKtaResult(res.data);
-      toast.success("Data KTA/Anggota ditemukan");
-    } catch (err: any) {
-      toast.error(err.message || "KTA/Anggota tidak ditemukan");
-    } finally {
-      setKtaLoading(false);
-    }
-  };
-
   if (query.isLoading) return <PageLoading />;
   const data = query.data?.data;
   const stats = [
     {
-      label: "Anggota Aktif",
-      value: data?.counts.members ?? 0,
-      trend: "+12.4%",
-      icon: Users,
-      screen: "members" as Screen,
-      color: "#0F172A",
-      bgColor: "#F1F5F9",
-    },
-    {
-      label: "Agenda & Pelatihan",
-      value: data?.counts.events ?? 0,
-      trend: "+8.1%",
-      icon: CalendarDays,
-      screen: "events" as Screen,
-      color: "#0F172A",
-      bgColor: "#F1F5F9",
-    },
-    {
-      label: "Berita & Pengumuman",
-      value: data?.counts.contents ?? 0,
-      trend: "+24.0%",
-      icon: Newspaper,
-      screen: "content" as Screen,
-      color: "#0F172A",
-      bgColor: "#F1F5F9",
-    },
-    {
-      label: "Halaman Dipublikasi",
+      label: "Published pages",
       value: data?.counts.pages ?? 0,
-      trend: "Terverifikasi",
       icon: FileText,
       screen: "pages" as Screen,
-      color: "#0F172A",
-      bgColor: "#F1F5F9",
+    },
+    {
+      label: "Stories & news",
+      value: data?.counts.contents ?? 0,
+      icon: Newspaper,
+      screen: "content" as Screen,
+    },
+    {
+      label: "Active members",
+      value: data?.counts.members ?? 0,
+      icon: Users,
+      screen: "members" as Screen,
+    },
+    {
+      label: "Upcoming events",
+      value: data?.counts.events ?? 0,
+      icon: CalendarDays,
+      screen: "events" as Screen,
     },
   ];
-
   return (
     <>
       <div className="welcome-row">
         <div>
-          <span className="eyebrow" style={{ color: "#64748B", fontWeight: 700 }}>
-            {new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-          </span>
-          <h1>Selamat Datang, {session.user.name.split(" ")[0]}</h1>
-          <p>Ringkasan aktivitas dan tata kelola di <strong>{session.organization.name}</strong>.</p>
+          <span className="eyebrow">Thursday, 13 August</span>
+          <h1>Good morning, {session.user.name.split(" ")[0]}.</h1>
+          <p>Here’s what’s happening across {session.organization.name}.</p>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button
-            type="button"
-            className="button secondary"
-            onClick={() => navigate("members")}
-          >
-            <Users size={16} /> Kelola Anggota
-          </button>
-          <button
-            type="button"
-            className="button primary"
-            onClick={() => navigate("appearance")}
-          >
-            <Palette size={16} /> Kustomisasi Tema
-          </button>
-        </div>
+        <button
+          type="button"
+          className="button primary"
+          onClick={() => navigate("pages")}
+        >
+          <Plus size={18} /> Create a page
+        </button>
       </div>
-
-      {/* Harmonious Clean Setup Guide Banner */}
-      <section className="panel onboarding-clean-banner" style={{ marginBottom: "24px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "24px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <Sparkles size={16} style={{ color: "#2563eb" }} />
-              <span style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.08em", color: "#2563eb", textTransform: "uppercase" }}>
-                PANDUAN PENYETELAN ORGANISASI
-              </span>
-            </div>
-            <h2 style={{ fontSize: "20px", fontWeight: 800, margin: "2px 0 4px", color: "#0f172a" }}>
-              Personalisasi Platform {session.organization.name}
-            </h2>
-            <p style={{ color: "#64748b", fontSize: "14px", margin: 0 }}>
-              Selesaikan 3 langkah mudah berikut untuk memperbarui logo, warna, dan tipografi publik.
-            </p>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#f8fafc", border: "1px solid #e2e8f0", padding: "8px 16px", borderRadius: "12px" }}>
-            <div style={{ textAlign: "right" }}>
-              <strong style={{ fontSize: "18px", fontWeight: 800, color: "#0f172a", display: "block", lineHeight: 1 }}>66%</strong>
-              <small style={{ fontSize: "11px", color: "#64748b" }}>Selesai</small>
-            </div>
-          </div>
-        </div>
-
-        <div className="onboarding-steps-grid">
-          <button
-            type="button"
-            className="onboarding-step-clean"
-            onClick={() => navigate("settings")}
-          >
-            <div className="step-check-circle completed">
-              <CheckCircle2 size={16} />
-            </div>
-            <div className="step-clean-text">
-              <strong>1. Identitas & Logo Organisasi</strong>
-              <span>Nama, logo, favicon & kontak publik</span>
-            </div>
-            <ChevronRight size={16} style={{ color: "#94a3b8" }} />
-          </button>
-
-          <button
-            type="button"
-            className="onboarding-step-clean"
-            onClick={() => navigate("appearance")}
-          >
-            <div className="step-check-circle completed">
-              <CheckCircle2 size={16} />
-            </div>
-            <div className="step-clean-text">
-              <strong>2. Skema Warna & Palette Tema</strong>
-              <span>Warna utama, aksen & border radius UI</span>
-            </div>
-            <ChevronRight size={16} style={{ color: "#94a3b8" }} />
-          </button>
-
-          <button
-            type="button"
-            className="onboarding-step-clean"
-            onClick={() => navigate("appearance")}
-          >
-            <div className="step-check-circle pending">3</div>
-            <div className="step-clean-text">
-              <strong>3. Tipografi & Font Heading</strong>
-              <span>Font judul dan font teks utama</span>
-            </div>
-            <ChevronRight size={16} style={{ color: "#94a3b8" }} />
-          </button>
-        </div>
-      </section>
-
-      <div className="stats-grid" style={{ marginBottom: "32px" }}>
+      <div className="stats-grid">
         {stats.map((stat) => (
           <button
             type="button"
@@ -603,33 +466,30 @@ function Dashboard({
             key={stat.label}
             onClick={() => navigate(stat.screen)}
           >
-            <div className="stat-card-top">
-              <span className="stat-icon" style={{ background: stat.bgColor, color: stat.color }}>
-                <stat.icon size={20} />
-              </span>
-              <span className="stat-trend-pill">{stat.trend}</span>
-            </div>
-            <div className="stat-card-bottom">
-              <strong className="stat-value-big">{stat.value}</strong>
-              <span className="stat-label-clean">{stat.label}</span>
-            </div>
+            <span className="stat-icon">
+              <stat.icon size={20} />
+            </span>
+            <span>
+              <strong>{stat.value}</strong>
+              <small>{stat.label}</small>
+            </span>
+            <ArrowRight size={18} />
           </button>
         ))}
       </div>
-
       <div className="dashboard-grid">
         <section className="panel">
           <div className="panel-head">
             <div>
-              <h2 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>Konten Terbaru</h2>
-              <p style={{ fontSize: "13px", color: "#64748B", margin: "2px 0 0" }}>Perubahan cerita, berita, dan halaman publik.</p>
+              <h2>Recently updated</h2>
+              <p>Your team’s latest content changes.</p>
             </div>
             <button
               type="button"
               className="text-button"
               onClick={() => navigate("content")}
             >
-              Lihat Semua <ArrowRight size={16} />
+              View all <ArrowRight size={16} />
             </button>
           </div>
           <div className="recent-list">
@@ -642,103 +502,73 @@ function Dashboard({
                   <span>
                     <strong>{item.title}</strong>
                     <small>
-                      {item.type} · Diperbarui{" "}
-                      {new Date(item.updatedAt).toLocaleDateString("id-ID")}
+                      {item.type} · Updated{" "}
+                      {new Date(item.updatedAt).toLocaleDateString()}
                     </small>
                   </span>
                   <Status value={item.status} />
                 </div>
               ))
             ) : (
-              <Empty message="Belum ada konten yang baru diperbarui." />
+              <Empty message="Your recently edited content will appear here." />
             )}
           </div>
         </section>
+        <section className="panel getting-started">
+          <span className="sparkle">
+            <Sparkles size={21} />
+          </span>
+          <h2>Make OpenOrg yours</h2>
+          <p>
+            Set your colors, logo, and typography. Every public page updates
+            automatically.
+          </p>
+          <div className="progress">
+            <span style={{ width: "66%" }} />
+          </div>
+          <small style={{ marginBottom: "12px" }}>2 of 3 steps completed</small>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          <section className="panel kta-widget-panel">
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-              <ShieldCheck size={20} style={{ color: "#2563EB" }} />
-              <h3 style={{ fontSize: "16px", fontWeight: 700, margin: 0 }}>Pemeriksaan KTA Instan</h3>
-            </div>
-            <p style={{ fontSize: "13px", color: "#64748B", margin: "0 0 14px", lineHeight: 1.5 }}>
-              Cari kode KTA atau nomor anggota untuk memverifikasi keaktifan lisensi.
-            </p>
+          <div className="onboarding-steps-list">
+            <button
+              type="button"
+              className="onboarding-step-item"
+              onClick={() => navigate("settings")}
+            >
+              <span className="step-number-badge completed">✓</span>
+              <span className="step-content">
+                <strong>1. Identitas & Logo Organisasi</strong>
+                <small>Pengaturan nama, logo & kontak</small>
+              </span>
+              <ChevronRight size={15} className="step-chevron" />
+            </button>
 
-            <form onSubmit={handleQuickKtaCheck} style={{ display: "flex", gap: "8px" }}>
-              <input
-                type="text"
-                placeholder="cth: KTA-APTI-DPP-001"
-                value={quickKtaCode}
-                onChange={(e) => setQuickKtaCode(e.target.value)}
-                style={{
-                  flex: 1,
-                  padding: "10px 12px",
-                  borderRadius: "8px",
-                  border: "1px solid #CBD5E1",
-                  fontSize: "13px",
-                  outline: "none",
-                }}
-              />
-              <button type="submit" className="button primary" disabled={ktaLoading} style={{ padding: "0 14px" }}>
-                {ktaLoading ? "Mencari..." : "Cek KTA"}
-              </button>
-            </form>
+            <button
+              type="button"
+              className="onboarding-step-item"
+              onClick={() => navigate("appearance")}
+            >
+              <span className="step-number-badge completed">✓</span>
+              <span className="step-content">
+                <strong>2. Skema Warna & Tema Visual</strong>
+                <small>Ubah warna primary & aksen</small>
+              </span>
+              <ChevronRight size={15} className="step-chevron" />
+            </button>
 
-            {ktaResult && (
-              <div style={{ marginTop: "16px", padding: "14px", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "10px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                  <strong style={{ color: "#166534", fontSize: "14px" }}>{ktaResult.member?.name}</strong>
-                  <span style={{ background: "#22C55E", color: "#fff", fontSize: "10px", fontWeight: 700, padding: "2px 8px", borderRadius: "999px" }}>
-                    AKTIF
-                  </span>
-                </div>
-                <div style={{ fontSize: "12px", color: "#15803D" }}>
-                  <div>No KTA: <strong>{ktaResult.card?.code || ktaResult.member?.memberNumber}</strong></div>
-                  <div>Unit: {ktaResult.member?.unitId || "DPP Pusat"}</div>
-                </div>
-              </div>
-            )}
-          </section>
-
-          <section className="panel" style={{ padding: "20px" }}>
-            <h3 style={{ fontSize: "15px", fontWeight: 700, margin: "0 0 12px" }}>Akses Cepat Admin</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <button
-                type="button"
-                className="button secondary"
-                onClick={() => navigate("members")}
-                style={{ justifyContent: "flex-start", fontSize: "13px" }}
-              >
-                <Users size={16} /> Anggota Baru
-              </button>
-              <button
-                type="button"
-                className="button secondary"
-                onClick={() => navigate("events")}
-                style={{ justifyContent: "flex-start", fontSize: "13px" }}
-              >
-                <CalendarDays size={16} /> Buat Agenda
-              </button>
-              <button
-                type="button"
-                className="button secondary"
-                onClick={() => navigate("settings")}
-                style={{ justifyContent: "flex-start", fontSize: "13px" }}
-              >
-                <Settings size={16} /> Pengaturan
-              </button>
-              <button
-                type="button"
-                className="button secondary"
-                onClick={() => navigate("appearance")}
-                style={{ justifyContent: "flex-start", fontSize: "13px" }}
-              >
-                <Palette size={16} /> Ubah Warna
-              </button>
-            </div>
-          </section>
-        </div>
+            <button
+              type="button"
+              className="onboarding-step-item"
+              onClick={() => navigate("appearance")}
+            >
+              <span className="step-number-badge">3</span>
+              <span className="step-content">
+                <strong>3. Tipografi & Font Judul</strong>
+                <small>Atur font heading & body</small>
+              </span>
+              <ChevronRight size={15} className="step-chevron" />
+            </button>
+          </div>
+        </section>
       </div>
     </>
   );
