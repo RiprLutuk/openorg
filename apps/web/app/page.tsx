@@ -93,72 +93,83 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Core Business Pillars */}
+      {/* Core Business Pillars - Bento Grid */}
       <section className="section-space home-pillars">
         <div className="wrap">
           <div className="section-heading text-center">
             <span className="eyebrow">Fitur & Layanan Utama</span>
             <h2>Layanan Terpadu untuk Anggota & Publik</h2>
             <p>
-              Semua sistem pengoperasian organisasi tersedia dalam satu portal
-              mandiri.
+              Semua sistem pengoperasian organisasi tersedia dalam satu portal mandiri.
             </p>
           </div>
 
-          <div className="pillars-grid">
-            <div className="pillar-card">
-              <div className="pillar-icon-box blue">
+          <div className="bento-grid">
+            <div className="bento-card bento-col-8 dark">
+              <div className="bento-icon-badge">
                 <Users size={24} />
               </div>
-              <h3>Manajemen Keanggotaan</h3>
-              <p>
-                Pendaftaran online mandiri, profil keanggotaan terverifikasi,
-                serta Kartu Tanda Anggota (KTA) digital.
+              <span className="badge-glow" style={{ background: "rgba(245, 158, 11, 0.2)", color: "#F59E0B", borderColor: "rgba(245, 158, 11, 0.4)", marginBottom: "12px" }}>
+                KTA DIGITAL REAL-TIME
+              </span>
+              <h3 style={{ fontSize: "22px", fontWeight: 700, margin: "8px 0" }}>
+                Manajemen Keanggotaan & KTA Digital Ber-QR Code
+              </h3>
+              <p style={{ color: "#94A3B8", fontSize: "14px", lineHeight: 1.6, maxWidth: "540px" }}>
+                Pendaftaran mandiri teknisi HVAC/R, pemutakhiran profil, Kartu Tanda Anggota (KTA) digital dengan sertifikasi BNSP, serta verifikasi keabsahan otomatis oleh publik.
               </p>
-              <Link href="/join" className="pillar-link">
-                Pendaftaran Anggota <ChevronRight size={16} />
-              </Link>
+              <div style={{ marginTop: "20px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                <Link href="/join" className="btn-primary" style={{ padding: "10px 18px", fontSize: "14px" }}>
+                  Pendaftaran Anggota Baru <ChevronRight size={16} />
+                </Link>
+                <Link href="/verify" className="btn-secondary" style={{ padding: "10px 18px", fontSize: "14px", background: "rgba(255,255,255,0.1)", color: "#fff", borderColor: "rgba(255,255,255,0.2)" }}>
+                  Cek Keabsahan KTA <BadgeCheck size={16} />
+                </Link>
+              </div>
             </div>
 
-            <div className="pillar-card">
-              <div className="pillar-icon-box green">
+            <div className="bento-card bento-col-4">
+              <div className="bento-icon-badge">
                 <BookOpen size={24} />
               </div>
-              <h3>Akademi & Kredit SKP / CPD</h3>
-              <p>
-                Pelatihan profesional, pendaftaran kegiatan, presensi otomatis,
-                dan penerbitan kredit kompetensi.
+              <h3 style={{ fontSize: "18px", fontWeight: 700, margin: "6px 0" }}>
+                Akademi & Kredit SKP / CPD
+              </h3>
+              <p style={{ color: "#64748B", fontSize: "13px", lineHeight: 1.5 }}>
+                Pelatihan profesional HVAC/R, presensi otomatis, dan perolehan kredit kompetensi SKP.
               </p>
-              <Link href="/events" className="pillar-link">
-                Lihat Agenda Kegiatan <ChevronRight size={16} />
+              <Link href="/events" className="pillar-link" style={{ marginTop: "16px", display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "13px", fontWeight: 600, color: "#0B3B60" }}>
+                Agenda Kegiatan <ChevronRight size={16} />
               </Link>
             </div>
 
-            <div className="pillar-card">
-              <div className="pillar-icon-box purple">
+            <div className="bento-card bento-col-6">
+              <div className="bento-icon-badge">
                 <Building2 size={24} />
               </div>
-              <h3>GovernOS · Tata Kelola</h3>
-              <p>
-                Transparansi struktur organisasi dari unit pusat hingga daerah,
-                peta jabatan pengurus, dan masa bakti.
+              <h3 style={{ fontSize: "18px", fontWeight: 700, margin: "6px 0" }}>
+                Tata Kelola & Peta Pengurus (DPP/DPD/DPC)
+              </h3>
+              <p style={{ color: "#64748B", fontSize: "13px", lineHeight: 1.5 }}>
+                Struktur kepengurusan transparan dari tingkat pusat hingga daerah, pilar jabatan, dan transparansi organisasi.
               </p>
-              <Link href="/structure" className="pillar-link">
-                Peta Pengurus <ChevronRight size={16} />
+              <Link href="/structure" className="pillar-link" style={{ marginTop: "16px", display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "13px", fontWeight: 600, color: "#0B3B60" }}>
+                Lihat Peta Pengurus <ChevronRight size={16} />
               </Link>
             </div>
 
-            <div className="pillar-card">
-              <div className="pillar-icon-box amber">
+            <div className="bento-card bento-col-6">
+              <div className="bento-icon-badge">
                 <BadgeCheck size={24} />
               </div>
-              <h3>ComplyFlow · Verifikasi</h3>
-              <p>
-                Pemeriksaan keabsahan sertifikat, lisensi, dan kredensial
-                anggota oleh publik secara instan.
+              <h3 style={{ fontSize: "18px", fontWeight: 700, margin: "6px 0" }}>
+                Verifikasi Kredensial & Lisensi Publik
+              </h3>
+              <p style={{ color: "#64748B", fontSize: "13px", lineHeight: 1.5 }}>
+                Verifikasi publik transparan untuk mengecek keaslian lisensi, sertifikat keahlian, dan status KTA aktif secara instan.
               </p>
-              <Link href="/verify" className="pillar-link">
-                Cek Kredensial <ChevronRight size={16} />
+              <Link href="/verify" className="pillar-link" style={{ marginTop: "16px", display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "13px", fontWeight: 600, color: "#0B3B60" }}>
+                Verifikasi Sekarang <ChevronRight size={16} />
               </Link>
             </div>
           </div>
