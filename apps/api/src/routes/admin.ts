@@ -977,19 +977,6 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
-  // 14. Organization Units List
-  app.get(
-    "/organization-units",
-    { preHandler: app.authorize("governance.read") },
-    async () => {
-      const units = await db
-        .select()
-        .from(organizationUnits)
-        .orderBy(asc(organizationUnits.sortOrder), asc(organizationUnits.name));
-      return { data: units };
-    },
-  );
-
   // 15. Submission Status Update
   app.patch(
     "/submissions/:id",
