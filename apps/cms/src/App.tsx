@@ -925,7 +925,7 @@ function PageEditor({
 }) {
   const client = useQueryClient();
   const [title, setTitle] = useState(page?.title ?? "Untitled page");
-  const [slug] = useState(page?.slug ?? "");
+  const [slug, setSlug] = useState(page?.slug ?? "");
   const [status, setStatus] = useState(page?.status ?? "draft");
   const [sections, setSections] = useState<Array<Record<string, unknown>>>(
     page?.sections ?? [],
@@ -1014,11 +1014,34 @@ function PageEditor({
         </button>
         <div className="editor-title">
           <input
+            className="editor-title-input"
             value={title}
-            onChange={(event) => setTitle(event.target.value)}
+            onChange={(event) => {
+              setTitle(event.target.value);
+              if (!page) {
+                setSlug(
+                  event.target.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-+|-+$/g, ""),
+                );
+              }
+            }}
+            placeholder="Judul Halaman..."
             aria-label="Page title"
           />
-          <span>/{slug || "untitled-page"}</span>
+          <div className="editor-slug-badge">
+            <small>URL Slug:</small>
+            <span>/</span>
+            <input
+              type="text"
+              value={slug}
+              onChange={(e) =>
+                setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))
+              }
+              placeholder="url-slug-halaman"
+            />
+          </div>
         </div>
         <div className="editor-actions">
           <select
