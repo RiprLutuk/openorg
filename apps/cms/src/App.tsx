@@ -530,8 +530,8 @@ function Dashboard({
           </button>
         ))}
       </div>
-      <div className="dashboard-grid">
-        <section className="panel">
+      <div className="dashboard-grid" style={{ gridTemplateColumns: setupComplete ? "1fr" : undefined }}>
+        <section className="panel" style={{ width: "100%" }}>
           <div className="panel-head">
             <div>
               <h2>Recently updated</h2>
@@ -567,74 +567,73 @@ function Dashboard({
             )}
           </div>
         </section>
-        <section className="panel getting-started">
-          <span className="sparkle">
-            <Sparkles size={21} />
-          </span>
-          <h2>Make OpenOrg yours</h2>
-          <p>
-            Set your colors, logo, and typography. Every public page updates
-            automatically.
-          </p>
-          <div className="progress">
-            <span style={{ width: setupComplete ? "100%" : "66%" }} />
-          </div>
-          <small style={{ marginBottom: "12px" }}>
-            {setupComplete ? "3 of 3 steps completed (100%)" : "2 of 3 steps completed"}
-          </small>
 
-          <div className="onboarding-steps-list">
-            <button
-              type="button"
-              className="onboarding-step-item"
-              onClick={() => {
-                setWizardStep(1);
-                setShowSetupWizard(true);
-              }}
-            >
-              <span className="step-number-badge completed">✓</span>
-              <span className="step-content">
-                <strong>Identitas & Logo Organisasi</strong>
-                <small>Pengaturan nama, logo & kontak</small>
-              </span>
-              <ChevronRight size={15} className="step-chevron" />
-            </button>
+        {!setupComplete && (
+          <section className="panel getting-started">
+            <span className="sparkle">
+              <Sparkles size={21} />
+            </span>
+            <h2>Make OpenOrg yours</h2>
+            <p>
+              Set your colors, logo, and typography. Every public page updates
+              automatically.
+            </p>
+            <div className="progress">
+              <span style={{ width: "66%" }} />
+            </div>
+            <small style={{ marginBottom: "12px" }}>2 of 3 steps completed</small>
 
-            <button
-              type="button"
-              className="onboarding-step-item"
-              onClick={() => {
-                setWizardStep(2);
-                setShowSetupWizard(true);
-              }}
-            >
-              <span className="step-number-badge completed">✓</span>
-              <span className="step-content">
-                <strong>Skema Warna & Tema Visual</strong>
-                <small>Ubah warna primary & aksen</small>
-              </span>
-              <ChevronRight size={15} className="step-chevron" />
-            </button>
+            <div className="onboarding-steps-list">
+              <button
+                type="button"
+                className="onboarding-step-item"
+                onClick={() => {
+                  setWizardStep(1);
+                  setShowSetupWizard(true);
+                }}
+              >
+                <span className="step-number-badge completed">✓</span>
+                <span className="step-content">
+                  <strong>Identitas & Logo Organisasi</strong>
+                  <small>Pengaturan nama, logo & kontak</small>
+                </span>
+                <ChevronRight size={15} className="step-chevron" />
+              </button>
 
-            <button
-              type="button"
-              className="onboarding-step-item"
-              onClick={() => {
-                setWizardStep(3);
-                setShowSetupWizard(true);
-              }}
-            >
-              <span className={`step-number-badge ${setupComplete ? "completed" : ""}`}>
-                {setupComplete ? "✓" : "3"}
-              </span>
-              <span className="step-content">
-                <strong>Tipografi & Font Judul</strong>
-                <small>Atur font heading & body</small>
-              </span>
-              <ChevronRight size={15} className="step-chevron" />
-            </button>
-          </div>
-        </section>
+              <button
+                type="button"
+                className="onboarding-step-item"
+                onClick={() => {
+                  setWizardStep(2);
+                  setShowSetupWizard(true);
+                }}
+              >
+                <span className="step-number-badge completed">✓</span>
+                <span className="step-content">
+                  <strong>Skema Warna & Tema Visual</strong>
+                  <small>Ubah warna primary & aksen</small>
+                </span>
+                <ChevronRight size={15} className="step-chevron" />
+              </button>
+
+              <button
+                type="button"
+                className="onboarding-step-item"
+                onClick={() => {
+                  setWizardStep(3);
+                  setShowSetupWizard(true);
+                }}
+              >
+                <span className="step-number-badge">3</span>
+                <span className="step-content">
+                  <strong>Tipografi & Font Judul</strong>
+                  <small>Atur font heading & body</small>
+                </span>
+                <ChevronRight size={15} className="step-chevron" />
+              </button>
+            </div>
+          </section>
+        )}
       </div>
 
       {showSetupWizard && (
