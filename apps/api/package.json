@@ -1,0 +1,39 @@
+{
+  "name": "@openorg/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/server.ts",
+    "start": "bun src/server.ts",
+    "build": "bun build src/server.ts --target=bun --outdir=dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "bun test src",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "bun src/db/seed.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "latest",
+    "@fastify/cors": "latest",
+    "@fastify/helmet": "latest",
+    "@fastify/multipart": "latest",
+    "@fastify/rate-limit": "latest",
+    "@fastify/swagger": "latest",
+    "@fastify/swagger-ui": "latest",
+    "@node-rs/argon2": "latest",
+    "@openorg/contracts": "workspace:*",
+    "drizzle-orm": "latest",
+    "fastify": "latest",
+    "fastify-plugin": "latest",
+    "fastify-type-provider-zod": "latest",
+    "postgres": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "latest",
+    "drizzle-kit": "latest",
+    "typescript": "latest"
+  }
+}

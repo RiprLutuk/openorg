@@ -1,0 +1,128 @@
+name: openorg
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-openorg}
+      POSTGRES_USER: ${POSTGRES_USER:-openorg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-openorg} -d ${POSTGRES_DB:-openorg}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [private]
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: "no"
+    environment: &api_environment
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-openorg}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-openorg}
+      API_HOST: 0.0.0.0
+      API_PORT: 4000
+      API_PUBLIC_URL: https://${API_DOMAIN:?API_DOMAIN is required}
+      CMS_ORIGIN: https://${CMS_DOMAIN:?CMS_DOMAIN is required}
+      WEB_ORIGIN: https://${WEB_DOMAIN:?WEB_DOMAIN is required}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      DEFAULT_ORGANIZATION_SLUG: ${DEFAULT_ORGANIZATION_SLUG:?DEFAULT_ORGANIZATION_SLUG is required}
+      SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-openorg_session}
+      MEMBER_SESSION_COOKIE_NAME: ${MEMBER_SESSION_COOKIE_NAME:-openorg_member_session}
+      TRUST_PROXY: "true"
+      EXPOSE_API_DOCS: "false"
+      STORAGE_LOCAL_PATH: /app/apps/api/uploads
+      STORAGE_PUBLIC_URL: https://${API_DOMAIN}/uploads
+    command: ["bun", "run", "--cwd", "apps/api", "db:migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [private]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment: *api_environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - uploads:/app/apps/api/uploads
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:4000/health/ready').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [private]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: /api
+        NEXT_PUBLIC_SITE_URL: https://${WEB_DOMAIN}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      INTERNAL_API_URL: http://api:4000
+      NEXT_PUBLIC_API_URL: /api
+      NEXT_PUBLIC_SITE_URL: https://${WEB_DOMAIN}
+      DEFAULT_ORGANIZATION_SLUG: ${DEFAULT_ORGANIZATION_SLUG}
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [private]
+
+  cms:
+    build:
+      context: .
+      dockerfile: apps/cms/Dockerfile
+      args:
+        VITE_API_URL: https://${API_DOMAIN}
+        VITE_ORGANIZATION: ${DEFAULT_ORGANIZATION_SLUG}
+        VITE_WEB_URL: https://${WEB_DOMAIN}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [private]
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    environment:
+      WEB_DOMAIN: ${WEB_DOMAIN}
+      CMS_DOMAIN: ${CMS_DOMAIN}
+      API_DOMAIN: ${API_DOMAIN}
+      TLS_EMAIL: ${TLS_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_started
+      cms:
+        condition: service_started
+    networks: [private]
+
+networks:
+  private:
+
+volumes:
+  postgres_data:
+  uploads:
+  caddy_data:
+  caddy_config:

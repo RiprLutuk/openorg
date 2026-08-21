@@ -1,0 +1,85 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: openorg
+      POSTGRES_USER: openorg
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-openorg-local-only}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openorg -d openorg"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://openorg:${POSTGRES_PASSWORD:-openorg-local-only}@postgres:5432/openorg
+      API_HOST: 0.0.0.0
+      API_PORT: 4000
+      API_PUBLIC_URL: http://localhost:4000
+      CMS_ORIGIN: http://localhost:5173
+      WEB_ORIGIN: http://localhost:3000
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET to at least 32 random characters}
+      DEFAULT_ORGANIZATION_SLUG: demo
+      EXPOSE_API_DOCS: "true"
+      STORAGE_LOCAL_PATH: /app/apps/api/uploads
+      STORAGE_PUBLIC_URL: http://localhost:4000/uploads
+    command:
+      - sh
+      - -c
+      - bun run db:migrate && bun apps/api/src/server.ts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4000:4000"
+    volumes:
+      - uploads:/app/apps/api/uploads
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:4000/health/ready').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: /api
+        NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    environment:
+      NODE_ENV: production
+      INTERNAL_API_URL: http://api:4000
+      NEXT_PUBLIC_API_URL: /api
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      DEFAULT_ORGANIZATION_SLUG: demo
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+  cms:
+    build:
+      context: .
+      dockerfile: apps/cms/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:4000
+        VITE_ORGANIZATION: demo
+        VITE_WEB_URL: http://localhost:3000
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "5173:80"
+
+volumes:
+  postgres_data:
+  uploads:

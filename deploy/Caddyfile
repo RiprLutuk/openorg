@@ -1,0 +1,34 @@
+{
+  email {$TLS_EMAIL}
+  admin off
+}
+
+{$WEB_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy web:3000
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    -Server
+  }
+}
+
+{$CMS_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy cms:80
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    -Server
+  }
+}
+
+{$API_DOMAIN} {
+  encode zstd gzip
+  request_body {
+    max_size 10MB
+  }
+  reverse_proxy api:4000
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    -Server
+  }
+}

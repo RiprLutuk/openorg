@@ -1,0 +1,33 @@
+{
+  "name": "openorg",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open-source, multi-tenant organization platform with a headless CMS and dynamic public website.",
+  "license": "Apache-2.0",
+  "packageManager": "bun@1.3.14",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "dev:api": "bun run --cwd apps/api dev",
+    "dev:cms": "bun run --cwd apps/cms dev",
+    "dev:web": "bun run --cwd apps/web dev",
+    "build": "bun run --filter '*' build",
+    "typecheck": "bun run --filter '*' typecheck",
+    "lint": "biome check apps packages",
+    "lint:fix": "biome check --write apps packages",
+    "test": "bun run --filter '*' test",
+    "db:generate": "bun run --cwd apps/api db:generate",
+    "db:migrate": "bun run --cwd apps/api db:migrate",
+    "db:seed": "bun run --cwd apps/api db:seed"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "typescript": "latest"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

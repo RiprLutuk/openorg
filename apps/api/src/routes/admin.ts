@@ -1,0 +1,1091 @@
+import {
+  pageSectionsSchema,
+  paginationSchema,
+  publicSettingsSchema,
+  themeSchema,
+} from "@openorg/contracts";
+import { and, asc, desc, eq, ilike, isNull, sql } from "drizzle-orm";
+import type { FastifyPluginAsync, FastifyRequest } from "fastify";
+import { z } from "zod";
+import { db } from "../db/client";
+import {
+  auditLogs,
+  contents,
+  events,
+  formSubmissions,
+  forms,
+  memberApplications,
+  members,
+  organizations,
+  organizationUnits,
+  pages,
+  settings,
+} from "../db/schema";
+import { AppError } from "../lib/errors";
+import { onlyProvided } from "../lib/patch";
+import { sanitizeHtml } from "../lib/sanitize";
+import { toSlug } from "../lib/slug";
+
+const idParams = z.object({ id: z.string().uuid() });
+const pageInput = z.object({
+  title: z.string().trim().min(2).max(180),
+  slug: z.string().trim().max(160).optional(),
+  excerpt: z.string().max(1000).nullable().optional(),
+  sections: pageSectionsSchema,
+  status: z
+    .enum(["draft", "review", "scheduled", "published", "archived"])
+    .default("draft"),
+  isHomepage: z.boolean().default(false),
+  seo: z
+    .object({
+      title: z.string().max(70).optional(),
+      description: z.string().max(170).optional(),
+      image: z.string().url().optional(),
+      noIndex: z.boolean().optional(),
+    })
+    .default({}),
+});
+const contentInput = z.object({
+  type: z.enum(["post", "news", "campaign"]).default("post"),
+  title: z.string().trim().min(2).max(200),
+  slug: z.string().trim().max(180).optional(),
+  excerpt: z.string().max(1000).nullable().optional(),
+  body: z.string().max(500_000).default(""),
+  coverUrl: z.string().url().nullable().optional(),
+  authorName: z.string().max(160).nullable().optional(),
+  sourceUrl: z.string().url().nullable().optional(),
+  status: z
+    .enum(["draft", "review", "scheduled", "published", "archived"])
+    .default("draft"),
+  featured: z.boolean().default(false),
+  seo: z
+    .object({
+      title: z.string().max(70).optional(),
+      description: z.string().max(170).optional(),
+      image: z.string().url().optional(),
+      noIndex: z.boolean().optional(),
+    })
+    .default({}),
+});
+const publicationStatusInput = z.enum([
+  "draft",
+  "review",
+  "scheduled",
+  "published",
+  "archived",
+]);
+const eventInput = z.object({
+  title: z.string().trim().min(2).max(200),
+  slug: z.string().trim().max(180).optional(),
+  description: z.string().max(20_000).nullable().optional(),
+  coverUrl: z.string().url().nullable().optional(),
+  locationName: z.string().trim().max(200).nullable().optional(),
+  address: z.string().max(2_000).nullable().optional(),
+  meetingUrl: z.string().url().nullable().optional(),
+  registrationUrl: z.string().url().nullable().optional(),
+  startsAt: z.coerce.date(),
+  endsAt: z.coerce.date().nullable().optional(),
+  timezone: z.string().trim().min(2).max(60).default("Asia/Jakarta"),
+  status: publicationStatusInput.default("draft"),
+  capacity: z.number().int().positive().max(10_000_000).nullable().optional(),
+});
+const memberStatusInput = z.enum([
+  "applicant",
+  "pending",
+  "active",
+  "inactive",
+  "rejected",
+]);
+
+const memberInput = z.object({
+  unitId: z.string().uuid().nullable().optional(),
+  memberNumber: z.string().trim().min(1).max(80),
+  name: z.string().trim().min(2).max(160),
+  email: z.string().trim().toLowerCase().email().max(320).nullable().optional(),
+  phone: z.string().trim().max(40).nullable().optional(),
+  avatarUrl: z.string().url().nullable().optional(),
+  address: z.string().max(2_000).nullable().optional(),
+  biography: z.string().max(10_000).nullable().optional(),
+  joinedAt: z.coerce.date().nullable().optional(),
+  status: memberStatusInput.default("applicant"),
+  isPublic: z.boolean().default(false),
+  customFields: z.record(z.string(), z.unknown()).default({}),
+  socialLinks: z
+    .array(
+      z.object({
+        platform: z.string().trim().min(1).max(50),
+        url: z.string().url(),
+      }),
+    )
+    .max(20)
+    .default([]),
+});
+const memberUpdateInput = memberInput.partial().extend({
+  status: memberStatusInput.optional(),
+  isPublic: z.boolean().optional(),
+  customFields: z.record(z.string(), z.unknown()).optional(),
+  socialLinks: z
+    .array(
+      z.object({
+        platform: z.string().trim().min(1).max(50),
+        url: z.string().url(),
+      }),
+    )
+    .max(20)
+    .optional(),
+});
+const submissionStatusInput = z.enum([
+  "new",
+  "in_progress",
+  "resolved",
+  "spam",
+]);
+
+function sanitizePageSections(
+  sections: z.infer<typeof pageSectionsSchema>,
+): z.infer<typeof pageSectionsSchema> {
+  return sections.map((section) =>
+    section.type === "richText"
+      ? { ...section, html: sanitizeHtml(section.html) }
+      : section,
+  );
+}
+
+async function audit(
+  request: FastifyRequest,
+  action: string,
+  resourceType: string,
+  resourceId: string | undefined,
+  before: unknown,
+  after: unknown,
+) {
+  await db.insert(auditLogs).values({
+    organizationId: request.organization.id,
+    actorId: request.currentUser?.id,
+    action,
+    resourceType,
+    resourceId,
+    before: before as Record<string, unknown> | undefined,
+    after: after as Record<string, unknown> | undefined,
+    ipAddress: request.ip,
+    userAgent: request.headers["user-agent"]?.slice(0, 500),
+    requestId: request.id,
+  });
+}
+
+export const adminRoutes: FastifyPluginAsync = async (app) => {
+  app.get(
+    "/organization",
+    { preHandler: app.authorize("settings.read") },
+    async (request) => ({ data: request.organization }),
+  );
+
+  app.get(
+    "/settings/public",
+    { preHandler: app.authorize("settings.read") },
+    async (request) => {
+      const rows = await db
+        .select()
+        .from(settings)
+        .where(eq(settings.organizationId, request.organization.id));
+      const value = (key: string) => rows.find((row) => row.key === key)?.value;
+      return {
+        data: publicSettingsSchema.parse({
+          footer: value("footer") ?? { links: [] },
+          announcement: value("announcement") ?? { enabled: false },
+          quickContact: value("quickContact") ?? { enabled: false },
+        }),
+      };
+    },
+  );
+
+  app.patch(
+    "/settings/public",
+    { preHandler: app.authorize("settings.write") },
+    async (request) => {
+      const input = publicSettingsSchema.parse(request.body);
+      const beforeRows = await db
+        .select()
+        .from(settings)
+        .where(eq(settings.organizationId, request.organization.id));
+      const entries = Object.entries(input) as Array<
+        [keyof typeof input, (typeof input)[keyof typeof input]]
+      >;
+      await db.transaction(async (tx) => {
+        for (const [key, value] of entries) {
+          await tx
+            .insert(settings)
+            .values({
+              organizationId: request.organization.id,
+              key,
+              value,
+              isPublic: true,
+              updatedBy: request.currentUser?.id,
+            })
+            .onConflictDoUpdate({
+              target: [settings.organizationId, settings.key],
+              set: {
+                value,
+                isPublic: true,
+                updatedBy: request.currentUser?.id,
+                updatedAt: new Date(),
+              },
+            });
+        }
+      });
+      await audit(
+        request,
+        "public_settings.update",
+        "settings",
+        request.organization.id,
+        Object.fromEntries(beforeRows.map((row) => [row.key, row.value])),
+        input,
+      );
+      return { data: input };
+    },
+  );
+
+  app.delete(
+    "/contents/:id",
+    { preHandler: app.authorize("contents.write") },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const [deleted] = await db
+        .update(contents)
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .where(
+          and(
+            eq(contents.id, id),
+            eq(contents.organizationId, request.organization.id),
+            isNull(contents.deletedAt),
+          ),
+        )
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "CONTENT_NOT_FOUND", "Content was not found.");
+      await audit(request, "content.delete", "content", id, deleted, undefined);
+      return reply.status(204).send();
+    },
+  );
+
+  app.get("/dashboard", { preHandler: app.authenticate }, async (request) => {
+    const organizationId = request.organization.id;
+    const [
+      pageCount,
+      contentCount,
+      memberCount,
+      eventCount,
+      inboxCount,
+      applicationCount,
+      recentContent,
+    ] = await Promise.all([
+      db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(pages)
+        .where(
+          and(
+            eq(pages.organizationId, organizationId),
+            isNull(pages.deletedAt),
+          ),
+        ),
+      db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(contents)
+        .where(
+          and(
+            eq(contents.organizationId, organizationId),
+            isNull(contents.deletedAt),
+          ),
+        ),
+      db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(members)
+        .where(
+          and(
+            eq(members.organizationId, organizationId),
+            isNull(members.deletedAt),
+          ),
+        ),
+      db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(events)
+        .where(
+          and(
+            eq(events.organizationId, organizationId),
+            isNull(events.deletedAt),
+          ),
+        ),
+      db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.organizationId, organizationId),
+            eq(formSubmissions.status, "new"),
+          ),
+        ),
+      db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(memberApplications)
+        .where(
+          and(
+            eq(memberApplications.organizationId, organizationId),
+            eq(memberApplications.status, "pending"),
+          ),
+        ),
+      db
+        .select({
+          id: contents.id,
+          title: contents.title,
+          type: contents.type,
+          status: contents.status,
+          updatedAt: contents.updatedAt,
+        })
+        .from(contents)
+        .where(
+          and(
+            eq(contents.organizationId, organizationId),
+            isNull(contents.deletedAt),
+          ),
+        )
+        .orderBy(desc(contents.updatedAt))
+        .limit(5),
+    ]);
+    return {
+      data: {
+        counts: {
+          pages: pageCount[0]?.value ?? 0,
+          contents: contentCount[0]?.value ?? 0,
+          members: memberCount[0]?.value ?? 0,
+          events: eventCount[0]?.value ?? 0,
+          inbox: inboxCount[0]?.value ?? 0,
+          applications: applicationCount[0]?.value ?? 0,
+        },
+        recentContent,
+      },
+    };
+  });
+
+  app.get(
+    "/pages",
+    { preHandler: app.authorize("pages.read") },
+    async (request) => {
+      const query = paginationSchema.parse(request.query);
+      const conditions = [
+        eq(pages.organizationId, request.organization.id),
+        isNull(pages.deletedAt),
+      ];
+      if (query.search)
+        conditions.push(ilike(pages.title, `%${query.search}%`));
+      const rows = await db
+        .select()
+        .from(pages)
+        .where(and(...conditions))
+        .orderBy(desc(pages.updatedAt))
+        .limit(query.limit)
+        .offset((query.page - 1) * query.limit);
+      return { data: rows, meta: { page: query.page, limit: query.limit } };
+    },
+  );
+
+  app.post(
+    "/pages",
+    { preHandler: app.authorize("pages.write") },
+    async (request, reply) => {
+      const input = pageInput.parse(request.body);
+      const slug = input.slug ? toSlug(input.slug) : toSlug(input.title);
+      if (!slug)
+        throw new AppError(
+          422,
+          "INVALID_SLUG",
+          "A valid page slug is required.",
+        );
+      const [created] = await db.transaction(async (tx) => {
+        if (input.isHomepage)
+          await tx
+            .update(pages)
+            .set({ isHomepage: false, updatedAt: new Date() })
+            .where(
+              and(
+                eq(pages.organizationId, request.organization.id),
+                eq(pages.isHomepage, true),
+              ),
+            );
+        return tx
+          .insert(pages)
+          .values({
+            ...input,
+            sections: sanitizePageSections(input.sections),
+            slug,
+            organizationId: request.organization.id,
+            createdBy: request.currentUser?.id,
+            updatedBy: request.currentUser?.id,
+            publishedAt: input.status === "published" ? new Date() : null,
+          })
+          .returning();
+      });
+      await audit(
+        request,
+        "page.create",
+        "page",
+        created?.id,
+        undefined,
+        created,
+      );
+      return reply.status(201).send({ data: created });
+    },
+  );
+
+  app.patch(
+    "/pages/:id",
+    { preHandler: app.authorize("pages.write") },
+    async (request) => {
+      const { id } = idParams.parse(request.params);
+      const input = onlyProvided(
+        pageInput.partial().parse(request.body),
+        request.body,
+      );
+      const [before] = await db
+        .select()
+        .from(pages)
+        .where(
+          and(
+            eq(pages.id, id),
+            eq(pages.organizationId, request.organization.id),
+            isNull(pages.deletedAt),
+          ),
+        )
+        .limit(1);
+      if (!before)
+        throw new AppError(404, "PAGE_NOT_FOUND", "Page was not found.");
+      const values = {
+        ...input,
+        ...(input.sections
+          ? { sections: sanitizePageSections(input.sections) }
+          : {}),
+        ...(input.slug ? { slug: toSlug(input.slug) } : {}),
+        ...(input.status === "published" && !before.publishedAt
+          ? { publishedAt: new Date() }
+          : {}),
+        updatedBy: request.currentUser?.id,
+        updatedAt: new Date(),
+      };
+      const [updated] = await db.transaction(async (tx) => {
+        if (input.isHomepage)
+          await tx
+            .update(pages)
+            .set({ isHomepage: false, updatedAt: new Date() })
+            .where(
+              and(
+                eq(pages.organizationId, request.organization.id),
+                eq(pages.isHomepage, true),
+              ),
+            );
+        return tx.update(pages).set(values).where(eq(pages.id, id)).returning();
+      });
+      await audit(request, "page.update", "page", id, before, updated);
+      return { data: updated };
+    },
+  );
+
+  app.delete(
+    "/pages/:id",
+    { preHandler: app.authorize("pages.delete") },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const [deleted] = await db
+        .update(pages)
+        .set({
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+          updatedBy: request.currentUser?.id,
+        })
+        .where(
+          and(
+            eq(pages.id, id),
+            eq(pages.organizationId, request.organization.id),
+            isNull(pages.deletedAt),
+          ),
+        )
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "PAGE_NOT_FOUND", "Page was not found.");
+      await audit(request, "page.delete", "page", id, deleted, undefined);
+      return reply.status(204).send();
+    },
+  );
+
+  app.get(
+    "/contents",
+    { preHandler: app.authorize("contents.read") },
+    async (request) => {
+      const query = paginationSchema
+        .extend({ type: z.string().max(40).optional() })
+        .parse(request.query);
+      const conditions = [
+        eq(contents.organizationId, request.organization.id),
+        isNull(contents.deletedAt),
+      ];
+      if (query.type) conditions.push(eq(contents.type, query.type));
+      if (query.search)
+        conditions.push(ilike(contents.title, `%${query.search}%`));
+      const rows = await db
+        .select()
+        .from(contents)
+        .where(and(...conditions))
+        .orderBy(desc(contents.updatedAt))
+        .limit(query.limit)
+        .offset((query.page - 1) * query.limit);
+      return { data: rows, meta: { page: query.page, limit: query.limit } };
+    },
+  );
+
+  app.post(
+    "/contents",
+    { preHandler: app.authorize("contents.write") },
+    async (request, reply) => {
+      const input = contentInput.parse(request.body);
+      const [created] = await db
+        .insert(contents)
+        .values({
+          ...input,
+          slug: toSlug(input.slug ?? input.title),
+          body: sanitizeHtml(input.body),
+          organizationId: request.organization.id,
+          createdBy: request.currentUser?.id,
+          publishedAt: input.status === "published" ? new Date() : null,
+        })
+        .returning();
+      await audit(
+        request,
+        "content.create",
+        "content",
+        created?.id,
+        undefined,
+        created,
+      );
+      return reply.status(201).send({ data: created });
+    },
+  );
+
+  app.patch(
+    "/contents/:id",
+    { preHandler: app.authorize("contents.write") },
+    async (request) => {
+      const { id } = idParams.parse(request.params);
+      const input = onlyProvided(
+        contentInput.partial().parse(request.body),
+        request.body,
+      );
+      const [before] = await db
+        .select()
+        .from(contents)
+        .where(
+          and(
+            eq(contents.id, id),
+            eq(contents.organizationId, request.organization.id),
+            isNull(contents.deletedAt),
+          ),
+        )
+        .limit(1);
+      if (!before)
+        throw new AppError(404, "CONTENT_NOT_FOUND", "Content was not found.");
+      const [updated] = await db
+        .update(contents)
+        .set({
+          ...input,
+          ...(input.slug ? { slug: toSlug(input.slug) } : {}),
+          ...(input.body !== undefined
+            ? { body: sanitizeHtml(input.body) }
+            : {}),
+          ...(input.status === "published" && !before.publishedAt
+            ? { publishedAt: new Date() }
+            : {}),
+          updatedAt: new Date(),
+        })
+        .where(eq(contents.id, id))
+        .returning();
+      await audit(request, "content.update", "content", id, before, updated);
+      return { data: updated };
+    },
+  );
+
+  app.get(
+    "/events",
+    { preHandler: app.authorize("events.read") },
+    async (request) => {
+      const query = paginationSchema
+        .extend({ status: publicationStatusInput.optional() })
+        .parse(request.query);
+      const conditions = [
+        eq(events.organizationId, request.organization.id),
+        isNull(events.deletedAt),
+      ];
+      if (query.status) conditions.push(eq(events.status, query.status));
+      if (query.search)
+        conditions.push(ilike(events.title, `%${query.search}%`));
+      const where = and(...conditions);
+      const [rows, countRows] = await Promise.all([
+        db
+          .select()
+          .from(events)
+          .where(where)
+          .orderBy(desc(events.startsAt))
+          .limit(query.limit)
+          .offset((query.page - 1) * query.limit),
+        db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(events)
+          .where(where),
+      ]);
+      return {
+        data: rows,
+        meta: {
+          page: query.page,
+          limit: query.limit,
+          total: countRows[0]?.count ?? 0,
+        },
+      };
+    },
+  );
+
+  app.post(
+    "/events",
+    { preHandler: app.authorize("events.write") },
+    async (request, reply) => {
+      const input = eventInput.parse(request.body);
+      if (input.endsAt && input.endsAt < input.startsAt)
+        throw new AppError(
+          422,
+          "INVALID_EVENT_RANGE",
+          "Event end time must be after its start time.",
+        );
+      const slug = toSlug(input.slug ?? input.title);
+      if (!slug)
+        throw new AppError(
+          422,
+          "INVALID_SLUG",
+          "A valid event slug is required.",
+        );
+      const [created] = await db
+        .insert(events)
+        .values({
+          ...input,
+          slug,
+          organizationId: request.organization.id,
+          publishedAt: input.status === "published" ? new Date() : null,
+        })
+        .returning();
+      await audit(
+        request,
+        "event.create",
+        "event",
+        created?.id,
+        undefined,
+        created,
+      );
+      return reply.status(201).send({ data: created });
+    },
+  );
+
+  app.patch(
+    "/events/:id",
+    { preHandler: app.authorize("events.write") },
+    async (request) => {
+      const { id } = idParams.parse(request.params);
+      const input = onlyProvided(
+        eventInput.partial().parse(request.body),
+        request.body,
+      );
+      const [before] = await db
+        .select()
+        .from(events)
+        .where(
+          and(
+            eq(events.id, id),
+            eq(events.organizationId, request.organization.id),
+            isNull(events.deletedAt),
+          ),
+        )
+        .limit(1);
+      if (!before)
+        throw new AppError(404, "EVENT_NOT_FOUND", "Event was not found.");
+      const startsAt = input.startsAt ?? before.startsAt;
+      const endsAt = input.endsAt === undefined ? before.endsAt : input.endsAt;
+      if (endsAt && endsAt < startsAt)
+        throw new AppError(
+          422,
+          "INVALID_EVENT_RANGE",
+          "Event end time must be after its start time.",
+        );
+      const [updated] = await db
+        .update(events)
+        .set({
+          ...input,
+          ...(input.slug ? { slug: toSlug(input.slug) } : {}),
+          ...(input.status === "published" && !before.publishedAt
+            ? { publishedAt: new Date() }
+            : {}),
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(events.id, id),
+            eq(events.organizationId, request.organization.id),
+          ),
+        )
+        .returning();
+      await audit(request, "event.update", "event", id, before, updated);
+      return { data: updated };
+    },
+  );
+
+  app.delete(
+    "/events/:id",
+    { preHandler: app.authorize("events.write") },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const [deleted] = await db
+        .update(events)
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .where(
+          and(
+            eq(events.id, id),
+            eq(events.organizationId, request.organization.id),
+            isNull(events.deletedAt),
+          ),
+        )
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "EVENT_NOT_FOUND", "Event was not found.");
+      await audit(request, "event.delete", "event", id, deleted, undefined);
+      return reply.status(204).send();
+    },
+  );
+
+  app.get(
+    "/organization-units",
+    { preHandler: app.authorize("members.read") },
+    async (request) => ({
+      data: await db
+        .select({
+          id: organizationUnits.id,
+          name: organizationUnits.name,
+          type: organizationUnits.type,
+          parentId: organizationUnits.parentId,
+        })
+        .from(organizationUnits)
+        .where(
+          and(
+            eq(organizationUnits.organizationId, request.organization.id),
+            eq(organizationUnits.isActive, true),
+          ),
+        )
+        .orderBy(asc(organizationUnits.sortOrder), asc(organizationUnits.name)),
+    }),
+  );
+
+  app.get(
+    "/members",
+    { preHandler: app.authorize("members.read") },
+    async (request) => {
+      const query = paginationSchema
+        .extend({ status: memberStatusInput.optional() })
+        .parse(request.query);
+      const conditions = [
+        eq(members.organizationId, request.organization.id),
+        isNull(members.deletedAt),
+      ];
+      if (query.status) conditions.push(eq(members.status, query.status));
+      if (query.search)
+        conditions.push(ilike(members.name, `%${query.search}%`));
+      const where = and(...conditions);
+      const [rows, countRows] = await Promise.all([
+        db
+          .select({
+            member: members,
+            unitName: organizationUnits.name,
+          })
+          .from(members)
+          .leftJoin(organizationUnits, eq(members.unitId, organizationUnits.id))
+          .where(where)
+          .orderBy(asc(members.name))
+          .limit(query.limit)
+          .offset((query.page - 1) * query.limit),
+        db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(members)
+          .where(where),
+      ]);
+      return {
+        data: rows.map((row) => ({ ...row.member, unitName: row.unitName })),
+        meta: {
+          page: query.page,
+          limit: query.limit,
+          total: countRows[0]?.count ?? 0,
+        },
+      };
+    },
+  );
+
+  app.post(
+    "/members",
+    { preHandler: app.authorize("members.write") },
+    async (request, reply) => {
+      const input = memberInput.parse(request.body);
+      if (input.unitId) {
+        const [unit] = await db
+          .select({ id: organizationUnits.id })
+          .from(organizationUnits)
+          .where(
+            and(
+              eq(organizationUnits.id, input.unitId),
+              eq(organizationUnits.organizationId, request.organization.id),
+            ),
+          )
+          .limit(1);
+        if (!unit)
+          throw new AppError(
+            422,
+            "INVALID_ORGANIZATION_UNIT",
+            "The selected organization unit is not available.",
+          );
+      }
+      const [created] = await db
+        .insert(members)
+        .values({ ...input, organizationId: request.organization.id })
+        .returning();
+      await audit(
+        request,
+        "member.create",
+        "member",
+        created?.id,
+        undefined,
+        created,
+      );
+      return reply.status(201).send({ data: created });
+    },
+  );
+
+  app.patch(
+    "/members/:id",
+    { preHandler: app.authorize("members.write") },
+    async (request) => {
+      const { id } = idParams.parse(request.params);
+      const input = memberUpdateInput.parse(request.body);
+      const [before] = await db
+        .select()
+        .from(members)
+        .where(
+          and(
+            eq(members.id, id),
+            eq(members.organizationId, request.organization.id),
+            isNull(members.deletedAt),
+          ),
+        )
+        .limit(1);
+      if (!before)
+        throw new AppError(404, "MEMBER_NOT_FOUND", "Member was not found.");
+      if (input.unitId) {
+        const [unit] = await db
+          .select({ id: organizationUnits.id })
+          .from(organizationUnits)
+          .where(
+            and(
+              eq(organizationUnits.id, input.unitId),
+              eq(organizationUnits.organizationId, request.organization.id),
+            ),
+          )
+          .limit(1);
+        if (!unit)
+          throw new AppError(
+            422,
+            "INVALID_ORGANIZATION_UNIT",
+            "The selected organization unit is not available.",
+          );
+      }
+      const [updated] = await db
+        .update(members)
+        .set({ ...input, updatedAt: new Date() })
+        .where(
+          and(
+            eq(members.id, id),
+            eq(members.organizationId, request.organization.id),
+          ),
+        )
+        .returning();
+      await audit(request, "member.update", "member", id, before, updated);
+      return { data: updated };
+    },
+  );
+
+  app.delete(
+    "/members/:id",
+    { preHandler: app.authorize("members.write") },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const [deleted] = await db
+        .update(members)
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .where(
+          and(
+            eq(members.id, id),
+            eq(members.organizationId, request.organization.id),
+            isNull(members.deletedAt),
+          ),
+        )
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "MEMBER_NOT_FOUND", "Member was not found.");
+      await audit(request, "member.delete", "member", id, deleted, undefined);
+      return reply.status(204).send();
+    },
+  );
+
+  app.get(
+    "/forms",
+    { preHandler: app.authorize("forms.read") },
+    async (request) => ({
+      data: await db
+        .select()
+        .from(forms)
+        .where(eq(forms.organizationId, request.organization.id))
+        .orderBy(asc(forms.name)),
+    }),
+  );
+
+  app.get(
+    "/submissions",
+    { preHandler: app.authorize("forms.read") },
+    async (request) => {
+      const query = paginationSchema
+        .extend({
+          status: submissionStatusInput.optional(),
+          formId: z.string().uuid().optional(),
+        })
+        .parse(request.query);
+      const conditions = [
+        eq(formSubmissions.organizationId, request.organization.id),
+      ];
+      if (query.status)
+        conditions.push(eq(formSubmissions.status, query.status));
+      if (query.formId)
+        conditions.push(eq(formSubmissions.formId, query.formId));
+      if (query.search)
+        conditions.push(
+          sql`${formSubmissions.payload}::text ilike ${`%${query.search}%`}`,
+        );
+      const where = and(...conditions);
+      const [rows, countRows] = await Promise.all([
+        db
+          .select({ submission: formSubmissions, formName: forms.name })
+          .from(formSubmissions)
+          .innerJoin(forms, eq(formSubmissions.formId, forms.id))
+          .where(where)
+          .orderBy(desc(formSubmissions.createdAt))
+          .limit(query.limit)
+          .offset((query.page - 1) * query.limit),
+        db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(formSubmissions)
+          .where(where),
+      ]);
+      return {
+        data: rows.map((row) => ({
+          ...row.submission,
+          formName: row.formName,
+        })),
+        meta: {
+          page: query.page,
+          limit: query.limit,
+          total: countRows[0]?.count ?? 0,
+        },
+      };
+    },
+  );
+
+  app.patch(
+    "/submissions/:id",
+    { preHandler: app.authorize("forms.write") },
+    async (request) => {
+      const { id } = idParams.parse(request.params);
+      const input = z
+        .object({ status: submissionStatusInput })
+        .parse(request.body);
+      const [before] = await db
+        .select()
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.id, id),
+            eq(formSubmissions.organizationId, request.organization.id),
+          ),
+        )
+        .limit(1);
+      if (!before)
+        throw new AppError(
+          404,
+          "SUBMISSION_NOT_FOUND",
+          "Submission was not found.",
+        );
+      const [updated] = await db
+        .update(formSubmissions)
+        .set({
+          status: input.status,
+          resolvedAt: input.status === "resolved" ? new Date() : null,
+        })
+        .where(
+          and(
+            eq(formSubmissions.id, id),
+            eq(formSubmissions.organizationId, request.organization.id),
+          ),
+        )
+        .returning();
+      await audit(
+        request,
+        "submission.status_update",
+        "form_submission",
+        id,
+        before,
+        updated,
+      );
+      return { data: updated };
+    },
+  );
+
+  app.patch(
+    "/organization",
+    { preHandler: app.authorize("settings.write") },
+    async (request) => {
+      const input = z
+        .object({
+          name: z.string().min(2).max(160).optional(),
+          tagline: z.string().max(240).nullable().optional(),
+          description: z.string().max(5000).nullable().optional(),
+          logoUrl: z.string().url().nullable().optional(),
+          faviconUrl: z.string().url().nullable().optional(),
+          email: z.string().email().nullable().optional(),
+          phone: z.string().max(40).nullable().optional(),
+          address: z.string().max(2000).nullable().optional(),
+          locale: z.string().max(12).optional(),
+          timezone: z.string().max(60).optional(),
+          theme: themeSchema.optional(),
+        })
+        .parse(request.body);
+      const [updated] = await db
+        .update(organizations)
+        .set({ ...input, updatedAt: new Date() })
+        .where(eq(organizations.id, request.organization.id))
+        .returning();
+      await audit(
+        request,
+        "organization.update",
+        "organization",
+        request.organization.id,
+        request.organization,
+        updated,
+      );
+      return { data: updated };
+    },
+  );
+};
