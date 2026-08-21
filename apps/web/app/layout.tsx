@@ -64,6 +64,14 @@ export default async function RootLayout({
   } as CSSProperties;
   return (
     <html lang={site.organization.locale.split("-")[0]}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&family=Outfit:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap"
+        />
+      </head>
       <body style={variables}>
         <Toaster richColors position="top-right" closeButton />
         <a className="skip-link" href="#main">
