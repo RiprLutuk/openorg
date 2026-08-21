@@ -9,6 +9,7 @@ import {
   invoices,
   memberEntitlements,
   members,
+  payments,
   revenueProducts,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
@@ -146,6 +147,26 @@ export const adminRevenueRoutes: FastifyPluginAsync = async (app) => {
       });
 
       return reply.status(201).send({ data: created });
+    },
+  );
+
+  app.get(
+    "/overview",
+    { preHandler: app.authorize("revenue.read") },
+    async () => {
+      const [products, invList, payList] = await Promise.all([
+        db.select().from(revenueProducts),
+        db.select().from(invoices),
+        db.select().from(payments),
+      ]);
+
+      return {
+        data: {
+          products,
+          invoices: invList,
+          payments: payList,
+        },
+      };
     },
   );
 };

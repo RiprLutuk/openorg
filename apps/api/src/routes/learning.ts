@@ -136,6 +136,56 @@ export const adminLearningRoutes: FastifyPluginAsync = async (app) => {
       return reply.status(201).send({ data: created });
     },
   );
+
+  app.get(
+    "/overview",
+    { preHandler: app.authorize("learning.read") },
+    async () => {
+      const [schemes, activities, enrollments, ledger] = await Promise.all([
+        db.select().from(learningCreditSchemes),
+        db.select().from(learningActivities),
+        db.select().from(learningEnrollments),
+        db.select().from(learningCreditLedger),
+      ]);
+
+      return {
+        data: {
+          schemes,
+          activities,
+          enrollments,
+          ledger,
+        },
+      };
+    },
+  );
+
+  app.post(
+    "/award",
+    { preHandler: app.authorize("learning.write") },
+    async (request) => {
+      const input = z
+        .object({
+          memberId: z.string().uuid(),
+          schemeId: z.string().uuid(),
+          amount: z.number().positive(),
+          description: z.string().optional(),
+        })
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(learningCreditLedger)
+        .values({
+          memberId: input.memberId,
+          schemeId: input.schemeId,
+          entryType: "earned",
+          creditAmountHundredths: Math.round(input.amount * 100),
+          notes: input.description ?? "Pemberian Kredit SKP Pelatihan",
+        })
+        .returning();
+
+      return { data: created };
+    },
+  );
 };
 
 export const memberLearningRoutes: FastifyPluginAsync = async (app) => {

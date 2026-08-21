@@ -8,6 +8,7 @@ import { z } from "zod";
 import { db } from "../db/client";
 import {
   auditLogs,
+  credentialRequirements,
   credentialSchemes,
   memberCredentials,
   members,
@@ -160,6 +161,85 @@ export const adminCredentialRoutes: FastifyPluginAsync = async (app) => {
         created,
       );
       return reply.status(201).send({ data: created });
+    },
+  );
+
+  app.get(
+    "/credentials",
+    { preHandler: app.authorize("credentials.read") },
+    async () => {
+      const rows = await db
+        .select()
+        .from(memberCredentials)
+        .orderBy(desc(memberCredentials.createdAt))
+        .limit(100);
+      return { data: rows };
+    },
+  );
+
+  app.patch(
+    "/credentials/:id/review",
+    { preHandler: app.authorize("credentials.write") },
+    async (request) => {
+      const { id } = _idParams.parse(request.params);
+      const input = z
+        .object({
+          decision: z.enum(["approve", "reject"]),
+          notes: z.string().optional(),
+        })
+        .parse(request.body);
+
+      const [updated] = await db
+        .update(memberCredentials)
+        .set({
+          status: input.decision === "approve" ? "verified" : "rejected",
+          updatedAt: new Date(),
+        })
+        .where(eq(memberCredentials.id, id))
+        .returning();
+
+      if (!updated)
+        throw new AppError(
+          404,
+          "CREDENTIAL_NOT_FOUND",
+          "Sertifikat tidak ditemukan.",
+        );
+
+      return { data: updated };
+    },
+  );
+
+  app.get(
+    "/requirements",
+    { preHandler: app.authorize("credentials.read") },
+    async () => {
+      const rows = await db.select().from(credentialRequirements);
+      return { data: rows };
+    },
+  );
+
+  app.post(
+    "/requirements",
+    { preHandler: app.authorize("credentials.write") },
+    async (request) => {
+      const input = z
+        .object({
+          schemeId: z.string().uuid(),
+          prerequisiteSchemeId: z.string().uuid().optional(),
+          ruleType: z.enum(["required", "one_of", "optional"]).optional(),
+        })
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(credentialRequirements)
+        .values({
+          schemeId: input.schemeId,
+          prerequisiteSchemeId: input.prerequisiteSchemeId ?? input.schemeId,
+          ruleType: input.ruleType ?? "required",
+        })
+        .returning();
+
+      return { data: created };
     },
   );
 };

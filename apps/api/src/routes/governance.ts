@@ -144,6 +144,29 @@ async function assertParentUnitValid(unitId: string, parentId: string | null) {
 
 export const governanceRoutes: FastifyPluginAsync = async (app) => {
   app.get(
+    "/overview",
+    { preHandler: app.authorize("governance.read") },
+    async () => {
+      const [units, posList, assignList] = await Promise.all([
+        db
+          .select()
+          .from(organizationUnits)
+          .orderBy(asc(organizationUnits.sortOrder)),
+        db.select().from(positions).orderBy(asc(positions.sortOrder)),
+        db.select().from(positionAssignments),
+      ]);
+
+      return {
+        data: {
+          units,
+          positions: posList,
+          assignments: assignList,
+        },
+      };
+    },
+  );
+
+  app.get(
     "/units",
     { preHandler: app.authorize("governance.read") },
     async () => {
