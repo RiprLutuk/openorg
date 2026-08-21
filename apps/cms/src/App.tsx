@@ -22,6 +22,12 @@ import {
   Palette,
   Plus,
   Save,
+  CheckCircle2,
+  Copy,
+  CreditCard,
+  Printer,
+  QrCode,
+  RefreshCw,
   Search,
   Settings,
   ShieldCheck,
@@ -30,6 +36,7 @@ import {
   WalletCards,
   X,
 } from "lucide-react";
+import QRCode from "qrcode";
 import {
   type CSSProperties,
   type FormEvent,
@@ -4263,10 +4270,479 @@ function ApplicationsManager() {
   );
 }
 
+function KtaCardModal({
+  member,
+  onClose,
+}: {
+  member: CmsMember;
+  onClose: () => void;
+}) {
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const cardQuery = useQuery({
+    queryKey: ["member-card", member.id],
+    queryFn: () =>
+      api<{
+        data: {
+          member: CmsMember & { unitName?: string };
+          card: {
+            code: string;
+            version: number;
+            issuedAt: string;
+            expiresAt: string | null;
+          };
+          organization: { name: string; logoUrl: string | null };
+        };
+      }>(`/v1/admin/membership/members/${member.id}/card`),
+  });
+
+  const cardData = cardQuery.data?.data;
+  const cardCode = cardData?.card.code ?? `KTA-${member.memberNumber}`;
+
+  useEffect(() => {
+    if (!cardCode) return;
+    const verifyUrl = `${window.location.origin.replace("5173", "3000")}/verify?code=${encodeURIComponent(cardCode)}`;
+    QRCode.toDataURL(verifyUrl, {
+      width: 200,
+      margin: 1,
+      color: { dark: "#0f172a", light: "#ffffff" },
+    })
+      .then(setQrCodeUrl)
+      .catch((err) => console.error(err));
+  }, [cardCode]);
+
+  const generateNewCard = async () => {
+    if (
+      !confirm(
+        "Terbitkan kode KTA versi baru untuk anggota ini? Kode lama akan dinonaktifkan.",
+      )
+    )
+      return;
+    setIsGenerating(true);
+    try {
+      await api(`/v1/admin/membership/members/${member.id}/card/generate`, {
+        method: "POST",
+      });
+      toast.success("Kode KTA versi baru berhasil diterbitkan!");
+      void cardQuery.refetch();
+    } catch (err: any) {
+      toast.error(err.message || "Gagal membuat kartu KTA baru.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyVerifyLink = () => {
+    const verifyUrl = `${window.location.origin.replace("5173", "3000")}/verify?code=${encodeURIComponent(cardCode)}`;
+    navigator.clipboard.writeText(verifyUrl);
+    toast.success("Link verifikasi KTA disalin ke clipboard!");
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div
+        className="modal-content kta-modal-box"
+        style={{ maxWidth: "620px" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <div>
+            <h2>Kartu Tanda Anggota (KTA Digital)</h2>
+            <p className="subtext">
+              Pratinjau KTA Digital & Kode Verifikasi Resmi {member.name}
+            </p>
+          </div>
+          <button type="button" className="close-btn" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+
+        {cardQuery.isLoading ? (
+          <div className="portal-loading" style={{ padding: "40px 0" }}>
+            Menyiapkan pratinjau KTA...
+          </div>
+        ) : (
+          <div className="kta-card-preview-container">
+            {/* Visual KTA Card */}
+            <div
+              className="kta-card-graphic"
+              style={{
+                background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
+                borderRadius: "16px",
+                padding: "24px",
+                color: "#ffffff",
+                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.3)",
+                border: "1px solid rgba(245, 158, 11, 0.3)",
+                position: "relative",
+                overflow: "hidden",
+                marginTop: "16px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                  paddingBottom: "14px",
+                  marginBottom: "16px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div
+                    style={{
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "8px",
+                      background: "#F59E0B",
+                      color: "#0F172A",
+                      fontWeight: 800,
+                      display: "grid",
+                      placeItems: "center",
+                      fontSize: "14px",
+                    }}
+                  >
+                    APTI
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: "14px", letterSpacing: "0.5px" }}>
+                      {cardData?.organization.name ?? "APTI INDONESIA"}
+                    </div>
+                    <div style={{ fontSize: "11px", opacity: 0.7 }}>
+                      Asosiasi Pengusaha & Teknisi Pendingin Indonesia
+                    </div>
+                  </div>
+                </div>
+                <span
+                  style={{
+                    background: "rgba(245, 158, 11, 0.15)",
+                    color: "#F59E0B",
+                    padding: "4px 10px",
+                    borderRadius: "20px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    border: "1px solid rgba(245, 158, 11, 0.4)",
+                  }}
+                >
+                  KTA DIGITAL RESMI
+                </span>
+              </div>
+
+              <div style={{ display: "flex", gap: "18px", alignItems: "center" }}>
+                <div
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    borderRadius: "12px",
+                    background: "#334155",
+                    border: "2px solid #F59E0B",
+                    display: "grid",
+                    placeItems: "center",
+                    fontSize: "24px",
+                    fontWeight: 700,
+                    color: "#F8FAFC",
+                    overflow: "hidden",
+                    flexShrink: 0,
+                  }}
+                >
+                  {member.avatarUrl ? (
+                    <img
+                      src={member.avatarUrl}
+                      alt={member.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    member.name.slice(0, 2).toUpperCase()
+                  )}
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "#FFFFFF" }}>
+                    {member.name}
+                  </h3>
+                  <div style={{ fontSize: "13px", marginTop: "4px", color: "#F59E0B", fontWeight: 600 }}>
+                    No. KTA: {cardCode}
+                  </div>
+                  <div style={{ fontSize: "12px", marginTop: "2px", opacity: 0.8 }}>
+                    Unit: {cardData?.member.unitName ?? member.unitName ?? "DPP INDONESIA"}
+                  </div>
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      marginTop: "6px",
+                      background: "rgba(34, 197, 94, 0.15)",
+                      color: "#4ADE80",
+                      padding: "2px 8px",
+                      borderRadius: "6px",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <BadgeCheck size={13} /> ANGGOTA AKTIF BERLISENSI
+                  </div>
+                </div>
+
+                <div style={{ textAlign: "center", flexShrink: 0 }}>
+                  {qrCodeUrl ? (
+                    <img
+                      src={qrCodeUrl}
+                      alt="QR Verifikasi"
+                      style={{ width: "76px", height: "76px", borderRadius: "6px", background: "#FFFFFF", padding: "4px" }}
+                    />
+                  ) : (
+                    <QrCode size={60} />
+                  )}
+                  <div style={{ fontSize: "9px", opacity: 0.6, marginTop: "2px" }}>Scan Verifikasi</div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: "16px",
+                  paddingTop: "12px",
+                  borderTop: "1px dashed rgba(255, 255, 255, 0.15)",
+                  fontSize: "11px",
+                  opacity: 0.7,
+                }}
+              >
+                <span>Kartu Versi v{cardData?.card.version ?? 1}</span>
+                <span>
+                  Berlaku s/d:{" "}
+                  {cardData?.card.expiresAt
+                    ? new Date(cardData.card.expiresAt).toLocaleDateString("id-ID")
+                    : "Seumur Hidup / Selama Aktif"}
+                </span>
+              </div>
+            </div>
+
+            {/* Actions Bar */}
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                marginTop: "20px",
+                flexWrap: "wrap",
+                justifyContent: "flex-end",
+              }}
+            >
+              <button
+                type="button"
+                className="button secondary"
+                onClick={copyVerifyLink}
+              >
+                <Copy size={16} /> Salin Link Verifikasi
+              </button>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={generateNewCard}
+                disabled={isGenerating}
+              >
+                <RefreshCw size={16} className={isGenerating ? "spin" : ""} /> Terbitkan Ulang KTA
+              </button>
+              <button
+                type="button"
+                className="button primary"
+                onClick={() => window.print()}
+              >
+                <Printer size={16} /> Cetak / Download KTA
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function KtaVerificationModal({ onClose }: { onClose: () => void }) {
+  const [code, setCode] = useState("");
+  const [searchCode, setSearchCode] = useState("");
+  const query = useQuery({
+    queryKey: ["verify-card", searchCode],
+    queryFn: () =>
+      api<{
+        data: {
+          valid: boolean;
+          member: {
+            id: string;
+            name: string;
+            memberNumber: string;
+            unitName: string | null;
+            joinedAt: string | null;
+            email?: string;
+            phone?: string;
+          };
+          card: {
+            code: string;
+            issuedAt: string;
+            expiresAt: string | null;
+            version: number;
+          };
+          organization: { name: string };
+        };
+      }>(`/v1/public/membership/cards/${encodeURIComponent(searchCode)}`),
+    enabled: Boolean(searchCode),
+  });
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault();
+    if (!code.trim()) return;
+    setSearchCode(code.trim());
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div
+        className="modal-content"
+        style={{ maxWidth: "560px" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <div>
+            <h2>Verifikasi Keabsahan Anggota & KTA</h2>
+            <p className="subtext">
+              Cek status keaktifan KTA digital di database pusat APTI Indonesia
+            </p>
+          </div>
+          <button type="button" className="close-btn" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSearch} style={{ marginTop: "16px" }}>
+          <div className="form-group" style={{ display: "flex", gap: "8px" }}>
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="Masukkan No. KTA (cth: KTA-APTI-DPP-001)..."
+              style={{ flex: 1 }}
+              required
+            />
+            <button type="submit" className="button primary">
+              <Search size={16} /> Cek Status
+            </button>
+          </div>
+        </form>
+
+        {query.isLoading && (
+          <div className="portal-loading" style={{ padding: "30px 0" }}>
+            Memeriksa registri resmi...
+          </div>
+        )}
+
+        {query.isError && (
+          <div
+            style={{
+              marginTop: "20px",
+              padding: "20px",
+              borderRadius: "12px",
+              background: "#FEF2F2",
+              border: "1px solid #FECACA",
+              color: "#991B1B",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                fontWeight: 600,
+              }}
+            >
+              <X size={20} /> KTA / Anggota Tidak Ditemukan
+            </div>
+            <p style={{ marginTop: "6px", fontSize: "14px", color: "#7F1D1D" }}>
+              Kode KTA <strong>"{searchCode}"</strong> tidak terdaftar atau sudah dicabut.
+            </p>
+          </div>
+        )}
+
+        {query.data?.data && (
+          <div
+            style={{
+              marginTop: "20px",
+              padding: "20px",
+              borderRadius: "12px",
+              background: "#F0FDF4",
+              border: "1px solid #BBF7D0",
+              color: "#166534",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                fontWeight: 700,
+                fontSize: "17px",
+                color: "#15803D",
+              }}
+            >
+              <BadgeCheck size={24} /> KTA RESMI DITEMUKAN & AKTIF
+            </div>
+            <dl
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "12px",
+                marginTop: "16px",
+                fontSize: "14px",
+              }}
+            >
+              <div>
+                <dt style={{ fontSize: "11px", color: "#15803D", textTransform: "uppercase" }}>
+                  Nama Anggota
+                </dt>
+                <dd style={{ fontWeight: 700, fontSize: "16px", color: "#0F172A" }}>
+                  {query.data.data.member.name}
+                </dd>
+              </div>
+              <div>
+                <dt style={{ fontSize: "11px", color: "#15803D", textTransform: "uppercase" }}>
+                  No. KTA / Anggota
+                </dt>
+                <dd style={{ fontWeight: 700, fontSize: "16px", color: "#0F172A" }}>
+                  {query.data.data.member.memberNumber}
+                </dd>
+              </div>
+              <div>
+                <dt style={{ fontSize: "11px", color: "#15803D", textTransform: "uppercase" }}>
+                  Unit Organisasi
+                </dt>
+                <dd style={{ fontWeight: 600, color: "#334155" }}>
+                  {query.data.data.member.unitName ?? "DPP INDONESIA"}
+                </dd>
+              </div>
+              <div>
+                <dt style={{ fontSize: "11px", color: "#15803D", textTransform: "uppercase" }}>
+                  Kode KTA Card
+                </dt>
+                <dd style={{ fontWeight: 600, color: "#334155" }}>
+                  {query.data.data.card.code}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function MembersManager() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
   const [editor, setEditor] = useState<CmsMember | "new" | null>(null);
+  const [selectedCardMember, setSelectedCardMember] = useState<CmsMember | null>(null);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+
   const query = useQuery({
     queryKey: ["members", search],
     queryFn: () =>
@@ -4280,25 +4756,47 @@ function MembersManager() {
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ["members"] });
       void client.invalidateQueries({ queryKey: ["dashboard"] });
+      toast.success("Anggota berhasil dihapus.");
     },
   });
+
   if (editor === "new") return <MemberEditor onClose={() => setEditor(null)} />;
   if (editor)
     return <MemberEditor member={editor} onClose={() => setEditor(null)} />;
+
   return (
     <>
+      {selectedCardMember && (
+        <KtaCardModal
+          member={selectedCardMember}
+          onClose={() => setSelectedCardMember(null)}
+        />
+      )}
+      {showVerifyModal && (
+        <KtaVerificationModal onClose={() => setShowVerifyModal(false)} />
+      )}
+
       <PageHeading
         eyebrow="Community"
-        title="Members"
-        description="Manage applications, chapters, visibility, and flexible organization-specific profile data."
+        title="Members & KTA"
+        description="Manage members, generate KTA digital cards, verify credentials, and manage regional units."
         action={
-          <button
-            type="button"
-            className="button primary"
-            onClick={() => setEditor("new")}
-          >
-            <Plus size={18} /> Add member
-          </button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => setShowVerifyModal(true)}
+            >
+              <BadgeCheck size={18} /> Verifikasi KTA
+            </button>
+            <button
+              type="button"
+              className="button primary"
+              onClick={() => setEditor("new")}
+            >
+              <Plus size={18} /> Add member
+            </button>
+          </div>
         }
       />
       <div className="table-panel">
@@ -4308,7 +4806,7 @@ function MembersManager() {
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search name…"
+              placeholder="Search name or KTA number…"
             />
           </label>
           <span className="result-count">
@@ -4343,6 +4841,14 @@ function MembersManager() {
                 )}
               </span>
               <span className="row-actions">
+                <button
+                  type="button"
+                  className="button secondary text-button"
+                  style={{ padding: "4px 8px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                  onClick={() => setSelectedCardMember(item)}
+                >
+                  <CreditCard size={14} /> Kartu KTA
+                </button>
                 <button
                   type="button"
                   className="text-button"

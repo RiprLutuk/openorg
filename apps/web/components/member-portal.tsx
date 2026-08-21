@@ -39,8 +39,9 @@ type PortalData = {
     rejectionReason: string | null;
   } | null;
   card: {
-    cardNumber: string;
-    verificationCode: string;
+    code: string;
+    cardNumber?: string;
+    verificationCode?: string;
     issuedAt: string;
     expiresAt: string | null;
   } | null;
@@ -205,7 +206,7 @@ export function MemberPortal() {
 
   useEffect(() => {
     if (!data?.card) return;
-    const verificationUrl = `${window.location.origin}/member/verify/${data.card.verificationCode}`;
+    const verificationUrl = `${window.location.origin}/verify?code=${encodeURIComponent(data.card.code)}`;
     QRCode.toDataURL(verificationUrl, {
       width: 220,
       margin: 1,
@@ -375,8 +376,8 @@ export function MemberPortal() {
                 <div className="membership-identity">
                   <small>Member name</small>
                   <h3>{data.member.name}</h3>
-                  <small>Member number</small>
-                  <strong>{data.card.cardNumber}</strong>
+                  <small>Member number / KTA Code</small>
+                  <strong>{data.card.code}</strong>
                   <div>
                     <span>
                       <small>Issued</small>

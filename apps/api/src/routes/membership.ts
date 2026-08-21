@@ -251,7 +251,7 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
       .leftJoin(organizationUnits, eq(members.unitId, organizationUnits.id))
       .where(
         and(
-          eq(membershipCards.code, code),
+          or(eq(membershipCards.code, code), eq(members.memberNumber, code)),
           eq(members.status, "active"),
           isNull(membershipCards.revokedAt),
         ),
@@ -275,19 +275,23 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
       data: {
         valid: true,
         member: {
+          id: result.member.id,
           name: result.member.name,
           memberNumber: result.member.memberNumber,
           avatarUrl: result.member.avatarUrl,
           unitName: result.unit?.name ?? null,
           joinedAt: result.member.joinedAt,
+          phone: result.member.phone,
+          email: result.member.email,
         },
         card: {
+          code: result.card.code,
           issuedAt: result.card.issuedAt,
           expiresAt: result.card.expiresAt,
           version: result.card.version,
         },
         organization: {
-          name: site?.name ?? "OpenOrg Association",
+          name: site?.name ?? "APTI Indonesia",
           logoUrl: site?.logoUrl ?? null,
         },
       },
@@ -532,6 +536,121 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
         result,
       );
       return { data: result };
+    },
+  );
+
+  app.get(
+    "/members/:id/card",
+    { preHandler: app.authorize("members.read") },
+    async (request) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const [member] = await db
+        .select({
+          member: members,
+          unit: organizationUnits,
+        })
+        .from(members)
+        .leftJoin(organizationUnits, eq(members.unitId, organizationUnits.id))
+        .where(eq(members.id, id))
+        .limit(1);
+
+      if (!member)
+        throw new AppError(404, "MEMBER_NOT_FOUND", "Member not found.");
+
+      let [card] = await db
+        .select()
+        .from(membershipCards)
+        .where(
+          and(
+            eq(membershipCards.memberId, id),
+            isNull(membershipCards.revokedAt),
+          ),
+        )
+        .orderBy(desc(membershipCards.version))
+        .limit(1);
+
+      if (!card) {
+        const cardCode = `KTA-${randomUUID().slice(0, 8).toUpperCase()}`;
+        const [created] = await db
+          .insert(membershipCards)
+          .values({
+            memberId: id,
+            code: cardCode,
+            version: 1,
+            isActive: true,
+          })
+          .returning();
+        card = created;
+      }
+
+      const [site] = await db
+        .select()
+        .from(siteSettings)
+        .where(eq(siteSettings.id, "default"))
+        .limit(1);
+
+      return {
+        data: {
+          member: {
+            ...member.member,
+            unitName: member.unit?.name ?? null,
+          },
+          card,
+          organization: {
+            name: site?.name ?? "APTI Indonesia",
+            logoUrl: site?.logoUrl ?? null,
+          },
+        },
+      };
+    },
+  );
+
+  app.post(
+    "/members/:id/card/generate",
+    { preHandler: app.authorize("members.write") },
+    async (request) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const [member] = await db
+        .select()
+        .from(members)
+        .where(eq(members.id, id))
+        .limit(1);
+
+      if (!member)
+        throw new AppError(404, "MEMBER_NOT_FOUND", "Member not found.");
+
+      const [existing] = await db
+        .select()
+        .from(membershipCards)
+        .where(
+          and(
+            eq(membershipCards.memberId, id),
+            isNull(membershipCards.revokedAt),
+          ),
+        )
+        .orderBy(desc(membershipCards.version))
+        .limit(1);
+
+      const nextVersion = (existing?.version ?? 0) + 1;
+      if (existing) {
+        await db
+          .update(membershipCards)
+          .set({ revokedAt: new Date(), isActive: false })
+          .where(eq(membershipCards.id, existing.id));
+      }
+
+      const cardCode = `KTA-${randomUUID().slice(0, 8).toUpperCase()}`;
+      const [newCard] = await db
+        .insert(membershipCards)
+        .values({
+          memberId: id,
+          code: cardCode,
+          version: nextVersion,
+          isActive: true,
+        })
+        .returning();
+
+      return { data: newCard };
     },
   );
 };
