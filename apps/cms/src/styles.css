@@ -612,47 +612,27 @@ h3,
   text-align: center;
   color: #ffffff;
 }
-.onboarding-progress-badge strong {
-  display: block;
-  font-size: 24px;
-  font-weight: 800;
-  color: #ffffff !important;
-  line-height: 1;
-}
-.onboarding-progress-badge span {
-  font-size: 11px;
-  color: #94a3b8;
-}
-
-.onboarding-steps-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-@media (max-width: 900px) {
-  .onboarding-steps-grid {
-    grid-template-columns: 1fr;
-  }
-}
-.onboarding-step-card {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+.onboarding-step-clean {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #ffffff !important;
+  color: #0f172a;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
+  width: 100%;
 }
-.onboarding-step-card:hover {
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+.onboarding-step-clean:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   transform: translateY(-2px);
 }
-.step-badge {
+.step-check-circle {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -662,30 +642,29 @@ h3,
   font-size: 13px;
   flex-shrink: 0;
 }
-.step-badge.completed {
-  background: #ffffff !important;
-  color: #0f172a !important;
+.step-check-circle.completed {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
 }
-.step-badge.active {
-  background: rgba(255, 255, 255, 0.2) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+.step-check-circle.pending {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
 }
-.step-info {
+.step-clean-text {
   flex: 1;
   display: grid;
 }
-.step-info strong {
+.step-clean-text strong {
   font-size: 14px;
   font-weight: 700;
-  color: #ffffff !important;
+  color: #0f172a;
 }
-.step-info span {
-  font-size: 11px;
-  color: #94a3b8 !important;
-}
-.step-arrow {
-  color: #94a3b8;
+.step-clean-text span {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 1px;
 }
 
 /* Stat Bento Card Enhancements */

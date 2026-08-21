@@ -524,68 +524,73 @@ function Dashboard({
         </div>
       </div>
 
-      {/* Clean Monochromatic Setup Banner */}
-      <section className="panel onboarding-hero-card" style={{ marginBottom: "32px" }}>
-        <div className="onboarding-hero-header">
+      {/* Harmonious Clean Setup Guide Banner */}
+      <section className="panel onboarding-clean-banner" style={{ marginBottom: "24px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "24px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
           <div>
-            <span className="badge-glow" style={{ background: "rgba(255, 255, 255, 0.1)", color: "#E2E8F0", borderColor: "rgba(255, 255, 255, 0.2)", marginBottom: "8px" }}>
-              <Sparkles size={13} /> PANDUAN PENYETELAN ORGANISASI
-            </span>
-            <h2 style={{ fontSize: "22px", fontWeight: 800, margin: "6px 0 4px", color: "#FFFFFF" }}>
-              Personalisasi Platform {session.organization.name} (3 Langkah Instan)
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <Sparkles size={16} style={{ color: "#2563eb" }} />
+              <span style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.08em", color: "#2563eb", textTransform: "uppercase" }}>
+                PANDUAN PENYETELAN ORGANISASI
+              </span>
+            </div>
+            <h2 style={{ fontSize: "20px", fontWeight: 800, margin: "2px 0 4px", color: "#0f172a" }}>
+              Personalisasi Platform {session.organization.name}
             </h2>
-            <p style={{ color: "#94A3B8", fontSize: "14px", margin: 0 }}>
-              Sesuaikan identitas, logo, warna visual, dan tipografi publik agar situs organisasi tampil profesional.
+            <p style={{ color: "#64748b", fontSize: "14px", margin: 0 }}>
+              Selesaikan 3 langkah mudah berikut untuk memperbarui logo, warna, dan tipografi publik.
             </p>
           </div>
-          <div className="onboarding-progress-badge">
-            <strong>66%</strong>
-            <span>Progres Setup</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#f8fafc", border: "1px solid #e2e8f0", padding: "8px 16px", borderRadius: "12px" }}>
+            <div style={{ textAlign: "right" }}>
+              <strong style={{ fontSize: "18px", fontWeight: 800, color: "#0f172a", display: "block", lineHeight: 1 }}>66%</strong>
+              <small style={{ fontSize: "11px", color: "#64748b" }}>Selesai</small>
+            </div>
           </div>
         </div>
 
         <div className="onboarding-steps-grid">
           <button
             type="button"
-            className="onboarding-step-card"
+            className="onboarding-step-clean"
             onClick={() => navigate("settings")}
           >
-            <div className="step-badge completed">
+            <div className="step-check-circle completed">
               <CheckCircle2 size={16} />
             </div>
-            <div className="step-info">
-              <strong>1. Identitas & Logo</strong>
-              <span>Nama, logo, favicon & kontak</span>
+            <div className="step-clean-text">
+              <strong>1. Identitas & Logo Organisasi</strong>
+              <span>Nama, logo, favicon & kontak publik</span>
             </div>
-            <ChevronRight size={16} className="step-arrow" />
+            <ChevronRight size={16} style={{ color: "#94a3b8" }} />
           </button>
 
           <button
             type="button"
-            className="onboarding-step-card"
+            className="onboarding-step-clean"
             onClick={() => navigate("appearance")}
           >
-            <div className="step-badge completed">
+            <div className="step-check-circle completed">
               <CheckCircle2 size={16} />
             </div>
-            <div className="step-info">
-              <strong>2. Palette Warna Tema</strong>
-              <span>Primary, accent & border radius</span>
+            <div className="step-clean-text">
+              <strong>2. Skema Warna & Palette Tema</strong>
+              <span>Warna utama, aksen & border radius UI</span>
             </div>
-            <ChevronRight size={16} className="step-arrow" />
+            <ChevronRight size={16} style={{ color: "#94a3b8" }} />
           </button>
 
           <button
             type="button"
-            className="onboarding-step-card"
+            className="onboarding-step-clean"
             onClick={() => navigate("appearance")}
           >
-            <div className="step-badge active">3</div>
-            <div className="step-info">
-              <strong>3. Tipografi & Font</strong>
-              <span>Heading & body font publik</span>
+            <div className="step-check-circle pending">3</div>
+            <div className="step-clean-text">
+              <strong>3. Tipografi & Font Heading</strong>
+              <span>Font judul dan font teks utama</span>
             </div>
-            <ChevronRight size={16} className="step-arrow" />
+            <ChevronRight size={16} style={{ color: "#94a3b8" }} />
           </button>
         </div>
       </section>
