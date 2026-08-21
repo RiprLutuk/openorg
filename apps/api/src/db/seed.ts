@@ -17,14 +17,14 @@ import {
   users,
 } from "./schema";
 
-const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@asisi.or.id";
+const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@demo.openorg";
 const adminPassword =
   process.env.SEED_ADMIN_PASSWORD ??
   (process.env.NODE_ENV === "production"
     ? (() => {
         throw new Error("SEED_ADMIN_PASSWORD is required in production.");
       })()
-    : "AsisiIndonesia!2026");
+    : "OpenOrg!2026Demo");
 const now = new Date();
 
 async function seed() {
@@ -52,42 +52,36 @@ async function seed() {
     await tx.delete(contents);
     await tx.delete(users);
 
-    // 1. Site Settings ASISI Indonesia
+    // 1. Site Settings APTI Indonesia (Asosiasi Pengusaha & Teknisi Pendingin Indonesia)
     await tx.insert(siteSettings).values({
       id: "default",
-      name: "ASISI Indonesia",
-      slug: "asisi",
+      name: "APTI Indonesia",
+      slug: "apti",
       kind: "association",
-      tagline:
-        "Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia",
+      tagline: "Asosiasi Pengusaha & Teknisi Pendingin Indonesia",
       description:
         "Wadah resmi profesionalisme perusahaan pendingin dan teknisi refrigerasi tata udara (HVAC/R) Indonesia. Terintegrasi dengan registri KTA digital resmi, sertifikasi kompetensi BNSP, struktur kepengurusan DPP, DPD & Korwil Nusantara, serta pelatihan teknis terstandarisasi.",
-      email: "sekretariat@asisi.or.id",
+      email: "sekretariat@apti.or.id",
       phone: "+62 812-9000-1980",
-      address:
-        "Gedung ASISI Center, Jl. Jend. Sudirman No. 88, Jakarta Pusat 10220",
+      address: "Gedung APTI Center, Jl. Jend. Sudirman No. 88, Jakarta Pusat 10220",
       primaryColor: "#0b3b60",
       secondaryColor: "#d97706",
       quickContact: {
         channel: "message",
-        label: "WhatsApp Sekretariat ASISI",
+        label: "WhatsApp Sekretariat APTI",
         value: "+62 812-9000-1980",
         href: "https://wa.me/6281290001980",
       },
       navigation: [
         { id: "home", label: "Beranda", href: "/" },
         { id: "events", label: "Agenda & Sertifikasi", href: "/events" },
-        {
-          id: "structure",
-          label: "Struktur Pengurus (DPP/DPD)",
-          href: "/structure",
-        },
+        { id: "structure", label: "Struktur Pengurus (DPP/DPD)", href: "/structure" },
         { id: "verify", label: "Verifikasi KTA Teknisi", href: "/verify" },
       ],
       footer: {
         description:
-          "Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia (ASISI). Mewujudkan teknisi AC & pendingin Indonesia yang kompeten, bersertifikat BNSP, dan berstandar internasional.",
-        copyright: `© ${now.getFullYear()} ASISI Indonesia (Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia). All rights reserved.`,
+          "Asosiasi Pengusaha & Teknisi Pendingin Indonesia (APTI). Mewujudkan teknisi AC & pendingin Indonesia yang kompeten, bersertifikat BNSP, dan berstandar internasional.",
+        copyright: `© ${now.getFullYear()} APTI Indonesia (Asosiasi Pengusaha & Teknisi Pendingin Indonesia). All rights reserved.`,
         links: [
           { label: "Agenda Pelatihan & Sertifikasi", href: "/events" },
           { label: "Struktur DPP & DPD Provinsi", href: "/structure" },
@@ -100,7 +94,7 @@ async function seed() {
     const [owner] = await tx
       .insert(users)
       .values({
-        name: "Sekretariat DPP ASISI Indonesia",
+        name: "Sekretariat DPP APTI Indonesia",
         email: adminEmail.toLowerCase(),
         passwordHash,
         status: "active",
@@ -112,8 +106,8 @@ async function seed() {
     const [ownerRole] = await tx
       .insert(roles)
       .values({
-        name: "Administrator ASISI",
-        description: "Akses penuh manajemen asosiasi ASISI Indonesia",
+        name: "Administrator Organisasi",
+        description: "Akses penuh manajemen asosiasi APTI Indonesia",
         isSystem: true,
       })
       .returning();
@@ -138,7 +132,7 @@ async function seed() {
       ["learning.write", "Kelola pelatihan & SKP"],
       ["revenue.read", "Melihat iuran & sponsorship"],
       ["revenue.write", "Kelola iuran & sponsorship"],
-      ["settings.write", "Kelola profil & identitas ASISI"],
+      ["settings.write", "Kelola profil & identitas organisasi"],
       ["users.manage", "Kelola pengurus & hak akses"],
     ] as const;
 
@@ -165,36 +159,35 @@ async function seed() {
       .insert(organizationUnits)
       .values([
         {
-          name: "Dewan Pimpinan Pusat (DPP ASISI Indonesia)",
+          name: "Dewan Pimpinan Pusat (DPP APTI Indonesia)",
           slug: "dpp",
           code: "DPP",
           type: "national",
-          description:
-            "Pengurus Pusat Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia",
+          description: "Pengurus Pusat Asosiasi Pengusaha & Teknisi Pendingin Indonesia",
           sortOrder: 1,
         },
         {
-          name: "DPD ASISI Jawa Barat",
+          name: "DPD APTI Jawa Barat",
           slug: "dpd-jabar",
           code: "DPD-JABAR",
           type: "regional",
-          description: "Dewan Pimpinan Daerah ASISI Provinsi Jawa Barat",
+          description: "Dewan Pimpinan Daerah APTI Provinsi Jawa Barat",
           sortOrder: 2,
         },
         {
-          name: "DPD ASISI Jawa Timur",
+          name: "DPD APTI Jawa Timur",
           slug: "dpd-jatim",
           code: "DPD-JATIM",
           type: "regional",
-          description: "Dewan Pimpinan Daerah ASISI Provinsi Jawa Timur",
+          description: "Dewan Pimpinan Daerah APTI Provinsi Jawa Timur",
           sortOrder: 3,
         },
         {
-          name: "DPD ASISI DKI Jakarta",
+          name: "DPD APTI DKI Jakarta",
           slug: "dpd-dki",
           code: "DPD-DKI",
           type: "regional",
-          description: "Dewan Pimpinan Daerah ASISI Provinsi DKI Jakarta",
+          description: "Dewan Pimpinan Daerah APTI Provinsi DKI Jakarta",
           sortOrder: 4,
         },
         {
@@ -232,44 +225,40 @@ async function seed() {
         .values([
           {
             unitId: dppUnit.id,
-            title: "Ketua Umum DPP ASISI",
-            description:
-              "Memimpin kebijakan strategis asosiasi tingkat nasional",
+            title: "Ketua Umum DPP APTI",
+            description: "Memimpin kebijakan strategis asosiasi tingkat nasional",
             sortOrder: 1,
           },
           {
             unitId: dppUnit.id,
             title: "Sekretaris Jenderal DPP",
-            description:
-              "Mengkoordinasikan sekretariat dan operasional organisasi nasional",
+            description: "Mengkoordinasikan sekretariat dan operasional organisasi nasional",
             sortOrder: 2,
           },
           {
             unitId: dpdJabar.id,
-            title: "Ketua DPD ASISI Jawa Barat",
-            description:
-              "Memimpin jaringan teknisi dan kegiatan wilayah Jawa Barat",
+            title: "Ketua DPD APTI Jawa Barat",
+            description: "Memimpin jaringan teknisi dan kegiatan wilayah Jawa Barat",
             sortOrder: 1,
           },
           {
             unitId: dpdJatim.id,
-            title: "Ketua DPD ASISI Jawa Timur",
-            description:
-              "Memimpin jaringan teknisi dan kegiatan wilayah Jawa Timur",
+            title: "Ketua DPD APTI Jawa Timur",
+            description: "Memimpin jaringan teknisi dan kegiatan wilayah Jawa Timur",
             sortOrder: 1,
           },
         ])
         .returning();
 
-      // Seed Members (Teknisi ASISI)
+      // Seed Members (Teknisi APTI)
       const createdMembers = await tx
         .insert(members)
         .values([
           {
             unitId: dppUnit.id,
-            memberNumber: "KTA-ASISI-DPP-001",
+            memberNumber: "KTA-APTI-DPP-001",
             name: "Ir. H. Nanang Varian Supriadi",
-            email: "nanang@asisi.or.id",
+            email: "nanang@apti.or.id",
             phone: "+6281290001980",
             joinedAt: new Date("2018-05-10"),
             status: "active",
@@ -281,9 +270,9 @@ async function seed() {
           },
           {
             unitId: dppUnit.id,
-            memberNumber: "KTA-ASISI-DPP-002",
+            memberNumber: "KTA-APTI-DPP-002",
             name: "M. Ridwan Syah, ST",
-            email: "ridwan@asisi.or.id",
+            email: "ridwan@apti.or.id",
             phone: "+6281388991100",
             joinedAt: new Date("2019-02-14"),
             status: "active",
@@ -295,9 +284,9 @@ async function seed() {
           },
           {
             unitId: dpdJabar.id,
-            memberNumber: "KTA-ASISI-JABAR-0142",
+            memberNumber: "KTA-APTI-JABAR-0142",
             name: "Dedi Kurniawan, S.Pd",
-            email: "dedi.jabar@asisi.or.id",
+            email: "dedi.jabar@apti.or.id",
             phone: "+6281577889900",
             joinedAt: new Date("2020-08-20"),
             status: "active",
@@ -309,9 +298,9 @@ async function seed() {
           },
           {
             unitId: dpdJatim.id,
-            memberNumber: "KTA-ASISI-JATIM-0285",
+            memberNumber: "KTA-APTI-JATIM-0285",
             name: "H. Eko Susilo, MT",
-            email: "eko.jatim@asisi.or.id",
+            email: "eko.jatim@apti.or.id",
             phone: "+6281233445566",
             joinedAt: new Date("2021-03-12"),
             status: "active",
@@ -370,13 +359,13 @@ async function seed() {
       }
     }
 
-    // 4. Agenda & Sertifikasi ASISI
+    // 4. Agenda & Sertifikasi APTI
     await tx.insert(events).values([
       {
         title: "Uji Kompetensi & Sertifikasi Teknisi Pendingin BNSP 2026",
         slug: "uji-kompetensi-sertifikasi-bnsp-2026",
         description:
-          "Sertifikasi kompetensi resmi LSP-HVAC dan BNSP untuk teknisi AC Split, VRV/VRF, dan Cold Storage. Peserta yang lulus berhak mendapatkan sertifikat BNSP dan KTA Digital ASISI.",
+          "Sertifikasi kompetensi resmi LSP-HVAC dan BNSP untuk teknisi AC Split, VRV/VRF, dan Cold Storage. Peserta yang lulus berhak mendapatkan sertifikat BNSP dan KTA Digital APTI.",
         locationName: "Gedung Balai Latihan Kerja (BLK) Jakarta Pusat",
         startsAt: new Date(now.getTime() + 86_400_000 * 12),
         endsAt: new Date(now.getTime() + 86_400_000 * 12 + 28_800_000),
@@ -385,8 +374,7 @@ async function seed() {
         capacity: 100,
       },
       {
-        title:
-          "Workshop Penanganan Flammable Refrigerant (R290 & R32) dan K3 Kerja",
+        title: "Workshop Penanganan Flammable Refrigerant (R290 & R32) dan K3 Kerja",
         slug: "workshop-flammable-refrigerant-r290-r32",
         description:
           "Bimbingan teknis penggunaan freon ramah lingkungan R32 dan Hydrocarbon R290 dengan standar keselamatan K3 tinggi untuk mencegah risiko kecelakaan kerja.",
@@ -398,10 +386,10 @@ async function seed() {
         capacity: 250,
       },
       {
-        title: "Musyawarah Nasional (MUNAS) & Rakernas ASISI Indonesia 2026",
-        slug: "munas-rakernas-asisi-indonesia-2026",
+        title: "Musyawarah Nasional (MUNAS) & Rakernas APTI Indonesia 2026",
+        slug: "munas-rakernas-apti-indonesia-2026",
         description:
-          "Pertemuan akbar seluruh Pengurus DPP, DPD 38 Provinsi, dan Korwil Cabang ASISI Indonesia untuk menyusun arah kebijakan dan kemitraan dengan produsen AC terkemuka.",
+          "Pertemuan akbar seluruh Pengurus DPP, DPD 38 Provinsi, dan Korwil Cabang APTI Indonesia untuk menyusun arah kebijakan dan kemitraan dengan produsen AC terkemuka.",
         locationName: "Grand Ballroom Hotel Patra Semarang",
         startsAt: new Date(now.getTime() + 86_400_000 * 45),
         endsAt: new Date(now.getTime() + 86_400_000 * 47),
@@ -414,24 +402,20 @@ async function seed() {
     // 5. Berita & Artikel Teknis HVAC/R
     await tx.insert(contents).values([
       {
-        title:
-          "ASISI Indonesia Resmikan Program Target 10.000 Teknisi AC Bersertifikat BNSP",
-        slug: "asisi-indonesia-target-10000-teknisi-bnsp",
+        title: "APTI Indonesia Resmikan Program Target 10.000 Teknisi AC Bersertifikat BNSP",
+        slug: "apti-indonesia-target-10000-teknisi-bnsp",
         type: "post",
-        excerpt:
-          "ASISI Indonesia memperkuat sinergi dengan LSP dan Kementerian Ketenagakerjaan untuk mensertifikasi 10.000 teknisi pendingin di seluruh Indonesia.",
-        body: `<p>Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia (ASISI) secara resmi meluncurkan program akselerasi sertifikasi kompetensi teknisi AC nasional. Program ini bertujuan meningkatkan taraf hidup dan profesionalisme teknisi Indonesia agar mampu bersaing di era pasar global.</p><p>Ketua Umum DPP ASISI menegaskan bahwa setiap anggota ASISI kini dilengkapi KTA Digital terverifikasi QR Code yang terhubung dengan data sertifikasi BNSP resmi.</p>`,
+        excerpt: "APTI Indonesia memperkuat sinergi dengan LSP dan Kementerian Ketenagakerjaan untuk mensertifikasi 10.000 teknisi pendingin di seluruh Indonesia.",
+        body: `<p>Asosiasi Pengusaha & Teknisi Pendingin Indonesia (APTI) secara resmi meluncurkan program akselerasi sertifikasi kompetensi teknisi AC nasional. Program ini bertujuan meningkatkan taraf hidup dan profesionalisme teknisi Indonesia agar mampu bersaing di era pasar global.</p><p>Ketua Umum DPP APTI menegaskan bahwa setiap anggota APTI kini dilengkapi KTA Digital terverifikasi QR Code yang terhubung dengan data sertifikasi BNSP resmi.</p>`,
         status: "published",
         publishedAt: now,
         authorId: owner.id,
       },
       {
-        title:
-          "Standard Operating Procedure (SOP) Vacuuming & Recovery Freon R32 yang Aman",
+        title: "Standard Operating Procedure (SOP) Vacuuming & Recovery Freon R32 yang Aman",
         slug: "sop-vacuuming-recovery-freon-r32",
         type: "post",
-        excerpt:
-          "Panduan praktis teknisi ASISI dalam melakukan proses vakum dan recovery bahan pendingin R32 tanpa merusak lapisan ozon.",
+        excerpt: "Panduan praktis teknisi APTI dalam melakukan proses vakum dan recovery bahan pendingin R32 tanpa merusak lapisan ozon.",
         body: `<p>Penggunaan refrigerant R32 memerlukan prosedur khusus vakum minimal 15 menit menggunakan pompa vakum dua tahap (two-stage vacuum pump). Hal ini penting untuk memastikan tidak ada uap air maupun udara terjebak di dalam sistem perpipaan tembaga.</p>`,
         status: "published",
         publishedAt: now,
@@ -441,7 +425,7 @@ async function seed() {
   });
 
   process.stdout.write(
-    `ASISI Indonesia Seed Complete!\nAdmin login: ${adminEmail} / ${adminPassword}\n`,
+    `APTI Indonesia Seed Complete!\nAdmin login: ${adminEmail} / ${adminPassword}\n`,
   );
 }
 
