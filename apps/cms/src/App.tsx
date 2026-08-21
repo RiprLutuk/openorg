@@ -536,7 +536,7 @@ function Dashboard({
             >
               <span className="step-number-badge completed">✓</span>
               <span className="step-content">
-                <strong>1. Identitas & Logo Organisasi</strong>
+                <strong>Identitas & Logo Organisasi</strong>
                 <small>Pengaturan nama, logo & kontak</small>
               </span>
               <ChevronRight size={15} className="step-chevron" />
@@ -549,7 +549,7 @@ function Dashboard({
             >
               <span className="step-number-badge completed">✓</span>
               <span className="step-content">
-                <strong>2. Skema Warna & Tema Visual</strong>
+                <strong>Skema Warna & Tema Visual</strong>
                 <small>Ubah warna primary & aksen</small>
               </span>
               <ChevronRight size={15} className="step-chevron" />
@@ -562,7 +562,7 @@ function Dashboard({
             >
               <span className="step-number-badge">3</span>
               <span className="step-content">
-                <strong>3. Tipografi & Font Judul</strong>
+                <strong>Tipografi & Font Judul</strong>
                 <small>Atur font heading & body</small>
               </span>
               <ChevronRight size={15} className="step-chevron" />

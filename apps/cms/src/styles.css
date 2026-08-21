@@ -623,6 +623,73 @@ h3,
   background: #f97066;
   border-radius: inherit;
 }
+.onboarding-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 14px;
+}
+.onboarding-step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 10px;
+  color: #ffffff !important;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+  width: 100%;
+  box-shadow: none !important;
+}
+.onboarding-step-item:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  transform: translateY(-1px);
+}
+.step-number-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+  color: #ffffff;
+}
+.step-number-badge.completed {
+  background: #22c55e;
+  color: #ffffff;
+}
+.step-content {
+  flex: 1;
+  display: grid;
+}
+.step-content strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff !important;
+}
+.step-content small {
+  font-size: 11px;
+  color: #dbe4ff !important;
+  margin: 1px 0 0;
+}
+.step-chevron {
+  color: #dbe4ff;
+  opacity: 0.8;
+  transition: transform 0.18s ease;
+}
+.onboarding-step-item:hover .step-chevron {
+  opacity: 1;
+  transform: translateX(3px);
+}
 .table-panel {
   padding: 0;
   overflow: hidden;
