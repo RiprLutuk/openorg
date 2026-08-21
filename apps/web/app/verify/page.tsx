@@ -50,10 +50,7 @@ export default async function VerifyPage({ searchParams }: Props) {
 
         {code ? (
           <div className="verify-result-container">
-            <MembershipVerification
-              code={code}
-              organization={site.organization.slug}
-            />
+            <MembershipVerification code={code} />
           </div>
         ) : (
           <div className="verify-info-grid">

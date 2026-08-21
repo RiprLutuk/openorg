@@ -7,8 +7,6 @@ export type PublicFormState = {
 };
 
 export async function submitPublicForm(
-  organizationSlug: string,
-  formSlug: string,
   _previousState: PublicFormState,
   formData: FormData,
 ): Promise<PublicFormState> {
@@ -41,18 +39,14 @@ export async function submitPublicForm(
 
   const apiUrl = process.env.INTERNAL_API_URL ?? "http://localhost:4000";
   try {
-    const response = await fetch(
-      `${apiUrl}/v1/public/forms/${encodeURIComponent(formSlug)}/submissions`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Organization": organizationSlug,
-        },
-        body: JSON.stringify({ name, email, message }),
-        cache: "no-store",
+    const response = await fetch(`${apiUrl}/v1/public/contact`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({ name, email, message }),
+      cache: "no-store",
+    });
     const result = await response.json().catch(() => null);
     if (!response.ok)
       return {

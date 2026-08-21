@@ -17,23 +17,16 @@ type Verification = {
   organization: { name: string; logoUrl: string | null };
 };
 
-export function MembershipVerification({
-  code,
-  organization,
-}: {
-  code: string;
-  organization: string;
-}) {
+export function MembershipVerification({ code }: { code: string }) {
   const [result, setResult] = useState<Verification | null>(null);
   const [invalid, setInvalid] = useState(false);
   useEffect(() => {
     memberApi<{ data: Verification }>(
       `/v1/public/membership/cards/${encodeURIComponent(code)}`,
-      organization,
     )
       .then((response) => setResult(response.data))
       .catch(() => setInvalid(true));
-  }, [code, organization]);
+  }, [code]);
 
   if (invalid)
     return (
@@ -43,10 +36,7 @@ export function MembershipVerification({
         </span>
         <p className="eyebrow">Verification failed</p>
         <h1>This card is not active.</h1>
-        <p>
-          The code is invalid, expired, revoked, or belongs to another
-          organization.
-        </p>
+        <p>The code is invalid, expired, revoked, or does not exist.</p>
       </div>
     );
   if (!result)

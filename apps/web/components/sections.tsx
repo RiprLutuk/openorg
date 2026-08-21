@@ -401,7 +401,7 @@ function ContactSection({
           </div>
         </div>
         {section.showForm && (
-          <PublicContactForm organizationSlug={organizationSlug} />
+          <PublicContactForm />
         )}
       </div>
     </section>

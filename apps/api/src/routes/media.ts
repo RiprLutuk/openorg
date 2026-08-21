@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { and, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 import { config } from "../config";
@@ -11,45 +11,36 @@ import { AppError } from "../lib/errors";
 import { detectSupportedImage } from "../lib/media";
 
 const publicMediaParams = z.object({
-  organizationId: z.string().uuid(),
   filename: z.string().regex(/^[0-9a-f-]{36}\.(?:gif|jpg|png|webp)$/),
 });
 const idParams = z.object({ id: z.string().uuid() });
 const storageRoot = resolve(config.STORAGE_LOCAL_PATH);
 
-function absoluteStoragePath(storageKey: string) {
-  const candidate = resolve(storageRoot, storageKey);
+function absoluteStoragePath(filename: string) {
+  const candidate = resolve(storageRoot, filename);
   if (!candidate.startsWith(`${storageRoot}/`))
     throw new AppError(400, "INVALID_STORAGE_KEY", "Invalid media path.");
   return candidate;
 }
 
 export const mediaRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/uploads/:organizationId/:filename", async (request, reply) => {
-    const { organizationId, filename } = publicMediaParams.parse(
-      request.params,
-    );
-    const storageKey = `${organizationId}/${filename}`;
+  app.get("/uploads/:filename", async (request, reply) => {
+    const { filename } = publicMediaParams.parse(request.params);
     const [asset] = await db
-      .select({ mimeType: media.mimeType, storageKey: media.storageKey })
+      .select()
       .from(media)
-      .where(
-        and(
-          eq(media.organizationId, organizationId),
-          eq(media.storageKey, storageKey),
-        ),
-      )
+      .where(eq(media.filename, filename))
       .limit(1);
     if (!asset)
       throw new AppError(404, "MEDIA_NOT_FOUND", "Media was not found.");
     try {
-      const bytes = await readFile(absoluteStoragePath(asset.storageKey));
+      const bytes = await readFile(absoluteStoragePath(filename));
       return reply
         .header("Cache-Control", "public, max-age=31536000, immutable")
         .type(asset.mimeType)
         .send(bytes);
     } catch (error) {
-      request.log.error({ error, storageKey }, "Stored media file is missing");
+      request.log.error({ error, filename }, "Stored media file is missing");
       throw new AppError(404, "MEDIA_NOT_FOUND", "Media was not found.");
     }
   });
@@ -57,11 +48,10 @@ export const mediaRoutes: FastifyPluginAsync = async (app) => {
   app.get(
     "/v1/admin/media",
     { preHandler: app.authorize("contents.read") },
-    async (request) => {
+    async () => {
       const items = await db
         .select()
         .from(media)
-        .where(eq(media.organizationId, request.organization.id))
         .orderBy(desc(media.createdAt))
         .limit(100);
       return { data: items };
@@ -95,8 +85,7 @@ export const mediaRoutes: FastifyPluginAsync = async (app) => {
         );
       const id = randomUUID();
       const filename = `${id}.${detected.extension}`;
-      const storageKey = `${request.organization.id}/${filename}`;
-      const target = absoluteStoragePath(storageKey);
+      const target = absoluteStoragePath(filename);
       await mkdir(dirname(target), { recursive: true });
       await writeFile(target, bytes, { flag: "wx" });
       try {
@@ -104,18 +93,16 @@ export const mediaRoutes: FastifyPluginAsync = async (app) => {
           .insert(media)
           .values({
             id,
-            organizationId: request.organization.id,
             kind: "image",
-            filename: upload.filename.slice(0, 255),
+            filename,
             mimeType: detected.mimeType,
-            size: bytes.length,
-            storageKey,
-            publicUrl: `${config.STORAGE_PUBLIC_URL.replace(/\/$/, "")}/${storageKey}`,
+            sizeBytes: bytes.length,
+            checksumSha256: detected.extension,
+            url: `${config.STORAGE_PUBLIC_URL.replace(/\/$/, "")}/${filename}`,
             uploadedBy: request.currentUser?.id,
           })
           .returning();
         await db.insert(auditLogs).values({
-          organizationId: request.organization.id,
           actorId: request.currentUser?.id,
           action: "media.upload",
           resourceType: "media",
@@ -140,20 +127,14 @@ export const mediaRoutes: FastifyPluginAsync = async (app) => {
       const { id } = idParams.parse(request.params);
       const [asset] = await db
         .delete(media)
-        .where(
-          and(
-            eq(media.id, id),
-            eq(media.organizationId, request.organization.id),
-          ),
-        )
+        .where(eq(media.id, id))
         .returning();
       if (!asset)
         throw new AppError(404, "MEDIA_NOT_FOUND", "Media was not found.");
-      await unlink(absoluteStoragePath(asset.storageKey)).catch((error) =>
+      await unlink(absoluteStoragePath(asset.filename)).catch((error) =>
         request.log.warn({ error, mediaId: id }, "Could not remove media file"),
       );
       await db.insert(auditLogs).values({
-        organizationId: request.organization.id,
         actorId: request.currentUser?.id,
         action: "media.delete",
         resourceType: "media",

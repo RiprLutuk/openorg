@@ -40,10 +40,7 @@ export default async function JoinPage() {
             </li>
           </ol>
         </div>
-        <MembershipRegistration
-          organization={site.organization.slug}
-          organizationName={site.organization.name}
-        />
+        <MembershipRegistration organizationName={site.organization.name} />
       </div>
     </section>
   );

@@ -1,39 +1,18 @@
-import { createHash } from "node:crypto";
-import {
-  pageSectionsSchema,
-  paginationSchema,
-  publicAnnouncementSchema,
-  publicFooterSchema,
-  publicQuickContactSchema,
-  themeSchema,
-} from "@openorg/contracts";
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  gt,
-  gte,
-  ilike,
-  isNull,
-  or,
-  sql,
-} from "drizzle-orm";
+import { pageSectionsSchema, paginationSchema } from "@openorg/contracts";
+import { and, asc, desc, eq, gt, gte, ilike, or, sql } from "drizzle-orm";
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 import { db } from "../db/client";
 import {
+  contactSubmissions,
   contents,
   events,
-  formSubmissions,
-  forms,
   members,
-  navigationItems,
   organizationUnits,
   pages,
   positionAssignments,
   positions,
-  settings,
+  siteSettings,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
 
@@ -49,111 +28,84 @@ const contentQuery = paginationSchema.extend({
 });
 
 export const publicRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/site", async (request) => {
-    const [navigation, publicSettings] = await Promise.all([
-      db
-        .select()
-        .from(navigationItems)
-        .where(
-          and(
-            eq(navigationItems.organizationId, request.organization.id),
-            eq(navigationItems.isVisible, true),
-          ),
-        )
-        .orderBy(asc(navigationItems.sortOrder)),
-      db
-        .select()
-        .from(settings)
-        .where(
-          and(
-            eq(settings.organizationId, request.organization.id),
-            eq(settings.isPublic, true),
-          ),
-        ),
-    ]);
-    const rootItems = navigation.filter((item) => !item.parentId);
-    const setting = (key: string) =>
-      publicSettings.find((item) => item.key === key)?.value;
-    const footer = publicFooterSchema
-      .catch({ links: [] })
-      .parse(setting("footer"));
-    const announcement = publicAnnouncementSchema
-      .catch({
-        enabled: false,
-        eyebrow: "Announcement",
-        title: "",
-        message: "",
-        imageUrl: null,
-        actionLabel: "Learn more",
-        actionUrl: "/",
-        startsAt: null,
-        endsAt: null,
-      })
-      .parse(setting("announcement"));
-    const quickContact = publicQuickContactSchema
-      .catch({
-        enabled: false,
-        label: "Contact us",
-        href: "/contact",
+  app.get("/site", async () => {
+    const [settings] = await db
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.id, "default"))
+      .limit(1);
+
+    const site = settings ?? {
+      id: "default",
+      name: "OpenOrg Association",
+      slug: "openorg",
+      kind: "association",
+      tagline: "Platform Resmi Organisasi",
+      description:
+        "Platform terpadu keanggotaan, tata kelola organisasi, kredit akademi SKP/CPD, dan verifikasi kredensial.",
+      logoUrl: null,
+      faviconUrl: null,
+      locale: "id-ID",
+      timezone: "Asia/Jakarta",
+      primaryColor: "#6941C6",
+      secondaryColor: "#12B76A",
+      quickContact: {
         channel: "message",
-      })
-      .parse(setting("quickContact"));
-    const now = Date.now();
-    const announcementIsCurrent =
-      announcement.enabled &&
-      (!announcement.startsAt ||
-        new Date(announcement.startsAt).getTime() <= now) &&
-      (!announcement.endsAt || new Date(announcement.endsAt).getTime() >= now);
+        label: "Hubungi Sekretariat",
+        value: "sekretariat@openorg.id",
+        href: "/contact",
+      },
+      navigation: [
+        { id: "events", label: "Agenda", href: "/events" },
+        { id: "structure", label: "Struktur Pengurus", href: "/structure" },
+        { id: "verify", label: "Verifikasi Kredensial", href: "/verify" },
+      ],
+      footer: {},
+    };
+
     return {
       data: {
         organization: {
-          id: request.organization.id,
-          name: request.organization.name,
-          slug: request.organization.slug,
-          kind: request.organization.kind,
-          tagline: request.organization.tagline,
-          description: request.organization.description,
-          logoUrl: request.organization.logoUrl,
-          faviconUrl: request.organization.faviconUrl,
-          locale: request.organization.locale,
-          theme: themeSchema
-            .catch({
-              colors: {
-                primary: "#3b5bdb",
-                secondary: "#182230",
-                accent: "#f97066",
-                surface: "#f8fafc",
-                foreground: "#101828",
-              },
-              radius: "large",
-              fontHeading: "Manrope",
-              fontBody: "Inter",
-            })
-            .parse(request.organization.theme),
+          id: site.id,
+          name: site.name,
+          slug: site.slug,
+          kind: site.kind,
+          tagline: site.tagline,
+          description: site.description,
+          logoUrl: site.logoUrl,
+          faviconUrl: site.faviconUrl,
+          locale: site.locale,
+          theme: {
+            colors: {
+              primary: site.primaryColor ?? "#6941C6",
+              secondary: site.secondaryColor ?? "#12B76A",
+              accent: "#7F56D9",
+              surface: "#ffffff",
+              foreground: "#101828",
+            },
+            radius: "large",
+            fontHeading: "Inter",
+            fontBody: "Inter",
+          },
         },
-        navigation: rootItems
-          .filter((item) => item.location === "header")
-          .map((item) => ({
-            id: item.id,
-            label: item.label,
-            href: item.href,
-            external: item.isExternal,
-            children: navigation
-              .filter((child) => child.parentId === item.id)
-              .map((child) => ({
-                label: child.label,
-                href: child.href,
-                external: child.isExternal,
-              })),
-          })),
-        footer,
-        announcement: announcementIsCurrent ? announcement : null,
-        quickContact: quickContact.enabled ? quickContact : null,
+        navigation: site.navigation ?? [
+          { id: "events", label: "Agenda", href: "/events" },
+          { id: "structure", label: "Struktur", href: "/structure" },
+          { id: "verify", label: "Verifikasi Kredensial", href: "/verify" },
+        ],
+        footer: site.footer ?? {},
+        announcement: null,
+        quickContact: site.quickContact ?? {
+          enabled: true,
+          label: "Hubungi Kami",
+          href: "/contact",
+          channel: "message",
+        },
       },
     };
   });
 
-  app.get("/pages", async (request) => {
+  app.get("/pages", async () => {
     const items = await db
       .select({
         title: pages.title,
@@ -164,29 +116,16 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         updatedAt: pages.updatedAt,
       })
       .from(pages)
-      .where(
-        and(
-          eq(pages.organizationId, request.organization.id),
-          eq(pages.status, "published"),
-          isNull(pages.deletedAt),
-        ),
-      )
+      .where(eq(pages.status, "published"))
       .orderBy(desc(pages.publishedAt));
     return { data: items };
   });
 
-  app.get("/pages/home", async (request) => {
+  app.get("/pages/home", async () => {
     const [page] = await db
       .select()
       .from(pages)
-      .where(
-        and(
-          eq(pages.organizationId, request.organization.id),
-          eq(pages.isHomepage, true),
-          eq(pages.status, "published"),
-          isNull(pages.deletedAt),
-        ),
-      )
+      .where(and(eq(pages.isHomepage, true), eq(pages.status, "published")))
       .limit(1);
     if (!page)
       throw new AppError(
@@ -204,14 +143,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     const [page] = await db
       .select()
       .from(pages)
-      .where(
-        and(
-          eq(pages.organizationId, request.organization.id),
-          eq(pages.slug, slug),
-          eq(pages.status, "published"),
-          isNull(pages.deletedAt),
-        ),
-      )
+      .where(and(eq(pages.slug, slug), eq(pages.status, "published")))
       .limit(1);
     if (!page) throw new AppError(404, "PAGE_NOT_FOUND", "Page was not found.");
     return {
@@ -222,10 +154,8 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
   app.get("/contents", async (request) => {
     const query = contentQuery.parse(request.query);
     const conditions = [
-      eq(contents.organizationId, request.organization.id),
       eq(contents.type, query.type),
       eq(contents.status, "published"),
-      isNull(contents.deletedAt),
     ];
     if (query.search) {
       const searchCondition = or(
@@ -240,7 +170,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         .select()
         .from(contents)
         .where(and(...conditions))
-        .orderBy(desc(contents.featured), desc(contents.publishedAt))
+        .orderBy(desc(contents.publishedAt))
         .limit(query.limit)
         .offset(offset),
       db
@@ -263,14 +193,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     const [content] = await db
       .select()
       .from(contents)
-      .where(
-        and(
-          eq(contents.organizationId, request.organization.id),
-          eq(contents.slug, slug),
-          eq(contents.status, "published"),
-          isNull(contents.deletedAt),
-        ),
-      )
+      .where(and(eq(contents.slug, slug), eq(contents.status, "published")))
       .limit(1);
     if (!content)
       throw new AppError(404, "CONTENT_NOT_FOUND", "Content was not found.");
@@ -281,11 +204,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     const query = paginationSchema
       .extend({ upcoming: z.coerce.boolean().default(true) })
       .parse(request.query);
-    const conditions = [
-      eq(events.organizationId, request.organization.id),
-      eq(events.status, "published"),
-      isNull(events.deletedAt),
-    ];
+    const conditions = [eq(events.status, "published")];
     if (query.upcoming) conditions.push(gt(events.startsAt, new Date()));
     const [items, countRows] = await Promise.all([
       db
@@ -315,62 +234,24 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     const [event] = await db
       .select()
       .from(events)
-      .where(
-        and(
-          eq(events.organizationId, request.organization.id),
-          eq(events.slug, slug),
-          eq(events.status, "published"),
-          isNull(events.deletedAt),
-        ),
-      )
+      .where(and(eq(events.slug, slug), eq(events.status, "published")))
       .limit(1);
     if (!event)
       throw new AppError(404, "EVENT_NOT_FOUND", "Event was not found.");
     return { data: event };
   });
 
-  app.get("/members", async (request) => {
-    const query = paginationSchema.parse(request.query);
-    const conditions = [
-      eq(members.organizationId, request.organization.id),
-      eq(members.status, "active"),
-      eq(members.isPublic, true),
-      isNull(members.deletedAt),
-    ];
-    if (query.search) conditions.push(ilike(members.name, `%${query.search}%`));
-    const items = await db
-      .select({
-        id: members.id,
-        name: members.name,
-        memberNumber: members.memberNumber,
-        avatarUrl: members.avatarUrl,
-        biography: members.biography,
-        socialLinks: members.socialLinks,
-      })
-      .from(members)
-      .where(and(...conditions))
-      .orderBy(asc(members.name))
-      .limit(query.limit)
-      .offset((query.page - 1) * query.limit);
-    return { data: items, meta: { page: query.page, limit: query.limit } };
-  });
-
-  app.get("/structure", async (request) => {
+  app.get("/structure", async () => {
     const [units, positionRows, assignments] = await Promise.all([
       db
         .select()
         .from(organizationUnits)
-        .where(
-          and(
-            eq(organizationUnits.organizationId, request.organization.id),
-            eq(organizationUnits.isActive, true),
-          ),
-        )
+        .where(eq(organizationUnits.isActive, true))
         .orderBy(asc(organizationUnits.sortOrder)),
       db
         .select()
         .from(positions)
-        .where(eq(positions.organizationId, request.organization.id))
+        .where(eq(positions.isActive, true))
         .orderBy(asc(positions.sortOrder)),
       db
         .select({
@@ -385,12 +266,9 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         .from(positionAssignments)
         .innerJoin(members, eq(positionAssignments.memberId, members.id))
         .where(
-          and(
-            eq(positionAssignments.organizationId, request.organization.id),
-            or(
-              isNull(positionAssignments.endsAt),
-              gte(positionAssignments.endsAt, new Date()),
-            ),
+          or(
+            gte(positionAssignments.endsAt, new Date()),
+            sql`${positionAssignments.endsAt} is null`,
           ),
         ),
     ]);
@@ -398,53 +276,31 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.post(
-    "/forms/:slug/submissions",
+    "/contact",
     { config: { rateLimit: { max: 5, timeWindow: "10 minutes" } } },
     async (request, reply) => {
-      const { slug } = slugParams.parse(request.params);
-      const payload = z.record(z.string(), z.unknown()).parse(request.body);
-      const [form] = await db
-        .select()
-        .from(forms)
-        .where(
-          and(
-            eq(forms.organizationId, request.organization.id),
-            eq(forms.slug, slug),
-            eq(forms.isActive, true),
-          ),
-        )
-        .limit(1);
-      if (!form)
-        throw new AppError(404, "FORM_NOT_FOUND", "Form was not found.");
-      const allowedFields = new Set(
-        form.fields.map((field) => String(field.name ?? "")),
-      );
-      const filteredPayload = Object.fromEntries(
-        Object.entries(payload).filter(([key]) => allowedFields.has(key)),
-      );
-      if (Object.keys(filteredPayload).length === 0)
-        throw new AppError(
-          422,
-          "EMPTY_SUBMISSION",
-          "No valid form fields were submitted.",
-        );
+      const contactSchema = z.object({
+        name: z.string().min(2).max(160),
+        email: z.string().email(),
+        subject: z.string().max(200).optional(),
+        message: z.string().min(5),
+      });
+      const body = contactSchema.parse(request.body);
       const [submission] = await db
-        .insert(formSubmissions)
+        .insert(contactSubmissions)
         .values({
-          organizationId: request.organization.id,
-          formId: form.id,
-          payload: filteredPayload,
-          ipHash: createHash("sha256")
-            .update(`${request.ip}:${form.id}`)
-            .digest("hex"),
-          userAgent: request.headers["user-agent"]?.slice(0, 500),
+          name: body.name,
+          email: body.email,
+          subject: body.subject,
+          message: body.message,
+          ipAddress: request.ip,
         })
-        .returning({ id: formSubmissions.id });
+        .returning({ id: contactSubmissions.id });
+
       return reply.status(201).send({
         data: {
           id: submission?.id,
-          message:
-            form.successMessage ?? "Thank you. Your message has been received.",
+          message: "Pesan Anda telah diterima oleh sekretariat.",
         },
       });
     },

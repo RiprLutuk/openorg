@@ -5,7 +5,7 @@ import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { memberApi } from "@/lib/member-client";
 
-export function MemberLogin({ organization }: { organization: string }) {
+export function MemberLogin() {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -14,7 +14,7 @@ export function MemberLogin({ organization }: { organization: string }) {
     setError("");
     const data = new FormData(event.currentTarget);
     try {
-      await memberApi("/v1/public/membership/login", organization, {
+      await memberApi("/v1/public/membership/login", {
         method: "POST",
         body: JSON.stringify({
           email: String(data.get("email") ?? ""),

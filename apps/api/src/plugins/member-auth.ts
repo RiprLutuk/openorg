@@ -1,9 +1,9 @@
 import { createHmac, randomBytes } from "node:crypto";
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import fp from "fastify-plugin";
 import { config } from "../config";
 import { db } from "../db/client";
-import { memberSessions, members } from "../db/schema";
+import { memberAccounts, memberSessions, members } from "../db/schema";
 import { AppError } from "../lib/errors";
 
 export const MEMBER_SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
@@ -31,13 +31,15 @@ export default fp(async (app) => {
     const [result] = await db
       .select({ member: members })
       .from(memberSessions)
-      .innerJoin(members, eq(memberSessions.memberId, members.id))
+      .innerJoin(
+        memberAccounts,
+        eq(memberSessions.memberAccountId, memberAccounts.id),
+      )
+      .innerJoin(members, eq(memberAccounts.memberId, members.id))
       .where(
         and(
           eq(memberSessions.tokenHash, hashMemberSessionToken(token)),
-          eq(memberSessions.organizationId, request.organization.id),
           gt(memberSessions.expiresAt, new Date()),
-          isNull(members.deletedAt),
         ),
       )
       .limit(1);

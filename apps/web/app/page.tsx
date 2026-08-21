@@ -290,7 +290,7 @@ export default async function HomePage() {
             </ul>
           </div>
           <div className="contact-form-card">
-            <PublicContactForm organizationSlug={site.organization.slug} />
+            <PublicContactForm />
           </div>
         </div>
       </section>

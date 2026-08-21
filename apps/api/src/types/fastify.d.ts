@@ -1,9 +1,8 @@
 import type { InferSelectModel } from "drizzle-orm";
-import type { members, organizations, users } from "../db/schema";
+import type { members, users } from "../db/schema";
 
 declare module "fastify" {
   interface FastifyRequest {
-    organization: InferSelectModel<typeof organizations>;
     currentUser: InferSelectModel<typeof users> | null;
     currentMember: InferSelectModel<typeof members> | null;
     permissions: Set<string>;

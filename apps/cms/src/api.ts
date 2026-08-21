@@ -1,5 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
-const ORGANIZATION = import.meta.env.VITE_ORGANIZATION ?? "demo";
+const _ORGANIZATION = import.meta.env.VITE_ORGANIZATION ?? "demo";
 
 export class ApiError extends Error {
   constructor(
@@ -12,7 +12,6 @@ export class ApiError extends Error {
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
-  headers.set("X-Organization", ORGANIZATION);
   if (typeof init?.body === "string" && !headers.has("Content-Type"))
     headers.set("Content-Type", "application/json");
   const response = await fetch(`${API_URL}${path}`, {

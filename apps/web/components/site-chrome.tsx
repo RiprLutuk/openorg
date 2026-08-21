@@ -10,10 +10,10 @@ export function Header({ site }: { site: PublicSite }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [memberActive, setMemberActive] = useState(false);
   useEffect(() => {
-    memberApi("/v1/member/session", site.organization.slug)
+    memberApi("/v1/member/session")
       .then(() => setMemberActive(true))
       .catch(() => setMemberActive(false));
-  }, [site.organization.slug]);
+  }, []);
   return (
     <header className="site-header">
       <div className="wrap header-inner">

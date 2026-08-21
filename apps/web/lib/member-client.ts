@@ -11,7 +11,6 @@ export class MemberApiError extends Error {
 
 export async function memberApi<T>(
   path: string,
-  organization: string,
   init?: RequestInit,
 ): Promise<T> {
   const response = await fetch(`${MEMBER_API_URL}${path}`, {
@@ -19,7 +18,6 @@ export async function memberApi<T>(
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      "X-Organization": organization,
       ...init?.headers,
     },
   });

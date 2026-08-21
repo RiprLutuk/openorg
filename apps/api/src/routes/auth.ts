@@ -4,7 +4,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 import { config } from "../config";
 import { db } from "../db/client";
-import { sessions, users } from "../db/schema";
+import { sessions, siteSettings, users } from "../db/schema";
 import { AppError } from "../lib/errors";
 import {
   hashSessionToken,
@@ -26,13 +26,7 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
       const [user] = await db
         .select()
         .from(users)
-        .where(
-          and(
-            eq(users.organizationId, request.organization.id),
-            eq(users.email, input.email),
-            eq(users.status, "active"),
-          ),
-        )
+        .where(and(eq(users.email, input.email), eq(users.status, "active")))
         .limit(1);
       if (!user || !(await verify(user.passwordHash, input.password))) {
         throw new AppError(
@@ -46,7 +40,6 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
       await db.transaction(async (tx) => {
         await tx.insert(sessions).values({
           userId: user.id,
-          organizationId: user.organizationId,
           tokenHash: hashSessionToken(token),
           ipAddress: request.ip,
           userAgent: request.headers["user-agent"]?.slice(0, 500),
@@ -69,28 +62,35 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
           id: user.id,
           name: user.name,
           email: user.email,
-          organizationId: user.organizationId,
         },
       };
     },
   );
 
-  app.get("/session", { preHandler: app.authenticate }, async (request) => ({
-    data: {
-      user: {
-        id: request.currentUser?.id,
-        name: request.currentUser?.name,
-        email: request.currentUser?.email,
-        avatarUrl: request.currentUser?.avatarUrl,
+  app.get("/session", { preHandler: app.authenticate }, async (request) => {
+    const [settings] = await db
+      .select({ name: siteSettings.name, slug: siteSettings.slug })
+      .from(siteSettings)
+      .where(eq(siteSettings.id, "default"))
+      .limit(1);
+
+    return {
+      data: {
+        user: {
+          id: request.currentUser?.id,
+          name: request.currentUser?.name,
+          email: request.currentUser?.email,
+          avatarUrl: request.currentUser?.avatarUrl,
+        },
+        organization: {
+          id: "default",
+          name: settings?.name ?? "OpenOrg Association",
+          slug: settings?.slug ?? "openorg",
+        },
+        permissions: [...request.permissions],
       },
-      organization: {
-        id: request.organization.id,
-        name: request.organization.name,
-        slug: request.organization.slug,
-      },
-      permissions: [...request.permissions],
-    },
-  }));
+    };
+  });
 
   app.post(
     "/logout",

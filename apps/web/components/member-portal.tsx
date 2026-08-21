@@ -171,7 +171,7 @@ type BillingData = {
   }>;
 };
 
-export function MemberPortal({ organization }: { organization: string }) {
+export function MemberPortal() {
   const [data, setData] = useState<PortalData | null>(null);
   const [loading, setLoading] = useState(true);
   const [unauthorized, setUnauthorized] = useState(false);
@@ -183,13 +183,10 @@ export function MemberPortal({ organization }: { organization: string }) {
   const loadPortal = useCallback(() => {
     setLoading(true);
     Promise.all([
-      memberApi<{ data: PortalData }>("/v1/member/session", organization),
-      memberApi<{ data: ComplianceData }>(
-        "/v1/member/credentials",
-        organization,
-      ),
-      memberApi<{ data: LearningData }>("/v1/member/learning", organization),
-      memberApi<{ data: BillingData }>("/v1/member/billing", organization),
+      memberApi<{ data: PortalData }>("/v1/member/session"),
+      memberApi<{ data: ComplianceData }>("/v1/member/credentials"),
+      memberApi<{ data: LearningData }>("/v1/member/learning"),
+      memberApi<{ data: BillingData }>("/v1/member/billing"),
     ])
       .then(([session, credentials, learningData, billingData]) => {
         setData(session.data);
@@ -202,7 +199,7 @@ export function MemberPortal({ organization }: { organization: string }) {
           setUnauthorized(true);
       })
       .finally(() => setLoading(false));
-  }, [organization]);
+  }, []);
 
   useEffect(() => loadPortal(), [loadPortal]);
 
@@ -217,7 +214,7 @@ export function MemberPortal({ organization }: { organization: string }) {
   }, [data]);
 
   const logout = async () => {
-    await memberApi("/v1/member/logout", organization, { method: "POST" });
+    await memberApi("/v1/member/logout", { method: "POST" });
     window.location.assign("/member/login");
   };
 
@@ -332,14 +329,12 @@ export function MemberPortal({ organization }: { organization: string }) {
       </div>
       {compliance && (
         <MemberCredentials
-          organization={organization}
           data={compliance}
           onReload={loadPortal}
         />
       )}
       {learning && (
         <MemberLearning
-          organization={organization}
           data={learning}
           onReload={loadPortal}
         />
@@ -553,11 +548,9 @@ function formatMemberMoney(value: number) {
 }
 
 function MemberLearning({
-  organization,
   data,
   onReload,
 }: {
-  organization: string;
   data: LearningData;
   onReload: () => void;
 }) {
@@ -571,7 +564,6 @@ function MemberLearning({
     try {
       await memberApi(
         `/v1/member/learning/activities/${activityId}/enroll`,
-        organization,
         { method: "POST", body: "{}" },
       );
       onReload();
@@ -733,11 +725,9 @@ function MemberLearning({
 }
 
 function MemberCredentials({
-  organization,
   data,
   onReload,
 }: {
-  organization: string;
   data: ComplianceData;
   onReload: () => void;
 }) {
@@ -762,7 +752,7 @@ function MemberCredentials({
       ]),
     );
     try {
-      await memberApi("/v1/member/credentials", organization, {
+      await memberApi("/v1/member/credentials", {
         method: "POST",
         body: JSON.stringify({
           schemeId: selectedScheme.id,

@@ -1,72 +1,24 @@
-import {
-  pageSectionsSchema,
-  paginationSchema,
-  publicSettingsSchema,
-  themeSchema,
-} from "@openorg/contracts";
-import { and, asc, desc, eq, ilike, isNull, sql } from "drizzle-orm";
+import { pageSectionsSchema, paginationSchema } from "@openorg/contracts";
+import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
 import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { db } from "../db/client";
 import {
   auditLogs,
+  contactSubmissions,
   contents,
   events,
-  formSubmissions,
-  forms,
   memberApplications,
   members,
-  organizations,
   organizationUnits,
   pages,
-  settings,
+  siteSettings,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
-import { onlyProvided } from "../lib/patch";
 import { sanitizeHtml } from "../lib/sanitize";
 import { toSlug } from "../lib/slug";
 
 const idParams = z.object({ id: z.string().uuid() });
-const pageInput = z.object({
-  title: z.string().trim().min(2).max(180),
-  slug: z.string().trim().max(160).optional(),
-  excerpt: z.string().max(1000).nullable().optional(),
-  sections: pageSectionsSchema,
-  status: z
-    .enum(["draft", "review", "scheduled", "published", "archived"])
-    .default("draft"),
-  isHomepage: z.boolean().default(false),
-  seo: z
-    .object({
-      title: z.string().max(70).optional(),
-      description: z.string().max(170).optional(),
-      image: z.string().url().optional(),
-      noIndex: z.boolean().optional(),
-    })
-    .default({}),
-});
-const contentInput = z.object({
-  type: z.enum(["post", "news", "campaign"]).default("post"),
-  title: z.string().trim().min(2).max(200),
-  slug: z.string().trim().max(180).optional(),
-  excerpt: z.string().max(1000).nullable().optional(),
-  body: z.string().max(500_000).default(""),
-  coverUrl: z.string().url().nullable().optional(),
-  authorName: z.string().max(160).nullable().optional(),
-  sourceUrl: z.string().url().nullable().optional(),
-  status: z
-    .enum(["draft", "review", "scheduled", "published", "archived"])
-    .default("draft"),
-  featured: z.boolean().default(false),
-  seo: z
-    .object({
-      title: z.string().max(70).optional(),
-      description: z.string().max(170).optional(),
-      image: z.string().url().optional(),
-      noIndex: z.boolean().optional(),
-    })
-    .default({}),
-});
 const publicationStatusInput = z.enum([
   "draft",
   "review",
@@ -74,21 +26,6 @@ const publicationStatusInput = z.enum([
   "published",
   "archived",
 ]);
-const eventInput = z.object({
-  title: z.string().trim().min(2).max(200),
-  slug: z.string().trim().max(180).optional(),
-  description: z.string().max(20_000).nullable().optional(),
-  coverUrl: z.string().url().nullable().optional(),
-  locationName: z.string().trim().max(200).nullable().optional(),
-  address: z.string().max(2_000).nullable().optional(),
-  meetingUrl: z.string().url().nullable().optional(),
-  registrationUrl: z.string().url().nullable().optional(),
-  startsAt: z.coerce.date(),
-  endsAt: z.coerce.date().nullable().optional(),
-  timezone: z.string().trim().min(2).max(60).default("Asia/Jakarta"),
-  status: publicationStatusInput.default("draft"),
-  capacity: z.number().int().positive().max(10_000_000).nullable().optional(),
-});
 const memberStatusInput = z.enum([
   "applicant",
   "pending",
@@ -96,44 +33,6 @@ const memberStatusInput = z.enum([
   "inactive",
   "rejected",
 ]);
-
-const memberInput = z.object({
-  unitId: z.string().uuid().nullable().optional(),
-  memberNumber: z.string().trim().min(1).max(80),
-  name: z.string().trim().min(2).max(160),
-  email: z.string().trim().toLowerCase().email().max(320).nullable().optional(),
-  phone: z.string().trim().max(40).nullable().optional(),
-  avatarUrl: z.string().url().nullable().optional(),
-  address: z.string().max(2_000).nullable().optional(),
-  biography: z.string().max(10_000).nullable().optional(),
-  joinedAt: z.coerce.date().nullable().optional(),
-  status: memberStatusInput.default("applicant"),
-  isPublic: z.boolean().default(false),
-  customFields: z.record(z.string(), z.unknown()).default({}),
-  socialLinks: z
-    .array(
-      z.object({
-        platform: z.string().trim().min(1).max(50),
-        url: z.string().url(),
-      }),
-    )
-    .max(20)
-    .default([]),
-});
-const memberUpdateInput = memberInput.partial().extend({
-  status: memberStatusInput.optional(),
-  isPublic: z.boolean().optional(),
-  customFields: z.record(z.string(), z.unknown()).optional(),
-  socialLinks: z
-    .array(
-      z.object({
-        platform: z.string().trim().min(1).max(50),
-        url: z.string().url(),
-      }),
-    )
-    .max(20)
-    .optional(),
-});
 const submissionStatusInput = z.enum([
   "new",
   "in_progress",
@@ -141,14 +40,86 @@ const submissionStatusInput = z.enum([
   "spam",
 ]);
 
-function sanitizePageSections(
-  sections: z.infer<typeof pageSectionsSchema>,
-): z.infer<typeof pageSectionsSchema> {
-  return sections.map((section) =>
+const pageInput = z.object({
+  title: z.string().trim().min(1).max(180),
+  slug: z.string().trim().max(160).optional(),
+  excerpt: z.string().trim().max(1000).nullable().optional(),
+  sections: pageSectionsSchema.default([]),
+  status: publicationStatusInput.default("draft"),
+  isHomepage: z.boolean().default(false),
+  seo: z.record(z.string(), z.unknown()).default({}),
+});
+
+const contentInput = z.object({
+  title: z.string().trim().min(1).max(200),
+  slug: z.string().trim().max(180).optional(),
+  type: z.string().trim().min(1).max(40).default("post"),
+  excerpt: z.string().trim().max(1000).nullable().optional(),
+  body: z.string().default(""),
+  coverUrl: z.string().url().nullable().optional(),
+  authorName: z.string().trim().max(120).nullable().optional(),
+  sourceUrl: z.string().url().nullable().optional(),
+  status: publicationStatusInput.default("draft"),
+  categoryId: z.string().uuid().nullable().optional(),
+  seo: z.record(z.string(), z.unknown()).default({}),
+});
+
+const eventInput = z.object({
+  title: z.string().trim().min(1).max(200),
+  slug: z.string().trim().max(180).optional(),
+  description: z.string().trim().max(10_000).nullable().optional(),
+  coverUrl: z.string().url().nullable().optional(),
+  locationName: z.string().trim().max(200).nullable().optional(),
+  address: z.string().trim().max(1000).nullable().optional(),
+  meetingUrl: z.string().url().nullable().optional(),
+  registrationUrl: z.string().url().nullable().optional(),
+  startsAt: z
+    .string()
+    .datetime()
+    .transform((val) => new Date(val)),
+  endsAt: z
+    .string()
+    .datetime()
+    .transform((val) => new Date(val))
+    .nullable()
+    .optional(),
+  capacity: z.number().int().min(1).max(1_000_000).nullable().optional(),
+  status: publicationStatusInput.default("published"),
+  seo: z.record(z.string(), z.unknown()).default({}),
+});
+
+const memberInput = z.object({
+  memberNumber: z.string().trim().min(1).max(60),
+  name: z.string().trim().min(1).max(160),
+  email: z.string().trim().toLowerCase().email().nullable().optional(),
+  phone: z.string().trim().max(40).nullable().optional(),
+  unitId: z.string().uuid().nullable().optional(),
+  status: memberStatusInput.default("active"),
+  avatarUrl: z.string().url().nullable().optional(),
+  metadata: z.record(z.string(), z.unknown()).default({}),
+});
+
+const memberUpdateInput = memberInput.partial();
+
+function sanitizePageSections(sections: unknown) {
+  const parsed = pageSectionsSchema.parse(sections);
+  return parsed.map((section) =>
     section.type === "richText"
       ? { ...section, html: sanitizeHtml(section.html) }
       : section,
   );
+}
+
+function onlyProvided<T extends object>(parsed: T, raw: unknown): Partial<T> {
+  if (!raw || typeof raw !== "object") return parsed;
+  const rawObj = raw as Record<string, unknown>;
+  const result: Partial<T> = {};
+  for (const key of Object.keys(parsed) as Array<keyof T>) {
+    if (key in rawObj) {
+      result[key] = parsed[key];
+    }
+  }
+  return result;
 }
 
 async function audit(
@@ -160,7 +131,6 @@ async function audit(
   after: unknown,
 ) {
   await db.insert(auditLogs).values({
-    organizationId: request.organization.id,
     actorId: request.currentUser?.id,
     action,
     resourceType,
@@ -177,99 +147,69 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
   app.get(
     "/organization",
     { preHandler: app.authorize("settings.read") },
-    async (request) => ({ data: request.organization }),
-  );
-
-  app.get(
-    "/settings/public",
-    { preHandler: app.authorize("settings.read") },
-    async (request) => {
-      const rows = await db
+    async () => {
+      const [settings] = await db
         .select()
-        .from(settings)
-        .where(eq(settings.organizationId, request.organization.id));
-      const value = (key: string) => rows.find((row) => row.key === key)?.value;
+        .from(siteSettings)
+        .where(eq(siteSettings.id, "default"))
+        .limit(1);
       return {
-        data: publicSettingsSchema.parse({
-          footer: value("footer") ?? { links: [] },
-          announcement: value("announcement") ?? { enabled: false },
-          quickContact: value("quickContact") ?? { enabled: false },
-        }),
+        data: settings ?? {
+          id: "default",
+          name: "OpenOrg Association",
+          slug: "openorg",
+          kind: "association",
+          tagline: "Platform Resmi Organisasi",
+          description:
+            "Platform terpadu keanggotaan, tata kelola organisasi, kredit akademi SKP/CPD, dan verifikasi kredensial.",
+        },
       };
     },
   );
 
   app.patch(
-    "/settings/public",
+    "/organization",
     { preHandler: app.authorize("settings.write") },
     async (request) => {
-      const input = publicSettingsSchema.parse(request.body);
-      const beforeRows = await db
-        .select()
-        .from(settings)
-        .where(eq(settings.organizationId, request.organization.id));
-      const entries = Object.entries(input) as Array<
-        [keyof typeof input, (typeof input)[keyof typeof input]]
-      >;
-      await db.transaction(async (tx) => {
-        for (const [key, value] of entries) {
-          await tx
-            .insert(settings)
-            .values({
-              organizationId: request.organization.id,
-              key,
-              value,
-              isPublic: true,
-              updatedBy: request.currentUser?.id,
-            })
-            .onConflictDoUpdate({
-              target: [settings.organizationId, settings.key],
-              set: {
-                value,
-                isPublic: true,
-                updatedBy: request.currentUser?.id,
-                updatedAt: new Date(),
-              },
-            });
-        }
-      });
+      const input = z
+        .object({
+          name: z.string().min(2).max(160).optional(),
+          tagline: z.string().max(240).nullable().optional(),
+          description: z.string().max(5000).nullable().optional(),
+          logoUrl: z.string().url().nullable().optional(),
+          faviconUrl: z.string().url().nullable().optional(),
+          email: z.string().email().nullable().optional(),
+          phone: z.string().max(40).nullable().optional(),
+          address: z.string().max(2000).nullable().optional(),
+          locale: z.string().max(12).optional(),
+          timezone: z.string().max(60).optional(),
+          primaryColor: z.string().optional(),
+          secondaryColor: z.string().optional(),
+        })
+        .parse(request.body);
+
+      const [updated] = await db
+        .insert(siteSettings)
+        .values({ id: "default", ...input })
+        .onConflictDoUpdate({
+          target: siteSettings.id,
+          set: { ...input, updatedAt: new Date() },
+        })
+        .returning();
+
       await audit(
         request,
-        "public_settings.update",
-        "settings",
-        request.organization.id,
-        Object.fromEntries(beforeRows.map((row) => [row.key, row.value])),
-        input,
+        "organization.update",
+        "organization",
+        "default",
+        null,
+        updated,
       );
-      return { data: input };
+      return { data: updated };
     },
   );
 
-  app.delete(
-    "/contents/:id",
-    { preHandler: app.authorize("contents.write") },
-    async (request, reply) => {
-      const { id } = idParams.parse(request.params);
-      const [deleted] = await db
-        .update(contents)
-        .set({ deletedAt: new Date(), updatedAt: new Date() })
-        .where(
-          and(
-            eq(contents.id, id),
-            eq(contents.organizationId, request.organization.id),
-            isNull(contents.deletedAt),
-          ),
-        )
-        .returning();
-      if (!deleted)
-        throw new AppError(404, "CONTENT_NOT_FOUND", "Content was not found.");
-      await audit(request, "content.delete", "content", id, deleted, undefined);
-      return reply.status(204).send();
-    },
-  );
-
-  app.get("/dashboard", { preHandler: app.authenticate }, async (request) => {
-    const organizationId = request.organization.id;
+  app.get("/dashboard", { preHandler: app.authenticate }, async () => {
     const [
       pageCount,
       contentCount,
@@ -279,60 +219,18 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       applicationCount,
       recentContent,
     ] = await Promise.all([
+      db.select({ value: sql<number>`count(*)::int` }).from(pages),
+      db.select({ value: sql<number>`count(*)::int` }).from(contents),
+      db.select({ value: sql<number>`count(*)::int` }).from(members),
+      db.select({ value: sql<number>`count(*)::int` }).from(events),
       db
         .select({ value: sql<number>`count(*)::int` })
-        .from(pages)
-        .where(
-          and(
-            eq(pages.organizationId, organizationId),
-            isNull(pages.deletedAt),
-          ),
-        ),
-      db
-        .select({ value: sql<number>`count(*)::int` })
-        .from(contents)
-        .where(
-          and(
-            eq(contents.organizationId, organizationId),
-            isNull(contents.deletedAt),
-          ),
-        ),
-      db
-        .select({ value: sql<number>`count(*)::int` })
-        .from(members)
-        .where(
-          and(
-            eq(members.organizationId, organizationId),
-            isNull(members.deletedAt),
-          ),
-        ),
-      db
-        .select({ value: sql<number>`count(*)::int` })
-        .from(events)
-        .where(
-          and(
-            eq(events.organizationId, organizationId),
-            isNull(events.deletedAt),
-          ),
-        ),
-      db
-        .select({ value: sql<number>`count(*)::int` })
-        .from(formSubmissions)
-        .where(
-          and(
-            eq(formSubmissions.organizationId, organizationId),
-            eq(formSubmissions.status, "new"),
-          ),
-        ),
+        .from(contactSubmissions)
+        .where(eq(contactSubmissions.status, "new")),
       db
         .select({ value: sql<number>`count(*)::int` })
         .from(memberApplications)
-        .where(
-          and(
-            eq(memberApplications.organizationId, organizationId),
-            eq(memberApplications.status, "pending"),
-          ),
-        ),
+        .where(eq(memberApplications.status, "pending")),
       db
         .select({
           id: contents.id,
@@ -342,12 +240,6 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
           updatedAt: contents.updatedAt,
         })
         .from(contents)
-        .where(
-          and(
-            eq(contents.organizationId, organizationId),
-            isNull(contents.deletedAt),
-          ),
-        )
         .orderBy(desc(contents.updatedAt))
         .limit(5),
     ]);
@@ -371,16 +263,13 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     { preHandler: app.authorize("pages.read") },
     async (request) => {
       const query = paginationSchema.parse(request.query);
-      const conditions = [
-        eq(pages.organizationId, request.organization.id),
-        isNull(pages.deletedAt),
-      ];
+      const conditions = [];
       if (query.search)
         conditions.push(ilike(pages.title, `%${query.search}%`));
       const rows = await db
         .select()
         .from(pages)
-        .where(and(...conditions))
+        .where(conditions.length ? and(...conditions) : undefined)
         .orderBy(desc(pages.updatedAt))
         .limit(query.limit)
         .offset((query.page - 1) * query.limit);
@@ -405,21 +294,14 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
           await tx
             .update(pages)
             .set({ isHomepage: false, updatedAt: new Date() })
-            .where(
-              and(
-                eq(pages.organizationId, request.organization.id),
-                eq(pages.isHomepage, true),
-              ),
-            );
+            .where(eq(pages.isHomepage, true));
         return tx
           .insert(pages)
           .values({
             ...input,
             sections: sanitizePageSections(input.sections),
             slug,
-            organizationId: request.organization.id,
-            createdBy: request.currentUser?.id,
-            updatedBy: request.currentUser?.id,
+            authorId: request.currentUser?.id,
             publishedAt: input.status === "published" ? new Date() : null,
           })
           .returning();
@@ -448,13 +330,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       const [before] = await db
         .select()
         .from(pages)
-        .where(
-          and(
-            eq(pages.id, id),
-            eq(pages.organizationId, request.organization.id),
-            isNull(pages.deletedAt),
-          ),
-        )
+        .where(eq(pages.id, id))
         .limit(1);
       if (!before)
         throw new AppError(404, "PAGE_NOT_FOUND", "Page was not found.");
@@ -467,7 +343,6 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         ...(input.status === "published" && !before.publishedAt
           ? { publishedAt: new Date() }
           : {}),
-        updatedBy: request.currentUser?.id,
         updatedAt: new Date(),
       };
       const [updated] = await db.transaction(async (tx) => {
@@ -475,12 +350,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
           await tx
             .update(pages)
             .set({ isHomepage: false, updatedAt: new Date() })
-            .where(
-              and(
-                eq(pages.organizationId, request.organization.id),
-                eq(pages.isHomepage, true),
-              ),
-            );
+            .where(eq(pages.isHomepage, true));
         return tx.update(pages).set(values).where(eq(pages.id, id)).returning();
       });
       await audit(request, "page.update", "page", id, before, updated);
@@ -494,19 +364,8 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     async (request, reply) => {
       const { id } = idParams.parse(request.params);
       const [deleted] = await db
-        .update(pages)
-        .set({
-          deletedAt: new Date(),
-          updatedAt: new Date(),
-          updatedBy: request.currentUser?.id,
-        })
-        .where(
-          and(
-            eq(pages.id, id),
-            eq(pages.organizationId, request.organization.id),
-            isNull(pages.deletedAt),
-          ),
-        )
+        .delete(pages)
+        .where(eq(pages.id, id))
         .returning();
       if (!deleted)
         throw new AppError(404, "PAGE_NOT_FOUND", "Page was not found.");
@@ -522,17 +381,14 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       const query = paginationSchema
         .extend({ type: z.string().max(40).optional() })
         .parse(request.query);
-      const conditions = [
-        eq(contents.organizationId, request.organization.id),
-        isNull(contents.deletedAt),
-      ];
+      const conditions = [];
       if (query.type) conditions.push(eq(contents.type, query.type));
       if (query.search)
         conditions.push(ilike(contents.title, `%${query.search}%`));
       const rows = await db
         .select()
         .from(contents)
-        .where(and(...conditions))
+        .where(conditions.length ? and(...conditions) : undefined)
         .orderBy(desc(contents.updatedAt))
         .limit(query.limit)
         .offset((query.page - 1) * query.limit);
@@ -551,8 +407,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
           ...input,
           slug: toSlug(input.slug ?? input.title),
           body: sanitizeHtml(input.body),
-          organizationId: request.organization.id,
-          createdBy: request.currentUser?.id,
+          authorId: request.currentUser?.id,
           publishedAt: input.status === "published" ? new Date() : null,
         })
         .returning();
@@ -580,13 +435,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       const [before] = await db
         .select()
         .from(contents)
-        .where(
-          and(
-            eq(contents.id, id),
-            eq(contents.organizationId, request.organization.id),
-            isNull(contents.deletedAt),
-          ),
-        )
+        .where(eq(contents.id, id))
         .limit(1);
       if (!before)
         throw new AppError(404, "CONTENT_NOT_FOUND", "Content was not found.");
@@ -610,6 +459,22 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
+  app.delete(
+    "/contents/:id",
+    { preHandler: app.authorize("contents.write") },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const [deleted] = await db
+        .delete(contents)
+        .where(eq(contents.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "CONTENT_NOT_FOUND", "Content was not found.");
+      await audit(request, "content.delete", "content", id, deleted, undefined);
+      return reply.status(204).send();
+    },
+  );
+
   app.get(
     "/events",
     { preHandler: app.authorize("events.read") },
@@ -617,14 +482,11 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       const query = paginationSchema
         .extend({ status: publicationStatusInput.optional() })
         .parse(request.query);
-      const conditions = [
-        eq(events.organizationId, request.organization.id),
-        isNull(events.deletedAt),
-      ];
+      const conditions = [];
       if (query.status) conditions.push(eq(events.status, query.status));
       if (query.search)
         conditions.push(ilike(events.title, `%${query.search}%`));
-      const where = and(...conditions);
+      const where = conditions.length ? and(...conditions) : undefined;
       const [rows, countRows] = await Promise.all([
         db
           .select()
@@ -672,7 +534,6 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         .values({
           ...input,
           slug,
-          organizationId: request.organization.id,
           publishedAt: input.status === "published" ? new Date() : null,
         })
         .returning();
@@ -700,13 +561,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       const [before] = await db
         .select()
         .from(events)
-        .where(
-          and(
-            eq(events.id, id),
-            eq(events.organizationId, request.organization.id),
-            isNull(events.deletedAt),
-          ),
-        )
+        .where(eq(events.id, id))
         .limit(1);
       if (!before)
         throw new AppError(404, "EVENT_NOT_FOUND", "Event was not found.");
@@ -728,12 +583,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
             : {}),
           updatedAt: new Date(),
         })
-        .where(
-          and(
-            eq(events.id, id),
-            eq(events.organizationId, request.organization.id),
-          ),
-        )
+        .where(eq(events.id, id))
         .returning();
       await audit(request, "event.update", "event", id, before, updated);
       return { data: updated };
@@ -746,15 +596,8 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     async (request, reply) => {
       const { id } = idParams.parse(request.params);
       const [deleted] = await db
-        .update(events)
-        .set({ deletedAt: new Date(), updatedAt: new Date() })
-        .where(
-          and(
-            eq(events.id, id),
-            eq(events.organizationId, request.organization.id),
-            isNull(events.deletedAt),
-          ),
-        )
+        .delete(events)
+        .where(eq(events.id, id))
         .returning();
       if (!deleted)
         throw new AppError(404, "EVENT_NOT_FOUND", "Event was not found.");
@@ -766,7 +609,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
   app.get(
     "/organization-units",
     { preHandler: app.authorize("members.read") },
-    async (request) => ({
+    async () => ({
       data: await db
         .select({
           id: organizationUnits.id,
@@ -775,12 +618,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
           parentId: organizationUnits.parentId,
         })
         .from(organizationUnits)
-        .where(
-          and(
-            eq(organizationUnits.organizationId, request.organization.id),
-            eq(organizationUnits.isActive, true),
-          ),
-        )
+        .where(eq(organizationUnits.isActive, true))
         .orderBy(asc(organizationUnits.sortOrder), asc(organizationUnits.name)),
     }),
   );
@@ -792,14 +630,11 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       const query = paginationSchema
         .extend({ status: memberStatusInput.optional() })
         .parse(request.query);
-      const conditions = [
-        eq(members.organizationId, request.organization.id),
-        isNull(members.deletedAt),
-      ];
+      const conditions = [];
       if (query.status) conditions.push(eq(members.status, query.status));
       if (query.search)
         conditions.push(ilike(members.name, `%${query.search}%`));
-      const where = and(...conditions);
+      const where = conditions.length ? and(...conditions) : undefined;
       const [rows, countRows] = await Promise.all([
         db
           .select({
@@ -837,12 +672,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         const [unit] = await db
           .select({ id: organizationUnits.id })
           .from(organizationUnits)
-          .where(
-            and(
-              eq(organizationUnits.id, input.unitId),
-              eq(organizationUnits.organizationId, request.organization.id),
-            ),
-          )
+          .where(eq(organizationUnits.id, input.unitId))
           .limit(1);
         if (!unit)
           throw new AppError(
@@ -851,10 +681,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
             "The selected organization unit is not available.",
           );
       }
-      const [created] = await db
-        .insert(members)
-        .values({ ...input, organizationId: request.organization.id })
-        .returning();
+      const [created] = await db.insert(members).values(input).returning();
       await audit(
         request,
         "member.create",
@@ -876,13 +703,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       const [before] = await db
         .select()
         .from(members)
-        .where(
-          and(
-            eq(members.id, id),
-            eq(members.organizationId, request.organization.id),
-            isNull(members.deletedAt),
-          ),
-        )
+        .where(eq(members.id, id))
         .limit(1);
       if (!before)
         throw new AppError(404, "MEMBER_NOT_FOUND", "Member was not found.");
@@ -890,12 +711,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         const [unit] = await db
           .select({ id: organizationUnits.id })
           .from(organizationUnits)
-          .where(
-            and(
-              eq(organizationUnits.id, input.unitId),
-              eq(organizationUnits.organizationId, request.organization.id),
-            ),
-          )
+          .where(eq(organizationUnits.id, input.unitId))
           .limit(1);
         if (!unit)
           throw new AppError(
@@ -907,12 +723,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       const [updated] = await db
         .update(members)
         .set({ ...input, updatedAt: new Date() })
-        .where(
-          and(
-            eq(members.id, id),
-            eq(members.organizationId, request.organization.id),
-          ),
-        )
+        .where(eq(members.id, id))
         .returning();
       await audit(request, "member.update", "member", id, before, updated);
       return { data: updated };
@@ -925,15 +736,8 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     async (request, reply) => {
       const { id } = idParams.parse(request.params);
       const [deleted] = await db
-        .update(members)
-        .set({ deletedAt: new Date(), updatedAt: new Date() })
-        .where(
-          and(
-            eq(members.id, id),
-            eq(members.organizationId, request.organization.id),
-            isNull(members.deletedAt),
-          ),
-        )
+        .delete(members)
+        .where(eq(members.id, id))
         .returning();
       if (!deleted)
         throw new AppError(404, "MEMBER_NOT_FOUND", "Member was not found.");
@@ -943,149 +747,41 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
   );
 
   app.get(
-    "/forms",
-    { preHandler: app.authorize("forms.read") },
-    async (request) => ({
-      data: await db
-        .select()
-        .from(forms)
-        .where(eq(forms.organizationId, request.organization.id))
-        .orderBy(asc(forms.name)),
-    }),
-  );
-
-  app.get(
     "/submissions",
     { preHandler: app.authorize("forms.read") },
     async (request) => {
       const query = paginationSchema
         .extend({
           status: submissionStatusInput.optional(),
-          formId: z.string().uuid().optional(),
         })
         .parse(request.query);
-      const conditions = [
-        eq(formSubmissions.organizationId, request.organization.id),
-      ];
+      const conditions = [];
       if (query.status)
-        conditions.push(eq(formSubmissions.status, query.status));
-      if (query.formId)
-        conditions.push(eq(formSubmissions.formId, query.formId));
+        conditions.push(eq(contactSubmissions.status, query.status));
       if (query.search)
-        conditions.push(
-          sql`${formSubmissions.payload}::text ilike ${`%${query.search}%`}`,
-        );
-      const where = and(...conditions);
+        conditions.push(ilike(contactSubmissions.name, `%${query.search}%`));
+      const where = conditions.length ? and(...conditions) : undefined;
       const [rows, countRows] = await Promise.all([
         db
-          .select({ submission: formSubmissions, formName: forms.name })
-          .from(formSubmissions)
-          .innerJoin(forms, eq(formSubmissions.formId, forms.id))
+          .select()
+          .from(contactSubmissions)
           .where(where)
-          .orderBy(desc(formSubmissions.createdAt))
+          .orderBy(desc(contactSubmissions.createdAt))
           .limit(query.limit)
           .offset((query.page - 1) * query.limit),
         db
           .select({ count: sql<number>`count(*)::int` })
-          .from(formSubmissions)
+          .from(contactSubmissions)
           .where(where),
       ]);
       return {
-        data: rows.map((row) => ({
-          ...row.submission,
-          formName: row.formName,
-        })),
+        data: rows,
         meta: {
           page: query.page,
           limit: query.limit,
           total: countRows[0]?.count ?? 0,
         },
       };
-    },
-  );
-
-  app.patch(
-    "/submissions/:id",
-    { preHandler: app.authorize("forms.write") },
-    async (request) => {
-      const { id } = idParams.parse(request.params);
-      const input = z
-        .object({ status: submissionStatusInput })
-        .parse(request.body);
-      const [before] = await db
-        .select()
-        .from(formSubmissions)
-        .where(
-          and(
-            eq(formSubmissions.id, id),
-            eq(formSubmissions.organizationId, request.organization.id),
-          ),
-        )
-        .limit(1);
-      if (!before)
-        throw new AppError(
-          404,
-          "SUBMISSION_NOT_FOUND",
-          "Submission was not found.",
-        );
-      const [updated] = await db
-        .update(formSubmissions)
-        .set({
-          status: input.status,
-          resolvedAt: input.status === "resolved" ? new Date() : null,
-        })
-        .where(
-          and(
-            eq(formSubmissions.id, id),
-            eq(formSubmissions.organizationId, request.organization.id),
-          ),
-        )
-        .returning();
-      await audit(
-        request,
-        "submission.status_update",
-        "form_submission",
-        id,
-        before,
-        updated,
-      );
-      return { data: updated };
-    },
-  );
-
-  app.patch(
-    "/organization",
-    { preHandler: app.authorize("settings.write") },
-    async (request) => {
-      const input = z
-        .object({
-          name: z.string().min(2).max(160).optional(),
-          tagline: z.string().max(240).nullable().optional(),
-          description: z.string().max(5000).nullable().optional(),
-          logoUrl: z.string().url().nullable().optional(),
-          faviconUrl: z.string().url().nullable().optional(),
-          email: z.string().email().nullable().optional(),
-          phone: z.string().max(40).nullable().optional(),
-          address: z.string().max(2000).nullable().optional(),
-          locale: z.string().max(12).optional(),
-          timezone: z.string().max(60).optional(),
-          theme: themeSchema.optional(),
-        })
-        .parse(request.body);
-      const [updated] = await db
-        .update(organizations)
-        .set({ ...input, updatedAt: new Date() })
-        .where(eq(organizations.id, request.organization.id))
-        .returning();
-      await audit(
-        request,
-        "organization.update",
-        "organization",
-        request.organization.id,
-        request.organization,
-        updated,
-      );
-      return { data: updated };
     },
   );
 };

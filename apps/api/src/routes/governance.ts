@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { db } from "../db/client";
@@ -75,7 +75,6 @@ async function audit(
   after?: unknown,
 ) {
   await db.insert(auditLogs).values({
-    organizationId: request.organization.id,
     actorId: request.currentUser?.id,
     action,
     resourceType,
@@ -88,135 +87,105 @@ async function audit(
   });
 }
 
-async function tenantUnit(organizationId: string, id: string) {
+async function getUnit(id: string) {
   const [unit] = await db
     .select()
     .from(organizationUnits)
-    .where(
-      and(
-        eq(organizationUnits.id, id),
-        eq(organizationUnits.organizationId, organizationId),
-      ),
-    )
+    .where(eq(organizationUnits.id, id))
     .limit(1);
   if (!unit)
     throw new AppError(
-      422,
-      "INVALID_ORGANIZATION_UNIT",
-      "The organization unit is not available in this workspace.",
+      404,
+      "UNIT_NOT_FOUND",
+      "Organization unit was not found.",
     );
   return unit;
 }
 
-async function tenantPosition(organizationId: string, id: string) {
+async function getPosition(id: string) {
   const [position] = await db
     .select()
     .from(positions)
-    .where(
-      and(eq(positions.id, id), eq(positions.organizationId, organizationId)),
-    )
+    .where(eq(positions.id, id))
     .limit(1);
   if (!position)
     throw new AppError(
-      422,
-      "INVALID_POSITION",
-      "The position is not available in this workspace.",
+      404,
+      "POSITION_NOT_FOUND",
+      "Governance position was not found.",
     );
   return position;
 }
 
-async function assertUnitParent(
-  organizationId: string,
-  parentId: string | null | undefined,
-  currentId?: string,
-) {
+async function assertParentUnitValid(unitId: string, parentId: string | null) {
   if (!parentId) return;
-  if (parentId === currentId)
+  if (parentId === unitId)
     throw new AppError(
       422,
-      "CYCLIC_ORGANIZATION_UNIT",
+      "CYCLIC_UNIT_PARENT",
       "An organization unit cannot be its own parent.",
     );
-  await tenantUnit(organizationId, parentId);
-  if (!currentId) return;
+  await getUnit(parentId);
   const rows = await db
     .select({ id: organizationUnits.id, parentId: organizationUnits.parentId })
-    .from(organizationUnits)
-    .where(eq(organizationUnits.organizationId, organizationId));
-  const parents = new Map(rows.map((row) => [row.id, row.parentId]));
-  let cursor: string | null | undefined = parentId;
+    .from(organizationUnits);
+  let cursor: string | null = parentId;
   while (cursor) {
-    if (cursor === currentId)
+    if (cursor === unitId)
       throw new AppError(
         422,
-        "CYCLIC_ORGANIZATION_UNIT",
-        "This parent selection would create a circular organization tree.",
+        "CYCLIC_UNIT_PARENT",
+        "Setting this parent creates a loop in the unit hierarchy.",
       );
-    cursor = parents.get(cursor);
+    const parentRow = rows.find((row) => row.id === cursor);
+    cursor = parentRow?.parentId ?? null;
   }
 }
 
 export const governanceRoutes: FastifyPluginAsync = async (app) => {
   app.get(
-    "/overview",
+    "/units",
     { preHandler: app.authorize("governance.read") },
-    async (request) => {
-      const organizationId = request.organization.id;
-      const [units, positionRows, assignmentRows, memberRows] =
-        await Promise.all([
-          db
-            .select()
-            .from(organizationUnits)
-            .where(eq(organizationUnits.organizationId, organizationId))
-            .orderBy(
-              asc(organizationUnits.sortOrder),
-              asc(organizationUnits.name),
-            ),
-          db
-            .select()
-            .from(positions)
-            .where(eq(positions.organizationId, organizationId))
-            .orderBy(asc(positions.sortOrder), asc(positions.title)),
-          db
-            .select({
-              assignment: positionAssignments,
-              member: {
-                id: members.id,
-                name: members.name,
-                memberNumber: members.memberNumber,
-                avatarUrl: members.avatarUrl,
-              },
-            })
-            .from(positionAssignments)
-            .innerJoin(members, eq(positionAssignments.memberId, members.id))
-            .where(eq(positionAssignments.organizationId, organizationId))
-            .orderBy(asc(positionAssignments.startsAt)),
-          db
-            .select({
+    async () => {
+      const [units, positionRows, assignments] = await Promise.all([
+        db
+          .select()
+          .from(organizationUnits)
+          .orderBy(
+            asc(organizationUnits.sortOrder),
+            asc(organizationUnits.name),
+          ),
+        db
+          .select()
+          .from(positions)
+          .orderBy(asc(positions.sortOrder), asc(positions.title)),
+        db
+          .select({
+            assignment: positionAssignments,
+            member: {
               id: members.id,
               name: members.name,
+              avatarUrl: members.avatarUrl,
               memberNumber: members.memberNumber,
-              unitId: members.unitId,
-            })
-            .from(members)
-            .where(
-              and(
-                eq(members.organizationId, organizationId),
-                eq(members.status, "active"),
-                isNull(members.deletedAt),
-              ),
-            )
-            .orderBy(asc(members.name)),
-        ]);
+            },
+          })
+          .from(positionAssignments)
+          .innerJoin(members, eq(positionAssignments.memberId, members.id)),
+      ]);
+
       return {
         data: {
-          units,
-          positions: positionRows,
-          assignments: assignmentRows.map((row) => ({
-            ...row.assignment,
-            member: row.member,
+          units: units.map((unit) => ({
+            ...unit,
+            positions: positionRows
+              .filter((pos) => pos.unitId === unit.id)
+              .map((pos) => ({
+                ...pos,
+                assignments: assignments.filter(
+                  (item) => item.assignment.positionId === pos.id,
+                ),
+              })),
           })),
-          members: memberRows,
         },
       };
     },
@@ -227,21 +196,20 @@ export const governanceRoutes: FastifyPluginAsync = async (app) => {
     { preHandler: app.authorize("governance.write") },
     async (request, reply) => {
       const input = unitCreateInput.parse(request.body);
-      await assertUnitParent(request.organization.id, input.parentId);
+      if (input.parentId) await getUnit(input.parentId);
+      const slug = toSlug(input.slug ?? input.name);
       const [created] = await db
         .insert(organizationUnits)
         .values({
           ...input,
-          slug: toSlug(input.slug || input.name),
-          organizationId: request.organization.id,
+          slug,
         })
         .returning();
-      if (!created) throw new Error("Could not create organization unit.");
       await audit(
         request,
-        "governance.unit_created",
+        "unit.create",
         "organization_unit",
-        created.id,
+        created?.id ?? "",
         undefined,
         created,
       );
@@ -255,26 +223,22 @@ export const governanceRoutes: FastifyPluginAsync = async (app) => {
     async (request) => {
       const { id } = idParams.parse(request.params);
       const input = unitUpdateInput.parse(request.body);
-      const before = await tenantUnit(request.organization.id, id);
-      await assertUnitParent(request.organization.id, input.parentId, id);
+      const before = await getUnit(id);
+      if (input.parentId !== undefined) {
+        await assertParentUnitValid(id, input.parentId);
+      }
       const [updated] = await db
         .update(organizationUnits)
         .set({
           ...input,
-          slug: input.slug ? toSlug(input.slug) : undefined,
+          ...(input.slug ? { slug: toSlug(input.slug) } : {}),
           updatedAt: new Date(),
         })
-        .where(
-          and(
-            eq(organizationUnits.id, id),
-            eq(organizationUnits.organizationId, request.organization.id),
-          ),
-        )
+        .where(eq(organizationUnits.id, id))
         .returning();
-      if (!updated) throw new Error("Could not update organization unit.");
       await audit(
         request,
-        "governance.unit_updated",
+        "unit.update",
         "organization_unit",
         id,
         before,
@@ -289,29 +253,13 @@ export const governanceRoutes: FastifyPluginAsync = async (app) => {
     { preHandler: app.authorize("governance.write") },
     async (request, reply) => {
       const input = positionCreateInput.parse(request.body);
-      await tenantUnit(request.organization.id, input.unitId);
-      if (input.parentId) {
-        const parent = await tenantPosition(
-          request.organization.id,
-          input.parentId,
-        );
-        if (parent.unitId !== input.unitId)
-          throw new AppError(
-            422,
-            "INVALID_POSITION_PARENT",
-            "A parent position must belong to the same organization unit.",
-          );
-      }
-      const [created] = await db
-        .insert(positions)
-        .values({ ...input, organizationId: request.organization.id })
-        .returning();
-      if (!created) throw new Error("Could not create position.");
+      await getUnit(input.unitId);
+      const [created] = await db.insert(positions).values(input).returning();
       await audit(
         request,
-        "governance.position_created",
+        "position.create",
         "position",
-        created.id,
+        created?.id ?? "",
         undefined,
         created,
       );
@@ -325,90 +273,40 @@ export const governanceRoutes: FastifyPluginAsync = async (app) => {
     async (request) => {
       const { id } = idParams.parse(request.params);
       const input = positionUpdateInput.parse(request.body);
-      const before = await tenantPosition(request.organization.id, id);
-      const unitId = input.unitId ?? before.unitId;
-      if (!unitId)
-        throw new AppError(
-          422,
-          "POSITION_UNIT_REQUIRED",
-          "The position must belong to an organization unit.",
-        );
-      await tenantUnit(request.organization.id, unitId);
-      if (input.parentId === id)
-        throw new AppError(
-          422,
-          "CYCLIC_POSITION",
-          "A position cannot be its own parent.",
-        );
-      if (input.parentId) {
-        const parent = await tenantPosition(
-          request.organization.id,
-          input.parentId,
-        );
-        if (parent.unitId !== unitId)
-          throw new AppError(
-            422,
-            "INVALID_POSITION_PARENT",
-            "A parent position must belong to the same organization unit.",
-          );
-      }
+      const before = await getPosition(id);
+      if (input.unitId) await getUnit(input.unitId);
       const [updated] = await db
         .update(positions)
         .set({ ...input, updatedAt: new Date() })
-        .where(
-          and(
-            eq(positions.id, id),
-            eq(positions.organizationId, request.organization.id),
-          ),
-        )
+        .where(eq(positions.id, id))
         .returning();
-      if (!updated) throw new Error("Could not update position.");
-      await audit(
-        request,
-        "governance.position_updated",
-        "position",
-        id,
-        before,
-        updated,
-      );
+      await audit(request, "position.update", "position", id, before, updated);
       return { data: updated };
     },
   );
 
   app.post(
-    "/assignments",
+    "/appointments",
     { preHandler: app.authorize("governance.write") },
     async (request, reply) => {
       const input = assignmentCreateInput.parse(request.body);
-      await tenantPosition(request.organization.id, input.positionId);
+      await getPosition(input.positionId);
       const [member] = await db
         .select({ id: members.id })
         .from(members)
-        .where(
-          and(
-            eq(members.id, input.memberId),
-            eq(members.organizationId, request.organization.id),
-            eq(members.status, "active"),
-            isNull(members.deletedAt),
-          ),
-        )
+        .where(eq(members.id, input.memberId))
         .limit(1);
       if (!member)
-        throw new AppError(
-          422,
-          "INVALID_APPOINTEE",
-          "Only an active member in this workspace can hold a position.",
-        );
+        throw new AppError(404, "MEMBER_NOT_FOUND", "Member was not found.");
       const [created] = await db
         .insert(positionAssignments)
-        .values({ ...input, organizationId: request.organization.id })
+        .values(input)
         .returning();
-      if (!created) throw new Error("Could not create appointment.");
       await audit(
         request,
-        "governance.assignment_created",
+        "appointment.create",
         "position_assignment",
-        created.id,
+        created?.id ?? "",
         undefined,
         created,
       );
@@ -417,7 +315,7 @@ export const governanceRoutes: FastifyPluginAsync = async (app) => {
   );
 
   app.patch(
-    "/assignments/:id",
+    "/appointments/:id",
     { preHandler: app.authorize("governance.write") },
     async (request) => {
       const { id } = idParams.parse(request.params);
@@ -425,48 +323,55 @@ export const governanceRoutes: FastifyPluginAsync = async (app) => {
       const [before] = await db
         .select()
         .from(positionAssignments)
-        .where(
-          and(
-            eq(positionAssignments.id, id),
-            eq(positionAssignments.organizationId, request.organization.id),
-          ),
-        )
+        .where(eq(positionAssignments.id, id))
         .limit(1);
       if (!before)
         throw new AppError(
           404,
           "APPOINTMENT_NOT_FOUND",
-          "The position appointment was not found.",
-        );
-      const startsAt =
-        input.startsAt === undefined ? before.startsAt : input.startsAt;
-      const endsAt = input.endsAt === undefined ? before.endsAt : input.endsAt;
-      if (startsAt && endsAt && endsAt < startsAt)
-        throw new AppError(
-          422,
-          "INVALID_APPOINTMENT_PERIOD",
-          "The appointment end must be after its start.",
+          "Governance appointment was not found.",
         );
       const [updated] = await db
         .update(positionAssignments)
         .set({ ...input, updatedAt: new Date() })
-        .where(
-          and(
-            eq(positionAssignments.id, id),
-            eq(positionAssignments.organizationId, request.organization.id),
-          ),
-        )
+        .where(eq(positionAssignments.id, id))
         .returning();
-      if (!updated) throw new Error("Could not update appointment.");
       await audit(
         request,
-        "governance.assignment_updated",
+        "appointment.update",
         "position_assignment",
         id,
         before,
         updated,
       );
       return { data: updated };
+    },
+  );
+
+  app.delete(
+    "/appointments/:id",
+    { preHandler: app.authorize("governance.write") },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const [deleted] = await db
+        .delete(positionAssignments)
+        .where(eq(positionAssignments.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(
+          404,
+          "APPOINTMENT_NOT_FOUND",
+          "Governance appointment was not found.",
+        );
+      await audit(
+        request,
+        "appointment.delete",
+        "position_assignment",
+        id,
+        deleted,
+        undefined,
+      );
+      return reply.status(204).send();
     },
   );
 };

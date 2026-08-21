@@ -14,7 +14,6 @@ import { registerErrorHandler } from "./lib/errors";
 import authPlugin from "./plugins/auth";
 import memberAuthPlugin from "./plugins/member-auth";
 import securityPlugin from "./plugins/security";
-import tenantPlugin from "./plugins/tenant";
 import { adminRoutes } from "./routes/admin";
 import { authRoutes } from "./routes/auth";
 import {
@@ -60,7 +59,7 @@ export async function buildApp() {
       openapi: {
         info: {
           title: "OpenOrg API",
-          description: "Multi-tenant organization CMS and public content API",
+          description: "Standalone organization CMS and public REST API",
           version: "0.1.0",
         },
         servers: [{ url: config.API_PUBLIC_URL }],
@@ -68,7 +67,6 @@ export async function buildApp() {
     });
     await app.register(swaggerUi, { routePrefix: "/documentation" });
   }
-  await app.register(tenantPlugin);
   await app.register(authPlugin);
   await app.register(memberAuthPlugin);
   await app.register(mediaRoutes);

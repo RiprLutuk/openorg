@@ -6,13 +6,11 @@ import { type PublicFormState, submitPublicForm } from "@/app/actions";
 
 const initialState: PublicFormState = { status: "idle", message: "" };
 
-export function PublicContactForm({
-  organizationSlug,
-}: {
-  organizationSlug: string;
-}) {
-  const action = submitPublicForm.bind(null, organizationSlug, "contact");
-  const [state, formAction, pending] = useActionState(action, initialState);
+export function PublicContactForm() {
+  const [state, formAction, pending] = useActionState(
+    submitPublicForm,
+    initialState,
+  );
 
   if (state.status === "success")
     return (

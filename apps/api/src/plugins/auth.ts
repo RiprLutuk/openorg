@@ -46,7 +46,6 @@ export default fp(async (app) => {
       .where(
         and(
           eq(sessions.tokenHash, hashSessionToken(token)),
-          eq(sessions.organizationId, request.organization.id),
           eq(users.status, "active"),
           gt(sessions.expiresAt, new Date()),
         ),
