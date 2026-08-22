@@ -15,6 +15,13 @@
       "when": 1787330565856,
       "tag": "0001_greedy_phalanx",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787370232837,
+      "tag": "0002_striped_bullseye",
+      "breakpoints": true
     }
   ]
 }

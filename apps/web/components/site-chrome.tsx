@@ -81,13 +81,54 @@ export function Header({ site }: { site: PublicSite }) {
       .catch(() => setMemberActive(false));
   }, []);
 
+  const defaultNavItems: PublicNavItem[] = [
+    {
+      id: "profile",
+      label: "Profil",
+      href: "/organization-profile",
+      children: [
+        { id: "org-profile", label: "Profil Organisasi", href: "/organization-profile" },
+        { id: "vision-mission", label: "Visi & Misi", href: "/vision-mission" },
+        { id: "structure", label: "Struktur Pengurus (DPP/DPD)", href: "/structure" },
+        { id: "ad-art", label: "AD/ART & Kode Etik", href: "/regulations" },
+      ],
+    },
+    {
+      id: "membership",
+      label: "Keanggotaan",
+      href: "/join",
+      children: [
+        { id: "join-terms", label: "Syarat & Pendaftaran", href: "/join" },
+        { id: "verify-kta", label: "Verifikasi KTA & Kredensial", href: "/verify" },
+        { id: "member-portal", label: "Portal Anggota", href: "/member/login" },
+      ],
+    },
+    {
+      id: "academy",
+      label: "Akademi & SKP",
+      href: "/events",
+      children: [
+        { id: "events-list", label: "Agenda & Pelatihan", href: "/events" },
+        { id: "bnsp-cert", label: "Sertifikasi Profesi BNSP", href: "/events" },
+      ],
+    },
+    {
+      id: "advocacy",
+      label: "Advokasi & Data",
+      href: "/regulations",
+      children: [
+        { id: "regulations-list", label: "Regulasi & Policy Papers", href: "/regulations" },
+        { id: "industry-stats", label: "Statistik Industri & IXP", href: "/statistics" },
+        { id: "public-complaints", label: "Layanan Pengaduan Etik", href: "/complaints" },
+      ],
+    },
+    { id: "championships", label: "Kejuaraan", href: "/championships" },
+    { id: "stories", label: "Berita & Publikasi", href: "/stories" },
+  ];
+
   const navItems: PublicNavItem[] = site.navigation.length
     ? site.navigation
-    : [
-        { id: "events", label: "Agenda", href: "/events" },
-        { id: "structure", label: "Struktur", href: "/structure" },
-        { id: "verify", label: "Verifikasi Kredensial", href: "/verify" },
-      ];
+    : defaultNavItems;
 
   return (
     <>

@@ -422,10 +422,70 @@ export const engagementCampaignInputSchema = z.object({
   scheduledAt: z.string().datetime().nullable().optional(),
 });
 
+export const regulationInputSchema = z.object({
+  title: z.string().trim().min(2).max(220),
+  slug: z.string().trim().min(2).max(200).optional(),
+  category: z.enum([
+    "regulasi_pemerintah",
+    "se_organisasi",
+    "ad_art",
+    "posisi_kebijakan",
+  ]).default("regulasi_pemerintah"),
+  number: z.string().trim().max(120).nullable().optional(),
+  issuedDate: z.string().nullable().optional(),
+  fileUrl: z.string().trim().max(2048).nullable().optional(),
+  summary: z.string().trim().max(5000).nullable().optional(),
+  status: z.enum(["draft", "review", "scheduled", "published", "archived"]).default("published"),
+});
+
+export const publicComplaintInputSchema = z.object({
+  complainantName: z.string().trim().min(2).max(160),
+  complainantEmail: z.string().trim().email().max(320),
+  complainantPhone: z.string().trim().max(40).optional(),
+  targetType: z.enum(["member", "technician", "lender", "company"]).default("member"),
+  targetIdentifier: z.string().trim().min(2).max(160),
+  category: z.enum(["kode_etik", "layanan_teknisi", "penagihan", "sengketa"]).default("kode_etik"),
+  description: z.string().trim().min(10).max(10_000),
+  evidenceFileUrl: z.string().trim().max(2048).nullable().optional(),
+});
+
+export const championshipStandingInputSchema = z.object({
+  seasonYear: z.number().int().min(2000).max(2100).default(2026),
+  category: z.string().trim().min(2).max(120),
+  participantName: z.string().trim().min(2).max(160),
+  teamName: z.string().trim().max(160).nullable().optional(),
+  unitName: z.string().trim().max(160).nullable().optional(),
+  points: z.number().int().min(0).default(0),
+  rank: z.number().int().min(1).default(1),
+  achievements: z.string().trim().max(2000).nullable().optional(),
+});
+
+export const eventRegistrationInputSchema = z.object({
+  participantName: z.string().trim().min(2).max(160),
+  participantEmail: z.string().trim().email().max(320),
+  participantPhone: z.string().trim().max(40).optional(),
+});
+
+export const industryStatisticInputSchema = z.object({
+  metricKey: z.string().trim().min(2).max(80),
+  metricLabel: z.string().trim().min(2).max(180),
+  metricValue: z.string().trim().min(1).max(80),
+  metricUnit: z.string().trim().max(40).nullable().optional(),
+  trendDirection: z.enum(["up", "down", "stable"]).default("up"),
+  trendPercentage: z.string().trim().max(20).nullable().optional(),
+  category: z.string().trim().max(80).default("general"),
+  period: z.string().trim().max(80).default("2026 Q1"),
+  sortOrder: z.number().int().default(0),
+});
+
 export type AudienceSegmentCriteria = z.infer<
   typeof audienceSegmentCriteriaSchema
 >;
 export type RevenueProductInput = z.infer<typeof revenueProductInputSchema>;
+export type RegulationInput = z.infer<typeof regulationInputSchema>;
+export type PublicComplaintInput = z.infer<typeof publicComplaintInputSchema>;
+export type ChampionshipStandingInput = z.infer<typeof championshipStandingInputSchema>;
+export type IndustryStatisticInput = z.infer<typeof industryStatisticInputSchema>;
 
 export type ApiEnvelope<T> = {
   data: T;

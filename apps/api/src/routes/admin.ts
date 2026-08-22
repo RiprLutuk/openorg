@@ -17,6 +17,8 @@ import {
   learningCreditSchemes,
   learningEnrollments,
   media,
+  championshipStandings,
+  industryStatistics,
   memberApplications,
   memberCredentials,
   members,
@@ -26,6 +28,8 @@ import {
   payments,
   positionAssignments,
   positions,
+  publicComplaints,
+  regulations,
   revenueProducts,
   siteSettings,
 } from "../db/schema";
@@ -976,4 +980,155 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       };
     },
   );
+
+  // Admin Regulations Management
+  app.get("/regulations", async () => {
+    const rows = await db
+      .select()
+      .from(regulations)
+      .orderBy(desc(regulations.issuedDate), desc(regulations.createdAt));
+    return { data: rows };
+  });
+
+  app.post("/regulations", async (request, reply) => {
+    const inputSchema = z.object({
+      title: z.string().min(2).max(220),
+      category: z.enum([
+        "regulasi_pemerintah",
+        "se_organisasi",
+        "ad_art",
+        "posisi_kebijakan",
+      ]),
+      number: z.string().max(120).optional(),
+      issuedDate: z.string().optional(),
+      fileUrl: z.string().max(2048).optional(),
+      summary: z.string().optional(),
+      status: publicationStatusInput.default("published"),
+    });
+
+    const body = inputSchema.parse(request.body);
+    const slug = toSlug(body.title);
+
+    const [row] = await db
+      .insert(regulations)
+      .values({
+        title: body.title,
+        slug,
+        category: body.category,
+        number: body.number,
+        issuedDate: body.issuedDate ? new Date(body.issuedDate) : null,
+        fileUrl: body.fileUrl,
+        summary: body.summary,
+        status: body.status,
+      })
+      .returning();
+
+    return reply.status(201).send({ data: row });
+  });
+
+  app.delete("/regulations/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    await db.delete(regulations).where(eq(regulations.id, id));
+    return { data: { success: true } };
+  });
+
+  // Admin Ethics & Public Complaints Desk
+  app.get("/complaints", async () => {
+    const rows = await db
+      .select()
+      .from(publicComplaints)
+      .orderBy(desc(publicComplaints.createdAt));
+    return { data: rows };
+  });
+
+  app.patch("/complaints/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    const updateSchema = z.object({
+      status: z.enum(["new", "under_review", "mediated", "resolved", "dismissed"]),
+      responseNotes: z.string().optional(),
+    });
+    const body = updateSchema.parse(request.body);
+
+    const [updated] = await db
+      .update(publicComplaints)
+      .set({
+        status: body.status,
+        responseNotes: body.responseNotes,
+        reviewedBy: (request as unknown as { user?: { id: string } }).user?.id,
+        reviewedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(publicComplaints.id, id))
+      .returning();
+
+    if (!updated) {
+      throw new AppError(404, "NO_RECORD_FOUND", "Pengaduan tidak ditemukan.");
+    }
+    return { data: updated };
+  });
+
+  // Admin Championships & Skill Standings Manager
+  app.get("/championships", async () => {
+    const rows = await db
+      .select()
+      .from(championshipStandings)
+      .orderBy(asc(championshipStandings.rank));
+    return { data: rows };
+  });
+
+  app.post("/championships", async (request, reply) => {
+    const standingSchema = z.object({
+      seasonYear: z.number().default(2026),
+      category: z.string().min(2),
+      participantName: z.string().min(2),
+      teamName: z.string().optional(),
+      unitName: z.string().optional(),
+      points: z.number().default(0),
+      rank: z.number().default(1),
+      achievements: z.string().optional(),
+    });
+
+    const body = standingSchema.parse(request.body);
+    const [row] = await db.insert(championshipStandings).values(body).returning();
+    return reply.status(201).send({ data: row });
+  });
+
+  app.delete("/championships/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    await db.delete(championshipStandings).where(eq(championshipStandings.id, id));
+    return { data: { success: true } };
+  });
+
+  // Admin Industry Statistics & IXP Metrics Editor
+  app.get("/statistics", async () => {
+    const rows = await db
+      .select()
+      .from(industryStatistics)
+      .orderBy(asc(industryStatistics.sortOrder));
+    return { data: rows };
+  });
+
+  app.post("/statistics", async (request, reply) => {
+    const statSchema = z.object({
+      metricKey: z.string().min(2),
+      metricLabel: z.string().min(2),
+      metricValue: z.string().min(1),
+      metricUnit: z.string().optional(),
+      trendDirection: z.enum(["up", "down", "stable"]).default("up"),
+      trendPercentage: z.string().optional(),
+      category: z.string().default("general"),
+      period: z.string().default("2026 Q1"),
+      sortOrder: z.number().default(0),
+    });
+
+    const body = statSchema.parse(request.body);
+    const [row] = await db.insert(industryStatistics).values(body).returning();
+    return reply.status(201).send({ data: row });
+  });
+
+  app.delete("/statistics/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    await db.delete(industryStatistics).where(eq(industryStatistics.id, id));
+    return { data: { success: true } };
+  });
 };

@@ -4,14 +4,18 @@ import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 import { db } from "../db/client";
 import {
+  championshipStandings,
   contactSubmissions,
   contents,
   events,
+  industryStatistics,
   members,
   organizationUnits,
   pages,
   positionAssignments,
   positions,
+  publicComplaints,
+  regulations,
   siteSettings,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
@@ -305,4 +309,129 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       });
     },
   );
+
+  // Regulations & Governance Public API
+  app.get("/regulations", async (request) => {
+    const query = z
+      .object({
+        category: z.enum([
+          "regulasi_pemerintah",
+          "se_organisasi",
+          "ad_art",
+          "posisi_kebijakan",
+        ]).optional(),
+        search: z.string().optional(),
+      })
+      .parse(request.query);
+
+    const conditions = [eq(regulations.status, "published")];
+    if (query.category) {
+      conditions.push(eq(regulations.category, query.category));
+    }
+    if (query.search) {
+      conditions.push(ilike(regulations.title, `%${query.search}%`));
+    }
+
+    const rows = await db
+      .select()
+      .from(regulations)
+      .where(and(...conditions))
+      .orderBy(desc(regulations.issuedDate), desc(regulations.createdAt));
+
+    return { data: rows };
+  });
+
+  // Public Ethics & Complaints Filing
+  app.post(
+    "/complaints",
+    { config: { rateLimit: { max: 5, timeWindow: "10 minutes" } } },
+    async (request, reply) => {
+      const complaintSchema = z.object({
+        complainantName: z.string().min(2).max(160),
+        complainantEmail: z.string().email().max(320),
+        complainantPhone: z.string().max(40).optional(),
+        targetType: z.enum(["member", "technician", "lender", "company"]).default("member"),
+        targetIdentifier: z.string().min(2).max(160),
+        category: z.enum(["kode_etik", "layanan_teknisi", "penagihan", "sengketa"]).default("kode_etik"),
+        description: z.string().min(10).max(10_000),
+        evidenceFileUrl: z.string().max(2048).optional(),
+      });
+
+      const body = complaintSchema.parse(request.body);
+      const ticketNumber = `CMP-${Date.now().toString(36).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+
+      const [complaint] = await db
+        .insert(publicComplaints)
+        .values({
+          ticketNumber,
+          complainantName: body.complainantName,
+          complainantEmail: body.complainantEmail,
+          complainantPhone: body.complainantPhone,
+          targetType: body.targetType,
+          targetIdentifier: body.targetIdentifier,
+          category: body.category,
+          description: body.description,
+          evidenceFileUrl: body.evidenceFileUrl,
+        })
+        .returning({ id: publicComplaints.id, ticketNumber: publicComplaints.ticketNumber });
+
+      return reply.status(201).send({
+        data: {
+          id: complaint?.id,
+          ticketNumber: complaint?.ticketNumber,
+          message: "Laporan pengaduan Anda telah berhasil dibuat. Simpan nomor tiket ini untuk pelacakan status.",
+        },
+      });
+    },
+  );
+
+  // Complaint Status Verification Lookup
+  app.get("/complaints/verify/:ticketNumber", async (request) => {
+    const params = z.object({ ticketNumber: z.string().min(3) }).parse(request.params);
+    const [complaint] = await db
+      .select({
+        ticketNumber: publicComplaints.ticketNumber,
+        category: publicComplaints.category,
+        targetType: publicComplaints.targetType,
+        targetIdentifier: publicComplaints.targetIdentifier,
+        status: publicComplaints.status,
+        createdAt: publicComplaints.createdAt,
+        reviewedAt: publicComplaints.reviewedAt,
+        responseNotes: publicComplaints.responseNotes,
+      })
+      .from(publicComplaints)
+      .where(eq(publicComplaints.ticketNumber, params.ticketNumber))
+      .limit(1);
+
+    if (!complaint) {
+      throw new AppError(404, "NO_RECORD_FOUND", "Nomor tiket pengaduan tidak ditemukan.");
+    }
+    return { data: complaint };
+  });
+
+  // Championship Standings Public API
+  app.get("/championships", async (request) => {
+    const query = z.object({ seasonYear: z.coerce.number().optional(), category: z.string().optional() }).parse(request.query);
+    const conditions = [];
+    if (query.seasonYear) conditions.push(eq(championshipStandings.seasonYear, query.seasonYear));
+    if (query.category) conditions.push(eq(championshipStandings.category, query.category));
+
+    const rows = await db
+      .select()
+      .from(championshipStandings)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(championshipStandings.rank), desc(championshipStandings.points));
+
+    return { data: rows };
+  });
+
+  // Industry Statistics & Indicators Public API
+  app.get("/statistics", async () => {
+    const rows = await db
+      .select()
+      .from(industryStatistics)
+      .orderBy(asc(industryStatistics.sortOrder), asc(industryStatistics.metricKey));
+
+    return { data: rows };
+  });
 };

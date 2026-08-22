@@ -2,14 +2,18 @@ import { hash } from "@node-rs/argon2";
 import { eq } from "drizzle-orm";
 import { closeDatabase, db } from "./client";
 import {
+  championshipStandings,
   contents,
   events,
+  industryStatistics,
   members,
   membershipCards,
   organizationUnits,
   permissions,
   positionAssignments,
   positions,
+  publicComplaints,
+  regulations,
   rolePermissions,
   roles,
   siteSettings,
@@ -50,6 +54,10 @@ async function seed() {
     await tx.delete(organizationUnits);
     await tx.delete(events);
     await tx.delete(contents);
+    await tx.delete(regulations);
+    await tx.delete(publicComplaints);
+    await tx.delete(championshipStandings);
+    await tx.delete(industryStatistics);
     await tx.delete(users);
 
     // 1. Site Settings APTI Indonesia (Asosiasi Pengusaha & Teknisi Pendingin Indonesia)
@@ -420,6 +428,164 @@ async function seed() {
         status: "published",
         publishedAt: now,
         authorId: owner.id,
+      },
+    ]);
+
+    // 6. Regulasi, AD/ART & Surat Edaran (APINDO, APPI, APJII, AFPI, ASISI)
+    await tx.insert(regulations).values([
+      {
+        title: "Anggaran Dasar & Anggaran Rumah Tangga (AD/ART) APTI Indonesia 2026",
+        slug: "ad-art-apti-indonesia-2026",
+        category: "ad_art",
+        number: "001/TAP-MUNAS/APTI/2026",
+        issuedDate: new Date("2026-01-15"),
+        summary: "Landasan hukum, asas, tujuan, hak & kewajiban anggota, serta struktur kepengurusan DPP, DPD, dan Korwil APTI Indonesia.",
+        fileUrl: "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/sample-ad-art.pdf",
+        downloadCount: 1420,
+        status: "published",
+      },
+      {
+        title: "Peraturan Menteri LHK No. 73 Tahun 2024 tentang Pengolahan & Pengurangan Bahan Perusak Ozon (BPO)",
+        slug: "permen-lhk-73-2024-pengurangan-bpo",
+        category: "regulasi_pemerintah",
+        number: "Permen LHK No. 73/2024",
+        issuedDate: new Date("2024-11-10"),
+        summary: "Regulasi wajib uji kompetensi dan sertifikasi BNSP bagi setiap teknisi HVAC/R di Indonesia guna mendukung pemulihan lapisan ozon.",
+        fileUrl: "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/permen-lhk-73-2024.pdf",
+        downloadCount: 890,
+        status: "published",
+      },
+      {
+        title: "Surat Edaran DPP APTI: Standar Biaya Jasa Servis & Keselamatan Kerja K3 Teknisi",
+        slug: "se-dpp-apti-standar-biaya-servis-k3",
+        category: "se_organisasi",
+        number: "SE/012/DPP-APTI/II/2026",
+        issuedDate: new Date("2026-02-01"),
+        summary: "Pedoman acuan honorarium standar minimum perbaikan AC Split, Central, dan perlengkapan APD wajib K3 saat bertugas.",
+        fileUrl: "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/se-standar-biaya-k3.pdf",
+        downloadCount: 2310,
+        status: "published",
+      },
+      {
+        title: "Naskah Kebijakan (Policy Paper): Insentif Pajak Produk HVAC Ramah Lingkungan R290",
+        slug: "policy-paper-insentif-pajak-hvac-r290",
+        category: "posisi_kebijakan",
+        number: "PP/004/ADVOKASI-APTI/2026",
+        issuedDate: new Date("2026-02-18"),
+        summary: "Rekomendasi resmi APTI kepada Kementerian Keuangan & Kemenperin untuk pembebasan bea masuk suku cadang AC ramah lingkungan.",
+        fileUrl: "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/policy-paper-r290.pdf",
+        downloadCount: 450,
+        status: "published",
+      },
+    ]);
+
+    // 7. Pengaduan Masyarakat & Kode Etik Desk (AFPI, APITU, ASISI)
+    await tx.insert(publicComplaints).values([
+      {
+        ticketNumber: "CMP-2026-0081",
+        complainantName: "Budi Santoso",
+        complainantEmail: "budi.santoso@gmail.com",
+        complainantPhone: "081299887766",
+        targetType: "technician",
+        targetIdentifier: "Budi Kurniawan (APTI-2026-0004)",
+        category: "layanan_teknisi",
+        description: "Pengaduan pengerjaan cuci AC tidak dingin di area Kelapa Gading dan tidak memberikan garansi sesuai komitmen KTA APTI.",
+        status: "under_review",
+        responseNotes: "Sekretariat DPD DKI Jakarta telah menghubungi pihak teknisi untuk memverifikasi garansi pengerjaan ulang.",
+      },
+      {
+        ticketNumber: "CMP-2026-0094",
+        complainantName: "Siti Rahmawati",
+        complainantEmail: "siti.rahma@yahoo.com",
+        complainantPhone: "085711223344",
+        targetType: "member",
+        targetIdentifier: "PT Cold Chain Indonesia",
+        category: "kode_etik",
+        description: "Laporan penggunaan refrigerant ilegal R22 tanpa izin pengolahan lingkungan hidup.",
+        status: "mediated",
+        responseNotes: "Tim Etik DPP APTI telah melakukan inspeksi TUK dan menerbitkan teguran tertulis.",
+      },
+    ]);
+
+    // 8. Klasemen Kejuaraan & Skill Competition Standings (IMI, ASISI, APITU)
+    await tx.insert(championshipStandings).values([
+      {
+        seasonYear: 2026,
+        category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+        participantName: "Budi Kurniawan",
+        teamName: "APTI DPD DKI Jakarta - Team Alpha",
+        unitName: "DPD DKI Jakarta",
+        points: 480,
+        rank: 1,
+        achievements: "Juara 1 Troubleshooting Inverter AC & Waktu Vakum Tercepat (08:42 menit)",
+      },
+      {
+        seasonYear: 2026,
+        category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+        participantName: "Agus Pratama",
+        teamName: "APTI DPD Jawa Barat - Bandung Technicians",
+        unitName: "DPD Jawa Barat",
+        points: 445,
+        rank: 2,
+        achievements: "Juara 2 K3 Safety & Prosedur Brazing Tembaga Tanpa Oksidasi",
+      },
+      {
+        seasonYear: 2026,
+        category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+        participantName: "Dewi Lestari",
+        teamName: "APTI DPD Jawa Tengah - Semarang Cold Chain",
+        unitName: "DPD Jawa Tengah",
+        points: 410,
+        rank: 3,
+        achievements: "Juara 3 Perancangan Cold Room Industri Farmasi",
+      },
+    ]);
+
+    // 9. Indikator Statistik Industri & Peering Traffic (APJII, APPI, idEA, FINTECH.ID)
+    await tx.insert(industryStatistics).values([
+      {
+        metricKey: "certified_technicians",
+        metricLabel: "Total Teknisi Bersertifikat BNSP",
+        metricValue: "8,450",
+        metricUnit: "Teknisi",
+        trendDirection: "up",
+        trendPercentage: "+18.5%",
+        category: "Keanggotaan",
+        period: "2026 Q1",
+        sortOrder: 1,
+      },
+      {
+        metricKey: "dpd_coverage",
+        metricLabel: "Sebaran DPD & Korwil Provinsi",
+        metricValue: "38 / 38",
+        metricUnit: "Provinsi",
+        trendDirection: "stable",
+        trendPercentage: "100%",
+        category: "Organisasi",
+        period: "2026 Q1",
+        sortOrder: 2,
+      },
+      {
+        metricKey: "iix_traffic_gbps",
+        metricLabel: "Volume Servis Unit AC Terverifikasi",
+        metricValue: "142,800",
+        metricUnit: "Unit AC/Bulan",
+        trendDirection: "up",
+        trendPercentage: "+24.2%",
+        category: "Layanan Sektor",
+        period: "2026 Q1",
+        sortOrder: 3,
+      },
+      {
+        metricKey: "public_satisfaction_rate",
+        metricLabel: "Tingkat Kepuasan Pelanggan KTA APTI",
+        metricValue: "98.4%",
+        metricUnit: "Indeks Trust",
+        trendDirection: "up",
+        trendPercentage: "+2.1%",
+        category: "Kualitas Service",
+        period: "2026 Q1",
+        sortOrder: 4,
       },
     ]);
   });

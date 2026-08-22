@@ -942,6 +942,99 @@ export const auditLogs = pgTable("audit_logs", {
     .defaultNow(),
 });
 
+export const regulationCategory = pgEnum("regulation_category", [
+  "regulasi_pemerintah",
+  "se_organisasi",
+  "ad_art",
+  "posisi_kebijakan",
+]);
+
+export const complaintStatus = pgEnum("complaint_status", [
+  "new",
+  "under_review",
+  "mediated",
+  "resolved",
+  "dismissed",
+]);
+
+export const regulations = pgTable("regulations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: varchar("title", { length: 220 }).notNull(),
+  slug: varchar("slug", { length: 200 }).notNull().unique(),
+  category: regulationCategory("category").notNull().default("regulasi_pemerintah"),
+  number: varchar("number", { length: 120 }),
+  issuedDate: timestamp("issued_date", { withTimezone: true }),
+  fileUrl: text("file_url"),
+  summary: text("summary"),
+  downloadCount: integer("download_count").notNull().default(0),
+  status: publicationStatus("status").notNull().default("published"),
+  ...timestamps,
+});
+
+export const publicComplaints = pgTable("public_complaints", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ticketNumber: varchar("ticket_number", { length: 60 }).notNull().unique(),
+  complainantName: varchar("complainant_name", { length: 160 }).notNull(),
+  complainantEmail: varchar("complainant_email", { length: 320 }).notNull(),
+  complainantPhone: varchar("complainant_phone", { length: 40 }),
+  targetType: varchar("target_type", { length: 60 }).notNull().default("member"),
+  targetIdentifier: varchar("target_identifier", { length: 160 }).notNull(),
+  category: varchar("category", { length: 80 }).notNull().default("kode_etik"),
+  description: text("description").notNull(),
+  evidenceFileUrl: text("evidence_file_url"),
+  status: complaintStatus("status").notNull().default("new"),
+  responseNotes: text("response_notes"),
+  reviewedBy: uuid("reviewed_by").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  ...timestamps,
+});
+
+export const championshipStandings = pgTable("championship_standings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  seasonYear: integer("season_year").notNull().default(2026),
+  category: varchar("category", { length: 120 }).notNull().default("refrigeration_skill"),
+  participantName: varchar("participant_name", { length: 160 }).notNull(),
+  teamName: varchar("team_name", { length: 160 }),
+  unitName: varchar("unit_name", { length: 160 }),
+  points: integer("points").notNull().default(0),
+  rank: integer("rank").notNull().default(1),
+  achievements: text("achievements"),
+  ...timestamps,
+});
+
+export const eventRegistrations = pgTable("event_registrations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventId: uuid("event_id")
+    .notNull()
+    .references(() => events.id, { onDelete: "cascade" }),
+  memberId: uuid("member_id").references(() => members.id, {
+    onDelete: "set null",
+  }),
+  participantName: varchar("participant_name", { length: 160 }).notNull(),
+  participantEmail: varchar("participant_email", { length: 320 }).notNull(),
+  participantPhone: varchar("participant_phone", { length: 40 }),
+  ticketCode: varchar("ticket_code", { length: 80 }).notNull().unique(),
+  qrCodeUrl: text("qr_code_url"),
+  status: varchar("status", { length: 40 }).notNull().default("registered"),
+  ...timestamps,
+});
+
+export const industryStatistics = pgTable("industry_statistics", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  metricKey: varchar("metric_key", { length: 80 }).notNull().unique(),
+  metricLabel: varchar("metric_label", { length: 180 }).notNull(),
+  metricValue: varchar("metric_value", { length: 80 }).notNull(),
+  metricUnit: varchar("metric_unit", { length: 40 }),
+  trendDirection: varchar("trend_direction", { length: 20 }).default("up"),
+  trendPercentage: varchar("trend_percentage", { length: 20 }),
+  category: varchar("category", { length: 80 }).notNull().default("general"),
+  period: varchar("period", { length: 80 }).default("2026 Q1"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  ...timestamps,
+});
+
 // Relations definitions
 export const userRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),

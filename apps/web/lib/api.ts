@@ -163,6 +163,7 @@ export async function publicApi<T>(
 }
 
 export const getSite = () => publicApi<PublicSite>("/site");
+export const getPublicSite = getSite;
 export const getHomepage = () => publicApi<PublicPage>("/pages/home");
 export const getPages = () => publicApi<PublicPageSummary[]>("/pages");
 export const getPage = (slug: string) =>
