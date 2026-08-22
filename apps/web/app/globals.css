@@ -14,7 +14,6 @@
 }
 html {
   scroll-behavior: smooth;
-  overflow-x: clip;
 }
 body {
   margin: 0;
@@ -22,7 +21,6 @@ body {
   background: #fff;
   font-family: var(--font-body), system-ui, sans-serif;
   text-rendering: optimizeLegibility;
-  overflow-x: clip;
 }
 body,
 button,
