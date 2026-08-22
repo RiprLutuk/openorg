@@ -790,7 +790,7 @@ img {
 }
 .section-heading p {
   width: 100%;
-  max-width: 840px;
+  max-width: 100%;
   color: #64748b;
   font-size: 16px;
   line-height: 1.6;
@@ -3879,7 +3879,8 @@ img {
   letter-spacing: -0.02em;
 }
 .hero-lead {
-  max-width: 840px;
+  width: 100%;
+  max-width: 100%;
   font-size: 16px;
   color: #64748b;
   line-height: 1.6;
