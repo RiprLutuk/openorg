@@ -16,6 +16,7 @@ import {
   CircleHelp,
   Copy,
   CornerDownRight,
+  Cpu,
   CreditCard,
   Download,
   FileText,
@@ -48,6 +49,7 @@ import {
   WalletCards,
   Wrench,
   X,
+  Zap,
 } from "lucide-react";
 import QRCode from "qrcode";
 import {
@@ -5215,34 +5217,41 @@ function KtaCardModal({
               alignItems: "center",
             }}
           >
-            {/* Visual Portrait ID Card (Target for Download) */}
+            {/* Visual Next-Gen Cyber ID Card (Target for Download) */}
             <div
               id="modern-id-card"
               ref={cardRef}
+              className="genz-cyber-card"
               style={{
-                width: "340px",
-                height: "560px",
-                background: "linear-gradient(135deg, #0b192c 0%, #1a365d 100%)",
-                borderRadius: "24px",
+                width: "350px",
+                height: "590px",
+                background:
+                  "radial-gradient(120% 120% at 50% 10%, #0d1322 0%, #070a12 60%, #03050a 100%)",
+                borderRadius: "26px",
                 position: "relative",
                 overflow: "hidden",
-                boxShadow: "0 25px 50px rgba(0,0,0,0.3)",
+                boxShadow:
+                  "0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 35px -5px rgba(168, 85, 247, 0.15)",
                 color: "#ffffff",
                 margin: "16px auto",
-                border: "1px solid rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.12)",
                 boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                padding: "18px 20px 14px",
               }}
             >
-              {/* Glow effects */}
+              {/* Flares */}
               <div
                 style={{
                   position: "absolute",
                   top: "-60px",
-                  right: "-60px",
-                  width: "250px",
-                  height: "250px",
+                  right: "-50px",
+                  width: "240px",
+                  height: "240px",
                   background:
-                    "radial-gradient(circle, rgba(220, 38, 38, 0.5) 0%, transparent 70%)",
+                    "radial-gradient(circle, rgba(168, 85, 247, 0.38) 0%, rgba(236, 72, 153, 0.15) 45%, transparent 70%)",
                   borderRadius: "50%",
                   zIndex: 1,
                   pointerEvents: "none",
@@ -5251,277 +5260,495 @@ function KtaCardModal({
               <div
                 style={{
                   position: "absolute",
-                  bottom: "-80px",
-                  left: "-80px",
-                  width: "300px",
-                  height: "300px",
+                  bottom: "-60px",
+                  left: "-50px",
+                  width: "260px",
+                  height: "260px",
                   background:
-                    "radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)",
+                    "radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, rgba(16, 185, 129, 0.15) 50%, transparent 70%)",
                   borderRadius: "50%",
                   zIndex: 1,
                   pointerEvents: "none",
                 }}
               />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  backgroundImage:
+                    "linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px)",
+                  backgroundSize: "20px 20px",
+                  pointerEvents: "none",
+                  zIndex: 1,
+                }}
+              />
 
-              {/* Header */}
+              {/* Top Bar */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  padding: "26px 22px 0",
+                  justifyContent: "space-between",
                   position: "relative",
                   zIndex: 10,
                 }}
               >
                 <div
                   style={{
-                    height: "44px",
-                    width: "44px",
-                    background: "#f59e0b",
-                    color: "#0f172a",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "rgba(255, 255, 255, 0.06)",
+                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    padding: "3px 9px",
+                    borderRadius: "20px",
+                    fontSize: "8.5px",
                     fontWeight: 800,
-                    fontSize: "16px",
-                    borderRadius: "50%",
-                    display: "grid",
-                    placeItems: "center",
-                    boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
-                    flexShrink: 0,
+                    letterSpacing: "1.2px",
+                    color: "#cbd5e1",
                   }}
                 >
-                  {orgName.slice(0, 2).toUpperCase()}
+                  <Zap size={11} color="#fbbf24" />
+                  <span>KTA DIGITAL {"//"} PASS 2026</span>
                 </div>
-                <div style={{ marginLeft: "14px" }}>
-                  <h3
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    background:
+                      "linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(234, 179, 8, 0.08))",
+                    border: "1px solid rgba(245, 158, 11, 0.4)",
+                    padding: "3px 8px",
+                    borderRadius: "6px",
+                    color: "#fcd34d",
+                  }}
+                >
+                  <Cpu size={14} />
+                  <span
                     style={{
-                      fontSize: "0.95rem",
+                      width: "5px",
+                      height: "5px",
+                      borderRadius: "50%",
+                      background: "#22c55e",
+                      boxShadow: "0 0 8px #22c55e",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Brand Header */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  position: "relative",
+                  zIndex: 10,
+                  marginTop: "4px",
+                }}
+              >
+                <div
+                  style={{
+                    width: "38px",
+                    height: "38px",
+                    borderRadius: "12px",
+                    background:
+                      "linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4)",
+                    padding: "2px",
+                    flexShrink: 0,
+                    boxShadow: "0 0 14px rgba(139, 92, 246, 0.35)",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: "10px",
+                      background: "#0f172a",
+                      display: "grid",
+                      placeItems: "center",
+                      fontWeight: 900,
+                      fontSize: "13px",
+                      color: "#38bdf8",
+                    }}
+                  >
+                    {orgName.slice(0, 2).toUpperCase()}
+                  </div>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "12.5px",
                       fontWeight: 800,
-                      color: "#ffffff",
                       letterSpacing: "0.8px",
-                      margin: "0 0 2px 0",
+                      color: "#ffffff",
                       textTransform: "uppercase",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
                   >
                     {orgName}
-                  </h3>
-                  <p
+                  </div>
+                  <div
                     style={{
-                      fontSize: "0.55rem",
+                      fontSize: "8.5px",
                       color: "#94a3b8",
-                      fontWeight: 600,
-                      margin: 0,
-                      lineHeight: 1.3,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
+                      letterSpacing: "0.4px",
+                      marginTop: "1px",
                     }}
                   >
-                    Asosiasi Praktisi Tata Udara
-                    <br />
-                    Dan Pendingin Indonesia
-                  </p>
+                    Official Accredited Membership
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    background: "rgba(34, 197, 94, 0.15)",
+                    border: "1px solid rgba(34, 197, 94, 0.4)",
+                    color: "#4ade80",
+                    fontSize: "9px",
+                    fontWeight: 800,
+                    letterSpacing: "1px",
+                    padding: "3px 8px",
+                    borderRadius: "20px",
+                    flexShrink: 0,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "5px",
+                      height: "5px",
+                      borderRadius: "50%",
+                      background: "#4ade80",
+                      boxShadow: "0 0 8px #4ade80",
+                    }}
+                  />{" "}
+                  ACTIVE
                 </div>
               </div>
 
-              {/* Circular Profile Photo with Fiery Ring */}
+              {/* Avatar */}
               <div
                 style={{
-                  position: "relative",
-                  zIndex: 10,
                   display: "flex",
                   justifyContent: "center",
-                  marginTop: "32px",
+                  position: "relative",
+                  zIndex: 10,
+                  margin: "6px 0 2px",
                 }}
               >
                 <div
                   style={{
-                    width: "145px",
-                    height: "145px",
-                    borderRadius: "50%",
-                    background:
-                      "linear-gradient(135deg, #dc2626, #ef4444, #f59e0b)",
-                    padding: "4px",
-                    boxShadow: "0 15px 35px rgba(220, 38, 38, 0.35)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    position: "relative",
+                    width: "135px",
+                    height: "135px",
                   }}
                 >
-                  {member.avatarUrl ? (
-                    <img
-                      src={member.avatarUrl}
-                      alt={member.name}
-                      crossOrigin="anonymous"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        border: "3px solid #0b192c",
-                        background: "#ffffff",
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: "50%",
-                        display: "grid",
-                        placeItems: "center",
-                        background: "#1e293b",
-                        color: "#38bdf8",
-                        fontSize: "42px",
-                        fontWeight: 800,
-                        border: "3px solid #0b192c",
-                      }}
-                    >
-                      {initials}
-                    </div>
-                  )}
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: "50%",
+                      background:
+                        "linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4, #10b981, #f59e0b)",
+                      padding: "3.5px",
+                      boxShadow:
+                        "0 10px 30px -5px rgba(139, 92, 246, 0.4), 0 0 20px rgba(6, 182, 212, 0.25)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {member.avatarUrl ? (
+                      <img
+                        src={member.avatarUrl}
+                        alt={member.name}
+                        crossOrigin="anonymous"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          border: "3px solid #070a12",
+                          background: "#0f172a",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          display: "grid",
+                          placeItems: "center",
+                          background:
+                            "radial-gradient(circle, #1e293b 0%, #0f172a 100%)",
+                          color: "#38bdf8",
+                          fontSize: "38px",
+                          fontWeight: 900,
+                          border: "3px solid #070a12",
+                        }}
+                      >
+                        {initials}
+                      </div>
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "4px",
+                      right: "4px",
+                      background: "#0284c7",
+                      color: "#ffffff",
+                      borderRadius: "50%",
+                      width: "26px",
+                      height: "26px",
+                      display: "grid",
+                      placeItems: "center",
+                      border: "2.5px solid #070a12",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
+                    }}
+                  >
+                    <CheckCircle2 size={16} />
+                  </div>
                 </div>
               </div>
 
-              {/* Member Info */}
+              {/* Member Identity */}
               <div
                 style={{
                   textAlign: "center",
                   position: "relative",
                   zIndex: 10,
-                  marginTop: "22px",
-                  padding: "0 20px",
                 }}
               >
                 <div
                   style={{
-                    fontSize: "1.25rem",
-                    fontWeight: 800,
+                    fontSize: "19px",
+                    fontWeight: 900,
                     color: "#ffffff",
-                    marginBottom: "6px",
+                    letterSpacing: "0.6px",
                     textTransform: "uppercase",
-                    letterSpacing: "0.5px",
+                    textShadow: "0 2px 10px rgba(0, 0, 0, 0.6)",
+                    lineHeight: 1.2,
                   }}
                 >
                   {member.name}
                 </div>
                 <div
                   style={{
-                    display: "inline-block",
-                    background: "rgba(220, 38, 38, 0.15)",
-                    border: "1px solid rgba(220, 38, 38, 0.4)",
-                    color: "#fca5a5",
-                    padding: "4px 14px",
-                    borderRadius: "30px",
-                    fontSize: "0.85rem",
-                    fontWeight: 700,
-                    letterSpacing: "1.5px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "rgba(139, 92, 246, 0.16)",
+                    border: "1px solid rgba(168, 85, 247, 0.45)",
+                    color: "#c084fc",
+                    padding: "3px 12px",
+                    borderRadius: "20px",
+                    fontSize: "12px",
+                    fontWeight: 800,
+                    letterSpacing: "2px",
                     fontFamily: "monospace",
+                    marginTop: "5px",
+                    boxShadow: "0 0 15px rgba(168, 85, 247, 0.15)",
                   }}
                 >
-                  {cardCode}
+                  <span style={{ color: "#e879f9", fontWeight: 900 }}>NO.</span>
+                  <span>{cardCode}</span>
                 </div>
               </div>
 
-              {/* Glassmorphism Bottom Details */}
+              {/* HUD Details Box */}
               <div
                 style={{
-                  margin: "auto 18px 20px",
-                  background: "rgba(255, 255, 255, 0.07)",
-                  backdropFilter: "blur(12px)",
-                  WebkitBackdropFilter: "blur(12px)",
-                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                  backdropFilter: "blur(14px)",
+                  WebkitBackdropFilter: "blur(14px)",
                   borderRadius: "16px",
-                  padding: "14px 16px",
+                  padding: "11px 13px",
                   position: "relative",
                   zIndex: 10,
                   display: "flex",
-                  justifyContent: "space-between",
                   alignItems: "center",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                  justifyContent: "space-between",
+                  gap: "10px",
+                  boxShadow:
+                    "inset 0 0 15px rgba(255, 255, 255, 0.02), 0 8px 24px rgba(0, 0, 0, 0.3)",
                 }}
               >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "4px",
+                    left: "4px",
+                    width: "6px",
+                    height: "6px",
+                    borderTop: "1.5px solid #38bdf8",
+                    borderLeft: "1.5px solid #38bdf8",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "4px",
+                    right: "4px",
+                    width: "6px",
+                    height: "6px",
+                    borderBottom: "1.5px solid #ec4899",
+                    borderRight: "1.5px solid #ec4899",
+                  }}
+                />
+
                 <div
                   style={{
                     flex: 1,
                     display: "flex",
                     flexDirection: "column",
-                    gap: "12px",
-                    paddingRight: "14px",
-                    borderRight: "1px solid rgba(255, 255, 255, 0.1)",
+                    gap: "6px",
                   }}
                 >
-                  <div>
-                    <div
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span
                       style={{
-                        fontSize: "0.55rem",
+                        fontSize: "7.5px",
+                        fontWeight: 800,
+                        letterSpacing: "1px",
                         color: "#94a3b8",
                         textTransform: "uppercase",
-                        fontWeight: 700,
-                        letterSpacing: "1px",
-                        marginBottom: "2px",
+                        marginBottom: "1px",
                       }}
                     >
-                      DPD / UNIT
-                    </div>
-                    <div
+                      UNIT / WILAYAH
+                    </span>
+                    <span
                       style={{
-                        fontSize: "0.75rem",
-                        fontWeight: 700,
-                        color: "#f8fafc",
-                        lineHeight: 1.3,
+                        fontSize: "11px",
+                        fontWeight: 800,
+                        lineHeight: 1.2,
+                        color: "#38bdf8",
                       }}
                     >
                       {dpdText}
-                    </div>
+                    </span>
                   </div>
-                  <div>
-                    <div
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span
                       style={{
-                        fontSize: "0.55rem",
+                        fontSize: "7.5px",
+                        fontWeight: 800,
+                        letterSpacing: "1px",
                         color: "#94a3b8",
                         textTransform: "uppercase",
-                        fontWeight: 700,
-                        letterSpacing: "1px",
-                        marginBottom: "2px",
+                        marginBottom: "1px",
                       }}
                     >
-                      STATUS JABATAN
-                    </div>
-                    <div
+                      STATUS & KREDENSIAL
+                    </span>
+                    <span
                       style={{
-                        fontSize: "0.75rem",
-                        fontWeight: 700,
-                        color: "#f8fafc",
-                        lineHeight: 1.3,
+                        fontSize: "11px",
+                        fontWeight: 800,
+                        lineHeight: 1.2,
+                        color: "#a3e635",
                       }}
                     >
-                      ANGGOTA RESMI
+                      CERTIFIED PRACTITIONER
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", gap: "14px" }}>
+                    <div>
+                      <span
+                        style={{
+                          fontSize: "7.5px",
+                          fontWeight: 800,
+                          letterSpacing: "1px",
+                          color: "#94a3b8",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        VERSI
+                      </span>
+                      <div
+                        style={{
+                          fontSize: "9.5px",
+                          fontWeight: 700,
+                          color: "#cbd5e1",
+                        }}
+                      >
+                        v{cardData?.card.version ?? 1}.0
+                      </div>
                     </div>
                   </div>
                 </div>
+
                 <div
                   style={{
-                    background: "#ffffff",
-                    padding: "6px",
-                    borderRadius: "10px",
-                    marginLeft: "14px",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                    display: "grid",
-                    placeItems: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    flexShrink: 0,
                   }}
                 >
-                  {qrCodeUrl ? (
-                    <img
-                      src={qrCodeUrl}
-                      alt="QR Verifikasi"
-                      style={{
-                        width: "65px",
-                        height: "65px",
-                        display: "block",
-                      }}
-                    />
-                  ) : (
-                    <QrCode size={55} color="#0b192c" />
-                  )}
+                  <div
+                    style={{
+                      background: "#ffffff",
+                      padding: "4px",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+                    }}
+                  >
+                    {qrCodeUrl ? (
+                      <img
+                        src={qrCodeUrl}
+                        alt="QR Verifikasi"
+                        style={{
+                          width: "58px",
+                          height: "58px",
+                          display: "block",
+                        }}
+                      />
+                    ) : (
+                      <QrCode size={58} color="#090d16" />
+                    )}
+                  </div>
+                  <span
+                    style={{
+                      fontSize: "7px",
+                      fontWeight: 900,
+                      letterSpacing: "1px",
+                      color: "#38bdf8",
+                      marginTop: "3px",
+                    }}
+                  >
+                    SCAN {"//"} AUTH
+                  </span>
                 </div>
+              </div>
+
+              {/* Bottom Decal */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  fontSize: "7.5px",
+                  fontWeight: 800,
+                  letterSpacing: "1.2px",
+                  color: "#64748b",
+                  fontFamily: "monospace",
+                  position: "relative",
+                  zIndex: 10,
+                }}
+              >
+                <span>COMPLYFLOW SECURE CREDENTIAL</span>
+                <span style={{ color: "#ec4899" }}>{"///"}</span>
+                <span>ZERO-TRUST VERIFIED</span>
               </div>
             </div>
 

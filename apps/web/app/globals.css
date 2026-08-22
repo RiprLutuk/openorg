@@ -7497,7 +7497,7 @@ img {
 }
 
 /* ==========================================================================
-   Ultra-Premium Modern Portrait ID Card Design (ASISI Standard CR-80 Format)
+   Next-Gen Energetic Cyber KTA Pass (Gen-Z / Gen-Alpha Futuristic Edition)
    ========================================================================== */
 .portrait-kta-container {
   display: flex;
@@ -7507,30 +7507,44 @@ img {
   margin: 20px 0;
 }
 
-#modern-id-card {
-  width: 340px;
-  height: 560px;
-  background: linear-gradient(135deg, #0b192c 0%, #1a365d 100%);
-  border-radius: 24px;
+#modern-id-card.genz-cyber-card,
+.genz-cyber-card {
+  width: 350px;
+  height: 590px;
+  background: radial-gradient(
+    120% 120% at 50% 10%,
+    #0d1322 0%,
+    #070a12 60%,
+    #03050a 100%
+  );
+  border-radius: 26px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.7),
+    0 0 35px -5px rgba(168, 85, 247, 0.15);
   font-family: inherit;
   color: #ffffff;
   margin: 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
 }
 
-.id-glow-top-right {
+/* Chromatic Refractive Flares */
+.cyber-flare-violet {
   position: absolute;
   top: -60px;
-  right: -60px;
-  width: 250px;
-  height: 250px;
+  right: -50px;
+  width: 240px;
+  height: 240px;
   background: radial-gradient(
     circle,
-    rgba(220, 38, 38, 0.5) 0%,
+    rgba(168, 85, 247, 0.38) 0%,
+    rgba(236, 72, 153, 0.15) 45%,
     transparent 70%
   );
   border-radius: 50%;
@@ -7538,15 +7552,16 @@ img {
   pointer-events: none;
 }
 
-.id-glow-bottom-left {
+.cyber-flare-cyan {
   position: absolute;
-  bottom: -80px;
-  left: -80px;
-  width: 300px;
-  height: 300px;
+  bottom: -60px;
+  left: -50px;
+  width: 260px;
+  height: 260px;
   background: radial-gradient(
     circle,
-    rgba(56, 189, 248, 0.25) 0%,
+    rgba(6, 182, 212, 0.3) 0%,
+    rgba(16, 185, 129, 0.15) 50%,
     transparent 70%
   );
   border-radius: 50%;
@@ -7554,190 +7569,418 @@ img {
   pointer-events: none;
 }
 
-.id-header {
+.cyber-flare-amber {
+  position: absolute;
+  top: 35%;
+  left: -40px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(
+    circle,
+    rgba(245, 158, 11, 0.15) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cyber-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 1. Top Micro-Header */
+.cyber-top-bar {
   display: flex;
   align-items: center;
-  padding: 26px 22px 0;
+  justify-content: space-between;
   position: relative;
   z-index: 10;
 }
 
-.id-header-logo {
-  height: 44px;
-  width: 44px;
-  object-fit: contain;
-  background: #ffffff;
-  border-radius: 50%;
-  padding: 5px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  flex-shrink: 0;
+.cyber-pass-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #cbd5e1;
+  backdrop-filter: blur(8px);
 }
 
-.id-header-logo-initial {
-  height: 44px;
-  width: 44px;
-  background: #f59e0b;
-  color: #0f172a;
-  font-weight: 800;
-  font-size: 16px;
+.text-amber {
+  color: #fbbf24;
+}
+
+.cyber-chip-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.2),
+    rgba(234, 179, 8, 0.08)
+  );
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: #fcd34d;
+}
+
+.chip-icon {
+  color: #fcd34d;
+}
+
+.nfc-dot {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+/* 2. Organization Brand Row */
+.cyber-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 10;
+  margin-top: 4px;
+}
+
+.cyber-logo-wrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4);
+  padding: 2px;
+  flex-shrink: 0;
+  box-shadow: 0 0 14px rgba(139, 92, 246, 0.35);
+}
+
+.cyber-brand-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #0f172a;
+  padding: 3px;
+}
+
+.cyber-logo-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: #0f172a;
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-weight: 900;
+  font-size: 13px;
+  color: #38bdf8;
+}
+
+.cyber-brand-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cyber-brand-name {
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cyber-brand-tagline {
+  font-size: 8.5px;
+  color: #94a3b8;
+  letter-spacing: 0.4px;
+  margin-top: 1px;
+}
+
+.cyber-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #4ade80;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 20px;
   flex-shrink: 0;
 }
 
-.id-header-text {
-  margin-left: 14px;
+.pulse-green {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
 }
 
-.id-header-title {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.8px;
-  margin: 0 0 2px 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  text-transform: uppercase;
-}
-
-.id-header-sub {
-  font-size: 0.55rem;
-  color: #94a3b8;
-  font-weight: 600;
-  margin: 0;
-  line-height: 1.3;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.id-photo-container {
-  position: relative;
-  z-index: 10;
+/* 3. Concentric Avatar Visual */
+.cyber-avatar-section {
   display: flex;
   justify-content: center;
-  margin-top: 32px;
+  position: relative;
+  z-index: 10;
+  margin: 6px 0 2px;
 }
 
-.id-photo-ring {
-  width: 145px;
-  height: 145px;
+.cyber-avatar-halo {
+  position: relative;
+  width: 135px;
+  height: 135px;
+}
+
+.cyber-avatar-ring {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  background: linear-gradient(135deg, #dc2626, #ef4444, #f59e0b);
-  padding: 4px;
-  box-shadow: 0 15px 35px rgba(220, 38, 38, 0.35);
+  background: linear-gradient(
+    135deg,
+    #ec4899,
+    #8b5cf6,
+    #06b6d4,
+    #10b981,
+    #f59e0b
+  );
+  padding: 3.5px;
+  box-shadow:
+    0 10px 30px -5px rgba(139, 92, 246, 0.4),
+    0 0 20px rgba(6, 182, 212, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.id-photo {
+.cyber-avatar-img {
   width: 100%;
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  object-position: top center;
-  border: 3px solid #0b192c;
-  background: #ffffff;
+  border: 3px solid #070a12;
+  background: #0f172a;
 }
 
-.id-photo-placeholder {
+.cyber-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
   display: grid;
   place-items: center;
-  background: #1e293b;
+  background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
   color: #38bdf8;
-  font-size: 42px;
-  font-weight: 800;
+  font-size: 38px;
+  font-weight: 900;
+  border: 3px solid #070a12;
 }
 
-.id-info {
+.cyber-avatar-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: #0284c7;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 2.5px solid #070a12;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* 4. Member Identity & Holographic Serial */
+.cyber-identity-section {
   text-align: center;
   position: relative;
   z-index: 10;
-  margin-top: 22px;
-  padding: 0 20px;
 }
 
-.id-name {
-  font-size: 1.25rem;
-  font-weight: 800;
+.cyber-member-name {
+  font-size: 19px;
+  font-weight: 900;
   color: #ffffff;
-  margin-bottom: 6px;
-  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  line-height: 1.2;
 }
 
-.id-number {
-  display: inline-block;
-  background: rgba(220, 38, 38, 0.15);
-  border: 1px solid rgba(220, 38, 38, 0.4);
-  color: #fca5a5;
-  padding: 4px 14px;
-  border-radius: 30px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  box-shadow: inset 0 0 10px rgba(220, 38, 38, 0.1);
-  margin-bottom: 8px;
+.cyber-serial-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(139, 92, 246, 0.16);
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  color: #c084fc;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
   font-family: monospace;
+  margin-top: 5px;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.15);
 }
 
-.id-details-glass {
-  margin: auto 18px 20px;
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+.serial-label {
+  color: #e879f9;
+  font-weight: 900;
+}
+
+/* 5. Cyber-HUD Glass Container */
+.cyber-hud-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-radius: 16px;
-  padding: 14px 16px;
+  padding: 11px 13px;
   position: relative;
   z-index: 10;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow:
+    inset 0 0 15px rgba(255, 255, 255, 0.02),
+    0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-.id-regions {
+.hud-corner-tl {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 6px;
+  height: 6px;
+  border-top: 1.5px solid #38bdf8;
+  border-left: 1.5px solid #38bdf8;
+}
+
+.hud-corner-br {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-bottom: 1.5px solid #ec4899;
+  border-right: 1.5px solid #ec4899;
+}
+
+.hud-info-col {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-right: 14px;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 6px;
 }
 
-.id-region-label {
-  font-size: 0.55rem;
+.hud-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-label {
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
   color: #94a3b8;
   text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
-.id-region-value {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #f8fafc;
-  line-height: 1.3;
+.hud-value {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0.3px;
 }
 
-.id-qr-box {
+.hud-value-cyan {
+  color: #38bdf8;
+}
+
+.hud-value-lime {
+  color: #a3e635;
+}
+
+.hud-meta-row {
+  flex-direction: row;
+  gap: 14px;
+}
+
+.hud-subvalue {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.hud-qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.qr-reticle {
   background: #ffffff;
-  padding: 6px;
-  border-radius: 10px;
-  margin-left: 14px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  display: grid;
-  place-items: center;
+  padding: 4px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.id-qr-img {
-  width: 65px;
-  height: 65px;
+.hud-qr-image {
+  width: 58px;
+  height: 58px;
   display: block;
+}
+
+.qr-scan-hint {
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #38bdf8;
+  margin-top: 3px;
+}
+
+/* 6. Bottom Security Micro-Decal */
+.cyber-bottom-decal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #64748b;
+  font-family: monospace;
+  position: relative;
+  z-index: 10;
+}
+
+.decal-divider {
+  color: #ec4899;
 }
 
 .kta-action-controls {
