@@ -204,11 +204,9 @@ img {
   color: color-mix(in srgb, var(--color-accent) 80%, #fff);
 }
 .site-header-wrapper {
-  position: sticky;
-  top: -36px;
-  z-index: 40;
+  position: relative;
   width: 100%;
-  box-shadow: 0 4px 20px rgba(16, 24, 40, 0.05);
+  z-index: 40;
 }
 .site-top-bar {
   background: #0f172a;
