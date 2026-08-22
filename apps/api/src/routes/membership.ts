@@ -899,4 +899,70 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
       return { data: newCard };
     },
   );
+
+  app.post(
+    "/members/:id/notify-card",
+    { preHandler: app.authorize("members.write") },
+    async (request) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const [member] = await db
+        .select()
+        .from(members)
+        .where(eq(members.id, id))
+        .limit(1);
+
+      if (!member)
+        throw new AppError(404, "MEMBER_NOT_FOUND", "Member not found.");
+
+      const [card] = await db
+        .select()
+        .from(membershipCards)
+        .where(
+          and(
+            eq(membershipCards.memberId, id),
+            isNull(membershipCards.revokedAt),
+          ),
+        )
+        .orderBy(desc(membershipCards.version))
+        .limit(1);
+
+      if (!card) {
+        throw new AppError(
+          400,
+          "CARD_NOT_ISSUED",
+          "Member does not have an active KTA Digital card.",
+        );
+      }
+
+      if (!member.email) {
+        throw new AppError(
+          400,
+          "MEMBER_NO_EMAIL",
+          "Anggota tidak memiliki alamat email yang valid.",
+        );
+      }
+
+      const cardUrl = `${config.WEB_ORIGIN}/verify?code=${encodeURIComponent(card.code)}`;
+      const portalUrl = `${config.WEB_ORIGIN}/member/login`;
+
+      await sendApplicationApprovedNotification({
+        name: member.name,
+        email: member.email,
+        phone: member.phone,
+        memberNumber: member.memberNumber,
+        cardCode: card.code,
+        cardUrl,
+        portalUrl,
+      });
+
+      return {
+        data: {
+          sent: true,
+          email: member.email,
+          phone: member.phone,
+          cardCode: card.code,
+        },
+      };
+    },
+  );
 };

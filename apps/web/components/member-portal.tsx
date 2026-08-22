@@ -6,6 +6,7 @@ import {
   BookOpen,
   CalendarDays,
   CreditCard,
+  Download,
   LogOut,
   Plus,
   Printer,
@@ -17,6 +18,7 @@ import {
 import Link from "next/link";
 import QRCode from "qrcode";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
+import { downloadKtaCard } from "@/lib/kta-generator";
 import { MemberApiError, memberApi } from "@/lib/member-client";
 
 type PortalData = {
@@ -175,6 +177,7 @@ type BillingData = {
 export function MemberPortal() {
   const [data, setData] = useState<PortalData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [unauthorized, setUnauthorized] = useState(false);
   const [qrCode, setQrCode] = useState("");
   const [error, setError] = useState("");
@@ -399,13 +402,44 @@ export function MemberPortal() {
               <h2>Your membership card</h2>
               <p>Print it directly or verify its status from the QR code.</p>
             </div>
-            <button
-              className="button primary no-print"
-              type="button"
-              onClick={() => window.print()}
-            >
-              <Printer size={17} /> Print card
-            </button>
+            <div className="kta-action-group no-print">
+              <button
+                className="button primary"
+                type="button"
+                disabled={isDownloading}
+                onClick={async () => {
+                  if (!data.card) return;
+                  try {
+                    setIsDownloading(true);
+                    await downloadKtaCard({
+                      memberName: data.member.name,
+                      memberNumber: data.member.memberNumber || data.card.code,
+                      cardCode: data.card.code,
+                      unitName:
+                        (data.member as { unitName?: string }).unitName ?? null,
+                      issuedAt: data.card.issuedAt,
+                      expiresAt: data.card.expiresAt,
+                      orgName: data.organization.name,
+                      avatarUrl: data.member.avatarUrl,
+                    });
+                  } catch (err) {
+                    console.error("Gagal mengunduh KTA:", err);
+                  } finally {
+                    setIsDownloading(false);
+                  }
+                }}
+              >
+                <Download size={17} />{" "}
+                {isDownloading ? "Membuat KTA HD..." : "Unduh KTA (PNG)"}
+              </button>
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => window.print()}
+              >
+                <Printer size={17} /> Cetak Kartu
+              </button>
+            </div>
           </div>
           <div className="membership-card-print-area">
             <article className="membership-card">

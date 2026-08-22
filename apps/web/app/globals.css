@@ -7452,3 +7452,41 @@ img {
     align-items: flex-start;
   }
 }
+
+.kta-action-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media print {
+  .no-print,
+  .site-header,
+  .site-footer,
+  .member-dashboard-head,
+  .member-info-grid,
+  .portal-billing-section,
+  .kta-action-group,
+  .email-unverified-alert {
+    display: none !important;
+  }
+
+  body,
+  .member-page-shell,
+  .member-dashboard {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .portal-card-section {
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .membership-card-print-area {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

@@ -1,7 +1,8 @@
 "use client";
 
-import { BadgeCheck, ShieldAlert } from "lucide-react";
+import { BadgeCheck, Download, Printer, ShieldAlert } from "lucide-react";
 import { useEffect, useState } from "react";
+import { downloadKtaCard } from "@/lib/kta-generator";
 import { memberApi } from "@/lib/member-client";
 
 type Verification = {
@@ -43,6 +44,29 @@ export function MembershipVerification({ code }: { code: string }) {
     return (
       <div className="portal-loading">Checking membership credential…</div>
     );
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (!result) return;
+    try {
+      setIsDownloading(true);
+      await downloadKtaCard({
+        memberName: result.member.name,
+        memberNumber: result.member.memberNumber || code,
+        cardCode: code,
+        unitName: result.member.unitName,
+        issuedAt: result.card.issuedAt,
+        expiresAt: result.card.expiresAt,
+        orgName: result.organization.name,
+        avatarUrl: result.member.avatarUrl,
+      });
+    } catch (err) {
+      console.error("Gagal mengunduh KTA:", err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="verification-card">
       <span>
@@ -77,7 +101,35 @@ export function MembershipVerification({ code }: { code: string }) {
           </dd>
         </div>
       </dl>
-      <small>Card version {result.card.version} · Live verification</small>
+      <div
+        className="kta-action-group no-print"
+        style={{
+          marginTop: "24px",
+          display: "flex",
+          gap: "12px",
+          justifyContent: "center",
+        }}
+      >
+        <button
+          className="button primary"
+          type="button"
+          disabled={isDownloading}
+          onClick={handleDownload}
+        >
+          <Download size={16} />{" "}
+          {isDownloading ? "Membuat KTA HD..." : "Unduh KTA (PNG)"}
+        </button>
+        <button
+          className="button secondary"
+          type="button"
+          onClick={() => window.print()}
+        >
+          <Printer size={16} /> Cetak Kartu
+        </button>
+      </div>
+      <small style={{ marginTop: "16px", display: "block" }}>
+        Card version {result.card.version} · Live verification
+      </small>
     </div>
   );
 }

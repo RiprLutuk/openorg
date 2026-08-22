@@ -24,6 +24,7 @@ import {
   Landmark,
   LayoutDashboard,
   LogOut,
+  Mail,
   Menu,
   Network,
   Newspaper,
@@ -5056,6 +5057,7 @@ function KtaCardModal({
 }) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const cardQuery = useQuery({
     queryKey: ["member-card", member.id],
@@ -5109,6 +5111,24 @@ function KtaCardModal({
       );
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const sendKtaNotification = async () => {
+    try {
+      setIsSendingEmail(true);
+      await api(`/v1/admin/membership/members/${member.id}/notify-card`, {
+        method: "POST",
+      });
+      toast.success(
+        `Email dan WhatsApp KTA resmi berhasil dikirimkan ke ${member.name}!`,
+      );
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Gagal mengirim notifikasi KTA.",
+      );
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -5359,6 +5379,15 @@ function KtaCardModal({
                 justifyContent: "flex-end",
               }}
             >
+              <button
+                type="button"
+                className="button secondary"
+                onClick={sendKtaNotification}
+                disabled={isSendingEmail}
+              >
+                <Mail size={16} />{" "}
+                {isSendingEmail ? "Mengirim Email..." : "Kirim Email KTA"}
+              </button>
               <button
                 type="button"
                 className="button secondary"
