@@ -7493,6 +7493,11 @@ img {
     break-inside: avoid;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    font-family:
+      "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 }
 
@@ -7517,16 +7522,16 @@ img {
       rgba(99, 102, 241, 0.15) 0%,
       transparent 55%
     ),
-    linear-gradient(180deg, #131927 0%, #0b0f19 100%);
-  border-radius: 22px;
+    linear-gradient(180deg, #131927 0%, #080c14 100%);
+  border-radius: 20px;
   position: relative;
   overflow: hidden;
   box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.7),
     0 0 0 1px rgba(255, 255, 255, 0.12);
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
+    "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
   color: #ffffff;
   margin: 0 auto;
   box-sizing: border-box;

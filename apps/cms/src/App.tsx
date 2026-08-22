@@ -5114,6 +5114,9 @@ function KtaCardModal({
     if (!cardRef.current) return;
     try {
       setIsDownloading(true);
+      if (typeof document !== "undefined" && document.fonts?.ready) {
+        await document.fonts.ready;
+      }
       const canvas = await html2canvas(cardRef.current, {
         scale: 3,
         useCORS: true,
@@ -5121,6 +5124,13 @@ function KtaCardModal({
         backgroundColor: null,
         logging: false,
         imageTimeout: 15000,
+        onclone: (clonedDoc) => {
+          const clonedCard = clonedDoc.getElementById("modern-id-card");
+          if (clonedCard) {
+            clonedCard.style.fontFamily =
+              '"Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          }
+        },
       });
       const dataUrl = canvas.toDataURL("image/png");
       const link = document.createElement("a");
@@ -5282,7 +5292,7 @@ function KtaCardModal({
                 boxShadow:
                   "0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.12)",
                 fontFamily:
-                  '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                  '"Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 color: "#ffffff",
                 margin: "16px auto",
                 boxSizing: "border-box",
