@@ -365,20 +365,115 @@ export const memberCredentialRoutes: FastifyPluginAsync = async (app) => {
       const member = request.currentMember;
       if (!member)
         throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
-      const rows = await db
-        .select({
-          credential: memberCredentials,
-          schemeName: credentialSchemes.name,
-          schemeCode: credentialSchemes.code,
+
+      const [rawCredentials, rawSchemes, rawRequirements] = await Promise.all([
+        db
+          .select()
+          .from(memberCredentials)
+          .where(eq(memberCredentials.memberId, member.id))
+          .orderBy(desc(memberCredentials.issuedAt)),
+        db.select().from(credentialSchemes),
+        db.select().from(credentialRequirements),
+      ]);
+
+      const schemeMap = new Map(rawSchemes.map((s) => [s.id, s]));
+
+      const credentials = rawCredentials.map((c) => {
+        const scheme = schemeMap.get(c.schemeId) ?? {
+          id: c.schemeId,
+          name: "Sertifikat",
+          code: "CERT",
+          description: null,
+          issuerName: null,
+          fields: [],
+        };
+        const payloadData = (c.payload ?? {}) as Record<string, unknown>;
+        return {
+          id: c.id,
+          schemeId: c.schemeId,
+          credentialNumber: c.credentialNumber,
+          issuerName: (payloadData.issuerName as string) ?? null,
+          issuedAt: c.issuedAt?.toISOString() ?? null,
+          expiresAt: c.expiresAt?.toISOString() ?? null,
+          effectiveStatus: c.status,
+          verificationLevel: c.verificationLevel ?? "document_checked",
+          scheme,
+        };
+      });
+
+      const requirements = rawRequirements.map((r) => {
+        const scheme = schemeMap.get(r.schemeId) ?? {
+          id: r.schemeId,
+          name: "Sertifikat",
+          code: "CERT",
+          description: null,
+          issuerName: null,
+          minimumVerificationLevel: "document_checked" as const,
+          fields: [],
+        };
+        return {
+          id: r.id,
+          schemeId: r.schemeId,
+          rule: r.ruleType,
+          requiredVerificationLevel: scheme.minimumVerificationLevel,
+          blocksApproval: r.ruleType === "required",
+          satisfied: credentials.some(
+            (c) =>
+              c.schemeId === r.schemeId &&
+              ["verified", "active"].includes(c.effectiveStatus),
+          ),
+          scheme,
+        };
+      });
+
+      return {
+        data: {
+          membershipType: "regular",
+          requirements,
+          credentials,
+        },
+      };
+    },
+  );
+
+  app.post(
+    "/credentials",
+    { preHandler: app.authenticateMember },
+    async (request, reply) => {
+      const member = request.currentMember;
+      if (!member)
+        throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
+
+      const input = z
+        .object({
+          schemeId: z.string().uuid(),
+          credentialNumber: z.string().trim().min(1),
+          issuerName: z.string().trim().min(1).nullable().optional(),
+          issuedAt: z.string().optional(),
+          expiresAt: z.string().nullable().optional(),
+          sourceUrl: z.string().url().nullable().optional(),
+          payload: z.record(z.string(), z.unknown()).default({}),
         })
-        .from(memberCredentials)
-        .innerJoin(
-          credentialSchemes,
-          eq(memberCredentials.schemeId, credentialSchemes.id),
-        )
-        .where(eq(memberCredentials.memberId, member.id))
-        .orderBy(desc(memberCredentials.issuedAt));
-      return { data: rows };
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(memberCredentials)
+        .values({
+          memberId: member.id,
+          schemeId: input.schemeId,
+          credentialNumber: input.credentialNumber,
+          issuedAt: input.issuedAt ? new Date(input.issuedAt) : new Date(),
+          expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+          payload: {
+            ...input.payload,
+            issuerName: input.issuerName ?? null,
+            sourceUrl: input.sourceUrl ?? null,
+          },
+          status: "verified",
+        })
+        .returning();
+
+      return reply.status(201).send({ data: created });
     },
   );
 };

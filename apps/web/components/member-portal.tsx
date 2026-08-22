@@ -177,17 +177,31 @@ export function MemberPortal() {
   const [loading, setLoading] = useState(true);
   const [unauthorized, setUnauthorized] = useState(false);
   const [qrCode, setQrCode] = useState("");
+  const [error, setError] = useState("");
   const [compliance, setCompliance] = useState<ComplianceData | null>(null);
   const [learning, setLearning] = useState<LearningData | null>(null);
   const [billing, setBilling] = useState<BillingData | null>(null);
 
   const loadPortal = useCallback(() => {
     setLoading(true);
+    setError("");
     Promise.all([
       memberApi<{ data: PortalData }>("/v1/member/session"),
-      memberApi<{ data: ComplianceData }>("/v1/member/credentials"),
-      memberApi<{ data: LearningData }>("/v1/member/learning"),
-      memberApi<{ data: BillingData }>("/v1/member/billing"),
+      memberApi<{ data: ComplianceData }>("/v1/member/credentials").catch(
+        () => ({
+          data: {
+            membershipType: "regular",
+            requirements: [],
+            credentials: [],
+          },
+        }),
+      ),
+      memberApi<{ data: LearningData }>("/v1/member/learning").catch(() => ({
+        data: { catalog: [], enrollments: [], balances: [], ledger: [] },
+      })),
+      memberApi<{ data: BillingData }>("/v1/member/billing").catch(() => ({
+        data: { invoices: [], entitlements: [] },
+      })),
     ])
       .then(([session, credentials, learningData, billingData]) => {
         setData(session.data);
@@ -195,9 +209,22 @@ export function MemberPortal() {
         setLearning(learningData.data);
         setBilling(billingData.data);
       })
-      .catch((reason) => {
-        if (reason instanceof MemberApiError && reason.status === 401)
+      .catch((reason: unknown) => {
+        const errorObj = reason as { status?: number; message?: string } | null;
+        const status = errorObj?.status;
+        const msg = String(errorObj?.message || reason || "");
+        if (
+          status === 401 ||
+          msg.includes("401") ||
+          msg.includes("UNAUTHENTICATED") ||
+          msg.includes("sign in") ||
+          msg.includes("expired") ||
+          reason instanceof MemberApiError
+        ) {
           setUnauthorized(true);
+        } else {
+          setError(msg || "Gagal memuat portal anggota.");
+        }
       })
       .finally(() => setLoading(false));
   }, []);
@@ -220,23 +247,35 @@ export function MemberPortal() {
   };
 
   if (loading)
-    return <div className="portal-loading">Opening your member workspace…</div>;
-  if (unauthorized)
+    return (
+      <div className="portal-loading">
+        <span className="spinner-dot" />
+        Memuat ruang kerja portal anggota…
+      </div>
+    );
+  if (unauthorized || !data)
     return (
       <div className="member-success-card portal-gate">
         <span>
-          <ShieldCheck size={28} />
+          <ShieldCheck size={32} />
         </span>
-        <p className="eyebrow">Member access</p>
-        <h2>Sign in to continue</h2>
-        <p>Your application status, profile, and card are kept private.</p>
-        <Link className="button primary" href="/member/login">
-          Sign in
-        </Link>
+        <p className="eyebrow">Portal Anggota Resmi</p>
+        <h2>Silakan Masuk Terlebih Dahulu</h2>
+        <p>
+          Akses kartu KTA digital, status sertifikasi BNSP, riwayat kredit SKP,
+          dan profil keanggotaan Anda tersimpan aman dan privat.
+        </p>
+        <div className="gate-action-buttons">
+          <Link className="button primary" href="/member/login">
+            Masuk ke Akun
+          </Link>
+          <Link className="button secondary" href="/join">
+            Daftar Anggota Baru
+          </Link>
+        </div>
+        {error && <p className="form-error mt-4">{error}</p>}
       </div>
     );
-  if (!data)
-    return <p className="form-error">The member portal is unavailable.</p>;
 
   const applicationStatus = data.application?.status ?? data.member.status;
   return (

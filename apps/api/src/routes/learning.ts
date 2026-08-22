@@ -6,6 +6,7 @@ import { db } from "../db/client";
 import {
   auditLogs,
   learningActivities,
+  learningAttendance,
   learningCreditLedger,
   learningCreditSchemes,
   learningEnrollments,
@@ -218,6 +219,152 @@ export const adminLearningRoutes: FastifyPluginAsync = async (app) => {
 };
 
 export const memberLearningRoutes: FastifyPluginAsync = async (app) => {
+  app.get(
+    "/learning",
+    { preHandler: app.authenticateMember },
+    async (request) => {
+      const member = request.currentMember;
+      if (!member)
+        throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
+
+      const [
+        rawActivities,
+        rawSchemes,
+        rawEnrollments,
+        rawAttendance,
+        rawLedger,
+      ] = await Promise.all([
+        db
+          .select()
+          .from(learningActivities)
+          .orderBy(asc(learningActivities.startsAt)),
+        db.select().from(learningCreditSchemes),
+        db
+          .select()
+          .from(learningEnrollments)
+          .where(eq(learningEnrollments.memberId, member.id)),
+        db.select().from(learningAttendance),
+        db
+          .select()
+          .from(learningCreditLedger)
+          .where(eq(learningCreditLedger.memberId, member.id))
+          .orderBy(desc(learningCreditLedger.createdAt)),
+      ]);
+
+      const schemeMap = new Map(rawSchemes.map((s) => [s.id, s]));
+      const activityMap = new Map(rawActivities.map((a) => [a.id, a]));
+      const attendanceMap = new Map(
+        rawAttendance.map((att) => [att.enrollmentId, att]),
+      );
+
+      const catalog = rawActivities
+        .filter((a) => a.status === "open")
+        .map((a) => {
+          const scheme = a.creditSchemeId
+            ? schemeMap.get(a.creditSchemeId)
+            : null;
+          const meta = (a.metadata ?? {}) as Record<string, unknown>;
+          return {
+            id: a.id,
+            title: a.title,
+            code: a.code,
+            description: (meta.description as string) ?? null,
+            deliveryMode: a.deliveryMode,
+            locationName: (meta.locationName as string) ?? null,
+            startsAt: a.startsAt.toISOString(),
+            capacity: a.capacity,
+            creditAmount: (a.creditAmountHundredths || 0) / 100,
+            scheme: scheme
+              ? {
+                  id: scheme.id,
+                  code: scheme.code,
+                  name: scheme.name,
+                  unitLabel: scheme.unitName,
+                }
+              : null,
+          };
+        });
+
+      const enrollments = rawEnrollments.map((e) => {
+        const activity = activityMap.get(e.activityId);
+        const scheme =
+          activity && activity.creditSchemeId
+            ? schemeMap.get(activity.creditSchemeId)
+            : null;
+        const attendance = attendanceMap.get(e.id);
+        return {
+          id: e.id,
+          activityId: e.activityId,
+          status: e.status,
+          activity: activity
+            ? {
+                id: activity.id,
+                title: activity.title,
+                startsAt: activity.startsAt.toISOString(),
+                creditAmount: (activity.creditAmountHundredths || 0) / 100,
+              }
+            : {
+                id: e.activityId,
+                title: "Aktivitas",
+                startsAt: new Date().toISOString(),
+                creditAmount: 0,
+              },
+          scheme: scheme
+            ? { code: scheme.code, unitLabel: scheme.unitName }
+            : null,
+          attendance: attendance ? { status: attendance.status } : null,
+        };
+      });
+
+      const balanceMap = new Map<string, number>();
+      for (const entry of rawLedger) {
+        const current = balanceMap.get(entry.schemeId) ?? 0;
+        balanceMap.set(
+          entry.schemeId,
+          current + (entry.creditAmountHundredths || 0) / 100,
+        );
+      }
+
+      const balances = rawSchemes.map((scheme) => ({
+        amount: balanceMap.get(scheme.id) ?? 0,
+        scheme: {
+          id: scheme.id,
+          code: scheme.code,
+          name: scheme.name,
+          unitLabel: scheme.unitName,
+        },
+      }));
+
+      const ledger = rawLedger.map((entry) => {
+        const scheme = schemeMap.get(entry.schemeId);
+        const activity = entry.activityId
+          ? activityMap.get(entry.activityId)
+          : null;
+        return {
+          id: entry.id,
+          amount: (entry.creditAmountHundredths || 0) / 100,
+          entryType: entry.entryType,
+          reason: entry.notes ?? "Kredit pelatihan",
+          postedAt: entry.createdAt.toISOString(),
+          activityTitle: activity?.title ?? null,
+          scheme: {
+            code: scheme?.code ?? "CREDIT",
+            unitLabel: scheme?.unitName ?? "kredit",
+          },
+        };
+      });
+
+      return {
+        data: {
+          catalog,
+          enrollments,
+          balances,
+          ledger,
+        },
+      };
+    },
+  );
+
   app.get(
     "/learning/activities",
     { preHandler: app.authenticateMember },

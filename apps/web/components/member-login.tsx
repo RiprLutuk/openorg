@@ -8,25 +8,38 @@ import { memberApi } from "@/lib/member-client";
 export function MemberLogin() {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setPending(true);
     setError("");
-    const data = new FormData(event.currentTarget);
     try {
       await memberApi("/v1/public/membership/login", {
         method: "POST",
         body: JSON.stringify({
-          email: String(data.get("email") ?? ""),
-          password: String(data.get("password") ?? ""),
+          email: email.trim(),
+          password,
         }),
       });
       window.location.assign("/member");
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Sign in failed.");
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : "Gagal masuk. Periksa kembali email dan kata sandi Anda.",
+      );
       setPending(false);
     }
   };
+
+  const fillDemo = (demoEmail: string, demoPass: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setError("");
+  };
+
   return (
     <form className="member-form compact-member-form" onSubmit={submit}>
       <div className="member-form-heading">
@@ -34,34 +47,67 @@ export function MemberLogin() {
           <ShieldCheck size={23} />
         </span>
         <div>
-          <p className="eyebrow">Member portal</p>
-          <h2>Welcome back</h2>
+          <p className="eyebrow">Portal Anggota Resmi</p>
+          <h2>Selamat Datang Kembali</h2>
         </div>
       </div>
       <p className="form-intro">
-        Track your application, update your profile, and access your member
-        card.
+        Masuk untuk mengakses Kartu KTA Digital, memantau buku log kredit SKP /
+        CPD, dan pembaruan profil keanggotaan.
       </p>
       {error && <p className="form-error">{error}</p>}
       <label>
-        Email address
-        <input name="email" type="email" required autoComplete="email" />
+        Alamat Email
+        <input
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="nama@email.com"
+        />
       </label>
       <label>
-        Password
+        Kata Sandi
         <input
           name="password"
           type="password"
           required
           autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="••••••••"
         />
       </label>
       <button className="button primary" type="submit" disabled={pending}>
-        {pending ? "Signing in…" : "Sign in"}
+        {pending ? "Memverifikasi akun…" : "Masuk ke Portal"}
         {!pending && <ArrowRight size={17} />}
       </button>
+
+      <div className="demo-account-hint">
+        <small className="demo-hint-title">💡 Akun Demo Siap Pakai:</small>
+        <div className="demo-hint-buttons">
+          <button
+            type="button"
+            className="demo-pill-button"
+            onClick={() => fillDemo("member@demo.openorg", "OpenOrg!2026Demo")}
+          >
+            Demo Member (Budi Pratama)
+          </button>
+          <button
+            type="button"
+            className="demo-pill-button"
+            onClick={() => fillDemo("nanang@apti.or.id", "password123")}
+          >
+            Ketua Umum (Ir. Nanang)
+          </button>
+        </div>
+      </div>
+
       <p className="form-footnote">
-        New here? <Link href="/join">Apply for membership</Link>
+        Belum terdaftar sebagai anggota?{" "}
+        <Link href="/join">Daftar Keanggotaan Baru</Link>
       </p>
     </form>
   );

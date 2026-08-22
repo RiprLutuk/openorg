@@ -332,6 +332,91 @@ export const adminRevenueRoutes: FastifyPluginAsync = async (app) => {
 
 export const memberRevenueRoutes: FastifyPluginAsync = async (app) => {
   app.get(
+    "/billing",
+    { preHandler: app.authenticateMember },
+    async (request) => {
+      const member = request.currentMember;
+      if (!member)
+        throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
+
+      const [rawInvoices, rawLines, rawPayments, rawEntitlements] =
+        await Promise.all([
+          db
+            .select()
+            .from(invoices)
+            .where(eq(invoices.memberId, member.id))
+            .orderBy(desc(invoices.issuedAt)),
+          db.select().from(invoiceLines),
+          db.select().from(payments),
+          db
+            .select()
+            .from(memberEntitlements)
+            .where(eq(memberEntitlements.memberId, member.id))
+            .orderBy(desc(memberEntitlements.createdAt)),
+        ]);
+
+      const linesMap = new Map<string, typeof rawLines>();
+      for (const line of rawLines) {
+        const list = linesMap.get(line.invoiceId) ?? [];
+        list.push(line);
+        linesMap.set(line.invoiceId, list);
+      }
+
+      const payMap = new Map<string, typeof rawPayments>();
+      for (const pay of rawPayments) {
+        const list = payMap.get(pay.invoiceId) ?? [];
+        list.push(pay);
+        payMap.set(pay.invoiceId, list);
+      }
+
+      const invoiceList = rawInvoices.map((inv) => {
+        const invLines = (linesMap.get(inv.id) ?? []).map((l) => ({
+          id: l.id,
+          description: l.description,
+          quantity: l.quantity,
+          lineTotal: (l.lineTotalMinor || 0) / 100,
+        }));
+        const invPays = (payMap.get(inv.id) ?? []).map((p) => ({
+          id: p.id,
+          amount: (p.amountMinor || 0) / 100,
+          method: p.method,
+          reference: p.reference,
+          paidAt: p.paidAt.toISOString(),
+        }));
+        return {
+          id: inv.id,
+          invoiceNumber: inv.invoiceNumber,
+          status: inv.status,
+          effectiveStatus: inv.status,
+          issuedAt: inv.issuedAt.toISOString(),
+          dueAt: inv.dueAt?.toISOString() ?? null,
+          total: (inv.totalMinor || 0) / 100,
+          paid: (inv.paidMinor || 0) / 100,
+          outstanding: Math.max(0, (inv.totalMinor - inv.paidMinor) / 100),
+          lines: invLines,
+          payments: invPays,
+        };
+      });
+
+      const entitlements = rawEntitlements.map((e) => ({
+        id: e.id,
+        entitlementKey: e.entitlementKey,
+        label: e.label,
+        effectiveStatus: e.status,
+        startsAt: e.startsAt.toISOString(),
+        endsAt: e.endsAt?.toISOString() ?? null,
+      }));
+
+      return {
+        data: {
+          invoices: invoiceList,
+          entitlements,
+        },
+      };
+    },
+  );
+
+  app.get(
     "/billing/invoices",
     { preHandler: app.authenticateMember },
     async (request) => {
