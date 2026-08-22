@@ -203,7 +203,9 @@ export function MemberPortraitCard({
         {/* Futuristic Concentric Avatar Visual */}
         <div className="cyber-avatar-section">
           <div className="cyber-avatar-halo">
-            <div className="cyber-avatar-ring">
+            <div className="cyber-avatar-ring" />
+            <div className="cyber-avatar-bezel" />
+            <div className="cyber-avatar-content">
               {member.avatarUrl ? (
                 <img
                   src={member.avatarUrl}
