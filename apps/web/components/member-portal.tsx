@@ -458,12 +458,10 @@ function MemberBilling({ data }: { data: BillingData }) {
         <div className="member-billing-panel">
           <div className="member-learning-head">
             <div className="member-learning-head-copy">
-              <ReceiptText size={19} />
-              <div>
-                <h3>Invoices</h3>
-                <p>{outstanding.length} awaiting settlement</p>
-              </div>
+              <ReceiptText size={18} />
+              <strong>Invoices</strong>
             </div>
+            <small>{outstanding.length} awaiting settlement</small>
           </div>
           <div className="member-invoice-list">
             {data.invoices.map((invoice) => (
@@ -497,12 +495,10 @@ function MemberBilling({ data }: { data: BillingData }) {
         <div className="member-billing-panel">
           <div className="member-learning-head">
             <div className="member-learning-head-copy">
-              <BadgeCheck size={19} />
-              <div>
-                <h3>Benefit wallet</h3>
-                <p>Access granted from paid products</p>
-              </div>
+              <BadgeCheck size={18} />
+              <strong>Benefit wallet</strong>
             </div>
+            <small>Access granted from paid products</small>
           </div>
           <div className="member-entitlement-list">
             {data.entitlements.map((item) => (
