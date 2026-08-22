@@ -111,14 +111,15 @@ export async function downloadKtaCard(data: KtaCardRenderData): Promise<void> {
 
   // Draw Avatar or Initials
   let photoDrawn = false;
-  if (data.avatarUrl) {
+  const avatarUrl = data.avatarUrl;
+  if (avatarUrl) {
     try {
       const img = new Image();
       img.crossOrigin = "anonymous";
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
         img.onerror = () => reject();
-        img.src = data.avatarUrl!;
+        img.src = avatarUrl;
       });
       ctx.save();
       ctx.beginPath();

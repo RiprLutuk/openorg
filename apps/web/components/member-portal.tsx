@@ -6,19 +6,15 @@ import {
   BookOpen,
   CalendarDays,
   CreditCard,
-  Download,
   LogOut,
   Plus,
-  Printer,
   ReceiptText,
   ShieldCheck,
   UserRound,
   WalletCards,
 } from "lucide-react";
 import Link from "next/link";
-import QRCode from "qrcode";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
-import { downloadKtaCard } from "@/lib/kta-generator";
 import { MemberApiError, memberApi } from "@/lib/member-client";
 import { MemberPortraitCard } from "./member-portrait-card";
 
@@ -178,9 +174,7 @@ type BillingData = {
 export function MemberPortal() {
   const [data, setData] = useState<PortalData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [unauthorized, setUnauthorized] = useState(false);
-  const [qrCode, setQrCode] = useState("");
   const [error, setError] = useState("");
   const [compliance, setCompliance] = useState<ComplianceData | null>(null);
   const [learning, setLearning] = useState<LearningData | null>(null);
@@ -234,16 +228,6 @@ export function MemberPortal() {
   }, []);
 
   useEffect(() => loadPortal(), [loadPortal]);
-
-  useEffect(() => {
-    if (!data?.card) return;
-    const verificationUrl = `${window.location.origin}/verify?code=${encodeURIComponent(data.card.code)}`;
-    QRCode.toDataURL(verificationUrl, {
-      width: 220,
-      margin: 1,
-      color: { dark: "#182230", light: "#ffffff" },
-    }).then(setQrCode);
-  }, [data]);
 
   const logout = async () => {
     await memberApi("/v1/member/logout", { method: "POST" });

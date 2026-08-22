@@ -5332,7 +5332,7 @@ function KtaCardModal({
                 }}
               />
 
-              {/* Top Bar */}
+              {/* Top Micro-Header Bar */}
               <div
                 style={{
                   display: "flex",
@@ -5340,6 +5340,7 @@ function KtaCardModal({
                   justifyContent: "space-between",
                   position: "relative",
                   zIndex: 10,
+                  width: "100%",
                 }}
               >
                 <div
@@ -5349,13 +5350,13 @@ function KtaCardModal({
                     gap: "6px",
                     background: "rgba(255, 255, 255, 0.08)",
                     border: "1px solid rgba(255, 255, 255, 0.2)",
-                    padding: "4px 10px",
+                    padding: "5px 12px",
                     borderRadius: "20px",
                     fontSize: "9px",
                     fontWeight: 800,
                     letterSpacing: "1.2px",
                     color: "#f8fafc",
-                    backdropFilter: "blur(10px)",
+                    lineHeight: "1",
                     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
                   }}
                 >
@@ -5364,52 +5365,58 @@ function KtaCardModal({
                 </div>
                 <div
                   style={{
-                    display: "flex",
+                    display: "inline-flex",
                     alignItems: "center",
-                    gap: "5px",
-                    background:
-                      "linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(234, 179, 8, 0.15))",
-                    border: "1.5px solid #fbbf24",
-                    padding: "3px 8px",
-                    borderRadius: "7px",
-                    color: "#fde047",
-                    boxShadow: "0 0 14px rgba(245, 158, 11, 0.35)",
+                    gap: "6px",
+                    background: "rgba(16, 185, 129, 0.2)",
+                    border: "1.5px solid #10b981",
+                    color: "#34d399",
+                    fontSize: "9px",
+                    fontWeight: 900,
+                    letterSpacing: "1px",
+                    padding: "4px 10px",
+                    borderRadius: "20px",
+                    flexShrink: 0,
+                    lineHeight: "1",
+                    boxShadow: "0 0 12px rgba(16, 185, 129, 0.3)",
                   }}
                 >
-                  <Cpu size={14} />
                   <span
                     style={{
                       width: "6px",
                       height: "6px",
                       borderRadius: "50%",
-                      background: "#22c55e",
-                      boxShadow: "0 0 10px #22c55e, 0 0 4px #22c55e",
+                      background: "#34d399",
+                      boxShadow: "0 0 10px #34d399",
                     }}
-                  />
+                  />{" "}
+                  ACTIVE
                 </div>
               </div>
 
-              {/* Brand Header */}
+              {/* Organization Brand Centered Stack */}
               <div
                 style={{
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
-                  gap: "11px",
+                  textAlign: "center",
                   position: "relative",
                   zIndex: 10,
-                  marginTop: "4px",
+                  margin: "4px 0 2px",
                 }}
               >
                 <div
                   style={{
-                    width: "40px",
-                    height: "40px",
+                    width: "42px",
+                    height: "42px",
                     borderRadius: "12px",
                     background:
                       "linear-gradient(135deg, #ec4899, #6366f1, #06b6d4)",
                     padding: "2px",
                     flexShrink: 0,
                     boxShadow: "0 0 16px rgba(99, 102, 241, 0.5)",
+                    marginBottom: "5px",
                   }}
                 >
                   {cardData?.organization.logoUrl ? (
@@ -5424,6 +5431,7 @@ function KtaCardModal({
                         borderRadius: "10px",
                         background: "#0f172a",
                         padding: "3px",
+                        display: "block",
                       }}
                     />
                   ) : (
@@ -5446,62 +5454,33 @@ function KtaCardModal({
                     </div>
                   )}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: "13px",
-                      fontWeight: 900,
-                      letterSpacing: "0.5px",
-                      color: "#ffffff",
-                      textTransform: "uppercase",
-                      lineHeight: "1.4",
-                      display: "block",
-                      textShadow: "0 1px 4px rgba(0, 0, 0, 0.8)",
-                    }}
-                  >
-                    {orgName}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#cbd5e1",
-                      fontWeight: 600,
-                      letterSpacing: "0.3px",
-                      lineHeight: "1.3",
-                      marginTop: "1px",
-                    }}
-                  >
-                    Official Accredited Membership
-                  </div>
+                <div
+                  style={{
+                    fontSize: "13.5px",
+                    fontWeight: 900,
+                    letterSpacing: "0.8px",
+                    color: "#ffffff",
+                    textTransform: "uppercase",
+                    lineHeight: "1.35",
+                    display: "block",
+                    textShadow: "0 1px 4px rgba(0, 0, 0, 0.8)",
+                    margin: 0,
+                  }}
+                >
+                  {orgName}
                 </div>
                 <div
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    background: "rgba(16, 185, 129, 0.2)",
-                    border: "1.5px solid #10b981",
-                    color: "#34d399",
-                    fontSize: "9.5px",
-                    fontWeight: 900,
-                    letterSpacing: "1px",
-                    padding: "4px 10px",
-                    borderRadius: "20px",
-                    flexShrink: 0,
-                    lineHeight: "1",
-                    boxShadow: "0 0 12px rgba(16, 185, 129, 0.3)",
+                    fontSize: "8.5px",
+                    color: "#94a3b8",
+                    fontWeight: 700,
+                    letterSpacing: "0.8px",
+                    lineHeight: "1.2",
+                    marginTop: "2px",
+                    textTransform: "uppercase",
                   }}
                 >
-                  <span
-                    style={{
-                      width: "6px",
-                      height: "6px",
-                      borderRadius: "50%",
-                      background: "#34d399",
-                      boxShadow: "0 0 10px #34d399",
-                    }}
-                  />{" "}
-                  ACTIVE
+                  Official Accredited Membership
                 </div>
               </div>
 

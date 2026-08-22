@@ -3,7 +3,6 @@
 import html2canvas from "html2canvas";
 import {
   CheckCircle2,
-  Cpu,
   Download,
   Printer,
   QrCode,
@@ -167,14 +166,13 @@ export function MemberPortraitCard({
             <Zap size={11} className="tag-icon text-amber" />
             <span>KTA DIGITAL {"//"} PASS 2026</span>
           </div>
-          <div className="cyber-chip-badge">
-            <Cpu size={14} className="chip-icon" />
-            <span className="nfc-dot" />
+          <div className="cyber-status-pill">
+            <span className="pulse-green" /> ACTIVE
           </div>
         </div>
 
-        {/* Organization Brand Header */}
-        <div className="cyber-brand-row">
+        {/* Organization Brand Header (Centered Symmetry) */}
+        <div className="cyber-brand-center">
           <div className="cyber-logo-wrapper">
             {organization.logoUrl ? (
               <img
@@ -189,14 +187,9 @@ export function MemberPortraitCard({
               </div>
             )}
           </div>
-          <div className="cyber-brand-text">
-            <div className="cyber-brand-name">{organization.name}</div>
-            <div className="cyber-brand-tagline">
-              Official Accredited Membership
-            </div>
-          </div>
-          <div className="cyber-status-pill">
-            <span className="pulse-green" /> ACTIVE
+          <div className="cyber-brand-name">{organization.name}</div>
+          <div className="cyber-brand-tagline">
+            Official Accredited Membership
           </div>
         </div>
 
