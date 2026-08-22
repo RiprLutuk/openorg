@@ -8,6 +8,7 @@ import {
   industryStatistics,
   lenderRegistries,
   members,
+  memberAccounts,
   membershipCards,
   organizationUnits,
   pages,
@@ -498,14 +499,57 @@ async function seed() {
           },
         ]);
 
-        // Create Digital KTA Cards for members
+        // Create Member Accounts & Digital KTA Cards for members
         for (const member of createdMembers) {
+          if (member.email) {
+            await tx.insert(memberAccounts).values({
+              memberId: member.id,
+              email: member.email,
+              passwordHash: defaultHash,
+              status: "active",
+            });
+          }
           await tx.insert(membershipCards).values({
             memberId: member.id,
             code: member.memberNumber,
             version: 1,
             isActive: true,
             issuedAt: member.joinedAt ?? now,
+          });
+        }
+
+        // Demo Member Account for instant live testing
+        const [demoMember] = await tx
+          .insert(members)
+          .values({
+            unitId: dppUnit.id,
+            memberNumber: "KTA-APTI-DEMO-007",
+            name: "Budi Pratama (Demo Member)",
+            email: "member@demo.openorg",
+            phone: "+6281299887766",
+            joinedAt: now,
+            status: "active",
+            metadata: {
+              competency: "Teknisi Pendingin Residensial & Komersial",
+              certificateNumber: "BNSP-HVAC-2026-DEMO",
+              company: "Demo Cool Engineering",
+            },
+          })
+          .returning();
+
+        if (demoMember) {
+          await tx.insert(memberAccounts).values({
+            memberId: demoMember.id,
+            email: "member@demo.openorg",
+            passwordHash: demoHash,
+            status: "active",
+          });
+          await tx.insert(membershipCards).values({
+            memberId: demoMember.id,
+            code: demoMember.memberNumber,
+            version: 1,
+            isActive: true,
+            issuedAt: now,
           });
         }
       }
@@ -1055,7 +1099,7 @@ async function seed() {
   });
 
   process.stdout.write(
-    `APTI Indonesia Seed Complete!\nAdmin login accounts:\n1) admin@organization.org (password: password123)\n2) admin@demo.openorg (password: OpenOrg!2026Demo)\n3) sekretariat@apti.or.id (password: password123)\n`,
+    `APTI Indonesia Seed Complete!\nAdmin login accounts:\n1) admin@organization.org (password: password123)\n2) admin@demo.openorg (password: OpenOrg!2026Demo)\n3) sekretariat@apti.or.id (password: password123)\n\nMember Portal login accounts (/member/login):\n1) member@demo.openorg (password: OpenOrg!2026Demo) - Budi Pratama (Demo Member)\n2) nanang@apti.or.id (password: password123) - Ir. H. Nanang Varian\n3) dedi.jabar@apti.or.id (password: password123) - Dedi Kurniawan\n`,
   );
 }
 
