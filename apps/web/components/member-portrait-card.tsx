@@ -285,7 +285,7 @@ export function MemberPortraitCard({
           </div>
         </div>
 
-        {/* Organization Brand Header (Centered Symmetry) */}
+        {/* Organization Brand Header (Clean Minimalist) */}
         <div
           style={{
             display: "flex",
@@ -294,63 +294,29 @@ export function MemberPortraitCard({
             textAlign: "center",
             position: "relative",
             zIndex: 10,
-            margin: "0",
+            margin: "4px 0 2px",
           }}
         >
+          {organization.logoUrl ? (
+            <img
+              src={organization.logoUrl}
+              alt={organization.name}
+              crossOrigin="anonymous"
+              style={{
+                height: "34px",
+                width: "auto",
+                maxWidth: "140px",
+                objectFit: "contain",
+                marginBottom: "4px",
+                display: "block",
+              }}
+            />
+          ) : null}
           <div
             style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "12px",
-              background: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              padding: "4px",
-              flexShrink: 0,
-              marginBottom: "5px",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {organization.logoUrl ? (
-              <img
-                src={organization.logoUrl}
-                alt={organization.name}
-                className="cyber-brand-logo"
-                crossOrigin="anonymous"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  borderRadius: "8px",
-                  display: "block",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: "8px",
-                  background:
-                    "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-                  display: "grid",
-                  placeItems: "center",
-                  fontWeight: 800,
-                  fontSize: "14px",
-                  color: "#ffffff",
-                }}
-              >
-                {organization.name.slice(0, 2).toUpperCase()}
-              </div>
-            )}
-          </div>
-          <div
-            style={{
-              fontSize: "13.5px",
-              fontWeight: 800,
-              letterSpacing: "0.6px",
+              fontSize: "15px",
+              fontWeight: 900,
+              letterSpacing: "0.8px",
               color: "#ffffff",
               textTransform: "uppercase",
               lineHeight: "1.3",
@@ -358,19 +324,6 @@ export function MemberPortraitCard({
             }}
           >
             {organization.name}
-          </div>
-          <div
-            style={{
-              fontSize: "8px",
-              color: "#94a3b8",
-              fontWeight: 600,
-              letterSpacing: "0.8px",
-              lineHeight: "1.2",
-              marginTop: "2px",
-              textTransform: "uppercase",
-            }}
-          >
-            Official Accredited Membership
           </div>
         </div>
 
