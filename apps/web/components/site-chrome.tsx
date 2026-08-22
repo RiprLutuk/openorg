@@ -90,7 +90,7 @@ export function Header({ site }: { site: PublicSite }) {
       ];
 
   return (
-    <div className="site-header-wrapper">
+    <>
       {/* Enterprise Top Utility Bar */}
       <div className="site-top-bar">
         <div className="wrap top-bar-inner">
@@ -250,7 +250,7 @@ export function Header({ site }: { site: PublicSite }) {
           </nav>
         )}
       </header>
-    </div>
+    </>
   );
 }
 

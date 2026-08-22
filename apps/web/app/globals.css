@@ -203,11 +203,6 @@ img {
 .eyebrow.light {
   color: color-mix(in srgb, var(--color-accent) 80%, #fff);
 }
-.site-header-wrapper {
-  position: relative;
-  width: 100%;
-  z-index: 40;
-}
 .site-top-bar {
   background: #0f172a;
   color: #94a3b8;
@@ -217,6 +212,8 @@ img {
   height: 36px;
   display: flex;
   align-items: center;
+  position: relative;
+  width: 100%;
 }
 .top-bar-inner {
   display: flex;
