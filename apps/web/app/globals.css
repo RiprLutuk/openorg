@@ -479,7 +479,9 @@ img {
   display: none;
   flex-direction: column;
   gap: 2px;
-  padding: 16px var(--wrap-gutter) 24px;
+  padding: 16px var(--wrap-gutter) 36px;
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
   border-bottom: 1px solid #e2e8f0;
   background: #ffffff;
   box-shadow: 0 20px 40px rgba(16, 24, 40, 0.12);
