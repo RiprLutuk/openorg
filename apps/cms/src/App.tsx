@@ -5101,9 +5101,9 @@ function KtaCardModal({
     if (!cardCode) return;
     const verifyUrl = `${window.location.origin.replace("5173", "3000")}/verify?code=${encodeURIComponent(cardCode)}`;
     QRCode.toDataURL(verifyUrl, {
-      width: 160,
-      margin: 0,
-      color: { dark: "#0b192c", light: "#ffffff" },
+      width: 240,
+      margin: 1,
+      color: { dark: "#080c14", light: "#ffffff" },
     })
       .then(setQrCodeUrl)
       .catch((err) => console.error(err));
@@ -5754,54 +5754,35 @@ function KtaCardModal({
                   </div>
                 </div>
 
-                {/* QR Container */}
+                {/* Refined Minimalist QR Container */}
                 <div
                   style={{
+                    background: "#ffffff",
+                    padding: "5px",
+                    borderRadius: "10px",
+                    boxShadow: "0 4px 14px rgba(0, 0, 0, 0.45)",
                     display: "flex",
-                    flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
+                    width: "64px",
+                    height: "64px",
                   }}
                 >
-                  <div
-                    style={{
-                      background: "#ffffff",
-                      padding: "4px",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.35)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {qrCodeUrl ? (
-                      <img
-                        src={qrCodeUrl}
-                        alt="QR Verifikasi"
-                        style={{
-                          width: "56px",
-                          height: "56px",
-                          display: "block",
-                        }}
-                      />
-                    ) : (
-                      <QrCode size={56} color="#090d16" />
-                    )}
-                  </div>
-                  <span
-                    style={{
-                      fontSize: "7px",
-                      fontWeight: 800,
-                      letterSpacing: "0.8px",
-                      color: "#64748b",
-                      marginTop: "4px",
-                      lineHeight: "1",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    PINDAI
-                  </span>
+                  {qrCodeUrl ? (
+                    <img
+                      src={qrCodeUrl}
+                      alt="QR Verifikasi"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "6px",
+                        display: "block",
+                      }}
+                    />
+                  ) : (
+                    <QrCode size={54} color="#080c14" />
+                  )}
                 </div>
               </div>
 
