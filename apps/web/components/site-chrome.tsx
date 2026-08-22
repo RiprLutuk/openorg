@@ -341,6 +341,7 @@ export function Footer({ site }: { site: PublicSite }) {
     copyright?: string;
     links?: Array<{ label: string; href: string }>;
   };
+
   return (
     <>
       {site.quickContact && (
@@ -355,9 +356,11 @@ export function Footer({ site }: { site: PublicSite }) {
           <MessageCircle size={22} />
         </a>
       )}
+
       <footer className="site-footer">
         <div className="wrap footer-grid">
-          <div>
+          {/* Brand & Contact Information Column */}
+          <div className="footer-brand-col">
             <div className="site-brand inverse">
               {site.organization.logoUrl ? (
                 <img src={site.organization.logoUrl} alt="" />
@@ -366,31 +369,66 @@ export function Footer({ site }: { site: PublicSite }) {
               )}
               <strong>{site.organization.name}</strong>
             </div>
-            <p>{footer.description ?? site.organization.description}</p>
+            <p className="footer-desc">
+              {footer.description ?? site.organization.description}
+            </p>
+            <p className="footer-address">
+              <span>📍</span> Gedung APTI Center, Jl. Jend. Sudirman No. 88, Jakarta Pusat 10220
+            </p>
+            <div className="footer-socials">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram">
+                <InstagramIcon size={14} />
+              </a>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook">
+                <FacebookIcon size={14} />
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                <LinkedinIcon size={14} />
+              </a>
+            </div>
           </div>
-          <div>
-            <h2>Explore</h2>
-            {site.navigation.slice(0, 5).map((item) => (
-              <Link key={item.id} href={item.href}>
-                {item.label}
-              </Link>
-            ))}
+
+          {/* Nav Column 1: Organisasi */}
+          <div className="footer-nav-col">
+            <h3>Organisasi</h3>
+            <Link href="/organization-profile">Profil & Sejarah</Link>
+            <Link href="/vision-mission">Visi & Misi</Link>
+            <Link href="/structure">Struktur DPP & DPD</Link>
+            <Link href="/regulations">AD/ART & Kode Etik</Link>
+            <Link href="/join">Syarat Keanggotaan</Link>
           </div>
-          <div>
-            <h2>Connect</h2>
-            {footer.links?.map((item) => (
-              <Link key={item.href} href={item.href}>
-                {item.label}
-              </Link>
-            ))}
+
+          {/* Nav Column 2: Layanan & Direktori */}
+          <div className="footer-nav-col">
+            <h3>Layanan & Direktori</h3>
+            <Link href="/technicians">Cari Teknisi AC KTA</Link>
+            <Link href="/lenders">Cek Fintech Berizin OJK</Link>
+            <Link href="/clubs">Direktori Klub & TKT</Link>
+            <Link href="/verify">Verifikasi KTA Digital</Link>
+            <Link href="/member/login">Portal Login Anggota</Link>
+          </div>
+
+          {/* Nav Column 3: Advokasi & Data */}
+          <div className="footer-nav-col">
+            <h3>Advokasi & Data</h3>
+            <Link href="/working-groups">Pokja Advokasi Tematik</Link>
+            <Link href="/regulations">Regulasi & Policy Papers</Link>
+            <Link href="/statistics">Statistik Industri Sektor</Link>
+            <Link href="/whois">Lookup WHOIS & IIX</Link>
+            <Link href="/complaints">Posko Pengaduan JENDELA</Link>
+            <Link href="/events">Agenda Pelatihan BNSP</Link>
           </div>
         </div>
+
+        {/* Footer Bottom Bar */}
         <div className="wrap footer-bottom">
-          <span>
+          <p>
             {footer.copyright ??
-              `© ${new Date().getFullYear()} ${site.organization.name}.`}
-          </span>
-          <span>Powered by OpenOrg · Open source for everyone</span>
+              `© ${new Date().getFullYear()} ${site.organization.name}. Hak Cipta Dilindungi Undang-Undang.`}
+          </p>
+          <div className="footer-bottom-badge">
+            <span>Standardized Member Platform · Powered by OpenOrg</span>
+          </div>
         </div>
       </footer>
     </>
