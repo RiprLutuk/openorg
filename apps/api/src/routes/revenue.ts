@@ -4,7 +4,9 @@ import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { db } from "../db/client";
 import {
+  audienceSegments,
   auditLogs,
+  engagementCampaigns,
   invoiceLines,
   invoices,
   memberEntitlements,
@@ -150,21 +152,178 @@ export const adminRevenueRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
+  app.post(
+    "/invoices/:id/payments",
+    { preHandler: app.authorize("revenue.write") },
+    async (request, reply) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const input = z
+        .object({
+          amount: z.number().positive(),
+          method: z.string().default("manual"),
+          reference: z.string().nullable().optional(),
+        })
+        .parse(request.body);
+
+      const [inv] = await db
+        .select()
+        .from(invoices)
+        .where(eq(invoices.id, id))
+        .limit(1);
+      if (!inv)
+        throw new AppError(404, "INVOICE_NOT_FOUND", "Invoice was not found.");
+
+      const amountMinor = Math.round(input.amount * 100);
+      const newPaidMinor = inv.paidMinor + amountMinor;
+      const isFullyPaid = newPaidMinor >= inv.totalMinor;
+
+      const [payment] = await db.transaction(async (tx) => {
+        const [pay] = await tx
+          .insert(payments)
+          .values({
+            invoiceId: inv.id,
+            status: "confirmed",
+            amountMinor,
+            currency: inv.currency,
+            method: input.method,
+            reference: input.reference ?? null,
+          })
+          .returning();
+
+        await tx
+          .update(invoices)
+          .set({
+            paidMinor: newPaidMinor,
+            status: isFullyPaid ? "paid" : "open",
+            updatedAt: new Date(),
+          })
+          .where(eq(invoices.id, id));
+
+        return [pay];
+      });
+
+      return reply.status(201).send({ data: payment });
+    },
+  );
+
+  app.post(
+    "/segments",
+    { preHandler: app.authorize("revenue.write") },
+    async (request, reply) => {
+      const input = z
+        .object({
+          name: z.string().trim().min(2),
+          description: z.string().nullable().optional(),
+          criteria: z.record(z.string(), z.unknown()).default({}),
+        })
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(audienceSegments)
+        .values({
+          name: input.name,
+          description: input.description ?? null,
+          criteria: input.criteria,
+        })
+        .returning();
+
+      return reply.status(201).send({ data: created });
+    },
+  );
+
+  app.post(
+    "/campaigns",
+    { preHandler: app.authorize("revenue.write") },
+    async (request, reply) => {
+      const input = z
+        .object({
+          segmentId: z.string().uuid(),
+          name: z.string().trim().min(2),
+          channel: z.enum(["email", "whatsapp", "sms"]).default("email"),
+          subject: z.string().nullable().optional(),
+          message: z.string().trim().min(1),
+        })
+        .parse(request.body);
+
+      const [created] = await db
+        .insert(engagementCampaigns)
+        .values({
+          segmentId: input.segmentId,
+          name: input.name,
+          channel: input.channel,
+          subject: input.subject ?? null,
+          message: input.message,
+          status: "draft",
+        })
+        .returning();
+
+      return reply.status(201).send({ data: created });
+    },
+  );
+
   app.get(
     "/overview",
     { preHandler: app.authorize("revenue.read") },
     async () => {
-      const [products, invList, payList] = await Promise.all([
-        db.select().from(revenueProducts),
-        db.select().from(invoices),
+      const [
+        rawProducts,
+        rawInvoices,
+        payList,
+        rawEntitlements,
+        segmentsList,
+        campaignsList,
+        memberList,
+      ] = await Promise.all([
+        db.select().from(revenueProducts).orderBy(asc(revenueProducts.name)),
+        db.select().from(invoices).orderBy(desc(invoices.issuedAt)),
         db.select().from(payments),
+        db.select().from(memberEntitlements),
+        db.select().from(audienceSegments),
+        db.select().from(engagementCampaigns),
+        db.select().from(members),
       ]);
+
+      const memberMap = new Map(memberList.map((m) => [m.id, m]));
+
+      const products = rawProducts.map((p) => ({
+        ...p,
+        price: Math.round(p.amountMinor) / 100,
+        entitlementKey: p.grantsEntitlementKey,
+        entitlementLabel: p.grantsEntitlementKey,
+        entitlementDurationMonths: p.entitlementDurationDays
+          ? Math.round(p.entitlementDurationDays / 30)
+          : null,
+      }));
+
+      const invoicesMapped = rawInvoices.map((inv) => ({
+        ...inv,
+        total: Math.round(inv.totalMinor) / 100,
+        paid: Math.round(inv.paidMinor) / 100,
+        effectiveStatus: inv.status,
+        member: memberMap.get(inv.memberId) ?? {
+          id: inv.memberId,
+          name: "Anggota",
+          memberNumber: "MEM-0000",
+        },
+      }));
+
+      const entitlements = rawEntitlements.map((e) => ({
+        ...e,
+        member: memberMap.get(e.memberId) ?? {
+          id: e.memberId,
+          name: "Anggota",
+          memberNumber: "MEM-0000",
+        },
+      }));
 
       return {
         data: {
           products,
-          invoices: invList,
+          invoices: invoicesMapped,
           payments: payList,
+          entitlements,
+          segments: segmentsList,
+          campaigns: campaignsList,
         },
       };
     },

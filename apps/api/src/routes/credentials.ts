@@ -167,13 +167,126 @@ export const adminCredentialRoutes: FastifyPluginAsync = async (app) => {
   app.get(
     "/credentials",
     { preHandler: app.authorize("credentials.read") },
-    async () => {
-      const rows = await db
-        .select()
-        .from(memberCredentials)
-        .orderBy(desc(memberCredentials.createdAt))
-        .limit(100);
-      return { data: rows };
+    async (request) => {
+      const query = z
+        .object({
+          limit: z.coerce.number().int().min(1).max(200).default(100),
+          search: z.string().optional(),
+          status: z.string().optional(),
+        })
+        .parse(request.query);
+
+      const [rawCredentials, rawSchemes, memberList] = await Promise.all([
+        db
+          .select()
+          .from(memberCredentials)
+          .orderBy(desc(memberCredentials.createdAt))
+          .limit(query.limit),
+        db.select().from(credentialSchemes),
+        db.select().from(members),
+      ]);
+
+      const schemeMap = new Map(rawSchemes.map((s) => [s.id, s]));
+      const memberMap = new Map(memberList.map((m) => [m.id, m]));
+
+      let items = rawCredentials.map((c) => {
+        const member = memberMap.get(c.memberId) ?? {
+          id: c.memberId,
+          name: "Anggota",
+          memberNumber: "MEM-0000",
+        };
+        const scheme = schemeMap.get(c.schemeId) ?? {
+          id: c.schemeId,
+          name: "Sertifikat",
+          code: "CERT",
+          category: "legal",
+          issuerName: null,
+          minimumVerificationLevel: "document_checked",
+          fields: [],
+        };
+        return {
+          ...c,
+          effectiveStatus: c.status,
+          verificationLevel: c.verificationLevel ?? "document_checked",
+          data: (c.payload ?? {}) as Record<string, unknown>,
+          scheme,
+          member,
+        };
+      });
+
+      if (query.status) {
+        items = items.filter((item) => item.status === query.status);
+      }
+      if (query.search) {
+        const s = query.search.toLowerCase();
+        items = items.filter(
+          (item) =>
+            item.member.name.toLowerCase().includes(s) ||
+            item.member.memberNumber.toLowerCase().includes(s) ||
+            item.scheme.name.toLowerCase().includes(s) ||
+            (item.credentialNumber &&
+              item.credentialNumber.toLowerCase().includes(s)),
+        );
+      }
+
+      return { data: items };
+    },
+  );
+
+  app.patch(
+    "/credentials/:id/verify",
+    { preHandler: app.authorize("credentials.write") },
+    async (request) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const input = z
+        .object({
+          decision: z.enum(["verify", "reject", "revoke"]),
+          verificationLevel: z.string().optional(),
+          method: z.string().optional(),
+          source: z.string().nullable().optional(),
+          notes: z.string().nullable().optional(),
+        })
+        .parse(request.body);
+
+      const nextStatus =
+        input.decision === "verify"
+          ? "verified"
+          : input.decision === "revoke"
+            ? "revoked"
+            : "rejected";
+
+      const [updated] = await db
+        .update(memberCredentials)
+        .set({
+          status: nextStatus,
+          verificationLevel: (input.verificationLevel ?? "document_checked") as
+            | "document_checked"
+            | "api_verified"
+            | "cryptographically_verified"
+            | "issuer_confirmed"
+            | "self_declared",
+          updatedAt: new Date(),
+        })
+        .where(eq(memberCredentials.id, id))
+        .returning();
+
+      if (!updated)
+        throw new AppError(
+          404,
+          "CREDENTIAL_NOT_FOUND",
+          "Kredensial tidak ditemukan.",
+        );
+
+      await audit(
+        request,
+        `member_credential.${input.decision}`,
+        "member_credential",
+        id,
+        undefined,
+        updated,
+      );
+
+      return { data: updated };
     },
   );
 
@@ -181,7 +294,7 @@ export const adminCredentialRoutes: FastifyPluginAsync = async (app) => {
     "/credentials/:id/review",
     { preHandler: app.authorize("credentials.write") },
     async (request) => {
-      const { id } = _idParams.parse(request.params);
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
       const input = z
         .object({
           decision: z.enum(["approve", "reject"]),

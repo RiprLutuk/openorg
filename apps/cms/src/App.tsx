@@ -3167,13 +3167,17 @@ function CredentialQueue() {
                 data-status={item.effectiveStatus}
               />
               <span>
-                <strong>{item.member.name}</strong>
+                <strong>{item.member?.name ?? "Anggota"}</strong>
                 <small>
-                  {item.scheme.name} · {item.scheme.code}
+                  {item.scheme?.name ?? "Sertifikat"} ·{" "}
+                  {item.scheme?.code ?? "CERT"}
                 </small>
                 <p>
                   {item.credentialNumber ?? "Number not supplied"} ·{" "}
-                  {item.verificationLevel.replaceAll("_", " ")}
+                  {(item.verificationLevel ?? "document_checked").replaceAll(
+                    "_",
+                    " ",
+                  )}
                 </p>
               </span>
               <Status value={item.effectiveStatus} />
@@ -3190,9 +3194,10 @@ function CredentialQueue() {
             <div className="panel-head">
               <div>
                 <span className="eyebrow">Credential review</span>
-                <h2>{selected.scheme.name}</h2>
+                <h2>{selected.scheme?.name ?? "Sertifikat"}</h2>
                 <p>
-                  {selected.member.name} · {selected.member.memberNumber}
+                  {selected.member?.name ?? "Anggota"} ·{" "}
+                  {selected.member?.memberNumber ?? "—"}
                 </p>
               </div>
               <Status value={selected.effectiveStatus} />
@@ -3205,7 +3210,7 @@ function CredentialQueue() {
               <div>
                 <dt>Issuer</dt>
                 <dd>
-                  {selected.issuerName ?? selected.scheme.issuerName ?? "—"}
+                  {selected.issuerName ?? selected.scheme?.issuerName ?? "—"}
                 </dd>
               </div>
               <div>
@@ -3224,7 +3229,7 @@ function CredentialQueue() {
                     : "No expiry"}
                 </dd>
               </div>
-              {Object.entries(selected.data).map(([key, value]) => (
+              {Object.entries(selected.data ?? {}).map(([key, value]) => (
                 <div key={key}>
                   <dt>{key.replace(/([A-Z])/g, " $1")}</dt>
                   <dd>{String(value || "—")}</dd>
@@ -3380,7 +3385,7 @@ function CredentialSchemes() {
               </div>
               <div>
                 <dt>Dynamic fields</dt>
-                <dd>{scheme.fields.length}</dd>
+                <dd>{scheme.fields?.length ?? 0}</dd>
               </div>
             </dl>
             <div className="requirement-tags">
@@ -3862,15 +3867,18 @@ function AcademyManager() {
   if (query.isLoading) return <PageLoading />;
   if (query.isError) return <FatalError message={query.error.message} />;
   if (!overview) return <Empty message="Learning data is unavailable." />;
+  const activities = overview.activities ?? [];
+  const enrollments = overview.enrollments ?? [];
+  const schemes = overview.schemes ?? [];
   const roster = selected
-    ? overview.enrollments.filter((item) => item.activityId === selected.id)
+    ? enrollments.filter((item) => item.activityId === selected.id)
     : [];
-  const totalEnrollments = overview.enrollments.filter(
+  const totalEnrollments = enrollments.filter(
     (item) => item.status !== "cancelled",
   ).length;
-  const completedCredits = overview.activities
+  const completedCredits = activities
     .filter((item) => item.status === "completed")
-    .reduce((total, item) => total + item.creditAmount, 0);
+    .reduce((total, item) => total + (item.creditAmount || 0), 0);
 
   return (
     <>
@@ -3901,7 +3909,7 @@ function AcademyManager() {
         <article>
           <BookOpen size={20} />
           <span>
-            <strong>{overview.activities.length}</strong>
+            <strong>{activities.length}</strong>
             <small>Learning activities</small>
           </span>
         </article>
@@ -3928,14 +3936,14 @@ function AcademyManager() {
               <h2>Activities</h2>
             </div>
             <div className="academy-scheme-pills">
-              {overview.schemes.map((scheme) => (
+              {schemes.map((scheme) => (
                 <span key={scheme.id}>{scheme.code}</span>
               ))}
             </div>
           </div>
           <div className="academy-activities">
-            {overview.activities.map((activity) => {
-              const enrolled = overview.enrollments.filter(
+            {activities.map((activity) => {
+              const enrolled = enrollments.filter(
                 (item) =>
                   item.activityId === activity.id &&
                   item.status !== "cancelled",
@@ -3959,7 +3967,7 @@ function AcademyManager() {
                   <span className="academy-activity-copy">
                     <small>
                       {activity.code} ·{" "}
-                      {activity.deliveryMode.replace("_", " ")}
+                      {(activity.deliveryMode ?? "onsite").replace("_", " ")}
                     </small>
                     <strong>{activity.title}</strong>
                     <span>
@@ -3972,7 +3980,7 @@ function AcademyManager() {
                 </button>
               );
             })}
-            {!overview.activities.length && (
+            {!activities.length && (
               <Empty message="Create the first learning activity to open enrollment." />
             )}
           </div>
@@ -3985,7 +3993,7 @@ function AcademyManager() {
                   <span className="eyebrow">Attendance & awards</span>
                   <h2>{selected.title}</h2>
                   <p>
-                    {selected.creditAmount}{" "}
+                    {selected.creditAmount ?? 0}{" "}
                     {selected.scheme?.unitLabel ?? "credits"} ·{" "}
                     {new Date(selected.startsAt).toLocaleString()}
                   </p>
@@ -4003,12 +4011,12 @@ function AcademyManager() {
                 {roster.map((item) => (
                   <article key={item.id}>
                     <span className="roster-avatar">
-                      {item.member.name.slice(0, 2).toUpperCase()}
+                      {(item.member?.name ?? "AG").slice(0, 2).toUpperCase()}
                     </span>
                     <div>
-                      <strong>{item.member.name}</strong>
+                      <strong>{item.member?.name ?? "Anggota"}</strong>
                       <small>
-                        {item.member.memberNumber} · {item.status}
+                        {item.member?.memberNumber ?? "—"} · {item.status}
                       </small>
                     </div>
                     <div className="attendance-actions">
@@ -4350,11 +4358,14 @@ function GovernanceManager() {
   if (query.isError) return <FatalError message={query.error.message} />;
   const overview = query.data?.data;
   if (!overview) return <Empty message="No governance data is available." />;
+  const units = overview.units ?? [];
+  const positions = overview.positions ?? [];
+  const assignments = overview.assignments ?? [];
   const now = Date.now();
   const isCurrent = (startsAt: string | null, endsAt: string | null) =>
     (!startsAt || new Date(startsAt).getTime() <= now) &&
     (!endsAt || new Date(endsAt).getTime() >= now);
-  const currentAssignments = overview.assignments.filter((item) =>
+  const currentAssignments = assignments.filter((item) =>
     isCurrent(item.startsAt, item.endsAt),
   );
 
@@ -4378,16 +4389,14 @@ function GovernanceManager() {
         <article>
           <Building2 size={20} />
           <span>
-            <strong>
-              {overview.units.filter((unit) => unit.isActive).length}
-            </strong>
+            <strong>{units.filter((unit) => unit.isActive).length}</strong>
             <small>Active units</small>
           </span>
         </article>
         <article>
           <Network size={20} />
           <span>
-            <strong>{overview.positions.length}</strong>
+            <strong>{positions.length}</strong>
             <small>Defined positions</small>
           </span>
         </article>
@@ -4415,11 +4424,11 @@ function GovernanceManager() {
             </button>
           </div>
           <div className="unit-tree">
-            {overview.units.map((unit) => {
-              const parent = overview.units.find(
+            {units.map((unit) => {
+              const parent = units.find(
                 (candidate) => candidate.id === unit.parentId,
               );
-              const unitPositions = overview.positions.filter(
+              const unitPositions = positions.filter(
                 (position) => position.unitId === unit.id,
               );
               return (
@@ -4461,14 +4470,14 @@ function GovernanceManager() {
             </button>
           </div>
           <div className="position-register">
-            {overview.positions.map((position) => {
-              const unit = overview.units.find(
+            {positions.map((position) => {
+              const unit = units.find(
                 (candidate) => candidate.id === position.unitId,
               );
-              const assignments = overview.assignments.filter(
+              const positionAssignmentsList = assignments.filter(
                 (item) => item.positionId === position.id,
               );
-              const active = assignments.find((item) =>
+              const active = positionAssignmentsList.find((item) =>
                 isCurrent(item.startsAt, item.endsAt),
               );
               return (
@@ -4484,12 +4493,14 @@ function GovernanceManager() {
                     {active ? (
                       <>
                         <span>
-                          {active.member.name.slice(0, 2).toUpperCase()}
+                          {(active.member?.name ?? "AG")
+                            .slice(0, 2)
+                            .toUpperCase()}
                         </span>
                         <div className="office-holder-copy">
-                          <strong>{active.member.name}</strong>
+                          <strong>{active.member?.name ?? "Anggota"}</strong>
                           <small>
-                            {active.member.memberNumber}
+                            {active.member?.memberNumber ?? "—"}
                             {active.startsAt
                               ? ` · since ${new Date(active.startsAt).toLocaleDateString()}`
                               : ""}
@@ -4511,7 +4522,7 @@ function GovernanceManager() {
                 </article>
               );
             })}
-            {!overview.positions.length && (
+            {!positions.length && (
               <Empty message="Define positions to start the appointment register." />
             )}
           </div>
@@ -4850,28 +4861,38 @@ function ApplicationsManager() {
             </select>
           </div>
           <div className="submission-list application-list">
-            {items.map((item) => (
-              <button
-                type="button"
-                className={selected?.id === item.id ? "active" : ""}
-                key={item.id}
-                onClick={() => {
-                  setSelected(item);
-                  setError("");
-                }}
-              >
-                <span className="submission-dot" data-status={item.status} />
-                <span>
-                  <strong>{item.member.name}</strong>
-                  <small>{item.unitName ?? "No organization unit"}</small>
-                  <p>
-                    {item.member.email ?? "No email"} · Submitted{" "}
-                    {new Date(item.submittedAt).toLocaleDateString()}
-                  </p>
-                </span>
-                <Status value={item.status} />
-              </button>
-            ))}
+            {items.map((item) => {
+              const memberName =
+                item.member?.name ?? (item as any).fullName ?? "Pemohon";
+              const memberEmail =
+                item.member?.email ?? (item as any).email ?? "No email";
+              return (
+                <button
+                  type="button"
+                  className={selected?.id === item.id ? "active" : ""}
+                  key={item.id}
+                  onClick={() => {
+                    setSelected(item);
+                    setError("");
+                  }}
+                >
+                  <span className="submission-dot" data-status={item.status} />
+                  <span>
+                    <strong>{memberName}</strong>
+                    <small>{item.unitName ?? "No organization unit"}</small>
+                    <p>
+                      {memberEmail} · Submitted{" "}
+                      {new Date(
+                        item.submittedAt ||
+                          (item as any).createdAt ||
+                          Date.now(),
+                      ).toLocaleDateString()}
+                    </p>
+                  </span>
+                  <Status value={item.status} />
+                </button>
+              );
+            })}
           </div>
           {!query.isLoading && !items.length && (
             <Empty message="No membership applications match this view." />
@@ -4883,9 +4904,13 @@ function ApplicationsManager() {
               <div className="panel-head">
                 <div>
                   <span className="eyebrow">Application detail</span>
-                  <h2>{selected.member.name}</h2>
+                  <h2>
+                    {selected.member?.name ??
+                      (selected as any).fullName ??
+                      "Pemohon"}
+                  </h2>
                   <p>
-                    {selected.member.memberNumber} ·{" "}
+                    {selected.member?.memberNumber ?? "PENDING"} ·{" "}
                     {selected.unitName ?? "Unassigned"}
                   </p>
                 </div>
@@ -4894,24 +4919,34 @@ function ApplicationsManager() {
               <dl>
                 <div>
                   <dt>Email</dt>
-                  <dd>{selected.member.email ?? "—"}</dd>
+                  <dd>
+                    {selected.member?.email ?? (selected as any).email ?? "—"}
+                  </dd>
                 </div>
                 <div>
                   <dt>Phone</dt>
-                  <dd>{selected.member.phone ?? "—"}</dd>
+                  <dd>
+                    {selected.member?.phone ?? (selected as any).phone ?? "—"}
+                  </dd>
                 </div>
                 <div>
                   <dt>Address</dt>
-                  <dd>{selected.member.address ?? "—"}</dd>
+                  <dd>
+                    {selected.member?.address ??
+                      (selected as any).address ??
+                      "—"}
+                  </dd>
                 </div>
-                {Object.entries(selected.member.customFields).map(
-                  ([key, value]) => (
-                    <div key={key}>
-                      <dt>{key.replace(/_/g, " ")}</dt>
-                      <dd>{String(value || "—")}</dd>
-                    </div>
-                  ),
-                )}
+                {Object.entries(
+                  selected.member?.customFields ??
+                    (selected as any).payload ??
+                    {},
+                ).map(([key, value]) => (
+                  <div key={key}>
+                    <dt>{key.replace(/_/g, " ")}</dt>
+                    <dd>{String(value || "—")}</dd>
+                  </div>
+                ))}
                 <div>
                   <dt>Submitted</dt>
                   <dd>{new Date(selected.submittedAt).toLocaleString()}</dd>
@@ -6181,7 +6216,7 @@ function InboxManager() {
                 <Status value={selected.status} />
               </div>
               <dl>
-                {Object.entries(selected.payload).map(([key, value]) => (
+                {Object.entries(selected.payload ?? {}).map(([key, value]) => (
                   <div key={key}>
                     <dt>{key.replace(/_/g, " ")}</dt>
                     <dd>
@@ -7556,15 +7591,22 @@ function RevenueManager() {
   if (query.isLoading) return <PageLoading />;
   const data = query.data?.data;
   if (!data) return <Empty message="Revenue data is unavailable." />;
-  const outstanding = data.invoices.reduce(
-    (sum, invoice) => sum + Math.max(0, invoice.total - invoice.paid),
+  const invoices = data.invoices ?? [];
+  const entitlements = data.entitlements ?? [];
+  const products = data.products ?? [];
+  const segments = data.segments ?? [];
+  const campaigns = data.campaigns ?? [];
+
+  const outstanding = invoices.reduce(
+    (sum, invoice) =>
+      sum + Math.max(0, (invoice.total || 0) - (invoice.paid || 0)),
     0,
   );
-  const collected = data.invoices.reduce(
-    (sum, invoice) => sum + invoice.paid,
+  const collected = invoices.reduce(
+    (sum, invoice) => sum + (invoice.paid || 0),
     0,
   );
-  const activeBenefits = data.entitlements.filter(
+  const activeBenefits = entitlements.filter(
     (item) =>
       item.status === "active" &&
       (!item.endsAt || new Date(item.endsAt) > new Date()),
@@ -7703,7 +7745,7 @@ function RevenueManager() {
               <strong>{formatRevenueMoney(outstanding)}</strong>
               <small>
                 {
-                  data.invoices.filter((item) =>
+                  invoices.filter((item) =>
                     ["open", "overdue"].includes(item.effectiveStatus),
                   ).length
                 }{" "}
@@ -7730,18 +7772,19 @@ function RevenueManager() {
                 </div>
               </div>
               <div className="revenue-invoices">
-                {data.invoices.map((invoice) => (
+                {invoices.map((invoice) => (
                   <article key={invoice.id}>
                     <div>
                       <Status value={invoice.effectiveStatus} />
                       <strong>{invoice.invoiceNumber}</strong>
                       <span>
-                        {invoice.member.name} · {invoice.member.memberNumber}
+                        {invoice.member?.name ?? "Anggota"} ·{" "}
+                        {invoice.member?.memberNumber ?? "—"}
                       </span>
                     </div>
                     <div>
-                      <strong>{formatRevenueMoney(invoice.total)}</strong>
-                      <span>Paid {formatRevenueMoney(invoice.paid)}</span>
+                      <strong>{formatRevenueMoney(invoice.total || 0)}</strong>
+                      <span>Paid {formatRevenueMoney(invoice.paid || 0)}</span>
                     </div>
                     {invoice.status === "open" && (
                       <button
@@ -7754,7 +7797,7 @@ function RevenueManager() {
                     )}
                   </article>
                 ))}
-                {!data.invoices.length && (
+                {!invoices.length && (
                   <Empty message="Issue the first invoice to start the receivables ledger." />
                 )}
               </div>
@@ -7766,16 +7809,16 @@ function RevenueManager() {
                   <h3>Products & benefit rules</h3>
                 </div>
               </div>
-              {data.products.map((product) => (
+              {products.map((product) => (
                 <article key={product.id}>
                   <div>
                     <strong>{product.name}</strong>
                     <span>
                       {product.code} ·{" "}
-                      {product.billingInterval.replace("_", " ")}
+                      {(product.billingInterval ?? "yearly").replace("_", " ")}
                     </span>
                   </div>
-                  <b>{formatRevenueMoney(product.price)}</b>
+                  <b>{formatRevenueMoney(product.price || 0)}</b>
                   {product.entitlementLabel && (
                     <small>Unlocks {product.entitlementLabel}</small>
                   )}
@@ -7794,7 +7837,7 @@ function RevenueManager() {
               </div>
             </div>
             <div className="segment-list">
-              {data.segments.map((segment) => (
+              {segments.map((segment) => (
                 <article key={segment.id}>
                   <span className="segment-icon">
                     <Users size={18} />
@@ -7804,9 +7847,9 @@ function RevenueManager() {
                     <p>{segment.description || "Reusable member audience"}</p>
                     <small>
                       {[
-                        ...(segment.criteria.membershipStatuses || []),
-                        ...(segment.criteria.membershipTypes || []),
-                        segment.criteria.hasEntitlement,
+                        ...(segment.criteria?.membershipStatuses || []),
+                        ...(segment.criteria?.membershipTypes || []),
+                        segment.criteria?.hasEntitlement,
                       ]
                         .filter(Boolean)
                         .join(" · ") || "All members"}
@@ -7814,7 +7857,7 @@ function RevenueManager() {
                   </div>
                 </article>
               ))}
-              {!data.segments.length && (
+              {!segments.length && (
                 <Empty message="Create a segment from membership status, type, unit, or active benefit." />
               )}
             </div>
@@ -7827,13 +7870,13 @@ function RevenueManager() {
               </div>
             </div>
             <div className="campaign-list">
-              {data.campaigns.map((campaign) => (
+              {campaigns.map((campaign) => (
                 <article key={campaign.id}>
                   <div>
                     <Status value={campaign.status} />
                     <strong>{campaign.name}</strong>
                     <span>
-                      {campaign.channel} · {campaign.recipientCount}{" "}
+                      {campaign.channel} · {campaign.recipientCount ?? 0}{" "}
                       recipient(s)
                     </span>
                   </div>
@@ -7854,7 +7897,7 @@ function RevenueManager() {
                   )}
                 </article>
               ))}
-              {!data.campaigns.length && (
+              {!campaigns.length && (
                 <Empty message="Create a campaign and materialize its recipient queue." />
               )}
             </div>
@@ -8240,6 +8283,9 @@ function RegulationsManager() {
     return true;
   });
 
+  if (query.isLoading) return <PageLoading />;
+  if (query.isError) return <FatalError message={query.error.message} />;
+
   return (
     <>
       <PageHeading
@@ -8459,6 +8505,9 @@ function ComplaintsManager() {
 
   const items = query.data?.data ?? [];
 
+  if (query.isLoading) return <PageLoading />;
+  if (query.isError) return <FatalError message={query.error.message} />;
+
   return (
     <>
       <PageHeading
@@ -8629,6 +8678,9 @@ function TechniciansManager() {
       return false;
     return true;
   });
+
+  if (query.isLoading) return <PageLoading />;
+  if (query.isError) return <FatalError message={query.error.message} />;
 
   return (
     <>
@@ -8836,6 +8888,9 @@ function ClubsManager() {
 
   const items = query.data?.data ?? [];
 
+  if (query.isLoading) return <PageLoading />;
+  if (query.isError) return <FatalError message={query.error.message} />;
+
   return (
     <>
       <PageHeading
@@ -9016,6 +9071,9 @@ function ChampionshipsManager() {
   });
 
   const items = query.data?.data ?? [];
+
+  if (query.isLoading) return <PageLoading />;
+  if (query.isError) return <FatalError message={query.error.message} />;
 
   return (
     <>
@@ -9212,6 +9270,9 @@ function WorkingGroupsManager() {
 
   const items = query.data?.data ?? [];
 
+  if (query.isLoading) return <PageLoading />;
+  if (query.isError) return <FatalError message={query.error.message} />;
+
   return (
     <>
       <PageHeading
@@ -9393,6 +9454,9 @@ function LendersManager() {
 
   const items = query.data?.data ?? [];
 
+  if (query.isLoading) return <PageLoading />;
+  if (query.isError) return <FatalError message={query.error.message} />;
+
   return (
     <>
       <PageHeading
@@ -9573,6 +9637,9 @@ function StatisticsManager() {
   });
 
   const items = query.data?.data ?? [];
+
+  if (query.isLoading) return <PageLoading />;
+  if (query.isError) return <FatalError message={query.error.message} />;
 
   return (
     <>

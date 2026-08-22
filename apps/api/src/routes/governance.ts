@@ -147,20 +147,33 @@ export const governanceRoutes: FastifyPluginAsync = async (app) => {
     "/overview",
     { preHandler: app.authorize("governance.read") },
     async () => {
-      const [units, posList, assignList] = await Promise.all([
+      const [units, posList, rawAssignments, memberList] = await Promise.all([
         db
           .select()
           .from(organizationUnits)
           .orderBy(asc(organizationUnits.sortOrder)),
         db.select().from(positions).orderBy(asc(positions.sortOrder)),
         db.select().from(positionAssignments),
+        db.select().from(members),
       ]);
+
+      const memberMap = new Map(memberList.map((m) => [m.id, m]));
+      const assignments = rawAssignments.map((a) => ({
+        ...a,
+        member: memberMap.get(a.memberId) ?? {
+          id: a.memberId,
+          name: "Anggota",
+          email: "",
+          memberNumber: "MEM-0000",
+          avatarUrl: null,
+        },
+      }));
 
       return {
         data: {
           units,
           positions: posList,
-          assignments: assignList,
+          assignments,
         },
       };
     },

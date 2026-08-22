@@ -9,6 +9,7 @@ import {
   learningCreditLedger,
   learningCreditSchemes,
   learningEnrollments,
+  members,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
 
@@ -141,12 +142,40 @@ export const adminLearningRoutes: FastifyPluginAsync = async (app) => {
     "/overview",
     { preHandler: app.authorize("learning.read") },
     async () => {
-      const [schemes, activities, enrollments, ledger] = await Promise.all([
-        db.select().from(learningCreditSchemes),
-        db.select().from(learningActivities),
-        db.select().from(learningEnrollments),
-        db.select().from(learningCreditLedger),
-      ]);
+      const [rawSchemes, rawActivities, rawEnrollments, ledger, memberList] =
+        await Promise.all([
+          db.select().from(learningCreditSchemes),
+          db.select().from(learningActivities),
+          db.select().from(learningEnrollments),
+          db.select().from(learningCreditLedger),
+          db.select().from(members),
+        ]);
+
+      const memberMap = new Map(memberList.map((m) => [m.id, m]));
+      const schemeMap = new Map(rawSchemes.map((s) => [s.id, s]));
+
+      const schemes = rawSchemes.map((s) => ({
+        ...s,
+        unitLabel: s.unitName,
+      }));
+
+      const activities = rawActivities.map((a) => ({
+        ...a,
+        creditAmount: Math.round(a.creditAmountHundredths) / 100,
+        scheme: a.creditSchemeId ? schemeMap.get(a.creditSchemeId) : null,
+      }));
+
+      const enrollments = rawEnrollments.map((e) => ({
+        ...e,
+        member: memberMap.get(e.memberId) ?? {
+          id: e.memberId,
+          name: "Anggota",
+          memberNumber: "MEM-0000",
+        },
+        attendance: {
+          status: e.status === "confirmed" ? "present" : e.status,
+        },
+      }));
 
       return {
         data: {

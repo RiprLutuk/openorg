@@ -423,6 +423,32 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
         data: rows.map((row) => ({
           ...row.application,
           unitName: row.unitName,
+          submittedAt: row.application.createdAt.toISOString(),
+          reviewerNotes: row.application.reviewNotes,
+          member: {
+            id: row.application.createdMemberId ?? row.application.id,
+            name: row.application.fullName,
+            email: row.application.email,
+            phone: row.application.phone,
+            address:
+              (row.application.payload as Record<string, unknown> | null)
+                ?.address != null
+                ? String(
+                    (row.application.payload as Record<string, unknown>)
+                      .address,
+                  )
+                : null,
+            memberNumber:
+              (row.application.payload as Record<string, unknown> | null)
+                ?.memberNumber != null
+                ? String(
+                    (row.application.payload as Record<string, unknown>)
+                      .memberNumber,
+                  )
+                : "PENDING",
+            customFields:
+              (row.application.payload as Record<string, unknown> | null) ?? {},
+          },
         })),
         meta: {
           page: query.page,
