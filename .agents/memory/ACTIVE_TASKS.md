@@ -23,11 +23,15 @@
 - [x] Implement complete Admin API CRUD routes for technicians, clubs, pokja, and lenders.
 - [x] Build 8 full CMS management screens under Services & Registry (Regulations, Complaints, Technicians, Clubs, Championships, Working Groups, Lenders, Statistics).
 - [x] Build interactive client features across all public routes (Live complaint submission & ticket tracker, instant WHOIS lookup, technicians filter, regulations category tabs, clubs filter, lenders search, championships leaderboard).
+- [x] Comprehensive documentation overhaul (README.md, full Apache 2.0 LICENSE, CONTRIBUTING.md, SECURITY.md, .env.production.example, docs/vps-deployment.md).
+- [x] Fix and harden all CMS Studio routes & manager screens (`#governance`, `#credentials`, `#learning`, `#revenue`, `#applications`, `#inbox`, `#regulations`, `#complaints`, `#technicians`, `#clubs`, `#championships`, `#working-groups`, `#lenders`, `#statistics`).
 - [x] 100% empirical verification: monorepo builds, typecheck, Biome linting, 45/45 tests passing.
+- [x] Synchronized and pushed `dev`, `staging`, and `main` branches to remote.
 
 ---
 
 ## 📌 Backlog / Feature Pipeline
 - [ ] Expand member self-service features in portal (`/member`).
 - [ ] Add PDF certificate generation for completed Academy SKP activities.
+- [ ] Add external webhook/worker dispatchers for queued engagement campaigns.
 

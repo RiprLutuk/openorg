@@ -122,3 +122,20 @@ This log records major technical, architectural, and UI/UX design decisions made
     7. `/championships`: Dynamic leaderboard with search and medal indicators.
     8. `/[slug]`: Dynamic CMS page renderer supporting custom pages.
   - **Empirical Verification**: Ran full monorepo build (`bun run --filter '*' build`), typecheck (`bun run typecheck`), linting (`bun run lint`), and unit test suite (`bun test` with 45/45 passing tests).
+
+---
+
+### [2026-08-22] Repository Overhaul, Apache-2.0 License, VPS Deployment, and CMS Hardening
+- **Decision**: Completed full repository metadata setup, replaced stub license with official Apache License 2.0, published comprehensive VPS deployment runbooks, and performed an exhaustive crash-prevention sweep across all CMS Studio manager views.
+- **Implementation**:
+  - **Meta Documentation & Licensing**:
+    - Replaced stub text in [README.md](file:///Users/lutuk/Project/asisi/openorg/README.md) with comprehensive project documentation, architectural diagrams, quickstart runbooks, script reference, and VPS deployment links.
+    - Updated [LICENSE](file:///Users/lutuk/Project/asisi/openorg/LICENSE) with full official Apache License 2.0 text.
+    - Added [CONTRIBUTING.md](file:///Users/lutuk/Project/asisi/openorg/CONTRIBUTING.md) and [SECURITY.md](file:///Users/lutuk/Project/asisi/openorg/SECURITY.md).
+    - Created [.env.production.example](file:///Users/lutuk/Project/asisi/openorg/.env.production.example) and [docs/vps-deployment.md](file:///Users/lutuk/Project/asisi/openorg/docs/vps-deployment.md) detailing Nginx reverse proxy configurations, systemd services, SSL certificates (Certbot), Docker Compose setup, and Postgres migrations.
+  - **CMS Blank Screen & Crash Prevention Sweep**:
+    - **Backend Foreign-Key Population**: Updated API endpoints in `apps/api/src/routes/` (`governance.ts`, `learning.ts`, `revenue.ts`, `credentials.ts`, `membership.ts`) to populate nested relation objects (`member`, `scheme`, `unit`, `entitlements`) and calculate formatted values (`total`, `paid`, `price`, `creditAmount`).
+    - **Defensive Frontend Safeguards**: Added optional chaining `?.`, fallback empty arrays/objects, and unified `PageLoading` / `FatalError` states across all CMS components in `apps/cms/src/App.tsx` (`GovernanceManager`, `CredentialQueue`, `CredentialSchemes`, `AcademyManager`, `ApplicationsManager`, `RevenueManager`, `InboxManager`, `RegulationsManager`, `ComplaintsManager`, `TechniciansManager`, `ClubsManager`, `ChampionshipsManager`, `WorkingGroupsManager`, `LendersManager`, `StatisticsManager`).
+  - **Empirical Verification & Git Multi-Branch Push**:
+    - Verified 100% typecheck (`bun run typecheck`), Biome linting (`bun run lint`), 45/45 test suite (`bun test`), and Next.js / Vite production builds (`bun run build`).
+    - Committed changes to `dev`, pushed to `origin/dev`, merged into `staging` and `main`, and pushed to all remote branches on GitHub.
