@@ -386,17 +386,6 @@ img {
   color: #0284c7;
   font-weight: 750;
 }
-.site-header nav a.active::after,
-.nav-dropdown-trigger.active::after {
-  content: "";
-  position: absolute;
-  bottom: -18px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: #0284c7;
-  border-radius: 3px 3px 0 0;
-}
 
 /* Navigation Dropdowns */
 .nav-item-dropdown {
