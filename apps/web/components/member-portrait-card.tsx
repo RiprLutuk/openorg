@@ -95,7 +95,7 @@ export function MemberPortraitCard({
       width: 280,
       margin: 1,
       errorCorrectionLevel: "M",
-      color: { dark: "#f8fafc", light: "#00000000" },
+      color: { dark: "#080c14", light: "#ffffff" },
     })
       .then(setQrUrl)
       .catch((err) => console.error("Failed to generate QR code", err));
@@ -637,21 +637,19 @@ export function MemberPortraitCard({
             </div>
           </div>
 
-          {/* Inverted Glass Luxury QR Container */}
+          {/* High-Contrast Fast-Scanning QR Container */}
           <div
             style={{
-              background: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              borderRadius: "12px",
-              padding: "6px",
-              boxShadow: "0 4px 16px rgba(0, 0, 0, 0.35)",
+              background: "#ffffff",
+              padding: "4px",
+              borderRadius: "10px",
+              boxShadow: "0 4px 14px rgba(0, 0, 0, 0.45)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
-              width: "72px",
-              height: "72px",
-              position: "relative",
+              width: "68px",
+              height: "68px",
             }}
           >
             {qrUrl ? (
@@ -661,12 +659,12 @@ export function MemberPortraitCard({
                 style={{
                   width: "100%",
                   height: "100%",
+                  borderRadius: "6px",
                   display: "block",
-                  filter: "drop-shadow(0 0 1px rgba(255, 255, 255, 0.3))",
                 }}
               />
             ) : (
-              <QrCode size={56} color="#f8fafc" />
+              <QrCode size={56} color="#080c14" />
             )}
           </div>
         </div>
