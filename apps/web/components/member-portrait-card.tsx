@@ -31,6 +31,19 @@ export interface MemberPortraitCardProps {
   organization: {
     name: string;
     logoUrl?: string | null | undefined;
+    theme?:
+      | {
+          colors?: {
+            primary?: string;
+            secondary?: string;
+            accent?: string;
+          };
+        }
+      | null
+      | undefined;
+    primaryColor?: string | null | undefined;
+    secondaryColor?: string | null | undefined;
+    accentColor?: string | null | undefined;
   };
 }
 
@@ -42,6 +55,25 @@ export function MemberPortraitCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const [qrUrl, setQrUrl] = useState<string>("");
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const primaryColor =
+    organization.theme?.colors?.primary ||
+    organization.primaryColor ||
+    "var(--color-primary, #8b5cf6)";
+  const secondaryColor =
+    organization.theme?.colors?.secondary ||
+    organization.secondaryColor ||
+    "var(--color-secondary, #06b6d4)";
+  const accentColor =
+    organization.theme?.colors?.accent ||
+    organization.accentColor ||
+    "var(--color-accent, #f59e0b)";
+
+  const cardCustomStyles = {
+    "--kta-primary": primaryColor,
+    "--kta-secondary": secondaryColor,
+    "--kta-accent": accentColor,
+  } as React.CSSProperties;
 
   const verifyUrl =
     typeof window !== "undefined"
@@ -104,7 +136,12 @@ export function MemberPortraitCard({
   return (
     <div className="portrait-kta-container">
       {/* 1. Next-Gen Cyber-Energetic KTA Card (Target for Download & Print) */}
-      <div id="modern-id-card" ref={cardRef} className="genz-cyber-card">
+      <div
+        id="modern-id-card"
+        ref={cardRef}
+        className="genz-cyber-card"
+        style={cardCustomStyles}
+      >
         {/* Holographic Refractive Aura Flairs */}
         <div className="cyber-flare-violet" />
         <div className="cyber-flare-cyan" />

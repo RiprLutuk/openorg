@@ -484,6 +484,9 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
         organization: {
           name: site?.name ?? "APTI Indonesia",
           logoUrl: site?.logoUrl ?? null,
+          theme: site?.theme ?? null,
+          primaryColor: site?.primaryColor ?? null,
+          secondaryColor: site?.secondaryColor ?? null,
         },
       },
     };
@@ -541,6 +544,9 @@ export const memberPortalRoutes: FastifyPluginAsync = async (app) => {
             id: "default",
             name: site?.name ?? "OpenOrg Association",
             logoUrl: site?.logoUrl ?? null,
+            theme: site?.theme ?? null,
+            primaryColor: site?.primaryColor ?? null,
+            secondaryColor: site?.secondaryColor ?? null,
           },
         },
       };
@@ -845,6 +851,9 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
           organization: {
             name: site?.name ?? "APTI Indonesia",
             logoUrl: site?.logoUrl ?? null,
+            theme: site?.theme ?? null,
+            primaryColor: site?.primaryColor ?? null,
+            secondaryColor: site?.secondaryColor ?? null,
           },
         },
       };

@@ -5077,7 +5077,19 @@ function KtaCardModal({
             issuedAt: string;
             expiresAt: string | null;
           };
-          organization: { name: string; logoUrl: string | null };
+          organization: {
+            name: string;
+            logoUrl: string | null;
+            theme?: {
+              colors?: {
+                primary?: string;
+                secondary?: string;
+                accent?: string;
+              };
+            } | null;
+            primaryColor?: string | null;
+            secondaryColor?: string | null;
+          };
         };
       }>(`/v1/admin/membership/members/${member.id}/card`),
   });
@@ -5180,6 +5192,22 @@ function KtaCardModal({
     .slice(0, 2)
     .toUpperCase();
 
+  const primaryColor =
+    cardData?.organization.theme?.colors?.primary ||
+    cardData?.organization.primaryColor ||
+    "#8b5cf6";
+  const secondaryColor =
+    cardData?.organization.theme?.colors?.secondary ||
+    cardData?.organization.secondaryColor ||
+    "#06b6d4";
+  const accentColor = cardData?.organization.theme?.colors?.accent || "#f59e0b";
+
+  const cardCustomStyles = {
+    "--kta-primary": primaryColor,
+    "--kta-secondary": secondaryColor,
+    "--kta-accent": accentColor,
+  } as CSSProperties;
+
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
       <button
@@ -5222,25 +5250,7 @@ function KtaCardModal({
               id="modern-id-card"
               ref={cardRef}
               className="genz-cyber-card"
-              style={{
-                width: "350px",
-                height: "590px",
-                background:
-                  "radial-gradient(120% 120% at 50% 10%, #0d1322 0%, #070a12 60%, #03050a 100%)",
-                borderRadius: "26px",
-                position: "relative",
-                overflow: "hidden",
-                boxShadow:
-                  "0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 35px -5px rgba(168, 85, 247, 0.15)",
-                color: "#ffffff",
-                margin: "16px auto",
-                border: "1px solid rgba(255,255,255,0.12)",
-                boxSizing: "border-box",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                padding: "18px 20px 14px",
-              }}
+              style={cardCustomStyles}
             >
               {/* Flares */}
               <div
