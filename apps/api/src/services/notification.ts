@@ -86,6 +86,12 @@ async function sendWhatsAppMessage(
   }
 }
 
+function getResendClient(): Resend | null {
+  const apiKey = process.env.RESEND_API_KEY || config.RESEND_API_KEY;
+  if (!apiKey) return null;
+  return new Resend(apiKey);
+}
+
 /**
  * Send transactional email via Resend API (or mock output when not configured)
  */
@@ -94,10 +100,15 @@ export async function sendEmailMessage(
   subject: string,
   html: string,
 ): Promise<boolean> {
-  if (resend) {
+  const client = getResendClient();
+  if (client) {
     try {
-      const { data, error } = await resend.emails.send({
-        from: config.RESEND_FROM || "onboarding@resend.dev",
+      const from =
+        process.env.RESEND_FROM ||
+        config.RESEND_FROM ||
+        "onboarding@resend.dev";
+      const { data, error } = await client.emails.send({
+        from,
         to,
         subject,
         html,
