@@ -204,8 +204,11 @@ img {
   color: color-mix(in srgb, var(--color-accent) 80%, #fff);
 }
 .site-header-wrapper {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 40;
   width: 100%;
+  box-shadow: 0 4px 24px rgba(16, 24, 40, 0.06);
 }
 .site-top-bar {
   background: #0f172a;
@@ -300,13 +303,10 @@ img {
 
 .site-header {
   height: 68px;
-  position: sticky;
-  top: 0;
-  z-index: 40;
+  position: relative;
   border-bottom: 1px solid #eaecf0;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(16px);
-  box-shadow: 0 4px 20px rgba(16, 24, 40, 0.03);
 }
 .header-inner {
   height: 100%;
