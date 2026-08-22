@@ -89,10 +89,54 @@ async function seed() {
         href: "https://wa.me/6281290001980",
       },
       navigation: [
-        { id: "home", label: "Beranda", href: "/" },
-        { id: "events", label: "Agenda & Sertifikasi", href: "/events" },
-        { id: "structure", label: "Struktur Pengurus (DPP/DPD)", href: "/structure" },
-        { id: "verify", label: "Verifikasi KTA Teknisi", href: "/verify" },
+        { id: "home", label: "Beranda", href: "/", children: [] },
+        {
+          id: "profile",
+          label: "Profil Organisasi",
+          href: "/organization-profile",
+          children: [
+            { id: "org-profile", label: "Profil & Sejarah Organisasi", href: "/organization-profile" },
+            { id: "vision-mission", label: "Visi & Misi Organisasi", href: "/vision-mission" },
+            { id: "structure", label: "Struktur Pengurus (DPP/DPD/Korwil)", href: "/structure" },
+            { id: "ad-art", label: "AD/ART & Kode Etik", href: "/regulations" },
+          ],
+        },
+        {
+          id: "membership",
+          label: "Keanggotaan & Direktori",
+          href: "/join",
+          children: [
+            { id: "tech-locator", label: "Cari Teknisi AC Terverifikasi (KTA)", href: "/technicians" },
+            { id: "lender-verifier", label: "Cek Platform Fintech Berizin (OJK)", href: "/lenders" },
+            { id: "clubs-directory", label: "Direktori Klub Otomotif & TKT", href: "/clubs" },
+            { id: "verify-kta", label: "Verifikasi KTA & Kredensial", href: "/verify" },
+            { id: "join-terms", label: "Syarat & Pendaftaran Anggota", href: "/join" },
+            { id: "member-portal", label: "Portal Login Anggota", href: "/member/login" },
+          ],
+        },
+        {
+          id: "academy",
+          label: "Akademi & Sertifikasi",
+          href: "/events",
+          children: [
+            { id: "events-list", label: "Agenda Workshop & Pelatihan Teknis", href: "/events" },
+            { id: "bnsp-cert", label: "Uji Kompetensi & Sertifikasi BNSP", href: "/events" },
+            { id: "championships", label: "Klasemen Kejuaraan & Skill Contest", href: "/championships" },
+          ],
+        },
+        {
+          id: "advocacy",
+          label: "Advokasi & Data Sektor",
+          href: "/regulations",
+          children: [
+            { id: "working-groups", label: "Kelompok Kerja (Pokja) Advokasi", href: "/working-groups" },
+            { id: "regulations-list", label: "Regulasi & Policy Papers", href: "/regulations" },
+            { id: "industry-stats", label: "Statistik Industri & Data Sektor", href: "/statistics" },
+            { id: "whois-lookup", label: "Pencarian WHOIS IP/ASN & Traffic IIX", href: "/whois" },
+            { id: "public-complaints", label: "Posko Pengaduan Etik JENDELA", href: "/complaints" },
+          ],
+        },
+        { id: "stories", label: "Berita & Publikasi", href: "/stories", children: [] },
       ],
       footer: {
         description:

@@ -219,7 +219,14 @@ export const siteSettings = pgTable("site_settings", {
     .$type<Array<{ platform: string; url: string; label: string }>>()
     .default([]),
   navigation: jsonb("navigation")
-    .$type<Array<{ id: string; label: string; href: string }>>()
+    .$type<
+      Array<{
+        id: string;
+        label: string;
+        href: string;
+        children?: Array<{ id: string; label: string; href: string }>;
+      }>
+    >()
     .default([]),
   footer: jsonb("footer").$type<Record<string, unknown>>().default({}),
   ...timestamps,

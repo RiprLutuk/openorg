@@ -142,9 +142,13 @@ export function Header({ site }: { site: PublicSite }) {
     { id: "stories", label: "Berita & Publikasi", href: "/stories" },
   ];
 
-  const navItems: PublicNavItem[] = site.navigation.length
-    ? site.navigation
-    : defaultNavItems;
+  const hasChildren = (items: PublicNavItem[]) =>
+    items.some((item) => item.children && item.children.length > 0);
+
+  const navItems: PublicNavItem[] =
+    site.navigation.length && hasChildren(site.navigation)
+      ? site.navigation
+      : defaultNavItems;
 
   return (
     <>
