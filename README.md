@@ -1,141 +1,182 @@
+<div align="center">
+
 # OpenOrg
 
-OpenOrg is an open-source, multi-tenant organization platform with a separated
-CMS, API, and public website. It is built with TypeScript and PostgreSQL—there
-is no PHP runtime.
+**Modern, High-Performance Single-Tenant Organization Platform & Management Portal**
 
-It is designed for associations, communities, nonprofits, professional
-networks, humanitarian groups, animal-welfare organizations, financial
-communities, and other member-led organizations. Content, pages, events,
-members, form submissions, organization structure, and the public brand can be
-managed without editing source code.
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16%20(App%20Router)-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Fastify](https://img.shields.io/badge/Fastify-5.2-000000?logo=fastify&logoColor=white)](https://fastify.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](docker-compose.production.yml)
+[![Bun](https://img.shields.io/badge/Bun-1.3-FBF0DF?logo=bun&logoColor=black)](https://bun.sh/)
 
-## What is included
+*A dedicated, self-hosted web application and administration suite designed for associations, federations, professional networks, and community organizations.*
 
-- Headless API: Fastify, Drizzle ORM, PostgreSQL, Zod, opaque sessions, Argon2id,
-  tenant isolation, RBAC, rate limiting, security headers, and audit logs.
-- CMS Studio: React and Vite workspace for pages, stories, events, membership
-  applications, digital cards, credential verification, and dynamic brand
-  tokens.
-- Public website: Next.js App Router with server rendering, responsive page
-  blocks, dynamic navigation, SEO metadata, and server-validated forms.
-- Shared contracts: one Zod contract package for page blocks and theme data.
-- ComplyFlow: configurable credential schemes, evidence, trust levels,
-  verification history, Industry Pack presets, and compliance-gated approval.
-- GovernOS: configurable units and positions, traceable office terms, audited
-  appointments, and a public organization structure sourced from the same data.
-- Academy & Credit Ledger: learning activities, enrollment and waitlists,
-  verified attendance, SKP/CPD schemes, and idempotent credit issuance.
-- Portable operations: Bun workspaces, Docker Compose, and GitHub Actions CI.
+[Features](#-key-features) • [Architecture](#-architecture) • [Quickstart](#-local-development-quickstart) • [VPS Deployment](#-production-vps-deployment) • [Documentation](#-documentation-index)
 
-## Architecture
+</div>
+
+---
+
+## 🌟 Key Features
+
+OpenOrg combines a headless API, a Next.js public website, and a React CMS admin console into a unified, single-tenant organizational operating system:
+
+- 🏛️ **ComplyFlow & Credential Verification**: Issue cryptographic QR-enabled digital membership cards (KTA), track BNSP certifications, manage CPD/SKP credits, and provide instant public verification portals (`/verify`).
+- 👥 **Governance & Unit Management (GovernOS)**: Configurable organizational trees (DPP, DPD, DPC, Korwil, Ethics Committee) with public interactive structure viewers (`/structure`).
+- 📋 **Services & Public Registry Hub**:
+  - **Technicians Directory (`/technicians`)**: Verified member lookup by city, province, and skill ratings.
+  - **Public Complaints & Ethics Desk (`/complaints`)**: Live incident submission, ticket issuance (`CMP-XXXX-YYY`), and instant progress tracker.
+  - **Regulations & Policy Repository (`/regulations`)**: AD/ART documents, government circulars, and policy papers with category tabs and downloads.
+  - **Skill Championships & Standings (`/championships`)**: National contestant leaderboards, points, and awards.
+  - **Registered Clubs (`/clubs`)**: Tanda Klub Terdaftar (TKT) registry and branch management.
+  - **Lenders & Fintech Registry (`/lenders`)**: OJK-licensed financing partner verifications.
+  - **WHOIS & Infrastructure Lookup (`/whois`)**: Live IP/ASN routing and network status.
+  - **Industry Statistics (`/statistics`)**: Performance metrics and quarterly indicators.
+- 🎨 **Appearance & Theme Studio**: 100% database-persisted visual theme customizer in CMS Studio with real-time CSS variable propagation (colors, typography, border radius).
+- 📱 **Swiss-Style UI/UX & Mobile-First**: Built with high scannability, WCAG AAA contrast, tactile thumb-zone interactions, and zero layout shift.
+
+---
+
+## 🏛 Architecture
 
 ```text
-Browser ────────► Next.js public website ───────┐
-                                                │
-CMS operator ──► React CMS Studio ──────────────┼──► Fastify API ──► PostgreSQL
-                                                │
-Custom domain ─► tenant/domain resolver ────────┘
+                                Internet
+                                   │
+                     ┌─────────────┴─────────────┐
+                     │ DNS: Port 80 / 443 (HTTPS) │
+                     └─────────────┬─────────────┘
+                                   ▼
+                      [ Caddy Reverse Proxy & TLS ]
+             (Automated Let's Encrypt / ZeroSSL Certificates)
+                                   │
+      ┌────────────────────────────┼────────────────────────────┐
+      ▼                            ▼                            ▼
+ [ Next.js Web ]             [ React CMS ]               [ Fastify API ]
+  (Port 3000)                  (Port 80)                   (Port 4000)
+      │                            │                            │
+      └────────────────────────────┼────────────────────────────┘
+                                   ▼
+                        [ PostgreSQL Database ]
+                         (Drizzle ORM Schema)
 ```
 
-The API resolves an organization from `X-Organization` in development or from
-the request hostname in production. Every tenant-owned query is constrained by
-`organizationId`.
+---
 
-## Local development
+## 🛠 Tech Stack
 
-Requirements:
+| Component | Technologies & Libraries |
+| :--- | :--- |
+| **Monorepo** | Bun Workspaces, Biome Linter & Formatter, TypeScript 5.9 |
+| **Public Web** | Next.js 16 (App Router), React 19, Lucide Icons, OKLCH Color Engine |
+| **Admin CMS** | Vite, React, TanStack React Query, Lucide Icons, Drag-and-Drop |
+| **Backend API** | Fastify 5, Drizzle ORM, Zod, Argon2id, Opaque Sessions, Rate Limiting |
+| **Database** | PostgreSQL 15+ / 17 |
+| **DevOps & Proxy**| Docker, Docker Compose, Caddy v2 (Automated TLS) |
 
-- Bun 1.3.14 or newer
-- PostgreSQL 15 or newer
+---
 
-This repository is currently configured for the local passwordless database:
+## 🚀 Local Development Quickstart
 
+### 1. Prerequisites
+- [Bun](https://bun.sh/) 1.3+
+- [PostgreSQL](https://www.postgresql.org/) 15+
+
+### 2. Install & Configure
 ```bash
-psql -U lutuk -p 1921 -d openorg
-```
+# Clone the repository
+git clone https://github.com/RiprLutuk/openorg.git
+cd openorg
 
-## Production deployment
-
-Use the dedicated production stack; it separates migration from application startup, does not seed demo data, keeps PostgreSQL private, and terminates TLS automatically. See [the go-live runbook](docs/go-live.md) and start with `.env.production.example`.
-
-Install and initialize:
-
-```bash
-cp .env.example .env
+# Install dependencies
 bun install --frozen-lockfile
+
+# Configure environment
+cp .env.example .env
+
+# Run migrations and seed demo data
 bun run db:migrate
 bun run db:seed
 ```
 
-Set a strong `SESSION_SECRET` and seed password in `.env` before seeding a new
-environment. Start all three applications:
-
+### 3. Start Development Servers
 ```bash
 bun run dev
 ```
 
-Then open:
+The workspace applications will be available at:
+- **Public Website**: [http://localhost:3000](http://localhost:3000)
+- **Admin CMS Studio**: [http://localhost:5173](http://localhost:5173)
+- **REST API Server**: [http://localhost:4000](http://localhost:4000)
+- **API Documentation**: [http://localhost:4000/documentation](http://localhost:4000/documentation)
 
-- Public website: <http://localhost:3000>
-- CMS Studio: <http://localhost:5173>
-- API health: <http://localhost:4000/health>
-- API explorer: <http://localhost:4000/documentation>
+---
 
-The included demo data uses organization slug `demo`. Credentials are read from
-`SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`; never reuse demo credentials in a
-deployed environment.
+## 🚢 Production VPS Deployment
 
-## Dynamic brand and color palette
+Deploying OpenOrg to a Linux VPS (Ubuntu/Debian) is automated using Docker Compose and Caddy:
 
-Open **CMS Studio → Brand & theme**. An organization owner can select a curated
-palette or edit all five tokens directly:
+1. **Clone repository on VPS**:
+   ```bash
+   git clone https://github.com/RiprLutuk/openorg.git /opt/openorg
+   cd /opt/openorg
+   ```
+2. **Configure production environment**:
+   ```bash
+   cp .env.production.example .env.production
+   nano .env.production
+   ```
+3. **Run automated deployment script**:
+   ```bash
+   ./ops/deploy.sh .env.production
+   ```
+4. **Seed initial database (First time only)**:
+   ```bash
+   docker compose --env-file .env.production -f docker-compose.production.yml exec api bun run db:seed
+   ```
 
-- Primary
-- Secondary
-- Accent
-- Surface
-- Foreground
+👉 For detailed VPS setup, DNS records, firewall configuration, and automated backups, see the **[Complete VPS Deployment Guide](docs/vps-deployment.md)**.
 
-Heading font, body font, and corner radius are stored with the same theme. The
-API persists these values per organization and the public Next.js site turns
-them into CSS variables at request time. No rebuild or manual CSS palette edit
-is required. The default demo uses clean royal blue, graphite, and a restrained
-coral accent—not green.
+---
 
-See [docs/customization.md](docs/customization.md) for tenant and theme details.
-See [docs/complyflow.md](docs/complyflow.md) for the universal credential model
-and Industry Pack extension boundary.
-See [docs/governos.md](docs/governos.md) for the configurable governance
-hierarchy and appointment lifecycle.
-See [docs/academy-credit-ledger.md](docs/academy-credit-ledger.md) for learning,
-attendance, and professional-credit integrity rules.
+## 🚦 Quality Gates & Verification
 
-## Quality gates
+To ensure total code quality and reliability, all code is verified through strict automated checks:
 
 ```bash
-bun run lint
+# Run strict TypeScript typechecking
 bun run typecheck
-bun run test
-bun run build
+
+# Run Biome linting and code formatting
+bun run lint
+
+# Run unit & integration test suites
+bun test
+
+# Run full monorepo production build
+bun run --filter '*' build
 ```
 
-## Docker Compose
+---
 
-Docker Compose starts its own password-protected PostgreSQL service and does not
-change the local passwordless database described above.
+## 📚 Documentation Index
 
-```bash
-SESSION_SECRET="replace-with-at-least-32-random-characters" \
-docker compose up --build
-```
+- 📖 [VPS Deployment Runbook](docs/vps-deployment.md) - Complete production guide for Linux VPS.
+- ⚙️ [Customization & Theme Studio](docs/customization.md) - Design tokens, branding, and color palettes.
+- 🛡️ [ComplyFlow Architecture](docs/complyflow.md) - Credential schemes, trust levels, and verification.
+- 🏛️ [GovernOS Architecture](docs/governos.md) - Governance hierarchy and office terms.
+- 🎓 [Academy & Credit Ledger](docs/academy-credit-ledger.md) - Learning credits and SKP/CPD issuance.
 
-Migrations run when the API container starts. Run `bun run db:seed` explicitly
-only when you intentionally want demo data; it is never part of the production
-stack.
+---
 
-## Security and contributions
+## 🤝 Contributing
 
-Read [SECURITY.md](SECURITY.md) before reporting a vulnerability and
-[CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. OpenOrg is
-licensed under the [Apache License 2.0](LICENSE).
+We welcome contributions! Please review our [Contributing Guidelines](CONTRIBUTING.md) and [Security Policy](SECURITY.md) before opening a pull request.
+
+---
+
+## 📄 License
+
+OpenOrg is open-source software licensed under the **[Apache License 2.0](LICENSE)**.
