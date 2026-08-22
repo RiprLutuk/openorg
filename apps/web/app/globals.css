@@ -8756,3 +8756,563 @@ img {
     font-size: 11.5px;
   }
 }
+
+/* ==========================================================================
+   Vision & Mission Suite (High-End Swiss / Refero Design)
+   ========================================================================== */
+.vision-mission-page {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface, #ffffff);
+  color: var(--color-foreground, #0f172a);
+}
+
+/* 1. Flagship Hero */
+.vm-hero {
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(99, 102, 241, 0.16) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 85% 30%,
+      rgba(56, 189, 248, 0.12) 0%,
+      transparent 50%
+    ),
+    linear-gradient(180deg, #0b1120 0%, #0f172a 100%);
+  color: #ffffff;
+  padding: clamp(50px, 8vw, 85px) 0 45px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vm-hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 960px;
+}
+
+.vm-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #38bdf8;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.vm-hero-title {
+  font-size: clamp(28px, 4.5vw, 46px);
+  font-weight: 900;
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  margin-bottom: 18px;
+}
+
+.vm-hero-lead {
+  font-size: clamp(15px, 1.8vw, 17.5px);
+  line-height: 1.65;
+  color: #cbd5e1;
+  max-width: 780px;
+  margin-bottom: 28px;
+}
+
+.vm-hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 45px;
+}
+
+.vm-hero-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  width: 100%;
+}
+
+.vm-badge-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  padding: 18px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.vm-badge-box:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-2px);
+}
+
+.vm-badge-box strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.vm-badge-box small {
+  display: block;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 3px;
+}
+
+/* 2. Grand Vision Card */
+.vm-grand-vision-section {
+  padding-top: clamp(40px, 6vw, 60px);
+}
+
+.grand-vision-card {
+  position: relative;
+  background: linear-gradient(135deg, #090d16 0%, #1e293b 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 28px;
+  padding: clamp(32px, 6vw, 56px);
+  color: #ffffff;
+  box-shadow:
+    0 24px 50px rgba(0, 0, 0, 0.25),
+    0 0 30px rgba(56, 189, 248, 0.1);
+  overflow: hidden;
+}
+
+.grand-vision-glow {
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(
+    circle,
+    rgba(56, 189, 248, 0.25),
+    transparent 70%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.vision-pill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.vision-quote {
+  font-size: clamp(20px, 3.2vw, 29px);
+  font-weight: 800;
+  line-height: 1.45;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+  margin: 0 0 36px;
+  font-style: italic;
+}
+
+.vision-tenets-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vision-tenet {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tenet-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.vision-tenet strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.vision-tenet p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* 3. Five Missions Bento Grid */
+.missions-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 35px;
+}
+
+.mission-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s ease;
+}
+
+.mission-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.07);
+  border-color: #cbd5e1;
+}
+
+.mission-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.mission-number {
+  font-size: 20px;
+  font-weight: 900;
+  color: #94a3b8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.mission-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mission-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 10px;
+  line-height: 1.3;
+}
+
+.mission-card p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #475467;
+  margin: 0 0 20px;
+}
+
+.mission-deliverables {
+  margin-top: auto;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 16px;
+}
+
+.mission-deliverables small {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.mission-deliverables ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mission-deliverables li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.35;
+}
+
+.mission-deliverables li svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* 4. Core Values Grid */
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 35px;
+}
+
+.value-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.value-card:hover {
+  transform: translateY(-4px);
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.06);
+}
+
+.value-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.value-subtitle {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #0284c7;
+  letter-spacing: 0.6px;
+  margin-bottom: 4px;
+}
+
+.value-card h3 {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 10px;
+  line-height: 1.3;
+}
+
+.value-card p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #475467;
+  margin: 0;
+}
+
+/* 5. Member Integrity Pledge Shell */
+.vm-pledge-section {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pledge-card-shell {
+  background: linear-gradient(135deg, #090d16 0%, #1e293b 100%);
+  border-radius: 24px;
+  padding: clamp(30px, 5vw, 45px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.pledge-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 24px;
+}
+
+.pledge-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(56, 189, 248, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pledge-head h2 {
+  font-size: clamp(20px, 2.6vw, 26px);
+  font-weight: 900;
+  color: #ffffff;
+  margin: 4px 0 0;
+}
+
+.pledge-intro {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin-bottom: 18px;
+}
+
+.pledge-list {
+  padding-left: 20px;
+  margin: 0 0 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pledge-list li {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.pledge-list li strong {
+  color: #ffffff;
+}
+
+.pledge-foot {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.btn-pledge {
+  padding: 10px 20px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* 6. Conversion CTA */
+.vm-bottom-cta {
+  padding: 0 0 clamp(40px, 6vw, 70px);
+}
+
+.vm-cta-shell {
+  background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+  border-radius: 22px;
+  padding: clamp(32px, 5vw, 48px);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: 0 20px 40px rgba(37, 99, 235, 0.25);
+}
+
+.vm-cta-content {
+  max-width: 600px;
+}
+
+.vm-cta-content h2 {
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 8px;
+  line-height: 1.25;
+}
+
+.vm-cta-content p {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: #e0f2fe;
+  margin: 0;
+}
+
+.vm-cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .missions-bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .vm-hero-badges-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .vision-tenets-row {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .vm-cta-shell {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .vm-cta-actions {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .vm-hero-badges-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .missions-bento-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vm-cta-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+}
