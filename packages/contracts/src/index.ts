@@ -425,26 +425,34 @@ export const engagementCampaignInputSchema = z.object({
 export const regulationInputSchema = z.object({
   title: z.string().trim().min(2).max(220),
   slug: z.string().trim().min(2).max(200).optional(),
-  category: z.enum([
-    "regulasi_pemerintah",
-    "se_organisasi",
-    "ad_art",
-    "posisi_kebijakan",
-  ]).default("regulasi_pemerintah"),
+  category: z
+    .enum([
+      "regulasi_pemerintah",
+      "se_organisasi",
+      "ad_art",
+      "posisi_kebijakan",
+    ])
+    .default("regulasi_pemerintah"),
   number: z.string().trim().max(120).nullable().optional(),
   issuedDate: z.string().nullable().optional(),
   fileUrl: z.string().trim().max(2048).nullable().optional(),
   summary: z.string().trim().max(5000).nullable().optional(),
-  status: z.enum(["draft", "review", "scheduled", "published", "archived"]).default("published"),
+  status: z
+    .enum(["draft", "review", "scheduled", "published", "archived"])
+    .default("published"),
 });
 
 export const publicComplaintInputSchema = z.object({
   complainantName: z.string().trim().min(2).max(160),
   complainantEmail: z.string().trim().email().max(320),
   complainantPhone: z.string().trim().max(40).optional(),
-  targetType: z.enum(["member", "technician", "lender", "company"]).default("member"),
+  targetType: z
+    .enum(["member", "technician", "lender", "company"])
+    .default("member"),
   targetIdentifier: z.string().trim().min(2).max(160),
-  category: z.enum(["kode_etik", "layanan_teknisi", "penagihan", "sengketa"]).default("kode_etik"),
+  category: z
+    .enum(["kode_etik", "layanan_teknisi", "penagihan", "sengketa"])
+    .default("kode_etik"),
   description: z.string().trim().min(10).max(10_000),
   evidenceFileUrl: z.string().trim().max(2048).nullable().optional(),
 });
@@ -484,8 +492,12 @@ export type AudienceSegmentCriteria = z.infer<
 export type RevenueProductInput = z.infer<typeof revenueProductInputSchema>;
 export type RegulationInput = z.infer<typeof regulationInputSchema>;
 export type PublicComplaintInput = z.infer<typeof publicComplaintInputSchema>;
-export type ChampionshipStandingInput = z.infer<typeof championshipStandingInputSchema>;
-export type IndustryStatisticInput = z.infer<typeof industryStatisticInputSchema>;
+export type ChampionshipStandingInput = z.infer<
+  typeof championshipStandingInputSchema
+>;
+export type IndustryStatisticInput = z.infer<
+  typeof industryStatisticInputSchema
+>;
 
 export type ApiEnvelope<T> = {
   data: T;

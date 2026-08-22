@@ -1,14 +1,7 @@
-import type { Metadata } from "next";
-import { getPublicSite } from "../../lib/api";
-import { Trophy, Award, Medal, Flag, Star } from "lucide-react";
+"use client";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const site = await getPublicSite();
-  return {
-    title: `Klasemen Kejuaraan & Skill Contest - ${site.organization.name}`,
-    description: "Papan peringkat klasemen kejuaraan teknisi pendingin nasional, kontes keterampilan K3, dan pencapaian kontestan.",
-  };
-}
+import { Flag, Loader2, Medal, Search, Star, Trophy } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface ChampionshipStanding {
   id: string;
@@ -22,21 +15,39 @@ interface ChampionshipStanding {
   achievements: string | null;
 }
 
-async function getChampionships(): Promise<ChampionshipStanding[]> {
-  try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-    const res = await fetch(`${apiUrl}/v1/public/championships`, { next: { revalidate: 60 } });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json.data ?? [];
-  } catch {
-    return [];
-  }
-}
+export default function ChampionshipsPage() {
+  const [standings, setStandings] = useState<ChampionshipStanding[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
-export default async function ChampionshipsPage() {
-  const site = await getPublicSite();
-  const standings = await getChampionships();
+  useEffect(() => {
+    const fetchChampionships = async () => {
+      try {
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+        const res = await fetch(`${apiUrl}/v1/public/championships`);
+        if (!res.ok) throw new Error("Failed to load championships");
+        const json = await res.json();
+        setStandings(json.data ?? []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    void fetchChampionships();
+  }, []);
+
+  const filtered = standings.filter((row) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      row.participantName.toLowerCase().includes(q) ||
+      row.unitName?.toLowerCase().includes(q) ||
+      row.teamName?.toLowerCase().includes(q) ||
+      row.achievements?.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="page-shell">
@@ -49,7 +60,9 @@ export default async function ChampionshipsPage() {
           </div>
           <h1>Klasemen Kejuaraan & Kontes Keterampilan</h1>
           <p className="hero-lead">
-            Papan skor resmi kompetisi teknisi pendingin Indonesia. Penghargaan tinggi atas akurasi diagnosis, waktu kerja vakum, dan kepatuhan K3 keselamatan kerja.
+            Papan skor resmi kompetisi teknisi pendingin Indonesia. Penghargaan
+            tinggi atas akurasi diagnosis, waktu kerja vakum, dan kepatuhan K3
+            keselamatan kerja.
           </p>
         </div>
       </section>
@@ -57,6 +70,20 @@ export default async function ChampionshipsPage() {
       {/* Leaderboard Table Grid */}
       <section className="championships-body">
         <div className="wrap">
+          {/* Search Bar */}
+          <div className="directory-filter-bar mb-6">
+            <div className="search-input-wrap flex-1">
+              <Search size={18} />
+              <input
+                type="text"
+                placeholder="Cari nama kontestan, DPD kontingen, atau kategori prestasi..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="directory-search-input"
+              />
+            </div>
+          </div>
+
           <div className="leaderboard-card">
             <div className="leaderboard-header">
               <div className="header-title">
@@ -66,49 +93,70 @@ export default async function ChampionshipsPage() {
               <span className="season-badge">Musim 2026</span>
             </div>
 
-            <div className="table-responsive">
-              <table className="leaderboard-table">
-                <thead>
-                  <tr>
-                    <th>Peringkat</th>
-                    <th>Nama Kontestan</th>
-                    <th>Tim / Kontingon DPD</th>
-                    <th>Total Poin</th>
-                    <th>Pencapaian Prestasi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings.length > 0 ? (
-                    standings.map((row) => (
-                      <tr key={row.id} className={`rank-row rank-${row.rank}`}>
-                        <td className="rank-cell">
-                          {row.rank === 1 && <Medal className="icon-gold" size={20} />}
-                          {row.rank === 2 && <Medal className="icon-silver" size={20} />}
-                          {row.rank === 3 && <Medal className="icon-bronze" size={20} />}
-                          <span className="rank-num">#{row.rank}</span>
-                        </td>
-                        <td className="participant-cell">
-                          <strong>{row.participantName}</strong>
-                          {row.unitName && <span className="unit-tag">{row.unitName}</span>}
-                        </td>
-                        <td>{row.teamName ?? "-"}</td>
-                        <td className="points-cell">
-                          <Star size={14} className="icon-star" />
-                          <strong>{row.points} Pts</strong>
-                        </td>
-                        <td className="achievement-cell">{row.achievements ?? "-"}</td>
-                      </tr>
-                    ))
-                  ) : (
+            {isLoading ? (
+              <div className="flex justify-center items-center py-20">
+                <Loader2 size={32} className="animate-spin text-muted" />
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="leaderboard-table">
+                  <thead>
                     <tr>
-                      <td colSpan={5} className="empty-td">
-                        Belum ada data klasemen kejuaraan yang dipublikasikan.
-                      </td>
+                      <th>Peringkat</th>
+                      <th>Nama Kontestan</th>
+                      <th>Tim / Kontingon DPD</th>
+                      <th>Total Poin</th>
+                      <th>Pencapaian Prestasi</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filtered.length > 0 ? (
+                      filtered.map((row) => (
+                        <tr
+                          key={row.id}
+                          className={`rank-row rank-${row.rank}`}
+                        >
+                          <td className="rank-cell">
+                            {row.rank === 1 && (
+                              <Medal className="icon-gold" size={20} />
+                            )}
+                            {row.rank === 2 && (
+                              <Medal className="icon-silver" size={20} />
+                            )}
+                            {row.rank === 3 && (
+                              <Medal className="icon-bronze" size={20} />
+                            )}
+                            <span className="rank-num">#{row.rank}</span>
+                          </td>
+                          <td className="participant-cell">
+                            <strong>{row.participantName}</strong>
+                            {row.unitName && (
+                              <span className="unit-tag">{row.unitName}</span>
+                            )}
+                          </td>
+                          <td>{row.teamName ?? "-"}</td>
+                          <td className="points-cell">
+                            <Star size={14} className="icon-star" />
+                            <strong>{row.points} Pts</strong>
+                          </td>
+                          <td className="achievement-cell">
+                            {row.achievements ?? "-"}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="empty-td">
+                          {search
+                            ? "Tidak ada kontestan yang sesuai pencarian."
+                            : "Belum ada data klasemen kejuaraan yang dipublikasikan."}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </section>

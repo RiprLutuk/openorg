@@ -441,3 +441,115 @@ export type CmsMemberCredential = {
   };
   unitName: string | null;
 };
+
+export type CmsRegulation = {
+  id: string;
+  title: string;
+  slug: string;
+  category:
+    | "regulasi_pemerintah"
+    | "se_organisasi"
+    | "ad_art"
+    | "posisi_kebijakan";
+  number: string | null;
+  issuedDate: string | null;
+  fileUrl: string | null;
+  summary: string | null;
+  status: string;
+  downloadCount: number;
+  createdAt: string;
+};
+
+export type CmsComplaint = {
+  id: string;
+  ticketNumber: string;
+  complainantName: string;
+  complainantEmail: string;
+  complainantPhone: string | null;
+  targetType: "member" | "technician" | "lender" | "company";
+  targetIdentifier: string;
+  category: "kode_etik" | "layanan_teknisi" | "penagihan" | "sengketa";
+  description: string;
+  evidenceFileUrl: string | null;
+  status: "new" | "under_review" | "mediated" | "resolved" | "dismissed";
+  responseNotes: string | null;
+  createdAt: string;
+};
+
+export type CmsTechnician = {
+  id: string;
+  name: string;
+  ktaNumber: string;
+  skillLevel: string;
+  province: string;
+  city: string;
+  phone: string | null;
+  workshopName: string | null;
+  rating: string | null;
+  certifiedBnsp: boolean;
+  isAvailable: boolean;
+  createdAt: string;
+};
+
+export type CmsClub = {
+  id: string;
+  clubName: string;
+  codeTkt: string;
+  province: string;
+  category: string;
+  chairName: string | null;
+  activeMembers: number;
+  status: string;
+  createdAt: string;
+};
+
+export type CmsChampionship = {
+  id: string;
+  seasonYear: number;
+  category: string;
+  participantName: string;
+  teamName: string | null;
+  unitName: string | null;
+  points: number;
+  rank: number;
+  achievements: string | null;
+  createdAt: string;
+};
+
+export type CmsWorkingGroup = {
+  id: string;
+  name: string;
+  slug: string;
+  chairName: string | null;
+  category: string;
+  description: string | null;
+  memberCount: number;
+  isActive: boolean;
+  createdAt: string;
+};
+
+export type CmsLender = {
+  id: string;
+  brandName: string;
+  companyName: string;
+  licenseNumber: string;
+  sectorType: string;
+  ojkStatus: string;
+  websiteUrl: string | null;
+  isAfpiMember: boolean;
+  createdAt: string;
+};
+
+export type CmsStatistic = {
+  id: string;
+  metricKey: string;
+  metricLabel: string;
+  metricValue: string;
+  metricUnit: string | null;
+  trendDirection: "up" | "down" | "stable" | null;
+  trendPercentage: string | null;
+  category: string;
+  period: string | null;
+  sortOrder: number;
+  createdAt: string;
+};

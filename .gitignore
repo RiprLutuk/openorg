@@ -10,3 +10,5 @@ apps/api/uploads
 apps/api/.local
 agent/
 .claude/
+__pycache__/
+*.tsbuildinfo

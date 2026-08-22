@@ -32,7 +32,7 @@ export function SectionRenderer({
         <Section
           key={section.id}
           section={section}
-          organizationSlug={organizationSlug}
+          _organizationSlug={organizationSlug}
         />
       ))}
     </>
@@ -41,10 +41,10 @@ export function SectionRenderer({
 
 async function Section({
   section,
-  organizationSlug,
+  _organizationSlug,
 }: {
   section: PageSection;
-  organizationSlug: string;
+  _organizationSlug?: string;
 }) {
   switch (section.type) {
     case "hero":

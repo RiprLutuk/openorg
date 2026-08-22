@@ -1,12 +1,13 @@
-import { BadgeCheck, Search, ShieldCheck } from "lucide-react";
+import { FileCheck2, Lock, Search, ShieldCheck, Zap } from "lucide-react";
 import type { Metadata } from "next";
+import { InteractiveCredentialChecker } from "@/components/interactive-credential-checker";
 import { MembershipVerification } from "@/components/membership-verification";
 import { getSite } from "@/lib/api";
 
 export const metadata: Metadata = {
-  title: "Verifikasi Kredensial & Kartu Anggota",
+  title: "ComplyFlow · Verifikasi Kredensial & Kartu Anggota Digital",
   description:
-    "Layanan verifikasi keabsahan KTA digital, lisensi, dan sertifikat anggota secara transparan.",
+    "Layanan verifikasi keabsahan KTA digital, lisensi profesi, dan sertifikat kompetensi BNSP secara real-time dan anti-pemalsuan.",
 };
 
 type Props = {
@@ -18,60 +19,80 @@ export default async function VerifyPage({ searchParams }: Props) {
   const site = await getSite();
 
   return (
-    <div className="section-space">
-      <div className="wrap">
-        <div className="section-heading text-center">
-          <span className="eyebrow">ComplyFlow · Verifikasi Publik</span>
-          <h2>Verifikasi Keabsahan Kredensial & KTA</h2>
-          <p>
-            Masukkan nomor KTA atau kode kredensial untuk mengecek keaslian
-            status keanggotaan dan sertifikasi di {site.organization.name}.
+    <div className="verify-page-master">
+      {/* 1. Hero Header */}
+      <section className="verify-hero-refined">
+        <div className="wrap">
+          <div className="hero-pill-white">
+            <ShieldCheck size={14} />
+            <span>ComplyFlow · Zero-Trust Validation Engine</span>
+          </div>
+          <h1>Verifikasi Kredensial, KTA & Sertifikasi Resmi</h1>
+          <p className="verify-lead">
+            Audit instan keabsahan kartu tanda anggota (KTA), sertifikat
+            kompetensi BNSP, dan status keaktifan anggota{" "}
+            <strong>{site.organization.name}</strong> secara transparan.
           </p>
         </div>
+      </section>
 
-        <div className="verify-search-box">
-          <form method="GET" action="/verify" className="verify-form">
-            <div className="input-group">
-              <Search size={20} className="search-icon" />
-              <input
-                type="text"
-                name="code"
-                defaultValue={code ?? ""}
-                placeholder="Masukkan Nomor KTA atau Kode Verifikasi..."
-                required
-              />
-            </div>
-            <button type="submit" className="btn-primary">
-              <BadgeCheck size={18} />
-              <span>Verifikasi Now</span>
-            </button>
-          </form>
-        </div>
-
+      {/* 2. Main Verification Interactive Desk or Result */}
+      <div className="wrap verify-content-wrap">
         {code ? (
-          <div className="verify-result-container">
+          <div className="verify-direct-result-panel">
+            <div className="verify-direct-header">
+              <div>
+                <span className="eyebrow">Hasil Audit Registri</span>
+                <h2>Data Kredensial Terverifikasi</h2>
+              </div>
+              <a href="/verify" className="btn-search-another">
+                <Search size={15} />
+                <span>Cari Kredensial Lain</span>
+              </a>
+            </div>
             <MembershipVerification code={code} />
           </div>
         ) : (
-          <div className="verify-info-grid">
-            <div className="verify-info-card">
-              <ShieldCheck size={28} className="info-icon" />
-              <h3>Terpercaya & Real-Time</h3>
+          <InteractiveCredentialChecker orgName={site.organization.name} />
+        )}
+
+        {/* 3. Assurance & Security Pillars */}
+        <section className="verify-assurance-section">
+          <div className="assurance-grid">
+            <div className="assurance-card">
+              <div className="assurance-icon-box blue">
+                <Zap size={22} />
+              </div>
+              <h3>Sinkronisasi Database Real-Time</h3>
               <p>
-                Data terhubung langsung dengan database registri resmi{" "}
-                {site.organization.name}.
+                Status keaktifan anggota dan SKP terhubung langsung dengan buku
+                besar digital pusat {site.organization.name}.
               </p>
             </div>
-            <div className="verify-info-card">
-              <BadgeCheck size={28} className="info-icon" />
-              <h3>Mencegah Pemalsuan</h3>
+
+            <div className="assurance-card">
+              <div className="assurance-icon-box green">
+                <FileCheck2 size={22} />
+              </div>
+              <h3>Standar Uji Kompetensi BNSP</h3>
               <p>
-                Setiap KTA digital dan sertifikat memiliki kode unik dan versi
-                yang dapat diaudit publik.
+                Membuktikan legalitas sertifikasi profesi teknisi dan pengurus
+                dengan standar mutu kompetensi nasional.
+              </p>
+            </div>
+
+            <div className="assurance-card">
+              <div className="assurance-icon-box purple">
+                <Lock size={22} />
+              </div>
+              <h3>QR Code Anti-Pemalsuan</h3>
+              <p>
+                Setiap KTA digital dilengkapi token kriptografi unik yang tidak
+                dapat diduplikasi atau dipalsukan.
               </p>
             </div>
           </div>
-        )}
+        </section>
       </div>
     </div>
   );

@@ -51,7 +51,8 @@ export function MembershipRegistration({
       toast.success("Pendaftaran anggota berhasil dikirimkan ke Sekretariat!");
       setStage("done");
     } catch (reason) {
-      const msg = reason instanceof Error ? reason.message : "Pendaftaran gagal.";
+      const msg =
+        reason instanceof Error ? reason.message : "Pendaftaran gagal.";
       setError(msg);
       toast.error(`Pendaftaran gagal: ${msg}`);
     } finally {

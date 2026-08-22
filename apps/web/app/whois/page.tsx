@@ -1,14 +1,7 @@
-import type { Metadata } from "next";
-import { getPublicSite } from "../../lib/api";
-import { Globe2, Search, Server, Activity, Cpu, ShieldCheck } from "lucide-react";
+"use client";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const site = await getPublicSite();
-  return {
-    title: `Pencarian WHOIS IP/ASN & Traffic IIX - ${site.organization.name}`,
-    description: "Layanan lookup WHOIS alokasi IP address, AS Number (ASN), dan statistik traffic peering IIX nasional.",
-  };
-}
+import { Globe2, Loader2, Search, Server } from "lucide-react";
+import { type FormEvent, useEffect, useState } from "react";
 
 interface WhoisData {
   query: string;
@@ -21,21 +14,41 @@ interface WhoisData {
   updatedAt: string;
 }
 
-async function getWhois(): Promise<WhoisData | null> {
-  try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-    const res = await fetch(`${apiUrl}/v1/public/whois`, { next: { revalidate: 30 } });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data ?? null;
-  } catch {
-    return null;
-  }
-}
+export default function WhoisPage() {
+  const [query, setQuery] = useState("AS134371");
+  const [isLoading, setIsLoading] = useState(false);
+  const [whoisInfo, setWhoisInfo] = useState<WhoisData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-export default async function WhoisPage() {
-  const site = await getPublicSite();
-  const whoisInfo = await getWhois();
+  const fetchWhois = async (searchQuery: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+      const res = await fetch(
+        `${apiUrl}/v1/public/whois?query=${encodeURIComponent(searchQuery)}`,
+      );
+      if (!res.ok)
+        throw new Error("Lookup gagal atau entitas tidak ditemukan.");
+      const json = await res.json();
+      setWhoisInfo(json.data ?? null);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Gagal memuat data WHOIS.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void fetchWhois("AS134371");
+  }, []);
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      void fetchWhois(query.trim());
+    }
+  };
 
   return (
     <div className="page-shell">
@@ -48,7 +61,9 @@ export default async function WhoisPage() {
           </div>
           <h1>Pencarian WHOIS IP/ASN & Peering IIX</h1>
           <p className="hero-lead">
-            Mesin query publik untuk memeriksa alokasi blok IPv4/IPv6, Autonomous System Number (ASN), serta pemantauan traffic internet exchange nasional.
+            Mesin query publik untuk memeriksa alokasi blok IPv4/IPv6,
+            Autonomous System Number (ASN), serta pemantauan traffic internet
+            exchange nasional.
           </p>
         </div>
       </section>
@@ -58,22 +73,37 @@ export default async function WhoisPage() {
         <div className="wrap">
           <div className="whois-card-container">
             {/* Search Input Box */}
-            <div className="whois-search-box">
+            <form onSubmit={handleSearch} className="whois-search-box">
               <div className="search-input-wrap">
                 <Search size={18} />
                 <input
                   type="text"
                   placeholder="Masukkan IP Address (misal 103.28.144.1) atau Nomor ASN (AS134371)..."
-                  defaultValue="AS134371"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                   className="whois-input"
                 />
               </div>
-              <button type="button" className="btn-search-whois">
-                Cek WHOIS
+              <button
+                type="submit"
+                className="btn-search-whois"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  "Cek WHOIS"
+                )}
               </button>
-            </div>
+            </form>
 
-            {/* Simulated WHOIS Output */}
+            {error && (
+              <div className="track-error-box mt-4">
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* WHOIS Output */}
             {whoisInfo && (
               <div className="whois-output-card">
                 <div className="output-header">
@@ -82,12 +112,16 @@ export default async function WhoisPage() {
                 </div>
                 <div className="output-grid">
                   <div className="output-item">
-                    <span className="item-label">Autonomous System Number (ASN)</span>
+                    <span className="item-label">
+                      Autonomous System Number (ASN)
+                    </span>
                     <strong className="item-value">{whoisInfo.asn}</strong>
                   </div>
                   <div className="output-item">
                     <span className="item-label">Organisasi Terdaftar</span>
-                    <strong className="item-value">{whoisInfo.organization}</strong>
+                    <strong className="item-value">
+                      {whoisInfo.organization}
+                    </strong>
                   </div>
                   <div className="output-item">
                     <span className="item-label">Rentang Blok IP (CIDR)</span>
@@ -99,11 +133,15 @@ export default async function WhoisPage() {
                   </div>
                   <div className="output-item">
                     <span className="item-label">Peak Peering Traffic IIX</span>
-                    <strong className="item-value traffic">{whoisInfo.iixTrafficPeakGbps}</strong>
+                    <strong className="item-value traffic">
+                      {whoisInfo.iixTrafficPeakGbps}
+                    </strong>
                   </div>
                   <div className="output-item">
                     <span className="item-label">Status Koneksi Node</span>
-                    <strong className="item-value">{whoisInfo.peeringStatus}</strong>
+                    <strong className="item-value">
+                      {whoisInfo.peeringStatus}
+                    </strong>
                   </div>
                 </div>
               </div>

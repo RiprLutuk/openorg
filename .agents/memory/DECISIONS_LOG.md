@@ -35,3 +35,90 @@ This log records major technical, architectural, and UI/UX design decisions made
   - **Dynamic Public Header Navigation**: Added Header Navigation Menu manager in CMS Settings (`#settings`) to dynamically control header links on the Next.js public site in real-time.
   - **Font Preloading**: Added Google Fonts preloading (`preconnect` & stylesheet links in `<head>`) to eliminate FOUT/loading glitches on page reload.
   - **Workspace Popover Ergonomics**: Added interactive floating popover menu to sidebar workspace switcher `APTI Indonesia ⌄` and fixed flex-shrink badge distortion.
+
+---
+
+---
+
+### [2026-08-22] Homepage Streamlining & Comprehensive Subpage Styling Sweep
+- **Decision**: Streamlined the public homepage (`apps/web/app/page.tsx`) by removing heavy, redundant simulator desks and matrices, delegating them to their dedicated feature pages, and sweeping all public subpages for consistent UI/UX styling.
+- **Implementation**:
+  - **Homepage Streamlined**: Reduced homepage cognitive load into 5 clean, high-impact sections: (1) Interactive Hero with 3D KTA Card, (2) 4-Pillar Core Services Bento Grid, (3) Agenda & Pelatihan (3 compact cards), (4) Warta & Publikasi (3 refined news cards), (5) Clean Call-to-Action Banner.
+  - **Dedicated `/verify` ComplyFlow Portal**: Integrated the full `InteractiveCredentialChecker` simulator desk alongside live direct search, realistic test chips (`KTA-2026-08892`, `BNSP-HVAC-9081`), and 3 assurance security pillars.
+  - **Dedicated `/structure` GovernOS Portal**: Integrated `InteractiveStructurePreview` for live department filtering (DPP Harian, Dewan Pengawas, Mahkamah Etik, Korwil) alongside the complete organizational unit hierarchy tree.
+  - **Dedicated `/events` and `/stories` Archives**: Modernized event cards with custom date badges, SKP credit chips, registration status indicators, and sleek story cards with category badges and reading links.
+  - **Registration & Member Portals (`/join`, `/member/login`, `/member`)**: Refined Indonesian microcopy, multi-step application journey, and digital KTA card previews.
+  - **Domain Subpages (`/technicians`, `/regulations`, `/clubs`, `/lenders`, `/championships`, `/working-groups`, `/whois`, `/complaints`, `/statistics`)**: Verified all hero headers, badge chips, empty states, and responsive layouts for full visual consistency.
+
+---
+
+---
+
+### [2026-08-22] Monochromatic Swiss Architecture & Restrained Tactile Micro-Interactions
+- **Decision**: Transformed the frontend design system from a multi-color/tacky "AI prototype" aesthetic (rainbow colored icon boxes, 3D jumping hover effects, glowing neon gradients) into an ultra-clean, monochromatic, executive Swiss/Linear-grade design standard.
+- **Implementation**:
+  - **Eliminated Rainbow Color Noise**: Replaced disjointed blue/green/purple/amber icon boxes and badges across the Hero, Bento Grid, and Metric widgets with a unified, high-contrast monochrome slate palette (`#f8fafc` background, `#eaecf0` border, `#0f172a` icon/ink text).
+  - **Eliminated "AI-Jumping" Hover Effects**: Removed `rotate3d(1, -1, 0, 4deg)` and `translateY(-4px)` jumping cards. Replaced with calm, high-precision 1px border refinements (`border-color: #cbd5e1`) and soft ambient shadows (`box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.05)`).
+  - **Executive Matte Titanium KTA Card**: Stripped animated holographic rainbow sheens in favor of a solid, deep slate titanium finish (`#0f172a`), razor-sharp gold micro-chip, and clean cryptographic QR audit badge.
+  - **Restrained Typography & Badges**: Cleaned live pulse pills into a minimalist neutral charcoal badge with a deep sapphire pulse dot, establishing a disciplined, world-class aesthetic that feels like a top-tier European/Silicon Valley enterprise product.
+
+---
+
+### [2026-08-22] CMS Appearance Studio & Public Site Full Real-Time Sync
+- **Decision**: Overhauled the CMS Appearance Studio (`http://localhost:5173/#appearance`) and the Next.js Public Site (`apps/web`) to ensure 100% full bidirectional theme synchronization (colors, typography, border radius) backed by PostgreSQL database persistence.
+- **Implementation**:
+  - **Database & API Schema (`apps/api`)**: Added `theme` jsonb column to `site_settings` table, created and executed Drizzle migration (`0004_bent_the_fallen.sql`), and updated `GET /v1/admin/organization`, `PATCH /v1/admin/organization`, and `GET /v1/public/site` to resolve and return full theme tokens (`colors`, `radius`, `fontHeading`, `fontBody`).
+  - **CMS Appearance Studio (`apps/cms`)**:
+    - Replaced outdated presets with 5 curated executive palettes (*APTI Titanium Slate*, *APTI Ocean Navy*, *Emerald Competency*, *Midnight Royal*, *Carbon Monochrome*).
+    - Added comprehensive color pickers (Primary, Secondary, Accent, Surface, Foreground) with hex inputs.
+    - Added Heading font selector (`Manrope`, `Inter`, `Plus Jakarta Sans`, `DM Sans`, `Outfit`, `Roboto`), Body font selector (`Inter`, `DM Sans`, `Plus Jakarta Sans`, `Outfit`, `Roboto`), and Corner radius style selector (`none`, `small`, `medium`, `large`, `pill`).
+    - Added interactive live browser mockup simulator (`https://apti.or.id`) demonstrating real-time WYSIWYG preview of public header, hero banner, buttons, and bento metric cards.
+  - **Public Site Sync (`apps/web`)**:
+    - `RootLayout` (`apps/web/app/layout.tsx`): Injected dynamic CSS custom properties (`--color-primary`, `--color-secondary`, `--color-accent`, `--color-surface`, `--color-foreground`, `--font-heading`, `--font-body`, `--radius`, `--radius-sm`, `--radius-md`, `--radius-lg`) into `<body>`.
+    - `globals.css` (`apps/web/app/globals.css`): Connected headings (`h1-h6`, `.brand`) and body typography to `--font-heading` and `--font-body`, ensuring full dynamic theme propagation without glitches or layout shifts.
+
+---
+
+### [2026-08-22] Comprehensive Mobile-First Architecture & Thumb-Zone Polish
+- **Decision**: Refactored the entire frontend design and layout architecture to be **100% Mobile-First**, prioritizing smartphone usability, one-thumb ergonomics, tactile interaction targets, and zero horizontal overflow.
+- **Implementation**:
+  - **Clean Mobile Viewport (Removed Bottom Floating Dock)**: Removed the persistent bottom floating bar to avoid obscuring cards/content, relying on the fluid top header hamburger navigation and standard mobile-first page flow.
+  - **Concise Bento CTA Microcopy**: Shortened verbose card actions across `InteractiveBentoServices` (`Verifikasi KTA`, `Cari Teknisi →`, `Daftar Anggota`, `Portal Anggota →`, `Jadwal Agenda`, `Struktur Lengkap`) to ensure punchy, one-line card footers with zero awkward line breaks on mobile viewports.
+
+---
+
+### [2026-08-22] UI/UX Pro Max Scannability & Whitespace Overhaul
+- **Decision**: Eliminated cognitive overload, wall-of-text fatigue, and cramped vertical rhythm across the public website following Swiss design and modern scannability standards.
+- **Implementation**:
+  - **Hero Section**: Shortened hero sub-headline to a single punchy value prop sentence (`Pusat layanan keanggotaan mandiri, penerbitan KTA digital ber-QR, kredit kompetensi SKP, dan audit kredensial publik instan`), constrained text line measure to optimal `480px`, and refined metrics counters.
+  - **Bento 4-Pillar Grid**: Refactored card headings, paragraphs, and eyebrows to 1-2 line crisp microcopy, allowing visual status badges (`● AKTIF`, `+4 SKP`, `BNSP`) and interactive previews to lead.
+  - **Section Headings & CTA Banner**: Replaced redundant paragraphs across Agenda (`Pelatihan & Sertifikasi`), Warta (`Publikasi & Berita`), and the Bottom CTA Banner with high-impact titles and clean button pairs (`[ Daftar ]` & `[ Masuk ]`).
+  - **Spatial Rhythm**: Expanded vertical breathing room (`clamp(72px, 8vw, 108px)`), balanced typography line-heights (`1.6`), and reduced cognitive friction for fast 3-second scanning.
+  - **Interactive Eyebrow CTA Links**: Converted static section eyebrows on the home page into interactive action links (`Lihat Semua Agenda →` and `Lihat Semua Berita →`) and dropped redundant secondary buttons (`btn-secondary-action`) from section headings to preserve an uncluttered, high-contrast visual hierarchy.
+
+---
+
+### [2026-08-22] Full Dynamic CMS & Interactive Features Across All Routes (/goal Complete)
+- **Decision**: Completed end-to-end integration and dynamic management for all routes in the system, ensuring no route is empty or static, and providing complete administrative CRUD in the CMS alongside live interactive client features on the public site.
+- **Implementation**:
+  - **Admin API Endpoints (`apps/api`)**: Added complete CRUD endpoints in `/v1/admin/*` for `technicians`, `clubs`, `working-groups`, and `lenders`, alongside existing admin endpoints for `regulations`, `complaints`, `championships`, and `statistics`.
+  - **Dynamic Seed Data (`apps/api/src/db/seed.ts`)**: Populated dynamic CMS sections for custom pages (`organization-profile`, `vision-mission`) and ensured rich initial datasets for all 8 auxiliary registries.
+  - **CMS Management Screens (`apps/cms/src/App.tsx`)**: Created 8 dedicated management tabs under **Services & Registry**:
+    1. *Regulations & Legal Repository*: Add, search, delete policy documents and AD/ART.
+    2. *Public Complaints & Ethics Desk*: Triage consumer complaints, update investigation status, and record review notes.
+    3. *Verified Technicians Directory*: Register BNSP technicians, assign KTA numbers, and set ratings/workshops.
+    4. *Registered Clubs (TKT)*: Register and manage verified clubs and affiliate bodies.
+    5. *Championships & Skill Contest Standings*: Manage contestants, points, rankings, and awards.
+    6. *Working Groups (Pokja)*: Manage taskforces and committees.
+    7. *Lenders & Financial Partners Registry*: Manage fintech platforms and OJK licensing data.
+    8. *Industry Statistics & Indicators*: Manage quarterly performance indicators and trend metrics.
+  - **Interactive Next.js Frontend (`apps/web`)**:
+    1. `/complaints`: Live complaint form submission generating real ticket numbers (`CMP-XXXX-YYY`) and instant ticket status tracker with status badges and secretariat notes.
+    2. `/whois`: Live IP/ASN search querying `/v1/public/whois`.
+    3. `/technicians`: Real-time instant search by name, KTA, city, or workshop with province filter dropdown.
+    4. `/regulations`: Interactive category filter pills (*Semua*, *AD/ART*, *Surat Edaran*, *Regulasi Pemerintah*, *Naskah Kebijakan*) with live keyword search.
+    5. `/clubs`: Interactive live search and province filter.
+    6. `/lenders`: Real-time platform search and OJK license lookup.
+    7. `/championships`: Dynamic leaderboard with search and medal indicators.
+    8. `/[slug]`: Dynamic CMS page renderer supporting custom pages.
+  - **Empirical Verification**: Ran full monorepo build (`bun run --filter '*' build`), typecheck (`bun run typecheck`), linting (`bun run lint`), and unit test suite (`bun test` with 45/45 passing tests).

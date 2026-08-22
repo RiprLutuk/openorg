@@ -10,6 +10,7 @@ import {
   members,
   membershipCards,
   organizationUnits,
+  pages,
   permissions,
   positionAssignments,
   positions,
@@ -25,18 +26,17 @@ import {
   workingGroups,
 } from "./schema";
 
-const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@demo.openorg";
-const adminPassword =
-  process.env.SEED_ADMIN_PASSWORD ??
-  (process.env.NODE_ENV === "production"
-    ? (() => {
-        throw new Error("SEED_ADMIN_PASSWORD is required in production.");
-      })()
-    : "OpenOrg!2026Demo");
 const now = new Date();
 
 async function seed() {
-  const passwordHash = await hash(adminPassword, {
+  const demoHash = await hash("OpenOrg!2026Demo", {
+    algorithm: 2,
+    memoryCost: 19_456,
+    timeCost: 3,
+    parallelism: 1,
+    outputLen: 32,
+  });
+  const defaultHash = await hash("password123", {
     algorithm: 2,
     memoryCost: 19_456,
     timeCost: 3,
@@ -58,6 +58,7 @@ async function seed() {
     await tx.delete(organizationUnits);
     await tx.delete(events);
     await tx.delete(contents);
+    await tx.delete(pages);
     await tx.delete(regulations);
     await tx.delete(publicComplaints);
     await tx.delete(championshipStandings);
@@ -79,9 +80,22 @@ async function seed() {
         "Wadah resmi profesionalisme perusahaan pendingin dan teknisi refrigerasi tata udara (HVAC/R) Indonesia. Terintegrasi dengan registri KTA digital resmi, sertifikasi kompetensi BNSP, struktur kepengurusan DPP, DPD & Korwil Nusantara, serta pelatihan teknis terstandarisasi.",
       email: "sekretariat@apti.or.id",
       phone: "+62 812-9000-1980",
-      address: "Gedung APTI Center, Jl. Jend. Sudirman No. 88, Jakarta Pusat 10220",
-      primaryColor: "#0b3b60",
-      secondaryColor: "#d97706",
+      address:
+        "Gedung APTI Center, Jl. Jend. Sudirman No. 88, Jakarta Pusat 10220",
+      primaryColor: "#0284c7",
+      secondaryColor: "#090d16",
+      theme: {
+        colors: {
+          primary: "#0284c7",
+          secondary: "#090d16",
+          accent: "#38bdf8",
+          surface: "#f8fafc",
+          foreground: "#0f172a",
+        },
+        radius: "large",
+        fontHeading: "Manrope",
+        fontBody: "Inter",
+      },
       quickContact: {
         channel: "message",
         label: "WhatsApp Sekretariat APTI",
@@ -95,9 +109,21 @@ async function seed() {
           label: "Profil",
           href: "/organization-profile",
           children: [
-            { id: "org-profile", label: "Profil & Sejarah", href: "/organization-profile" },
-            { id: "vision-mission", label: "Visi & Misi", href: "/vision-mission" },
-            { id: "structure", label: "Struktur Pengurus (DPP/DPD)", href: "/structure" },
+            {
+              id: "org-profile",
+              label: "Profil & Sejarah",
+              href: "/organization-profile",
+            },
+            {
+              id: "vision-mission",
+              label: "Visi & Misi",
+              href: "/vision-mission",
+            },
+            {
+              id: "structure",
+              label: "Struktur Pengurus (DPP/DPD)",
+              href: "/structure",
+            },
             { id: "ad-art", label: "AD/ART & Kode Etik", href: "/regulations" },
           ],
         },
@@ -106,12 +132,32 @@ async function seed() {
           label: "Keanggotaan",
           href: "/join",
           children: [
-            { id: "tech-locator", label: "Cari Teknisi AC Terverifikasi", href: "/technicians" },
-            { id: "lender-verifier", label: "Cek Platform Fintech Berizin", href: "/lenders" },
-            { id: "clubs-directory", label: "Direktori Klub & TKT", href: "/clubs" },
-            { id: "verify-kta", label: "Verifikasi KTA & Kredensial", href: "/verify" },
+            {
+              id: "tech-locator",
+              label: "Cari Teknisi AC Terverifikasi",
+              href: "/technicians",
+            },
+            {
+              id: "lender-verifier",
+              label: "Cek Platform Fintech Berizin",
+              href: "/lenders",
+            },
+            {
+              id: "clubs-directory",
+              label: "Direktori Klub & TKT",
+              href: "/clubs",
+            },
+            {
+              id: "verify-kta",
+              label: "Verifikasi KTA & Kredensial",
+              href: "/verify",
+            },
             { id: "join-terms", label: "Syarat & Pendaftaran", href: "/join" },
-            { id: "member-portal", label: "Portal Anggota", href: "/member/login" },
+            {
+              id: "member-portal",
+              label: "Portal Anggota",
+              href: "/member/login",
+            },
           ],
         },
         {
@@ -119,13 +165,41 @@ async function seed() {
           label: "Layanan & Data",
           href: "/regulations",
           children: [
-            { id: "working-groups", label: "Kelompok Kerja (Pokja) Advokasi", href: "/working-groups" },
-            { id: "regulations-list", label: "Regulasi & Policy Papers", href: "/regulations" },
-            { id: "industry-stats", label: "Statistik Industri Sektor", href: "/statistics" },
-            { id: "whois-lookup", label: "Lookup WHOIS IP/ASN & IIX", href: "/whois" },
-            { id: "public-complaints", label: "Pengaduan Etik JENDELA", href: "/complaints" },
-            { id: "events-list", label: "Agenda Workshop & Sertifikasi", href: "/events" },
-            { id: "championships", label: "Kejuaraan & Skill Contest", href: "/championships" },
+            {
+              id: "working-groups",
+              label: "Kelompok Kerja (Pokja) Advokasi",
+              href: "/working-groups",
+            },
+            {
+              id: "regulations-list",
+              label: "Regulasi & Policy Papers",
+              href: "/regulations",
+            },
+            {
+              id: "industry-stats",
+              label: "Statistik Industri Sektor",
+              href: "/statistics",
+            },
+            {
+              id: "whois-lookup",
+              label: "Lookup WHOIS IP/ASN & IIX",
+              href: "/whois",
+            },
+            {
+              id: "public-complaints",
+              label: "Pengaduan Etik JENDELA",
+              href: "/complaints",
+            },
+            {
+              id: "events-list",
+              label: "Agenda Workshop & Sertifikasi",
+              href: "/events",
+            },
+            {
+              id: "championships",
+              label: "Kejuaraan & Skill Contest",
+              href: "/championships",
+            },
           ],
         },
         { id: "stories", label: "Berita", href: "/stories", children: [] },
@@ -142,18 +216,36 @@ async function seed() {
       },
     });
 
-    // 2. Admin User
-    const [owner] = await tx
+    // 2. Admin Users
+    const adminUsers = await tx
       .insert(users)
-      .values({
-        name: "Sekretariat DPP APTI Indonesia",
-        email: adminEmail.toLowerCase(),
-        passwordHash,
-        status: "active",
-        emailVerifiedAt: now,
-      })
+      .values([
+        {
+          name: "Administrator Organisasi",
+          email: "admin@organization.org",
+          passwordHash: defaultHash,
+          status: "active",
+          emailVerifiedAt: now,
+        },
+        {
+          name: "Sekretariat DPP APTI Indonesia",
+          email: "admin@demo.openorg",
+          passwordHash: demoHash,
+          status: "active",
+          emailVerifiedAt: now,
+        },
+        {
+          name: "Pengurus Pusat APTI",
+          email: "sekretariat@apti.or.id",
+          passwordHash: defaultHash,
+          status: "active",
+          emailVerifiedAt: now,
+        },
+      ])
       .returning();
-    if (!owner) throw new Error("Could not create admin user");
+
+    if (!adminUsers.length) throw new Error("Could not create admin users");
+    const owner = adminUsers[0]!;
 
     const [ownerRole] = await tx
       .insert(roles)
@@ -202,9 +294,12 @@ async function seed() {
       })),
     );
 
-    await tx
-      .insert(userRoles)
-      .values({ userId: owner.id, roleId: ownerRole.id });
+    await tx.insert(userRoles).values(
+      adminUsers.map((u) => ({
+        userId: u.id,
+        roleId: ownerRole.id,
+      })),
+    );
 
     // 3. Organization Units (DPP, DPD & Korwil)
     const [dppUnit, dpdJabar, dpdJatim, dpdDki, dpcBdg] = await tx
@@ -215,7 +310,8 @@ async function seed() {
           slug: "dpp",
           code: "DPP",
           type: "national",
-          description: "Pengurus Pusat Asosiasi Pengusaha & Teknisi Pendingin Indonesia",
+          description:
+            "Pengurus Pusat Asosiasi Pengusaha & Teknisi Pendingin Indonesia",
           sortOrder: 1,
         },
         {
@@ -278,25 +374,29 @@ async function seed() {
           {
             unitId: dppUnit.id,
             title: "Ketua Umum DPP APTI",
-            description: "Memimpin kebijakan strategis asosiasi tingkat nasional",
+            description:
+              "Memimpin kebijakan strategis asosiasi tingkat nasional",
             sortOrder: 1,
           },
           {
             unitId: dppUnit.id,
             title: "Sekretaris Jenderal DPP",
-            description: "Mengkoordinasikan sekretariat dan operasional organisasi nasional",
+            description:
+              "Mengkoordinasikan sekretariat dan operasional organisasi nasional",
             sortOrder: 2,
           },
           {
             unitId: dpdJabar.id,
             title: "Ketua DPD APTI Jawa Barat",
-            description: "Memimpin jaringan teknisi dan kegiatan wilayah Jawa Barat",
+            description:
+              "Memimpin jaringan teknisi dan kegiatan wilayah Jawa Barat",
             sortOrder: 1,
           },
           {
             unitId: dpdJatim.id,
             title: "Ketua DPD APTI Jawa Timur",
-            description: "Memimpin jaringan teknisi dan kegiatan wilayah Jawa Timur",
+            description:
+              "Memimpin jaringan teknisi dan kegiatan wilayah Jawa Timur",
             sortOrder: 1,
           },
         ])
@@ -426,7 +526,8 @@ async function seed() {
         capacity: 100,
       },
       {
-        title: "Workshop Penanganan Flammable Refrigerant (R290 & R32) dan K3 Kerja",
+        title:
+          "Workshop Penanganan Flammable Refrigerant (R290 & R32) dan K3 Kerja",
         slug: "workshop-flammable-refrigerant-r290-r32",
         description:
           "Bimbingan teknis penggunaan freon ramah lingkungan R32 dan Hydrocarbon R290 dengan standar keselamatan K3 tinggi untuk mencegah risiko kecelakaan kerja.",
@@ -454,20 +555,24 @@ async function seed() {
     // 5. Berita & Artikel Teknis HVAC/R
     await tx.insert(contents).values([
       {
-        title: "APTI Indonesia Resmikan Program Target 10.000 Teknisi AC Bersertifikat BNSP",
+        title:
+          "APTI Indonesia Resmikan Program Target 10.000 Teknisi AC Bersertifikat BNSP",
         slug: "apti-indonesia-target-10000-teknisi-bnsp",
         type: "post",
-        excerpt: "APTI Indonesia memperkuat sinergi dengan LSP dan Kementerian Ketenagakerjaan untuk mensertifikasi 10.000 teknisi pendingin di seluruh Indonesia.",
+        excerpt:
+          "APTI Indonesia memperkuat sinergi dengan LSP dan Kementerian Ketenagakerjaan untuk mensertifikasi 10.000 teknisi pendingin di seluruh Indonesia.",
         body: `<p>Asosiasi Pengusaha & Teknisi Pendingin Indonesia (APTI) secara resmi meluncurkan program akselerasi sertifikasi kompetensi teknisi AC nasional. Program ini bertujuan meningkatkan taraf hidup dan profesionalisme teknisi Indonesia agar mampu bersaing di era pasar global.</p><p>Ketua Umum DPP APTI menegaskan bahwa setiap anggota APTI kini dilengkapi KTA Digital terverifikasi QR Code yang terhubung dengan data sertifikasi BNSP resmi.</p>`,
         status: "published",
         publishedAt: now,
         authorId: owner.id,
       },
       {
-        title: "Standard Operating Procedure (SOP) Vacuuming & Recovery Freon R32 yang Aman",
+        title:
+          "Standard Operating Procedure (SOP) Vacuuming & Recovery Freon R32 yang Aman",
         slug: "sop-vacuuming-recovery-freon-r32",
         type: "post",
-        excerpt: "Panduan praktis teknisi APTI dalam melakukan proses vakum dan recovery bahan pendingin R32 tanpa merusak lapisan ozon.",
+        excerpt:
+          "Panduan praktis teknisi APTI dalam melakukan proses vakum dan recovery bahan pendingin R32 tanpa merusak lapisan ozon.",
         body: `<p>Penggunaan refrigerant R32 memerlukan prosedur khusus vakum minimal 15 menit menggunakan pompa vakum dua tahap (two-stage vacuum pump). Hal ini penting untuk memastikan tidak ada uap air maupun udara terjebak di dalam sistem perpipaan tembaga.</p>`,
         status: "published",
         publishedAt: now,
@@ -478,46 +583,58 @@ async function seed() {
     // 6. Regulasi, AD/ART & Surat Edaran (APINDO, APPI, APJII, AFPI, ASISI)
     await tx.insert(regulations).values([
       {
-        title: "Anggaran Dasar & Anggaran Rumah Tangga (AD/ART) APTI Indonesia 2026",
+        title:
+          "Anggaran Dasar & Anggaran Rumah Tangga (AD/ART) APTI Indonesia 2026",
         slug: "ad-art-apti-indonesia-2026",
         category: "ad_art",
         number: "001/TAP-MUNAS/APTI/2026",
         issuedDate: new Date("2026-01-15"),
-        summary: "Landasan hukum, asas, tujuan, hak & kewajiban anggota, serta struktur kepengurusan DPP, DPD, dan Korwil APTI Indonesia.",
-        fileUrl: "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/sample-ad-art.pdf",
+        summary:
+          "Landasan hukum, asas, tujuan, hak & kewajiban anggota, serta struktur kepengurusan DPP, DPD, dan Korwil APTI Indonesia.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/sample-ad-art.pdf",
         downloadCount: 1420,
         status: "published",
       },
       {
-        title: "Peraturan Menteri LHK No. 73 Tahun 2024 tentang Pengolahan & Pengurangan Bahan Perusak Ozon (BPO)",
+        title:
+          "Peraturan Menteri LHK No. 73 Tahun 2024 tentang Pengolahan & Pengurangan Bahan Perusak Ozon (BPO)",
         slug: "permen-lhk-73-2024-pengurangan-bpo",
         category: "regulasi_pemerintah",
         number: "Permen LHK No. 73/2024",
         issuedDate: new Date("2024-11-10"),
-        summary: "Regulasi wajib uji kompetensi dan sertifikasi BNSP bagi setiap teknisi HVAC/R di Indonesia guna mendukung pemulihan lapisan ozon.",
-        fileUrl: "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/permen-lhk-73-2024.pdf",
+        summary:
+          "Regulasi wajib uji kompetensi dan sertifikasi BNSP bagi setiap teknisi HVAC/R di Indonesia guna mendukung pemulihan lapisan ozon.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/permen-lhk-73-2024.pdf",
         downloadCount: 890,
         status: "published",
       },
       {
-        title: "Surat Edaran DPP APTI: Standar Biaya Jasa Servis & Keselamatan Kerja K3 Teknisi",
+        title:
+          "Surat Edaran DPP APTI: Standar Biaya Jasa Servis & Keselamatan Kerja K3 Teknisi",
         slug: "se-dpp-apti-standar-biaya-servis-k3",
         category: "se_organisasi",
         number: "SE/012/DPP-APTI/II/2026",
         issuedDate: new Date("2026-02-01"),
-        summary: "Pedoman acuan honorarium standar minimum perbaikan AC Split, Central, dan perlengkapan APD wajib K3 saat bertugas.",
-        fileUrl: "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/se-standar-biaya-k3.pdf",
+        summary:
+          "Pedoman acuan honorarium standar minimum perbaikan AC Split, Central, dan perlengkapan APD wajib K3 saat bertugas.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/se-standar-biaya-k3.pdf",
         downloadCount: 2310,
         status: "published",
       },
       {
-        title: "Naskah Kebijakan (Policy Paper): Insentif Pajak Produk HVAC Ramah Lingkungan R290",
+        title:
+          "Naskah Kebijakan (Policy Paper): Insentif Pajak Produk HVAC Ramah Lingkungan R290",
         slug: "policy-paper-insentif-pajak-hvac-r290",
         category: "posisi_kebijakan",
         number: "PP/004/ADVOKASI-APTI/2026",
         issuedDate: new Date("2026-02-18"),
-        summary: "Rekomendasi resmi APTI kepada Kementerian Keuangan & Kemenperin untuk pembebasan bea masuk suku cadang AC ramah lingkungan.",
-        fileUrl: "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/policy-paper-r290.pdf",
+        summary:
+          "Rekomendasi resmi APTI kepada Kementerian Keuangan & Kemenperin untuk pembebasan bea masuk suku cadang AC ramah lingkungan.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/policy-paper-r290.pdf",
         downloadCount: 450,
         status: "published",
       },
@@ -533,9 +650,11 @@ async function seed() {
         targetType: "technician",
         targetIdentifier: "Budi Kurniawan (APTI-2026-0004)",
         category: "layanan_teknisi",
-        description: "Pengaduan pengerjaan cuci AC tidak dingin di area Kelapa Gading dan tidak memberikan garansi sesuai komitmen KTA APTI.",
+        description:
+          "Pengaduan pengerjaan cuci AC tidak dingin di area Kelapa Gading dan tidak memberikan garansi sesuai komitmen KTA APTI.",
         status: "under_review",
-        responseNotes: "Sekretariat DPD DKI Jakarta telah menghubungi pihak teknisi untuk memverifikasi garansi pengerjaan ulang.",
+        responseNotes:
+          "Sekretariat DPD DKI Jakarta telah menghubungi pihak teknisi untuk memverifikasi garansi pengerjaan ulang.",
       },
       {
         ticketNumber: "CMP-2026-0094",
@@ -545,9 +664,11 @@ async function seed() {
         targetType: "member",
         targetIdentifier: "PT Cold Chain Indonesia",
         category: "kode_etik",
-        description: "Laporan penggunaan refrigerant ilegal R22 tanpa izin pengolahan lingkungan hidup.",
+        description:
+          "Laporan penggunaan refrigerant ilegal R22 tanpa izin pengolahan lingkungan hidup.",
         status: "mediated",
-        responseNotes: "Tim Etik DPP APTI telah melakukan inspeksi TUK dan menerbitkan teguran tertulis.",
+        responseNotes:
+          "Tim Etik DPP APTI telah melakukan inspeksi TUK dan menerbitkan teguran tertulis.",
       },
     ]);
 
@@ -555,27 +676,32 @@ async function seed() {
     await tx.insert(championshipStandings).values([
       {
         seasonYear: 2026,
-        category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+        category:
+          "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
         participantName: "Budi Kurniawan",
         teamName: "APTI DPD DKI Jakarta - Team Alpha",
         unitName: "DPD DKI Jakarta",
         points: 480,
         rank: 1,
-        achievements: "Juara 1 Troubleshooting Inverter AC & Waktu Vakum Tercepat (08:42 menit)",
+        achievements:
+          "Juara 1 Troubleshooting Inverter AC & Waktu Vakum Tercepat (08:42 menit)",
       },
       {
         seasonYear: 2026,
-        category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+        category:
+          "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
         participantName: "Agus Pratama",
         teamName: "APTI DPD Jawa Barat - Bandung Technicians",
         unitName: "DPD Jawa Barat",
         points: 445,
         rank: 2,
-        achievements: "Juara 2 K3 Safety & Prosedur Brazing Tembaga Tanpa Oksidasi",
+        achievements:
+          "Juara 2 K3 Safety & Prosedur Brazing Tembaga Tanpa Oksidasi",
       },
       {
         seasonYear: 2026,
-        category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+        category:
+          "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
         participantName: "Dewi Lestari",
         teamName: "APTI DPD Jawa Tengah - Semarang Cold Chain",
         unitName: "DPD Jawa Tengah",
@@ -640,7 +766,8 @@ async function seed() {
         slug: "pokja-kompetensi-k3",
         chairName: "Hendra Wijaya, S.T., M.T.",
         category: "Standardisasi & Sertifikasi",
-        description: "Merumuskan standar kurikulum uji kompetensi BNSP, K3 keselamatan kerja freon R290, dan sertifikasi teknisi tingkat nasional.",
+        description:
+          "Merumuskan standar kurikulum uji kompetensi BNSP, K3 keselamatan kerja freon R290, dan sertifikasi teknisi tingkat nasional.",
         memberCount: 28,
         isActive: true,
       },
@@ -649,7 +776,8 @@ async function seed() {
         slug: "pokja-advokasi-klhk",
         chairName: "Dr. Ir. Rahmat Hidayat",
         category: "Advokasi & Regulatotif",
-        description: "Mewakili asosiasi dalam audiensi bersama Kementerian LHK dan Kemenperin terkait transisi freon ramah lingkungan.",
+        description:
+          "Mewakili asosiasi dalam audiensi bersama Kementerian LHK dan Kemenperin terkait transisi freon ramah lingkungan.",
         memberCount: 16,
         isActive: true,
       },
@@ -658,7 +786,8 @@ async function seed() {
         slug: "pokja-etik-konsumen",
         chairName: "Surya Pratama, S.H.",
         category: "Kode Etik & Mediasi",
-        description: "Mengelola desk pengaduan publik JENDELA, melakukan investigasi pelanggaran KTA, dan mediasi klaim garansi.",
+        description:
+          "Mengelola desk pengaduan publik JENDELA, melakukan investigasi pelanggaran KTA, dan mediasi klaim garansi.",
         memberCount: 12,
         isActive: true,
       },
@@ -747,10 +876,186 @@ async function seed() {
         isAfpiMember: true,
       },
     ]);
+
+    // 14. CMS Dynamic Custom Pages (Profil & Sejarah, Visi & Misi)
+    await tx.insert(pages).values([
+      {
+        title: "Profil & Sejarah Organisasi",
+        slug: "organization-profile",
+        excerpt:
+          "Sejarah pembentukan, peran strategis, dan transformasi APTI Indonesia dalam ekosistem industri tata udara refrigerasi nasional.",
+        status: "published",
+        isHomepage: false,
+        publishedAt: now,
+        seo: {
+          title: "Profil & Sejarah Asosiasi - APTI Indonesia",
+          description:
+            "Mengenal perjalanan panjang dan komitmen APTI Indonesia dalam standardisasi kompetensi teknisi HVAC dan perlindungan konsumen.",
+        },
+        sections: [
+          {
+            id: "a1b2c3d4-0001-4000-8000-000000000001",
+            type: "hero",
+            eyebrow: "PROFIL ASOSIASI",
+            title: "Sejarah & Transformasi APTI Indonesia",
+            description:
+              "Wadah resmi profesionalisme perusahaan pendingin dan teknisi refrigerasi tata udara (HVAC/R) Indonesia yang memadukan sertifikasi BNSP, transparansi kode etik, dan inovasi KTA digital.",
+            alignment: "left",
+            highlights: [
+              "Terakreditasi BNSP",
+              "DPD di 38 Provinsi",
+              "Standar Eco-Refrigerant K3",
+            ],
+            proofPoints: [
+              "8,400+ Anggota KTA",
+              "38 DPD Wilayah",
+              "100% Audit Kredensial",
+            ],
+          },
+          {
+            id: "a1b2c3d4-0001-4000-8000-000000000002",
+            type: "features",
+            eyebrow: "PILAR STRATEGIS",
+            title: "Peran Utama Memajukan Ekosistem Nasional",
+            description:
+              "Tiga pilar dedikasi organisasi dalam menjembatani kebutuhan industri, keahlian teknisi, dan perlindungan konsumen.",
+            columns: 3,
+            variant: "cards",
+            items: [
+              {
+                title: "Standardisasi & Uji Kompetensi",
+                description:
+                  "Menyelenggarakan sertifikasi BNSP resmi dan sistem perolehan Satuan Kredit Profesi (SKP) berkelanjutan.",
+              },
+              {
+                title: "Registri KTA & Audit Publik",
+                description:
+                  "Penerbitan kartu tanda anggota ber-QR anti-pemalsuan yang dapat diverifikasi instan oleh masyarakat dan pemilik gedung.",
+              },
+              {
+                title: "Advokasi Kebijakan & Lingkungan",
+                description:
+                  "Bermitra dengan KLHK dan Kemenperin dalam standardisasi freon ramah lingkungan serta pencegahan emisi ozon.",
+              },
+            ],
+          },
+          {
+            id: "a1b2c3d4-0001-4000-8000-000000000003",
+            type: "richText",
+            eyebrow: "REKAM JEJAK",
+            title: "Komitmen Berkelanjutan untuk Indonesia",
+            html: "<p>Didirikan atas inisiatif para praktisi senior dan pengusaha pendingin di seluruh tanah air, <strong>APTI Indonesia</strong> lahir untuk menjawab tantangan standarisasi kualitas instalasi, keamanan refrigeran, serta kepastian garansi bagi konsumen.</p><p>Kini, dengan dukungan Dewan Pimpinan Pusat (DPP), 38 Dewan Pimpinan Daerah (DPD), dan ribuan workshop binaan, asosiasi terus melangkah maju menghadirkan tata kelola modern berbasis digital, audit kredensial terbuka, serta perlindungan hukum bagi setiap anggota aktif.</p>",
+            width: "narrow",
+          },
+          {
+            id: "a1b2c3d4-0001-4000-8000-000000000004",
+            type: "cta",
+            title: "Bergabunglah Bersama Ribuan Profesional Pendingin",
+            description:
+              "Tingkatkan legitimasi kompetensi dan kepercayaan pelanggan workshop Anda dengan KTA digital resmi.",
+            primaryAction: {
+              label: "Daftar Keanggotaan",
+              href: "/join",
+            },
+            secondaryAction: {
+              label: "Verifikasi Kredensial",
+              href: "/verify",
+            },
+            tone: "brand",
+          },
+        ],
+      },
+      {
+        title: "Visi, Misi & Nilai Kehormatan",
+        slug: "vision-mission",
+        excerpt:
+          "Arah strategis dan fondasi etika APTI Indonesia dalam mewujudkan ekosistem refrigerasi yang berintegritas dan berdaya saing internasional.",
+        status: "published",
+        isHomepage: false,
+        publishedAt: now,
+        seo: {
+          title: "Visi & Misi Organisasi - APTI Indonesia",
+          description:
+            "Visi, misi, dan nilai etika APTI Indonesia dalam memajukan industri tata udara ramah lingkungan dan profesional.",
+        },
+        sections: [
+          {
+            id: "a1b2c3d4-0002-4000-8000-000000000001",
+            type: "hero",
+            eyebrow: "ARAH STRATEGIS",
+            title: "Visi, Misi & Nilai Kehormatan APTI",
+            description:
+              "Mewujudkan ekosistem industri refrigerasi dan tata udara Indonesia yang berdaya saing global, berintegritas tinggi, dan ramah lingkungan hidup.",
+            alignment: "left",
+            highlights: [
+              "Integritas Profesi",
+              "Keselamatan K3 Kerja",
+              "Eco-Friendly Refrigerant",
+            ],
+            proofPoints: [
+              "Target Net Zero 2060",
+              "100% K3 Compliance",
+              "Sertifikasi Global",
+            ],
+          },
+          {
+            id: "a1b2c3d4-0002-4000-8000-000000000002",
+            type: "features",
+            eyebrow: "NILAI KEHORMATAN",
+            title: "3 Nilai Utama Profesi Pendingin",
+            description:
+              "Prinsip dasar yang wajib dijunjung oleh setiap pemegang KTA dan pengurus APTI di seluruh Nusantara.",
+            columns: 3,
+            variant: "cards",
+            items: [
+              {
+                title: "Profesionalisme & Kejujuran",
+                description:
+                  "Menjaga transparansi diagnosis kerusakan, kepatuhan harga wajar, dan integritas penanganan unit pelanggan.",
+              },
+              {
+                title: "Keselamatan & K3 Ketat",
+                description:
+                  "Menerapkan SOP keselamatan kerja berstandar tinggi saat menangani refrigeran bertekanan dan gas mudah terbakar.",
+              },
+              {
+                title: "Kepedulian Lingkungan Hidup",
+                description:
+                  "Berperan aktif menekan pelepasan emisi hidrofluorokarbon (HFC) ke atmosfer melalui prosedur recovery refrigeran yang benar.",
+              },
+            ],
+          },
+          {
+            id: "a1b2c3d4-0002-4000-8000-000000000003",
+            type: "richText",
+            eyebrow: "AGENDA AKSI",
+            title: "5 Misi Pembangunan Berkelanjutan",
+            html: "<ul><li><strong>1. Standardisasi Kompetensi:</strong> Memastikan seluruh teknisi memiliki sertifikasi kompetensi BNSP level nasional.</li><li><strong>2. Transformasi Digital:</strong> Menyediakan sistem manajemen keanggotaan dan logbook SKP berbasis cloud.</li><li><strong>3. Sinergi Regulasi:</strong> Mengawal harmonisasi peraturan pemerintah terkait efisiensi energi dan transisi refrigeran hijau.</li><li><strong>4. Mediasi & Etika:</strong> Menghadirkan layanan pengaduan etik yang transparan untuk melindungi konsumen.</li><li><strong>5. Pemberdayaan UMKM:</strong> Meningkatkan kemandirian bengkel binaan daerah melalui pelatihan manajerial dan teknis.</li></ul>",
+            width: "narrow",
+          },
+          {
+            id: "a1b2c3d4-0002-4000-8000-000000000004",
+            type: "cta",
+            title: "Bersama Wujudkan Ekosistem HVAC/R Terbaik",
+            description:
+              "Mari bergabung dalam barisan pengusaha dan teknisi profesional berintegritas.",
+            primaryAction: {
+              label: "Daftar Anggota Sekarang",
+              href: "/join",
+            },
+            secondaryAction: {
+              label: "Lihat Agenda Workshop",
+              href: "/events",
+            },
+            tone: "brand",
+          },
+        ],
+      },
+    ]);
   });
 
   process.stdout.write(
-    `APTI Indonesia Seed Complete!\nAdmin login: ${adminEmail} / ${adminPassword}\n`,
+    `APTI Indonesia Seed Complete!\nAdmin login accounts:\n1) admin@organization.org (password: password123)\n2) admin@demo.openorg (password: OpenOrg!2026Demo)\n3) sekretariat@apti.or.id (password: password123)\n`,
   );
 }
 

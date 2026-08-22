@@ -1,26 +1,20 @@
 import {
   ArrowRight,
-  BadgeCheck,
-  BookOpen,
-  Building2,
   CalendarDays,
-  CheckCircle2,
-  ChevronRight,
-  CreditCard,
   MapPin,
-  ShieldCheck,
+  Sparkles,
   UserPlus,
-  Users,
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PublicContactForm } from "@/components/public-form";
-import { getEvents, getSite, getStructure } from "@/lib/api";
+import { HomeHeroInteractive } from "@/components/home-hero-interactive";
+import { InteractiveBentoServices } from "@/components/interactive-bento-services";
+import { getContents, getEvents, getSite, getStructure } from "@/lib/api";
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getSite();
   return {
-    title: `${site.organization.name} · Platform Resmi Organisasi`,
+    title: `${site.organization.name} · Platform Resmi Organisasi & Kredensial`,
     description:
       site.organization.description ??
       "Platform terpadu keanggotaan, tata kelola organisasi, kredit akademi SKP/CPD, dan verifikasi kredensial.",
@@ -28,304 +22,165 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [site, events, structure] = await Promise.all([
+  const [site, events, structure, stories] = await Promise.all([
     getSite(),
-    getEvents(3, true).catch(() => []),
-    getStructure().catch(() => ({ units: [], positions: [], assignments: [] })),
+    getEvents(3, false),
+    getStructure(),
+    getContents("news", 3),
   ]);
 
-  const activeLeaders = structure.assignments.slice(0, 4);
-
   return (
-    <div className="home-wrapper">
-      {/* Hero Section */}
-      <section className="home-hero">
-        <div className="wrap home-hero-inner">
-          <span className="badge-pill">
-            <ShieldCheck size={14} className="badge-icon" />
-            <span>Platform Terpadu Organisasi & Komunitas</span>
-          </span>
+    <div className="home-page-container">
+      {/* 1. Interactive High-Precision Hero Section */}
+      <HomeHeroInteractive
+        site={site}
+        unitCount={structure.units.length}
+        eventCount={events.length}
+      />
 
-          <h1 className="home-hero-title">
-            Mewujudkan Tata Kelola Organisasi Mandiri, Transparan, & Terpercaya.
-          </h1>
+      {/* 2. Core 4-Pillar Ecosystem Bento Grid */}
+      <InteractiveBentoServices />
 
-          <p className="home-hero-description">
-            Selamat datang di portal resmi{" "}
-            <strong>{site.organization.name}</strong>. Satu sistem terintegrasi
-            untuk manajemen keanggotaan, pengembangan kompetensi akademi,
-            perolehan kredit SKP/CPD, serta verifikasi kredensial publik.
-          </p>
-
-          <div className="home-hero-actions">
-            <Link href="/join" className="btn-primary">
-              <UserPlus size={18} />
-              <span>Daftar Keanggotaan</span>
-            </Link>
-            <Link href="/member/login" className="btn-secondary">
-              <CreditCard size={18} />
-              <span>Portal Anggota</span>
-            </Link>
-            <Link href="/structure" className="btn-ghost">
-              <span>Struktur Pengurus</span>
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-
-          <div className="home-hero-stats">
-            <div className="stat-card">
-              <span className="stat-number">
-                {structure.units.length || "10+"}
-              </span>
-              <span className="stat-label">Unit Pengurus</span>
-            </div>
-            <div className="stat-card-divider" />
-            <div className="stat-card">
-              <span className="stat-number">{events.length || "100+"}</span>
-              <span className="stat-label">Program & Akademi</span>
-            </div>
-            <div className="stat-card-divider" />
-            <div className="stat-card">
-              <span className="stat-number">100%</span>
-              <span className="stat-label">Tervalidasi Digital</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Core Business Pillars */}
-      <section className="section-space home-pillars">
-        <div className="wrap">
-          <div className="section-heading text-center">
-            <span className="eyebrow">Fitur & Layanan Utama</span>
-            <h2>Layanan Terpadu untuk Anggota & Publik</h2>
-            <p>
-              Semua sistem pengoperasian organisasi tersedia dalam satu portal
-              mandiri.
-            </p>
-          </div>
-
-          <div className="pillars-grid">
-            <div className="pillar-card">
-              <div className="pillar-icon-box blue">
-                <Users size={24} />
-              </div>
-              <h3>Manajemen Keanggotaan</h3>
-              <p>
-                Pendaftaran online mandiri, profil keanggotaan terverifikasi,
-                serta Kartu Tanda Anggota (KTA) digital.
-              </p>
-              <Link href="/join" className="pillar-link">
-                Pendaftaran Anggota <ChevronRight size={16} />
-              </Link>
-            </div>
-
-            <div className="pillar-card">
-              <div className="pillar-icon-box green">
-                <BookOpen size={24} />
-              </div>
-              <h3>Akademi & Kredit SKP / CPD</h3>
-              <p>
-                Pelatihan profesional, pendaftaran kegiatan, presensi otomatis,
-                dan penerbitan kredit kompetensi.
-              </p>
-              <Link href="/events" className="pillar-link">
-                Lihat Agenda Kegiatan <ChevronRight size={16} />
-              </Link>
-            </div>
-
-            <div className="pillar-card">
-              <div className="pillar-icon-box purple">
-                <Building2 size={24} />
-              </div>
-              <h3>GovernOS · Tata Kelola</h3>
-              <p>
-                Transparansi struktur organisasi dari unit pusat hingga daerah,
-                peta jabatan pengurus, dan masa bakti.
-              </p>
-              <Link href="/structure" className="pillar-link">
-                Peta Pengurus <ChevronRight size={16} />
-              </Link>
-            </div>
-
-            <div className="pillar-card">
-              <div className="pillar-icon-box amber">
-                <BadgeCheck size={24} />
-              </div>
-              <h3>ComplyFlow · Verifikasi</h3>
-              <p>
-                Pemeriksaan keabsahan sertifikat, lisensi, dan kredensial
-                anggota oleh publik secara instan.
-              </p>
-              <Link href="/verify" className="pillar-link">
-                Cek Kredensial <ChevronRight size={16} />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Upcoming Events Preview */}
+      {/* 3. Upcoming Training & Events Highlight */}
       {events.length > 0 && (
         <section className="section-space home-events-section">
           <div className="wrap">
             <div className="section-heading">
-              <span className="eyebrow">Agenda Terbaru</span>
-              <h2>Kegiatan & Pelatihan Akademi</h2>
+              <Link href="/events" className="eyebrow-cta-link">
+                <span>Lihat Semua Agenda</span>
+                <ArrowRight size={12} />
+              </Link>
+              <h2>Pelatihan & Sertifikasi</h2>
               <p>
-                Ikuti workshop teknis, seminar regulasi, dan sertifikasi BNSP terstandarisasi untuk meningkatkan kompetensi profesional Anda.
+                Program pengembangan kompetensi teknis dan perolehan kredit SKP
+                resmi.
               </p>
             </div>
 
-            <div className="card-grid archive-event-grid">
+            <div className="events-grid-refined">
               {events.map((event) => (
-                <article className="event-card" key={event.id}>
-                  <div className="date-block">
-                    <strong>{new Date(event.startsAt).getDate()}</strong>
-                    <span>
-                      {new Date(event.startsAt).toLocaleString("id-ID", {
-                        month: "short",
-                      })}
-                    </span>
+                <article className="event-card-refined" key={event.id}>
+                  <div className="event-card-header-row">
+                    <div className="event-date-chip">
+                      <CalendarDays size={13} />
+                      <span>
+                        {new Date(event.startsAt).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                    <span className="event-skp-badge">+4 SKP</span>
                   </div>
+
                   <div className="event-card-content">
-                    <span className="card-meta">
-                      <CalendarDays size={14} />{" "}
-                      {new Date(event.startsAt).toLocaleDateString("id-ID", {
-                        dateStyle: "long",
-                      })}
-                    </span>
                     <h3>{event.title}</h3>
                     {event.locationName && (
-                      <p className="event-location">
-                        <MapPin size={14} /> {event.locationName}
+                      <p className="event-location-text">
+                        <MapPin size={13} />
+                        <span>{event.locationName}</span>
                       </p>
                     )}
-                    <Link href={`/events/${event.slug}`} className="btn-event-detail">
-                      Detail Agenda <ArrowRight size={15} />
+                  </div>
+
+                  <div className="event-card-footer-row">
+                    <span className="event-status-indicator">
+                      <span className="dot" /> Pendaftaran Dibuka
+                    </span>
+                    <Link
+                      href={`/events/${event.slug}`}
+                      className="event-card-link"
+                    >
+                      <span>Detail</span>
+                      <ArrowRight size={13} />
                     </Link>
                   </div>
                 </article>
               ))}
             </div>
-
-            <div className="section-action-center">
-              <Link href="/events" className="btn-secondary-action">
-                Lihat Semua Agenda Pelatihan <ArrowRight size={16} />
-              </Link>
-            </div>
           </div>
         </section>
       )}
 
-      {/* Governance Officers Leadership Preview */}
-      {activeLeaders.length > 0 && (
-        <section className="section-space home-leadership-section">
+      {/* 4. Latest News & Articles Highlight */}
+      {stories.length > 0 && (
+        <section className="section-space home-stories-section">
           <div className="wrap">
             <div className="section-heading">
-              <span className="eyebrow">Tata Kelola Organisasi</span>
-              <h2>Struktur Kepengurusan Pusat & Daerah</h2>
+              <Link href="/stories" className="eyebrow-cta-link">
+                <span>Lihat Semua Berita</span>
+                <ArrowRight size={12} />
+              </Link>
+              <h2>Publikasi & Berita</h2>
               <p>
-                Susunan dewan pimpinan pengurus pusat (DPP), dewan pimpinan daerah (DPD), dan korwil nusantara yang memimpin organisasi.
+                Pembaruan regulasi profesi, kegiatan daerah, dan kabar
+                organisasi.
               </p>
             </div>
 
-            <div className="leaders-grid">
-              {activeLeaders.map((item) => {
-                const pos = structure.positions.find(
-                  (p) => p.id === item.assignment.positionId,
-                );
-                const unit = structure.units.find((u) => u.id === pos?.unitId);
-                return (
-                  <div className="leader-card" key={item.assignment.id}>
-                    <div className="leader-avatar">
-                      {item.member.avatarUrl ? (
-                        <img
-                          src={item.member.avatarUrl}
-                          alt={item.member.name}
-                        />
-                      ) : (
-                        <span>
-                          {item.member.name.slice(0, 2).toUpperCase()}
-                        </span>
-                      )}
+            <div className="story-grid-refined">
+              {stories.map((story) => (
+                <article className="story-card-refined" key={story.id}>
+                  {story.coverUrl ? (
+                    <div className="story-cover-wrap">
+                      <img src={story.coverUrl} alt="" />
                     </div>
-                    <div className="leader-info">
-                      <h4>{item.member.name}</h4>
-                      <p className="leader-title">{pos?.title ?? "Pengurus"}</p>
-                      <small className="leader-unit">
-                        {unit?.name ?? "Pusat"}
-                      </small>
-                    </div>
+                  ) : (
+                    <div className="story-cover-fallback" />
+                  )}
+                  <div className="story-card-body">
+                    <span className="story-date-chip">
+                      {new Date(
+                        story.publishedAt ?? story.updatedAt,
+                      ).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                    <h3>{story.title}</h3>
+                    {story.excerpt && (
+                      <p className="story-excerpt">{story.excerpt}</p>
+                    )}
+                    <Link
+                      href={`/stories/${story.slug}`}
+                      className="story-read-link"
+                    >
+                      <span>Baca Selengkapnya</span>
+                      <ArrowRight size={14} />
+                    </Link>
                   </div>
-                );
-              })}
-            </div>
-
-            <div className="section-action-center">
-              <Link href="/structure" className="btn-secondary-action">
-                Lihat Struktur Pengurus Lengkap <ArrowRight size={16} />
-              </Link>
+                </article>
+              ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* Public Contact Form Section */}
-      <section className="section-space home-contact-section">
+      {/* 5. Clean Floating CTA Banner */}
+      <section className="home-cta-banner-section">
         <div className="wrap">
-          <div className="section-heading">
-            <span className="eyebrow">Hubungi Sekretariat</span>
-            <h2>Ada Pertanyaan Seputar Keanggotaan atau Pelatihan?</h2>
-            <p>
-              Tim sekretariat {site.organization.name} siap memberikan pendampingan pendaftaran anggota, jadwal pelatihan, dan verifikasi sertifikasi.
-            </p>
-          </div>
-
-          <div className="contact-grid">
-            <div className="contact-info">
-              <h3>Layanan Sekretariat Terpadu</h3>
+          <div className="cta-banner-glow-card">
+            <div className="cta-banner-content">
+              <span className="cta-pill">
+                <Sparkles size={14} /> Keanggotaan Resmi
+              </span>
+              <h2>Bergabung Bersama {site.organization.name}</h2>
               <p>
-                Gunakan formulir atau kontak resmi kami untuk konsultasi keanggotaan dan sertifikasi profesi.
+                Dapatkan akses langsung ke jejaring profesional, pelatihan
+                terakreditasi, dan KTA digital resmi.
               </p>
-              <ul className="contact-features">
-                <li>
-                  <CheckCircle2 size={18} className="icon-check" />
-                  <span>Respon cepat sekretariat jam kerja</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={18} className="icon-check" />
-                  <span>Pendampingan proses verifikasi KTA & BNSP</span>
-                </li>
-                <li>
-                  <CheckCircle2 size={18} className="icon-check" />
-                  <span>Informasi transparansi agenda kegiatan</span>
-                </li>
-              </ul>
-            </div>
-            <div className="contact-form-card">
-              <PublicContactForm />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Join Floating Banner */}
-      <section className="section-space home-cta-section">
-        <div className="wrap">
-          <div className="cta-banner-card">
-            <h2>Bergabung Menjadi Bagian dari {site.organization.name}</h2>
-            <p>
-              Dapatkan keanggotaan resmi, akses pelatihan bersertifikat SKP/CPD, serta jejaring profesional secara nasional.
-            </p>
-            <div className="cta-banner-buttons">
-              <Link href="/join" className="btn-cta-primary">
-                <UserPlus size={18} />
-                <span>Daftar Keanggotaan</span>
-              </Link>
-              <Link href="/member/login" className="btn-cta-secondary">
-                <span>Masuk Portal Anggota</span>
-              </Link>
+              <div className="cta-buttons-row">
+                <Link href="/join" className="btn-cta-white">
+                  <UserPlus size={16} />
+                  <span>Daftar</span>
+                </Link>
+                <Link href="/member/login" className="btn-cta-ghost">
+                  <span>Masuk</span>
+                  <ArrowRight size={15} />
+                </Link>
+              </div>
             </div>
           </div>
         </div>

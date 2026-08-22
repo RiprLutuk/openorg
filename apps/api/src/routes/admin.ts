@@ -5,33 +5,22 @@ import { z } from "zod";
 import { db } from "../db/client";
 import {
   auditLogs,
+  championshipStandings,
   contactSubmissions,
   contents,
-  credentialRequirements,
-  credentialSchemes,
   events,
-  invoices,
-  learningActivities,
-  learningAttendance,
-  learningCreditLedger,
-  learningCreditSchemes,
-  learningEnrollments,
-  media,
-  championshipStandings,
   industryStatistics,
+  lenderRegistries,
   memberApplications,
-  memberCredentials,
   members,
-  membershipCards,
   organizationUnits,
   pages,
-  payments,
-  positionAssignments,
-  positions,
   publicComplaints,
+  registeredClubs,
   regulations,
-  revenueProducts,
   siteSettings,
+  technicianDirectories,
+  workingGroups,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
 import { sanitizeHtml } from "../lib/sanitize";
@@ -175,27 +164,41 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
 
       const site = settings ?? {
         id: "default",
-        name: "ASISI Indonesia",
-        slug: "asisi",
-        kind: "association",
-        tagline: "Asosiasi Perusahaan Pendingin & Teknisi Refrigerasi Tata Udara Indonesia",
-        description: "Wadah resmi profesionalisme perusahaan pendingin dan teknisi refrigerasi tata udara (HVAC/R) Indonesia.",
-        primaryColor: "#0b3b60",
-        secondaryColor: "#d97706",
+        name: "APTI Indonesia",
+        slug: "apti",
+        kind: "association" as const,
+        tagline: "Asosiasi Pengusaha & Teknisi Pendingin Indonesia",
+        description:
+          "Wadah resmi profesionalisme perusahaan pendingin dan teknisi refrigerasi tata udara (HVAC/R) Indonesia.",
+        primaryColor: "#0284c7",
+        secondaryColor: "#0f172a",
+        theme: null,
       };
 
-      const theme = {
+      const defaultTheme = {
         colors: {
-          primary: site.primaryColor ?? "#0b3b60",
-          secondary: site.secondaryColor ?? "#d97706",
-          accent: "#0284c7",
+          primary: site.primaryColor ?? "#0284c7",
+          secondary: site.secondaryColor ?? "#0f172a",
+          accent: "#38bdf8",
           surface: "#f8fafc",
-          foreground: "#0f172a",
+          foreground: "#090d16",
         },
-        radius: "large",
-        fontHeading: "Inter",
+        radius: "large" as const,
+        fontHeading: "Manrope",
         fontBody: "Inter",
       };
+
+      const theme = site.theme
+        ? {
+            colors: {
+              ...defaultTheme.colors,
+              ...site.theme.colors,
+            },
+            radius: site.theme.radius ?? defaultTheme.radius,
+            fontHeading: site.theme.fontHeading ?? defaultTheme.fontHeading,
+            fontBody: site.theme.fontBody ?? defaultTheme.fontBody,
+          }
+        : defaultTheme;
 
       return {
         data: {
@@ -235,7 +238,9 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
                   foreground: z.string().optional(),
                 })
                 .optional(),
-              radius: z.string().optional(),
+              radius: z
+                .enum(["none", "small", "medium", "large", "pill"])
+                .optional(),
               fontHeading: z.string().optional(),
               fontBody: z.string().optional(),
             })
@@ -248,13 +253,15 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         .parse(request.body);
 
       const updateData: Record<string, unknown> = { ...input };
-      if (input.theme?.colors?.primary) {
-        updateData.primaryColor = input.theme.colors.primary;
+      if (input.theme) {
+        if (input.theme.colors?.primary) {
+          updateData.primaryColor = input.theme.colors.primary;
+        }
+        if (input.theme.colors?.secondary) {
+          updateData.secondaryColor = input.theme.colors.secondary;
+        }
+        updateData.theme = input.theme;
       }
-      if (input.theme?.colors?.secondary) {
-        updateData.secondaryColor = input.theme.colors.secondary;
-      }
-      delete updateData.theme;
 
       const [updated] = await db
         .insert(siteSettings)
@@ -276,18 +283,30 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         updated,
       );
 
-      const theme = {
+      const defaultTheme = {
         colors: {
-          primary: updated.primaryColor ?? "#0b3b60",
-          secondary: updated.secondaryColor ?? "#d97706",
-          accent: "#0284c7",
+          primary: updated.primaryColor ?? "#0284c7",
+          secondary: updated.secondaryColor ?? "#0f172a",
+          accent: "#38bdf8",
           surface: "#f8fafc",
-          foreground: "#0f172a",
+          foreground: "#090d16",
         },
-        radius: "large",
-        fontHeading: "Inter",
+        radius: "large" as const,
+        fontHeading: "Manrope",
         fontBody: "Inter",
       };
+
+      const theme = updated.theme
+        ? {
+            colors: {
+              ...defaultTheme.colors,
+              ...updated.theme.colors,
+            },
+            radius: updated.theme.radius ?? defaultTheme.radius,
+            fontHeading: updated.theme.fontHeading ?? defaultTheme.fontHeading,
+            fontBody: updated.theme.fontBody ?? defaultTheme.fontBody,
+          }
+        : defaultTheme;
 
       return { data: { ...updated, theme } };
     },
@@ -303,23 +322,40 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         .where(eq(siteSettings.id, "default"))
         .limit(1);
 
-      const rawQuick = (settings?.quickContact ?? {}) as Record<string, unknown>;
+      const rawQuick = (settings?.quickContact ?? {}) as Record<
+        string,
+        unknown
+      >;
       const rawFooter = (settings?.footer ?? {}) as Record<string, unknown>;
-      const rawAnnounce = (settings as any)?.announcement ?? null;
+      const rawAnnounce =
+        (settings as { announcement?: unknown } | undefined)?.announcement ??
+        null;
 
       const quickContact = {
-        enabled: typeof rawQuick.enabled === "boolean" ? rawQuick.enabled : true,
-        label: typeof rawQuick.label === "string" ? rawQuick.label : "WhatsApp Sekretariat APTI",
-        href: typeof rawQuick.href === "string" ? rawQuick.href : "https://wa.me/6281290001980",
-        channel: typeof rawQuick.channel === "string" ? rawQuick.channel : "message",
-        value: typeof rawQuick.value === "string" ? rawQuick.value : "+62 812-9000-1980",
+        enabled:
+          typeof rawQuick.enabled === "boolean" ? rawQuick.enabled : true,
+        label:
+          typeof rawQuick.label === "string"
+            ? rawQuick.label
+            : "WhatsApp Sekretariat APTI",
+        href:
+          typeof rawQuick.href === "string"
+            ? rawQuick.href
+            : "https://wa.me/6281290001980",
+        channel:
+          typeof rawQuick.channel === "string" ? rawQuick.channel : "message",
+        value:
+          typeof rawQuick.value === "string"
+            ? rawQuick.value
+            : "+62 812-9000-1980",
       };
 
       const announcement = rawAnnounce ?? {
         enabled: false,
         eyebrow: "Pengumuman Organisasi",
         title: "Selamat Datang di APTI Indonesia",
-        message: "Wadah resmi profesionalisme pengusaha & teknisi pendingin Indonesia.",
+        message:
+          "Wadah resmi profesionalisme pengusaha & teknisi pendingin Indonesia.",
         imageUrl: null,
         actionLabel: "Agenda & Sertifikasi",
         actionUrl: "/events",
@@ -1044,7 +1080,13 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
   app.patch("/complaints/:id", async (request) => {
     const { id } = idParams.parse(request.params);
     const updateSchema = z.object({
-      status: z.enum(["new", "under_review", "mediated", "resolved", "dismissed"]),
+      status: z.enum([
+        "new",
+        "under_review",
+        "mediated",
+        "resolved",
+        "dismissed",
+      ]),
       responseNotes: z.string().optional(),
     });
     const body = updateSchema.parse(request.body);
@@ -1089,13 +1131,18 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     });
 
     const body = standingSchema.parse(request.body);
-    const [row] = await db.insert(championshipStandings).values(body).returning();
+    const [row] = await db
+      .insert(championshipStandings)
+      .values(body)
+      .returning();
     return reply.status(201).send({ data: row });
   });
 
   app.delete("/championships/:id", async (request) => {
     const { id } = idParams.parse(request.params);
-    await db.delete(championshipStandings).where(eq(championshipStandings.id, id));
+    await db
+      .delete(championshipStandings)
+      .where(eq(championshipStandings.id, id));
     return { data: { success: true } };
   });
 
@@ -1129,6 +1176,145 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
   app.delete("/statistics/:id", async (request) => {
     const { id } = idParams.parse(request.params);
     await db.delete(industryStatistics).where(eq(industryStatistics.id, id));
+    return { data: { success: true } };
+  });
+
+  // Admin Technicians Directory Manager
+  app.get("/technicians", async () => {
+    const rows = await db
+      .select()
+      .from(technicianDirectories)
+      .orderBy(
+        desc(technicianDirectories.rating),
+        asc(technicianDirectories.name),
+      );
+    return { data: rows };
+  });
+
+  app.post("/technicians", async (request, reply) => {
+    const techSchema = z.object({
+      name: z.string().min(2),
+      ktaNumber: z.string().min(2),
+      skillLevel: z.string().default("Level 3 Residensial"),
+      province: z.string().min(2),
+      city: z.string().min(2),
+      phone: z.string().optional(),
+      workshopName: z.string().optional(),
+      rating: z.string().default("4.9"),
+      certifiedBnsp: z.boolean().default(true),
+      isAvailable: z.boolean().default(true),
+    });
+
+    const body = techSchema.parse(request.body);
+    const [row] = await db
+      .insert(technicianDirectories)
+      .values(body)
+      .returning();
+    return reply.status(201).send({ data: row });
+  });
+
+  app.delete("/technicians/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    await db
+      .delete(technicianDirectories)
+      .where(eq(technicianDirectories.id, id));
+    return { data: { success: true } };
+  });
+
+  // Admin Registered Clubs (TKT) Manager
+  app.get("/clubs", async () => {
+    const rows = await db
+      .select()
+      .from(registeredClubs)
+      .orderBy(desc(registeredClubs.activeMembers));
+    return { data: rows };
+  });
+
+  app.post("/clubs", async (request, reply) => {
+    const clubSchema = z.object({
+      clubName: z.string().min(2),
+      codeTkt: z.string().min(2),
+      province: z.string().min(2),
+      category: z.string().default("Mobility & Community"),
+      chairName: z.string().optional(),
+      activeMembers: z.number().default(1),
+      status: z.string().default("verified"),
+    });
+
+    const body = clubSchema.parse(request.body);
+    const [row] = await db.insert(registeredClubs).values(body).returning();
+    return reply.status(201).send({ data: row });
+  });
+
+  app.delete("/clubs/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    await db.delete(registeredClubs).where(eq(registeredClubs.id, id));
+    return { data: { success: true } };
+  });
+
+  // Admin Working Groups (Pokja) Manager
+  app.get("/working-groups", async () => {
+    const rows = await db
+      .select()
+      .from(workingGroups)
+      .orderBy(asc(workingGroups.name));
+    return { data: rows };
+  });
+
+  app.post("/working-groups", async (request, reply) => {
+    const pokjaSchema = z.object({
+      name: z.string().min(2),
+      slug: z.string().optional(),
+      chairName: z.string().optional(),
+      category: z.string().default("advocacy"),
+      description: z.string().optional(),
+      memberCount: z.number().default(0),
+      isActive: z.boolean().default(true),
+    });
+
+    const body = pokjaSchema.parse(request.body);
+    const slug = body.slug || toSlug(body.name);
+    const [row] = await db
+      .insert(workingGroups)
+      .values({ ...body, slug })
+      .returning();
+    return reply.status(201).send({ data: row });
+  });
+
+  app.delete("/working-groups/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    await db.delete(workingGroups).where(eq(workingGroups.id, id));
+    return { data: { success: true } };
+  });
+
+  // Admin Lenders & Financial Partners Registry
+  app.get("/lenders", async () => {
+    const rows = await db
+      .select()
+      .from(lenderRegistries)
+      .orderBy(asc(lenderRegistries.brandName));
+    return { data: rows };
+  });
+
+  app.post("/lenders", async (request, reply) => {
+    const lenderSchema = z.object({
+      brandName: z.string().min(2),
+      companyName: z.string().min(2),
+      licenseNumber: z.string().min(2),
+      sectorType: z.string().default("P2P Lending Produktif"),
+      ojkStatus: z.string().default("Berizin OJK"),
+      websiteUrl: z.string().optional(),
+      isAfpiMember: z.boolean().default(true),
+    });
+
+    const body = lenderSchema.parse(request.body);
+    const [row] = await db.insert(lenderRegistries).values(body).returning();
+    return reply.status(201).send({ data: row });
+  });
+
+  app.delete("/lenders/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    await db.delete(lenderRegistries).where(eq(lenderRegistries.id, id));
     return { data: { success: true } };
   });
 };

@@ -2,20 +2,61 @@
 
 import type { PublicNavItem, PublicSite } from "@openorg/contracts";
 import {
+  ArrowRight,
   ArrowUpRight,
+  BarChart3,
+  BookOpen,
+  Briefcase,
+  Building2,
+  CalendarDays,
   ChevronDown,
-  HelpCircle,
+  Compass,
+  FileText,
+  Globe,
+  Landmark,
+  LogIn,
   Mail,
+  MapPin,
   Menu,
   MessageCircle,
+  Network,
   Phone,
+  ShieldAlert,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
   User,
+  UserPlus,
+  Users,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { memberApi } from "@/lib/member-client";
+
+function getNavIcon(href: string) {
+  if (href.includes("structure")) return Network;
+  if (href.includes("organization") || href.includes("profile"))
+    return Building2;
+  if (href.includes("vision")) return Sparkles;
+  if (href.includes("regulation") || href.includes("ad-art")) return FileText;
+  if (href.includes("technician")) return Users;
+  if (href.includes("lender")) return Landmark;
+  if (href.includes("club")) return Compass;
+  if (href.includes("verify")) return ShieldCheck;
+  if (href.includes("join")) return UserPlus;
+  if (href.includes("member")) return LogIn;
+  if (href.includes("working-groups") || href.includes("pokja"))
+    return Briefcase;
+  if (href.includes("stat")) return BarChart3;
+  if (href.includes("whois")) return Globe;
+  if (href.includes("complaint")) return ShieldAlert;
+  if (href.includes("event")) return CalendarDays;
+  if (href.includes("champion") || href.includes("contest")) return Trophy;
+  if (href.includes("storie") || href.includes("berita")) return BookOpen;
+  return ArrowRight;
+}
 
 function InstagramIcon({ size = 13 }: { size?: number }) {
   return (
@@ -28,7 +69,9 @@ function InstagramIcon({ size = 13 }: { size?: number }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-label="Instagram"
     >
+      <title>Instagram</title>
       <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
       <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
@@ -47,7 +90,9 @@ function FacebookIcon({ size = 13 }: { size?: number }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-label="Facebook"
     >
+      <title>Facebook</title>
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
     </svg>
   );
@@ -64,7 +109,9 @@ function LinkedinIcon({ size = 13 }: { size?: number }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-label="LinkedIn"
     >
+      <title>LinkedIn</title>
       <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
       <rect width="4" height="12" x="2" y="9" />
       <circle cx="4" cy="4" r="2" />
@@ -86,7 +133,13 @@ export function Header({ site }: { site: PublicSite }) {
   const isItemActive = (href: string, children?: Array<{ href: string }>) => {
     if (pathname === href) return true;
     if (href !== "/" && pathname.startsWith(href)) return true;
-    if (children?.some((c) => pathname === c.href || (c.href !== "/" && pathname.startsWith(c.href))))
+    if (
+      children?.some(
+        (c) =>
+          pathname === c.href ||
+          (c.href !== "/" && pathname.startsWith(c.href)),
+      )
+    )
       return true;
     return false;
   };
@@ -98,9 +151,17 @@ export function Header({ site }: { site: PublicSite }) {
       label: "Profil",
       href: "/organization-profile",
       children: [
-        { id: "org-profile", label: "Profil & Sejarah", href: "/organization-profile" },
+        {
+          id: "org-profile",
+          label: "Profil & Sejarah",
+          href: "/organization-profile",
+        },
         { id: "vision-mission", label: "Visi & Misi", href: "/vision-mission" },
-        { id: "structure", label: "Struktur Pengurus (DPP/DPD)", href: "/structure" },
+        {
+          id: "structure",
+          label: "Struktur Pengurus (DPP/DPD)",
+          href: "/structure",
+        },
         { id: "ad-art", label: "AD/ART & Kode Etik", href: "/regulations" },
       ],
     },
@@ -109,10 +170,26 @@ export function Header({ site }: { site: PublicSite }) {
       label: "Keanggotaan",
       href: "/join",
       children: [
-        { id: "tech-locator", label: "Cari Teknisi AC Terverifikasi", href: "/technicians" },
-        { id: "lender-verifier", label: "Cek Platform Fintech Berizin", href: "/lenders" },
-        { id: "clubs-directory", label: "Direktori Klub & TKT", href: "/clubs" },
-        { id: "verify-kta", label: "Verifikasi KTA & Kredensial", href: "/verify" },
+        {
+          id: "tech-locator",
+          label: "Cari Teknisi AC Terverifikasi",
+          href: "/technicians",
+        },
+        {
+          id: "lender-verifier",
+          label: "Cek Platform Fintech Berizin",
+          href: "/lenders",
+        },
+        {
+          id: "clubs-directory",
+          label: "Direktori Klub & TKT",
+          href: "/clubs",
+        },
+        {
+          id: "verify-kta",
+          label: "Verifikasi KTA & Kredensial",
+          href: "/verify",
+        },
         { id: "join-terms", label: "Syarat & Pendaftaran", href: "/join" },
         { id: "member-portal", label: "Portal Anggota", href: "/member/login" },
       ],
@@ -122,13 +199,41 @@ export function Header({ site }: { site: PublicSite }) {
       label: "Layanan & Data",
       href: "/regulations",
       children: [
-        { id: "working-groups", label: "Kelompok Kerja (Pokja) Advokasi", href: "/working-groups" },
-        { id: "regulations-list", label: "Regulasi & Policy Papers", href: "/regulations" },
-        { id: "industry-stats", label: "Statistik Industri Sektor", href: "/statistics" },
-        { id: "whois-lookup", label: "Lookup WHOIS IP/ASN & IIX", href: "/whois" },
-        { id: "public-complaints", label: "Pengaduan Etik JENDELA", href: "/complaints" },
-        { id: "events-list", label: "Agenda Workshop & Sertifikasi", href: "/events" },
-        { id: "championships", label: "Kejuaraan & Skill Contest", href: "/championships" },
+        {
+          id: "working-groups",
+          label: "Kelompok Kerja (Pokja) Advokasi",
+          href: "/working-groups",
+        },
+        {
+          id: "regulations-list",
+          label: "Regulasi & Policy Papers",
+          href: "/regulations",
+        },
+        {
+          id: "industry-stats",
+          label: "Statistik Industri Sektor",
+          href: "/statistics",
+        },
+        {
+          id: "whois-lookup",
+          label: "Lookup WHOIS IP/ASN & IIX",
+          href: "/whois",
+        },
+        {
+          id: "public-complaints",
+          label: "Pengaduan Etik JENDELA",
+          href: "/complaints",
+        },
+        {
+          id: "events-list",
+          label: "Agenda Workshop & Sertifikasi",
+          href: "/events",
+        },
+        {
+          id: "championships",
+          label: "Kejuaraan & Skill Contest",
+          href: "/championships",
+        },
       ],
     },
     { id: "stories", label: "Berita", href: "/stories" },
@@ -147,6 +252,12 @@ export function Header({ site }: { site: PublicSite }) {
       {/* Enterprise Top Utility Bar */}
       <div className="site-top-bar">
         <div className="wrap top-bar-inner">
+          <div className="top-bar-left">
+            <span className="top-bar-badge">
+              <span>Sistem Registri Terpadu v2.4</span>
+            </span>
+          </div>
+
           <div className="top-bar-right">
             {/* Email Contact Shortcut */}
             <a
@@ -180,7 +291,7 @@ export function Header({ site }: { site: PublicSite }) {
               href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              title="Instagram APTI"
+              title="Instagram"
             >
               <InstagramIcon size={13} />
             </a>
@@ -189,7 +300,7 @@ export function Header({ site }: { site: PublicSite }) {
               href="https://facebook.com"
               target="_blank"
               rel="noopener noreferrer"
-              title="Facebook APTI"
+              title="Facebook"
             >
               <FacebookIcon size={13} />
             </a>
@@ -198,7 +309,7 @@ export function Header({ site }: { site: PublicSite }) {
               href="https://linkedin.com"
               target="_blank"
               rel="noopener noreferrer"
-              title="LinkedIn APTI"
+              title="LinkedIn"
             >
               <LinkedinIcon size={13} />
             </a>
@@ -211,7 +322,7 @@ export function Header({ site }: { site: PublicSite }) {
               href={memberActive ? "/member" : "/member/login"}
             >
               <User size={13} />
-              <span>{memberActive ? "Portal Anggota" : "Member login"}</span>
+              <span>{memberActive ? "Portal Anggota" : "Member Login"}</span>
             </Link>
           </div>
         </div>
@@ -228,6 +339,7 @@ export function Header({ site }: { site: PublicSite }) {
             )}
             <strong>{site.organization.name}</strong>
           </Link>
+
           <nav aria-label="Primary navigation">
             {navItems.map((item) =>
               item.children && item.children.length > 0 ? (
@@ -238,18 +350,37 @@ export function Header({ site }: { site: PublicSite }) {
                       isItemActive(item.href, item.children) ? "active" : ""
                     }`}
                   >
-                    {item.label} <ChevronDown size={14} />
+                    <span>{item.label}</span>
+                    <ChevronDown size={13} className="chevron-icon" />
                   </button>
-                  <div className="nav-dropdown-popover">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.id}
-                        href={child.href}
-                        className={pathname === child.href ? "active" : ""}
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                  <div
+                    className={`nav-dropdown-popover ${
+                      item.children.length > 4 ? "two-column-grid" : ""
+                    }`}
+                  >
+                    <div className="nav-dropdown-items-wrap">
+                      {item.children.map((child) => {
+                        const IconComponent = getNavIcon(child.href);
+                        return (
+                          <Link
+                            key={child.id}
+                            href={child.href}
+                            className={`nav-dropdown-card-item ${
+                              pathname === child.href ? "active" : ""
+                            }`}
+                          >
+                            <div className="nav-item-icon-box">
+                              <IconComponent size={14} />
+                            </div>
+                            <div className="nav-item-text-box">
+                              <span className="nav-item-title">
+                                {child.label}
+                              </span>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -263,9 +394,12 @@ export function Header({ site }: { site: PublicSite }) {
               ),
             )}
           </nav>
+
           <Link className="header-action" href="/join">
-            Join us <ArrowUpRight size={15} />
+            <span>Daftar Anggota</span>
+            <ArrowUpRight size={15} />
           </Link>
+
           <button
             type="button"
             className="menu-button"
@@ -273,9 +407,10 @@ export function Header({ site }: { site: PublicSite }) {
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((current) => !current)}
           >
-            {menuOpen ? <X /> : <Menu />}
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
+
         {menuOpen && (
           <nav className="mobile-navigation" aria-label="Mobile navigation">
             {navItems.map((item) =>
@@ -283,15 +418,20 @@ export function Header({ site }: { site: PublicSite }) {
                 <div key={item.id} className="mobile-dropdown-group">
                   <div className="mobile-dropdown-title">{item.label}</div>
                   <div className="mobile-dropdown-children">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.id}
-                        href={child.href}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                    {item.children.map((child) => {
+                      const IconComponent = getNavIcon(child.href);
+                      return (
+                        <Link
+                          key={child.id}
+                          href={child.href}
+                          onClick={() => setMenuOpen(false)}
+                          className="mobile-nav-child-link"
+                        >
+                          <IconComponent size={14} />
+                          <span>{child.label}</span>
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               ) : (
@@ -304,22 +444,24 @@ export function Header({ site }: { site: PublicSite }) {
                 </Link>
               ),
             )}
-            <Link
-              className="mobile-nav-member-link"
-              href={memberActive ? "/member" : "/member/login"}
-              onClick={() => setMenuOpen(false)}
-            >
-              <User size={15} />
-              <span>{memberActive ? "Portal Anggota" : "Member login"}</span>
-            </Link>
-            <Link
-              className="mobile-nav-join-link"
-              href="/join"
-              onClick={() => setMenuOpen(false)}
-            >
-              <span>Daftar Anggota</span>
-              <ArrowUpRight size={16} />
-            </Link>
+            <div className="mobile-nav-auth-row">
+              <Link
+                className="mobile-nav-join-btn"
+                href="/join"
+                onClick={() => setMenuOpen(false)}
+              >
+                <UserPlus size={15} />
+                <span>Daftar</span>
+              </Link>
+              <Link
+                className="mobile-nav-member-btn"
+                href={memberActive ? "/member" : "/member/login"}
+                onClick={() => setMenuOpen(false)}
+              >
+                <User size={15} />
+                <span>{memberActive ? "Portal" : "Masuk"}</span>
+              </Link>
+            </div>
             <a
               className="mobile-nav-contact-link"
               href="mailto:sekretariat@apti.or.id"
@@ -373,16 +515,34 @@ export function Footer({ site }: { site: PublicSite }) {
               {footer.description ?? site.organization.description}
             </p>
             <p className="footer-address">
-              <span>📍</span> Gedung APTI Center, Jl. Jend. Sudirman No. 88, Jakarta Pusat 10220
+              <MapPin size={14} className="address-pin-icon" />
+              <span>
+                Gedung Sekretariat Pusat, Kawasan Bisnis Terpadu, Jakarta 10220
+              </span>
             </p>
             <div className="footer-socials">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram">
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Instagram"
+              >
                 <InstagramIcon size={14} />
               </a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook">
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Facebook"
+              >
                 <FacebookIcon size={14} />
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="LinkedIn"
+              >
                 <LinkedinIcon size={14} />
               </a>
             </div>
@@ -391,11 +551,11 @@ export function Footer({ site }: { site: PublicSite }) {
           {/* Nav Column 1: Organisasi */}
           <div className="footer-nav-col">
             <h3>Organisasi</h3>
-            <Link href="/organization-profile">Profil & Sejarah</Link>
-            <Link href="/vision-mission">Visi & Misi</Link>
             <Link href="/structure">Struktur DPP & DPD</Link>
             <Link href="/regulations">AD/ART & Kode Etik</Link>
-            <Link href="/join">Syarat Keanggotaan</Link>
+            <Link href="/join">Pendaftaran Anggota</Link>
+            <Link href="/stories">Warta & Kabar Terkini</Link>
+            <Link href="/events">Agenda & Pelatihan</Link>
           </div>
 
           {/* Nav Column 2: Layanan & Direktori */}
@@ -427,7 +587,8 @@ export function Footer({ site }: { site: PublicSite }) {
               `© ${new Date().getFullYear()} ${site.organization.name}. Hak Cipta Dilindungi Undang-Undang.`}
           </p>
           <div className="footer-bottom-badge">
-            <span>Standardized Member Platform · Powered by OpenOrg</span>
+            <ShieldCheck size={14} />
+            <span>Standardized Member & Credential Registry · OpenOrg</span>
           </div>
         </div>
       </footer>

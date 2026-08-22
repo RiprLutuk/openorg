@@ -3,10 +3,7 @@
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
     "ignoreUnknown": false,
-    "includes": [
-      "apps/**",
-      "packages/**"
-    ]
+    "includes": ["apps/**", "packages/**"]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 },
   "linter": {

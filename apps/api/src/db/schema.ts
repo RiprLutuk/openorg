@@ -229,6 +229,18 @@ export const siteSettings = pgTable("site_settings", {
     >()
     .default([]),
   footer: jsonb("footer").$type<Record<string, unknown>>().default({}),
+  theme: jsonb("theme").$type<{
+    colors: {
+      primary: string;
+      secondary: string;
+      accent: string;
+      surface: string;
+      foreground: string;
+    };
+    radius: "none" | "small" | "medium" | "large" | "pill";
+    fontHeading: string;
+    fontBody: string;
+  }>(),
   ...timestamps,
 });
 
@@ -968,7 +980,9 @@ export const regulations = pgTable("regulations", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: varchar("title", { length: 220 }).notNull(),
   slug: varchar("slug", { length: 200 }).notNull().unique(),
-  category: regulationCategory("category").notNull().default("regulasi_pemerintah"),
+  category: regulationCategory("category")
+    .notNull()
+    .default("regulasi_pemerintah"),
   number: varchar("number", { length: 120 }),
   issuedDate: timestamp("issued_date", { withTimezone: true }),
   fileUrl: text("file_url"),
@@ -984,7 +998,9 @@ export const publicComplaints = pgTable("public_complaints", {
   complainantName: varchar("complainant_name", { length: 160 }).notNull(),
   complainantEmail: varchar("complainant_email", { length: 320 }).notNull(),
   complainantPhone: varchar("complainant_phone", { length: 40 }),
-  targetType: varchar("target_type", { length: 60 }).notNull().default("member"),
+  targetType: varchar("target_type", { length: 60 })
+    .notNull()
+    .default("member"),
   targetIdentifier: varchar("target_identifier", { length: 160 }).notNull(),
   category: varchar("category", { length: 80 }).notNull().default("kode_etik"),
   description: text("description").notNull(),
@@ -1001,7 +1017,9 @@ export const publicComplaints = pgTable("public_complaints", {
 export const championshipStandings = pgTable("championship_standings", {
   id: uuid("id").primaryKey().defaultRandom(),
   seasonYear: integer("season_year").notNull().default(2026),
-  category: varchar("category", { length: 120 }).notNull().default("refrigeration_skill"),
+  category: varchar("category", { length: 120 })
+    .notNull()
+    .default("refrigeration_skill"),
   participantName: varchar("participant_name", { length: 160 }).notNull(),
   teamName: varchar("team_name", { length: 160 }),
   unitName: varchar("unit_name", { length: 160 }),
@@ -1058,7 +1076,9 @@ export const technicianDirectories = pgTable("technician_directories", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 160 }).notNull(),
   ktaNumber: varchar("kta_number", { length: 80 }).notNull().unique(),
-  skillLevel: varchar("skill_level", { length: 80 }).notNull().default("Level 3 Residensial"),
+  skillLevel: varchar("skill_level", { length: 80 })
+    .notNull()
+    .default("Level 3 Residensial"),
   province: varchar("province", { length: 100 }).notNull(),
   city: varchar("city", { length: 100 }).notNull(),
   phone: varchar("phone", { length: 40 }),
@@ -1074,7 +1094,9 @@ export const registeredClubs = pgTable("registered_clubs", {
   clubName: varchar("club_name", { length: 180 }).notNull(),
   codeTkt: varchar("code_tkt", { length: 80 }).notNull().unique(),
   province: varchar("province", { length: 100 }).notNull(),
-  category: varchar("category", { length: 80 }).notNull().default("Mobility & Community"),
+  category: varchar("category", { length: 80 })
+    .notNull()
+    .default("Mobility & Community"),
   chairName: varchar("chair_name", { length: 160 }),
   activeMembers: integer("active_members").notNull().default(1),
   status: varchar("status", { length: 40 }).notNull().default("verified"),
@@ -1086,8 +1108,12 @@ export const lenderRegistries = pgTable("lender_registries", {
   brandName: varchar("brand_name", { length: 160 }).notNull(),
   companyName: varchar("company_name", { length: 220 }).notNull(),
   licenseNumber: varchar("license_number", { length: 120 }).notNull().unique(),
-  sectorType: varchar("sector_type", { length: 80 }).notNull().default("P2P Lending Produktif"),
-  ojkStatus: varchar("ojk_status", { length: 60 }).notNull().default("Berizin OJK"),
+  sectorType: varchar("sector_type", { length: 80 })
+    .notNull()
+    .default("P2P Lending Produktif"),
+  ojkStatus: varchar("ojk_status", { length: 60 })
+    .notNull()
+    .default("Berizin OJK"),
   websiteUrl: text("website_url"),
   isAfpiMember: boolean("is_afpi_member").notNull().default(true),
   ...timestamps,

@@ -45,22 +45,23 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
 
     const site = settings ?? {
       id: "default",
-      name: "OpenOrg Association",
-      slug: "openorg",
-      kind: "association",
-      tagline: "Platform Resmi Organisasi",
+      name: "APTI Indonesia",
+      slug: "apti",
+      kind: "association" as const,
+      tagline: "Asosiasi Pengusaha & Teknisi Pendingin Indonesia",
       description:
-        "Platform terpadu keanggotaan, tata kelola organisasi, kredit akademi SKP/CPD, dan verifikasi kredensial.",
+        "Wadah resmi profesionalisme perusahaan pendingin dan teknisi refrigerasi tata udara (HVAC/R) Indonesia.",
       logoUrl: null,
       faviconUrl: null,
       locale: "id-ID",
       timezone: "Asia/Jakarta",
-      primaryColor: "#6941C6",
-      secondaryColor: "#12B76A",
+      primaryColor: "#0284c7",
+      secondaryColor: "#090d16",
+      theme: null,
       quickContact: {
         channel: "message",
         label: "Hubungi Sekretariat",
-        value: "sekretariat@openorg.id",
+        value: "sekretariat@apti.or.id",
         href: "/contact",
       },
       navigation: [
@@ -83,18 +84,37 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
           logoUrl: site.logoUrl,
           faviconUrl: site.faviconUrl,
           locale: site.locale,
-          theme: {
-            colors: {
-              primary: site.primaryColor ?? "#0b3b60",
-              secondary: site.secondaryColor ?? "#d97706",
-              accent: "#0284c7",
-              surface: "#f8fafc",
-              foreground: "#0f172a",
-            },
-            radius: "large",
-            fontHeading: "Inter",
-            fontBody: "Inter",
-          },
+          theme: site.theme
+            ? {
+                colors: {
+                  primary:
+                    site.theme.colors?.primary ??
+                    site.primaryColor ??
+                    "#0284c7",
+                  secondary:
+                    site.theme.colors?.secondary ??
+                    site.secondaryColor ??
+                    "#0f172a",
+                  accent: site.theme.colors?.accent ?? "#38bdf8",
+                  surface: site.theme.colors?.surface ?? "#f8fafc",
+                  foreground: site.theme.colors?.foreground ?? "#090d16",
+                },
+                radius: site.theme.radius ?? "large",
+                fontHeading: site.theme.fontHeading ?? "Manrope",
+                fontBody: site.theme.fontBody ?? "Inter",
+              }
+            : {
+                colors: {
+                  primary: site.primaryColor ?? "#0284c7",
+                  secondary: site.secondaryColor ?? "#0f172a",
+                  accent: "#38bdf8",
+                  surface: "#f8fafc",
+                  foreground: "#090d16",
+                },
+                radius: "large",
+                fontHeading: "Manrope",
+                fontBody: "Inter",
+              },
         },
         navigation: site.navigation ?? [
           { id: "events", label: "Agenda", href: "/events" },
@@ -318,12 +338,14 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
   app.get("/regulations", async (request) => {
     const query = z
       .object({
-        category: z.enum([
-          "regulasi_pemerintah",
-          "se_organisasi",
-          "ad_art",
-          "posisi_kebijakan",
-        ]).optional(),
+        category: z
+          .enum([
+            "regulasi_pemerintah",
+            "se_organisasi",
+            "ad_art",
+            "posisi_kebijakan",
+          ])
+          .optional(),
         search: z.string().optional(),
       })
       .parse(request.query);
@@ -354,9 +376,13 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         complainantName: z.string().min(2).max(160),
         complainantEmail: z.string().email().max(320),
         complainantPhone: z.string().max(40).optional(),
-        targetType: z.enum(["member", "technician", "lender", "company"]).default("member"),
+        targetType: z
+          .enum(["member", "technician", "lender", "company"])
+          .default("member"),
         targetIdentifier: z.string().min(2).max(160),
-        category: z.enum(["kode_etik", "layanan_teknisi", "penagihan", "sengketa"]).default("kode_etik"),
+        category: z
+          .enum(["kode_etik", "layanan_teknisi", "penagihan", "sengketa"])
+          .default("kode_etik"),
         description: z.string().min(10).max(10_000),
         evidenceFileUrl: z.string().max(2048).optional(),
       });
@@ -377,13 +403,17 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
           description: body.description,
           evidenceFileUrl: body.evidenceFileUrl,
         })
-        .returning({ id: publicComplaints.id, ticketNumber: publicComplaints.ticketNumber });
+        .returning({
+          id: publicComplaints.id,
+          ticketNumber: publicComplaints.ticketNumber,
+        });
 
       return reply.status(201).send({
         data: {
           id: complaint?.id,
           ticketNumber: complaint?.ticketNumber,
-          message: "Laporan pengaduan Anda telah berhasil dibuat. Simpan nomor tiket ini untuk pelacakan status.",
+          message:
+            "Laporan pengaduan Anda telah berhasil dibuat. Simpan nomor tiket ini untuk pelacakan status.",
         },
       });
     },
@@ -391,7 +421,9 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
 
   // Complaint Status Verification Lookup
   app.get("/complaints/verify/:ticketNumber", async (request) => {
-    const params = z.object({ ticketNumber: z.string().min(3) }).parse(request.params);
+    const params = z
+      .object({ ticketNumber: z.string().min(3) })
+      .parse(request.params);
     const [complaint] = await db
       .select({
         ticketNumber: publicComplaints.ticketNumber,
@@ -408,23 +440,37 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       .limit(1);
 
     if (!complaint) {
-      throw new AppError(404, "NO_RECORD_FOUND", "Nomor tiket pengaduan tidak ditemukan.");
+      throw new AppError(
+        404,
+        "NO_RECORD_FOUND",
+        "Nomor tiket pengaduan tidak ditemukan.",
+      );
     }
     return { data: complaint };
   });
 
   // Championship Standings Public API
   app.get("/championships", async (request) => {
-    const query = z.object({ seasonYear: z.coerce.number().optional(), category: z.string().optional() }).parse(request.query);
+    const query = z
+      .object({
+        seasonYear: z.coerce.number().optional(),
+        category: z.string().optional(),
+      })
+      .parse(request.query);
     const conditions = [];
-    if (query.seasonYear) conditions.push(eq(championshipStandings.seasonYear, query.seasonYear));
-    if (query.category) conditions.push(eq(championshipStandings.category, query.category));
+    if (query.seasonYear)
+      conditions.push(eq(championshipStandings.seasonYear, query.seasonYear));
+    if (query.category)
+      conditions.push(eq(championshipStandings.category, query.category));
 
     const rows = await db
       .select()
       .from(championshipStandings)
       .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(asc(championshipStandings.rank), desc(championshipStandings.points));
+      .orderBy(
+        asc(championshipStandings.rank),
+        desc(championshipStandings.points),
+      );
 
     return { data: rows };
   });
@@ -434,16 +480,22 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     const rows = await db
       .select()
       .from(industryStatistics)
-      .orderBy(asc(industryStatistics.sortOrder), asc(industryStatistics.metricKey));
+      .orderBy(
+        asc(industryStatistics.sortOrder),
+        asc(industryStatistics.metricKey),
+      );
 
     return { data: rows };
   });
 
   // Cari Teknisi Terverifikasi (ASISI / APITU)
   app.get("/technicians", async (request) => {
-    const query = z.object({ city: z.string().optional(), search: z.string().optional() }).parse(request.query);
+    const query = z
+      .object({ city: z.string().optional(), search: z.string().optional() })
+      .parse(request.query);
     const conditions = [];
-    if (query.city) conditions.push(ilike(technicianDirectories.city, `%${query.city}%`));
+    if (query.city)
+      conditions.push(ilike(technicianDirectories.city, `%${query.city}%`));
     if (query.search) {
       conditions.push(
         or(
@@ -476,9 +528,12 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
 
   // Direktori Klub & Pengprov TKT (IMI, APITU)
   app.get("/clubs", async (request) => {
-    const query = z.object({ province: z.string().optional() }).parse(request.query);
+    const query = z
+      .object({ province: z.string().optional() })
+      .parse(request.query);
     const conditions = [];
-    if (query.province) conditions.push(ilike(registeredClubs.province, `%${query.province}%`));
+    if (query.province)
+      conditions.push(ilike(registeredClubs.province, `%${query.province}%`));
 
     const rows = await db
       .select()
@@ -491,7 +546,9 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
 
   // Verifikasi Platform Fintech & Multifinance (AFPI, AFTECH, APPI)
   app.get("/lenders", async (request) => {
-    const query = z.object({ search: z.string().optional() }).parse(request.query);
+    const query = z
+      .object({ search: z.string().optional() })
+      .parse(request.query);
     const conditions = [];
     if (query.search) {
       conditions.push(
@@ -514,7 +571,9 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
 
   // WHOIS IP/ASN & IIX Traffic Simulator (APJII)
   app.get("/whois", async (request) => {
-    const query = z.object({ query: z.string().optional() }).parse(request.query);
+    const query = z
+      .object({ query: z.string().optional() })
+      .parse(request.query);
     const q = query.query?.trim() ?? "APJII-IDNIC-ASN";
 
     return {

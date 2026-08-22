@@ -1,5 +1,6 @@
 import { Building2, Network, UserRoundCheck } from "lucide-react";
 import type { Metadata } from "next";
+import { InteractiveStructurePreview } from "@/components/interactive-structure-preview";
 import { getSite, getStructure } from "@/lib/api";
 
 export const metadata: Metadata = {
@@ -43,6 +44,12 @@ export default async function StructurePage() {
           </div>
         </div>
       </section>
+
+      {/* Interactive Department & Leadership Filter Matrix */}
+      {structure.assignments.length > 0 && (
+        <InteractiveStructurePreview structure={structure} />
+      )}
+
       <section className="structure-directory section-space">
         <div className="wrap">
           <div className="section-heading structure-heading">
