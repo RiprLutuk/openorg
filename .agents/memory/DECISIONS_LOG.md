@@ -24,3 +24,14 @@ This log records major technical, architectural, and UI/UX design decisions made
   - `apps/web`: Converted homepage & public routes into direct Next.js React components. Added `/verify` portal for public card/license checks.
   - `apps/cms`: Positioned as Admin Operational Dashboard (Member Management, Academy/SKP, Governance, Compliance & Billing).
   - `apps/api`: Preserved robust Fastify REST API and Drizzle ORM PostgreSQL backend.
+
+---
+
+### [2026-08-22] CMS UI/UX Polishing, Icon Action Buttons, and Searchable Select Combobox
+- **Decision**: Enhanced CMS interface ergonomics across table row actions, dropdown select fields, title/slug editing, workspace navigation, font preloading, and header navigation menu management.
+- **Implementation**:
+  - **Icon Action Buttons**: Replaced text action buttons in table rows with clean, compact icon buttons (`CreditCard`, `Pencil`, `Trash2`) featuring interactive tooltips and subtle hover effects.
+  - **SearchableSelect Combobox**: Replaced native browser `<select>` dropdowns in forms with a custom `SearchableSelect` component featuring live search input filtering (`Search` icon, clear button, `CheckCircle2` active indicators, and click-outside popover dismissal).
+  - **Dynamic Public Header Navigation**: Added Header Navigation Menu manager in CMS Settings (`#settings`) to dynamically control header links on the Next.js public site in real-time.
+  - **Font Preloading**: Added Google Fonts preloading (`preconnect` & stylesheet links in `<head>`) to eliminate FOUT/loading glitches on page reload.
+  - **Workspace Popover Ergonomics**: Added interactive floating popover menu to sidebar workspace switcher `APTI Indonesia ⌄` and fixed flex-shrink badge distortion.
