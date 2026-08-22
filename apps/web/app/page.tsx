@@ -169,14 +169,12 @@ export default async function HomePage() {
       {events.length > 0 && (
         <section className="section-space home-events-section">
           <div className="wrap">
-            <div className="section-heading-flex">
-              <div>
-                <span className="eyebrow">Agenda Terbaru</span>
-                <h2>Kegiatan & Pelatihan Akademi</h2>
-              </div>
-              <Link href="/events" className="btn-link">
-                Lihat Semua Agenda <ArrowRight size={16} />
-              </Link>
+            <div className="section-heading">
+              <span className="eyebrow">Agenda Terbaru</span>
+              <h2>Kegiatan & Pelatihan Akademi</h2>
+              <p>
+                Ikuti workshop teknis, seminar regulasi, dan sertifikasi BNSP terstandarisasi untuk meningkatkan kompetensi profesional Anda.
+              </p>
             </div>
 
             <div className="card-grid archive-event-grid">
@@ -190,25 +188,31 @@ export default async function HomePage() {
                       })}
                     </span>
                   </div>
-                  <div>
+                  <div className="event-card-content">
                     <span className="card-meta">
                       <CalendarDays size={14} />{" "}
                       {new Date(event.startsAt).toLocaleDateString("id-ID", {
                         dateStyle: "long",
                       })}
                     </span>
-                    <h2>{event.title}</h2>
+                    <h3>{event.title}</h3>
                     {event.locationName && (
-                      <p>
+                      <p className="event-location">
                         <MapPin size={14} /> {event.locationName}
                       </p>
                     )}
-                    <Link href={`/events/${event.slug}`}>
+                    <Link href={`/events/${event.slug}`} className="btn-event-detail">
                       Detail Agenda <ArrowRight size={15} />
                     </Link>
                   </div>
                 </article>
               ))}
+            </div>
+
+            <div className="section-action-center">
+              <Link href="/events" className="btn-secondary-action">
+                Lihat Semua Agenda Pelatihan <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
         </section>
@@ -218,14 +222,12 @@ export default async function HomePage() {
       {activeLeaders.length > 0 && (
         <section className="section-space home-leadership-section">
           <div className="wrap">
-            <div className="section-heading-flex">
-              <div>
-                <span className="eyebrow">Tata Kelola Organisasi</span>
-                <h2>Struktur Kepengurusan</h2>
-              </div>
-              <Link href="/structure" className="btn-link">
-                Struktur Lengkap <ArrowRight size={16} />
-              </Link>
+            <div className="section-heading">
+              <span className="eyebrow">Tata Kelola Organisasi</span>
+              <h2>Struktur Kepengurusan Pusat & Daerah</h2>
+              <p>
+                Susunan dewan pimpinan pengurus pusat (DPP), dewan pimpinan daerah (DPD), dan korwil nusantara yang memimpin organisasi.
+              </p>
             </div>
 
             <div className="leaders-grid">
@@ -259,38 +261,51 @@ export default async function HomePage() {
                 );
               })}
             </div>
+
+            <div className="section-action-center">
+              <Link href="/structure" className="btn-secondary-action">
+                Lihat Struktur Pengurus Lengkap <ArrowRight size={16} />
+              </Link>
+            </div>
           </div>
         </section>
       )}
 
       {/* Public Contact Form Section */}
       <section className="section-space home-contact-section">
-        <div className="wrap contact-grid">
-          <div className="contact-info">
-            <span className="eyebrow">Hubungi Kami</span>
-            <h2>Ada Pertanyaan Seputar Keanggotaan atau Kegiatan?</h2>
+        <div className="wrap">
+          <div className="section-heading">
+            <span className="eyebrow">Hubungi Sekretariat</span>
+            <h2>Ada Pertanyaan Seputar Keanggotaan atau Pelatihan?</h2>
             <p>
-              Tim sekretariat {site.organization.name} siap membantu memberikan
-              informasi terkait pendaftaran anggota, pendaftaran pelatihan,
-              maupun verifikasi sertifikat.
+              Tim sekretariat {site.organization.name} siap memberikan pendampingan pendaftaran anggota, jadwal pelatihan, dan verifikasi sertifikasi.
             </p>
-            <ul className="contact-features">
-              <li>
-                <CheckCircle2 size={18} className="icon-check" />
-                <span>Respon cepat sekretariat</span>
-              </li>
-              <li>
-                <CheckCircle2 size={18} className="icon-check" />
-                <span>Pendampingan proses pendaftaran</span>
-              </li>
-              <li>
-                <CheckCircle2 size={18} className="icon-check" />
-                <span>Informasi transparansi kegiatan</span>
-              </li>
-            </ul>
           </div>
-          <div className="contact-form-card">
-            <PublicContactForm />
+
+          <div className="contact-grid">
+            <div className="contact-info">
+              <h3>Layanan Sekretariat Terpadu</h3>
+              <p>
+                Gunakan formulir atau kontak resmi kami untuk konsultasi keanggotaan dan sertifikasi profesi.
+              </p>
+              <ul className="contact-features">
+                <li>
+                  <CheckCircle2 size={18} className="icon-check" />
+                  <span>Respon cepat sekretariat jam kerja</span>
+                </li>
+                <li>
+                  <CheckCircle2 size={18} className="icon-check" />
+                  <span>Pendampingan proses verifikasi KTA & BNSP</span>
+                </li>
+                <li>
+                  <CheckCircle2 size={18} className="icon-check" />
+                  <span>Informasi transparansi agenda kegiatan</span>
+                </li>
+              </ul>
+            </div>
+            <div className="contact-form-card">
+              <PublicContactForm />
+            </div>
           </div>
         </div>
       </section>

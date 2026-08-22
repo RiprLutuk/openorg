@@ -3451,13 +3451,60 @@ img {
   line-height: 1.15;
 }
 
-.btn-link {
+.section-action-center {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+.btn-secondary-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  transition: all 0.15s ease;
+}
+.btn-secondary-action:hover {
+  background: #f8fafc;
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.event-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.event-card-content h3 {
+  font-size: 18px;
+  font-weight: 750;
+  color: #0f172a;
+  line-height: 1.35;
+  margin: 4px 0;
+}
+.event-location {
+  font-size: 13px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-event-detail {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-weight: 600;
-  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 700;
+  color: #0284c7;
   text-decoration: none;
+  margin-top: 8px;
 }
 
 /* Contact Grid & Banner */
