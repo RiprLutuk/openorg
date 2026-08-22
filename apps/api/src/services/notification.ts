@@ -1,4 +1,7 @@
+import { Resend } from "resend";
 import { config } from "../config";
+
+const resend = config.RESEND_API_KEY ? new Resend(config.RESEND_API_KEY) : null;
 
 export interface VerificationNotificationPayload {
   name: string;
@@ -84,16 +87,42 @@ async function sendWhatsAppMessage(
 }
 
 /**
- * Send transactional email (or mock output when SMTP is not configured)
+ * Send transactional email via Resend API (or mock output when not configured)
  */
-async function sendEmailMessage(
+export async function sendEmailMessage(
   to: string,
   subject: string,
   html: string,
 ): Promise<boolean> {
-  // If SMTP is configured, send via SMTP. Otherwise output to stdout mock log.
+  if (resend) {
+    try {
+      const { data, error } = await resend.emails.send({
+        from: config.RESEND_FROM || "onboarding@resend.dev",
+        to,
+        subject,
+        html,
+      });
+      if (error) {
+        process.stderr.write(
+          `[Resend Error] Failed to send email to ${to}: ${error.message}\n`,
+        );
+        return false;
+      }
+      process.stdout.write(
+        `[Resend Success] Email sent to ${to} (ID: ${data?.id})\n`,
+      );
+      return true;
+    } catch (err) {
+      process.stderr.write(
+        `[Resend Network Error] ${err instanceof Error ? err.message : String(err)}\n`,
+      );
+      return false;
+    }
+  }
+
+  // Fallback / Mock
   process.stdout.write(
-    `[Email Dispatch] To: ${to} | Subject: ${subject}\n[Email Body]:\n${html.replace(/<[^>]+>/g, " ").slice(0, 300)}...\n---\n`,
+    `[Email Mock Dispatch] To: ${to} | Subject: ${subject}\n[Email Body]:\n${html.replace(/<[^>]+>/g, " ").slice(0, 300)}...\n---\n`,
   );
   return true;
 }

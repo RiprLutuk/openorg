@@ -51,6 +51,10 @@ const configSchema = z
     SMTP_USER: z.string().optional(),
     SMTP_PASS: z.string().optional(),
     SMTP_FROM: z.string().default("APTI Indonesia <no-reply@apti.or.id>"),
+    RESEND_API_KEY: z.string().optional(),
+    RESEND_FROM: z
+      .string()
+      .default(process.env.RESEND_FROM || "onboarding@resend.dev"),
   })
   .superRefine((value, context) => {
     if (

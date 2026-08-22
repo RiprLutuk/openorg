@@ -28,6 +28,7 @@
     "fastify-plugin": "latest",
     "fastify-type-provider-zod": "latest",
     "postgres": "latest",
+    "resend": "6.22.0",
     "zod": "latest"
   },
   "devDependencies": {
