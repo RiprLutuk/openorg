@@ -74,19 +74,11 @@ function LinkedinIcon({ size = 13 }: { size?: number }) {
 export function Header({ site }: { site: PublicSite }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [memberActive, setMemberActive] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     memberApi("/v1/member/session")
       .then(() => setMemberActive(true))
       .catch(() => setMemberActive(false));
-
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const navItems: PublicNavItem[] = site.navigation.length
@@ -98,10 +90,10 @@ export function Header({ site }: { site: PublicSite }) {
       ];
 
   return (
-    <div className={`site-header-container ${scrolled ? "is-scrolled" : ""}`}>
+    <div className="site-header-wrapper">
       {/* Enterprise Top Utility Bar */}
       <div className="site-top-bar">
-        <div className="wrap top-bar-inner" style={{ justifyContent: "flex-end" }}>
+        <div className="wrap top-bar-inner">
           <div className="top-bar-right">
             {/* Email Contact Shortcut */}
             <a

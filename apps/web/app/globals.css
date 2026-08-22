@@ -203,11 +203,9 @@ img {
 .eyebrow.light {
   color: color-mix(in srgb, var(--color-accent) 80%, #fff);
 }
-.site-header-container {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  box-shadow: 0 4px 20px rgba(16, 24, 40, 0.04);
+.site-header-wrapper {
+  position: relative;
+  width: 100%;
 }
 .site-top-bar {
   background: #0f172a;
@@ -215,22 +213,14 @@ img {
   font-size: 11.5px;
   font-weight: 500;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  height: 34px;
+  height: 36px;
   display: flex;
   align-items: center;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.site-header-container.is-scrolled .site-top-bar {
-  height: 0;
-  opacity: 0;
-  border-bottom-color: transparent;
-  pointer-events: none;
 }
 .top-bar-inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
 }
 .top-bar-left {
@@ -310,10 +300,13 @@ img {
 
 .site-header {
   height: 68px;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 40;
   border-bottom: 1px solid #eaecf0;
-  background: #ffffffed;
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(16, 24, 40, 0.03);
 }
 .header-inner {
   height: 100%;
