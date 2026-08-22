@@ -261,10 +261,10 @@ export function MemberPortraitCard({
           </span>
           <div
             style={{
-              display: "inline-flex",
+              display: "flex",
               alignItems: "center",
-              gap: "6px",
-              fontSize: "9px",
+              gap: "5px",
+              fontSize: "9.5px",
               fontWeight: 800,
               letterSpacing: "1.2px",
               color: "#34d399",
@@ -274,14 +274,14 @@ export function MemberPortraitCard({
           >
             <span
               style={{
-                width: "6px",
-                height: "6px",
+                width: "5.5px",
+                height: "5.5px",
                 borderRadius: "50%",
                 background: "#34d399",
                 boxShadow: "0 0 6px rgba(52, 211, 153, 0.8)",
                 display: "inline-block",
                 flexShrink: 0,
-                transform: "translateY(0.5px)",
+                marginTop: "1px",
               }}
             />
             <span style={{ display: "inline-block", lineHeight: "1" }}>
