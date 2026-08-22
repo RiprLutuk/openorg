@@ -13,12 +13,11 @@ import {
   QrCode,
   Scale,
   ShieldCheck,
-  Sparkles,
   Users,
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getSite, getStructure } from "@/lib/api";
+import { getSite } from "@/lib/api";
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getSite();
@@ -29,12 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function OrganizationProfilePage() {
-  const [site, structure] = await Promise.all([
-    getSite(),
-    getStructure().catch(() => ({ units: [], positions: [], assignments: [] })),
-  ]);
-
-  const unitCount = structure.units.length || 38;
+  const site = await getSite();
 
   const milestones = [
     {
@@ -155,48 +149,7 @@ export default async function OrganizationProfilePage() {
 
   return (
     <div className="org-profile-page">
-      {/* 1. Profile Suite Sub-Navigation Bar */}
-      <nav className="org-suite-subnav" aria-label="Navigasi Profil Organisasi">
-        <div className="wrap">
-          <ul className="suite-subnav-list">
-            <li>
-              <Link
-                href="/organization-profile"
-                className="suite-subnav-item active"
-              >
-                <Building2 size={16} />
-                <span>Profil & Sejarah</span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/vision-mission" className="suite-subnav-item">
-                <Sparkles size={16} />
-                <span>Visi & Misi</span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/structure" className="suite-subnav-item">
-                <Network size={16} />
-                <span>Struktur Pengurus ({unitCount} Wilayah)</span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/regulations" className="suite-subnav-item">
-                <FileText size={16} />
-                <span>AD/ART & Regulasi</span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/whois" className="suite-subnav-item">
-                <ShieldCheck size={16} />
-                <span>Verifikasi Anggota</span>
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      {/* 2. Flagship Hero Section */}
+      {/* Flagship Hero Section */}
       <header className="org-profile-hero">
         <div className="wrap org-profile-hero-inner">
           <div className="org-hero-badge-pill">
