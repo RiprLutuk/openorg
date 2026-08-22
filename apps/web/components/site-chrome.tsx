@@ -74,11 +74,26 @@ function LinkedinIcon({ size = 13 }: { size?: number }) {
 export function Header({ site }: { site: PublicSite }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [memberActive, setMemberActive] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     memberApi("/v1/member/session")
       .then(() => setMemberActive(true))
       .catch(() => setMemberActive(false));
+
+    let lastY = window.scrollY;
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY > 60 && currentY > lastY) {
+        setScrolled(true);
+      } else if (currentY < 15 || currentY < lastY - 12) {
+        setScrolled(false);
+      }
+      lastY = currentY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const navItems: PublicNavItem[] = site.navigation.length
@@ -90,7 +105,7 @@ export function Header({ site }: { site: PublicSite }) {
       ];
 
   return (
-    <div className="site-header-wrapper">
+    <div className={`site-header-wrapper ${scrolled ? "is-scrolled" : ""}`}>
       {/* Enterprise Top Utility Bar */}
       <div className="site-top-bar">
         <div className="wrap top-bar-inner">
