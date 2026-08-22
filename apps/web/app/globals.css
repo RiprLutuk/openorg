@@ -213,6 +213,11 @@ img {
   position: relative;
   width: 100%;
 }
+@media (max-width: 768px) {
+  .site-top-bar {
+    display: none !important;
+  }
+}
 .top-bar-inner {
   display: flex;
   align-items: center;
@@ -431,6 +436,27 @@ img {
   gap: 6px;
   padding-left: 14px;
   border-left: 2px solid #e2e8f0;
+}
+.mobile-nav-member-link {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #0284c7;
+  color: #ffffff !important;
+  border-radius: 8px;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 4px;
+}
+.mobile-nav-contact-link {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #64748b !important;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
 }
 .header-action {
   display: inline-flex;

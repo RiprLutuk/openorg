@@ -239,14 +239,24 @@ export function Header({ site }: { site: PublicSite }) {
               ),
             )}
             <Link
+              className="mobile-nav-member-link"
               href={memberActive ? "/member" : "/member/login"}
               onClick={() => setMenuOpen(false)}
             >
-              {memberActive ? "Member portal" : "Member login"}
+              <User size={15} />
+              <span>{memberActive ? "Portal Anggota" : "Member login"}</span>
             </Link>
             <Link href="/join" onClick={() => setMenuOpen(false)}>
-              Apply for membership <ArrowUpRight size={16} />
+              Daftar Anggota <ArrowUpRight size={16} />
             </Link>
+            <a
+              className="mobile-nav-contact-link"
+              href="mailto:sekretariat@apti.or.id"
+              onClick={() => setMenuOpen(false)}
+            >
+              <Mail size={14} />
+              <span>sekretariat@apti.or.id</span>
+            </a>
           </nav>
         )}
       </header>
