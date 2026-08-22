@@ -281,6 +281,7 @@ function Login() {
 function Studio({ session }: { session: Session }) {
   const [screen, navigate] = useHashScreen();
   const [mobileNav, setMobileNav] = useState(false);
+  const [orgMenuOpen, setOrgMenuOpen] = useState(false);
   const client = useQueryClient();
   const logout = useMutation({
     mutationFn: () => api("/v1/auth/logout", { method: "POST" }),
@@ -307,15 +308,92 @@ function Studio({ session }: { session: Session }) {
             <X size={20} />
           </button>
         </div>
-        <div className="organization-switch">
-          <span className="org-avatar">
-            {session.organization.name.slice(0, 2).toUpperCase()}
-          </span>
-          <span>
-            <strong>{session.organization.name}</strong>
-            <small>Primary workspace</small>
-          </span>
-          <ChevronDown size={16} />
+        <div className="org-switch-wrapper">
+          <button
+            type="button"
+            className="organization-switch"
+            onClick={() => setOrgMenuOpen((v) => !v)}
+            aria-expanded={orgMenuOpen}
+          >
+            <span className="org-avatar">
+              {session.organization.name.slice(0, 2).toUpperCase()}
+            </span>
+            <span>
+              <strong>{session.organization.name}</strong>
+              <small>Primary workspace</small>
+            </span>
+            <ChevronDown
+              size={16}
+              style={{
+                transform: orgMenuOpen ? "rotate(180deg)" : "none",
+                transition: "transform 0.15s ease",
+              }}
+            />
+          </button>
+          {orgMenuOpen && (
+            <div className="org-popover-menu">
+              <div className="popover-header">Workspaces</div>
+              <button
+                type="button"
+                className="popover-item active"
+                onClick={() => setOrgMenuOpen(false)}
+              >
+                <span className="org-avatar compact">
+                  {session.organization.name.slice(0, 2).toUpperCase()}
+                </span>
+                <span>
+                  <strong>{session.organization.name}</strong>
+                  <small>Utama · Active</small>
+                </span>
+                <CheckCircle2 size={16} className="check-icon" />
+              </button>
+              <div className="popover-divider" />
+              <button
+                type="button"
+                className="popover-item"
+                onClick={() => {
+                  navigate("settings");
+                  setOrgMenuOpen(false);
+                }}
+              >
+                <Settings size={16} />
+                <span>Pengaturan Workspace</span>
+              </button>
+              <button
+                type="button"
+                className="popover-item"
+                onClick={() => {
+                  navigate("appearance");
+                  setOrgMenuOpen(false);
+                }}
+              >
+                <Palette size={16} />
+                <span>Identitas & Theme Studio</span>
+              </button>
+              <a
+                href={PUBLIC_SITE_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="popover-item"
+                onClick={() => setOrgMenuOpen(false)}
+              >
+                <Globe2 size={16} />
+                <span>Buka Website Publik</span>
+              </a>
+              <div className="popover-divider" />
+              <button
+                type="button"
+                className="popover-item danger"
+                onClick={() => {
+                  setOrgMenuOpen(false);
+                  logout.mutate();
+                }}
+              >
+                <LogOut size={16} />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          )}
         </div>
         <nav>
           {menu.map((group) => (
