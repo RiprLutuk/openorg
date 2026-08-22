@@ -45,6 +45,7 @@ import {
   type FormEvent,
   type ReactNode,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import {
@@ -138,6 +139,113 @@ function useHashScreen() {
       window.location.hash = next;
     },
   ] as const;
+}
+
+function SearchableSelect({
+  value,
+  onChange,
+  options,
+  placeholder = "Pilih opsi...",
+  className = "",
+  disabled = false,
+  name,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: Array<{ value: string; label: string }>;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+  name?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selectedOption = options.find((opt) => opt.value === value);
+
+  const filteredOptions = options.filter((opt) =>
+    opt.label.toLowerCase().includes(search.toLowerCase()) ||
+    opt.value.toLowerCase().includes(search.toLowerCase())
+  );
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className={`searchable-select-container ${className}`} ref={containerRef}>
+      {name && <input type="hidden" name={name} value={value} />}
+      <button
+        type="button"
+        className={`searchable-select-trigger ${open ? "open" : ""}`}
+        onClick={() => !disabled && setOpen((v) => !v)}
+        disabled={disabled}
+      >
+        <span className="trigger-label">
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <ChevronDown
+          size={16}
+          className={`chevron-icon ${open ? "open" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div className="searchable-select-popover">
+          <div className="searchable-select-search">
+            <Search size={14} className="search-icon" />
+            <input
+              type="text"
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari pilihan..."
+              onClick={(e) => e.stopPropagation()}
+            />
+            {search && (
+              <button
+                type="button"
+                className="clear-btn"
+                onClick={() => setSearch("")}
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
+          <div className="searchable-select-options">
+            {filteredOptions.length === 0 ? (
+              <div className="searchable-select-empty">Pilihan tidak ditemukan</div>
+            ) : (
+              filteredOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={`searchable-select-option ${opt.value === value ? "active" : ""}`}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                    setSearch("");
+                  }}
+                >
+                  <span>{opt.label}</span>
+                  {opt.value === value && (
+                    <CheckCircle2 size={15} className="check-mark" />
+                  )}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function App() {
@@ -5260,6 +5368,8 @@ function MemberEditor({
 }) {
   const client = useQueryClient();
   const [error, setError] = useState("");
+  const [unitId, setUnitId] = useState(member?.unitId ?? "");
+  const [status, setStatus] = useState<string>(member?.status ?? "applicant");
   const units = useQuery({
     queryKey: ["organization-units"],
     queryFn: () => api<{ data: CmsUnit[] }>("/v1/admin/organization-units"),
@@ -5354,14 +5464,19 @@ function MemberEditor({
         </label>
         <label>
           Organization unit
-          <select name="unitId" defaultValue={member?.unitId ?? ""}>
-            <option value="">Unassigned</option>
-            {units.data?.data.map((unit) => (
-              <option key={unit.id} value={unit.id}>
-                {unit.name} · {unit.type}
-              </option>
-            ))}
-          </select>
+          <SearchableSelect
+            name="unitId"
+            value={unitId}
+            onChange={setUnitId}
+            placeholder="Cari & Pilih Unit Organisasi..."
+            options={[
+              { value: "", label: "Unassigned (Tidak Ada Unit)" },
+              ...(units.data?.data.map((unit) => ({
+                value: unit.id,
+                label: `${unit.name} (${unit.type})`,
+              })) ?? []),
+            ]}
+          />
         </label>
         <label>
           Joined date
@@ -5373,13 +5488,18 @@ function MemberEditor({
         </label>
         <label>
           Status
-          <select name="status" defaultValue={member?.status ?? "applicant"}>
-            <option value="applicant">Applicant</option>
-            <option value="pending">Pending review</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="rejected">Rejected</option>
-          </select>
+          <SearchableSelect
+            name="status"
+            value={status}
+            onChange={setStatus}
+            options={[
+              { value: "applicant", label: "Applicant (Pendaftar Baru)" },
+              { value: "pending", label: "Pending review" },
+              { value: "active", label: "Active (Anggota Aktif)" },
+              { value: "inactive", label: "Inactive (Tidak Aktif)" },
+              { value: "rejected", label: "Rejected (Ditolak)" },
+            ]}
+          />
         </label>
         <label className="check-field">
           <input
