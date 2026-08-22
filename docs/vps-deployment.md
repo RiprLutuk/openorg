@@ -181,6 +181,37 @@ Add the following line (runs every midnight at 00:00):
 
 ---
 
+## 💬 Step 8: (Optional) WhatsApp Gateway Setup via WAHA
+
+To automatically dispatch **Email Verification Links**, **KTA Digital Card Links**, and **Approval WhatsApp Notifications** to members' mobile phones:
+
+1. Run WAHA Docker container on the VPS:
+   ```bash
+   docker run -d \
+     --name waha \
+     --restart unless-stopped \
+     -p 3000:3000 \
+     -e WAHA_API_KEY=your-secure-waha-key \
+     -v /opt/waha:/app/.sessions \
+     devlikeapro/waha
+   ```
+
+2. Open the WAHA dashboard at `http://YOUR_VPS_IP:3000/dashboard` and scan the WhatsApp QR code with your organization's official WhatsApp number.
+
+3. In `/opt/openorg/.env.production`, configure:
+   ```env
+   WAHA_API_URL=http://localhost:3000
+   WAHA_API_KEY=your-secure-waha-key
+   WAHA_SESSION=default
+   ```
+
+4. Restart OpenOrg API:
+   ```bash
+   docker compose --env-file .env.production -f docker-compose.production.yml restart api
+   ```
+
+---
+
 ## 🩺 Useful Operational Commands
 
 - **View real-time logs**:

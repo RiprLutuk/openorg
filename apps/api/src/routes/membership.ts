@@ -1,7 +1,7 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { hash, verify } from "@node-rs/argon2";
 import { paginationSchema } from "@openorg/contracts";
-import { and, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
+import { and, desc, eq, gt, ilike, isNull, or, sql } from "drizzle-orm";
 import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { config } from "../config";
@@ -22,6 +22,10 @@ import {
   MEMBER_SESSION_TTL_SECONDS,
   newMemberSessionToken,
 } from "../plugins/member-auth";
+import {
+  sendApplicationApprovedNotification,
+  sendEmailVerificationNotification,
+} from "../services/notification";
 
 const registrationInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -126,6 +130,11 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
         outputLen: 32,
       });
 
+      const rawVerificationToken = randomBytes(24).toString("hex");
+      const verificationTokenHash =
+        hashMemberSessionToken(rawVerificationToken);
+      const verificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
       const [member] = await db.transaction(async (tx) => {
         const [created] = await tx
           .insert(members)
@@ -150,6 +159,8 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
             email: input.email,
             passwordHash,
             status: "active",
+            verificationTokenHash,
+            verificationTokenExpiresAt: verificationExpiresAt,
           })
           .returning();
         await tx.insert(memberApplications).values({
@@ -162,6 +173,17 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
         });
         return [created];
       });
+
+      // Dispatch Email & WhatsApp (WAHA) Verification Notification
+      const verificationUrl = `${config.WEB_ORIGIN}/member/verify-email?token=${rawVerificationToken}`;
+      void sendEmailVerificationNotification({
+        name: input.name,
+        email: input.email,
+        phone: input.phone,
+        token: rawVerificationToken,
+        verificationUrl,
+      });
+
       await membershipAudit(
         request,
         "member.application_submitted",
@@ -174,6 +196,175 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
         data: {
           memberId: member?.id,
           status: "applicant",
+          emailVerificationSent: true,
+          verificationUrl:
+            config.NODE_ENV !== "production" ? verificationUrl : undefined,
+        },
+      });
+    },
+  );
+
+  app.get("/verify-email", async (request, reply) => {
+    const { token } = z
+      .object({ token: z.string().min(10) })
+      .parse(request.query);
+
+    const tokenHash = hashMemberSessionToken(token);
+    const [account] = await db
+      .select({
+        id: memberAccounts.id,
+        email: memberAccounts.email,
+        memberId: memberAccounts.memberId,
+      })
+      .from(memberAccounts)
+      .where(
+        and(
+          eq(memberAccounts.verificationTokenHash, tokenHash),
+          gt(memberAccounts.verificationTokenExpiresAt, new Date()),
+        ),
+      )
+      .limit(1);
+
+    if (!account) {
+      throw new AppError(
+        400,
+        "INVALID_OR_EXPIRED_TOKEN",
+        "Tautan verifikasi tidak valid atau sudah kedaluwarsa. Silakan minta tautan verifikasi baru.",
+      );
+    }
+
+    const now = new Date();
+    await db
+      .update(memberAccounts)
+      .set({
+        emailVerifiedAt: now,
+        verificationTokenHash: null,
+        verificationTokenExpiresAt: null,
+        updatedAt: now,
+      })
+      .where(eq(memberAccounts.id, account.id));
+
+    return reply.send({
+      data: {
+        email: account.email,
+        verified: true,
+        verifiedAt: now.toISOString(),
+      },
+    });
+  });
+
+  app.post("/verify-email", async (request, reply) => {
+    const { token } = z
+      .object({ token: z.string().min(10) })
+      .parse(request.body);
+
+    const tokenHash = hashMemberSessionToken(token);
+    const [account] = await db
+      .select({
+        id: memberAccounts.id,
+        email: memberAccounts.email,
+        memberId: memberAccounts.memberId,
+      })
+      .from(memberAccounts)
+      .where(
+        and(
+          eq(memberAccounts.verificationTokenHash, tokenHash),
+          gt(memberAccounts.verificationTokenExpiresAt, new Date()),
+        ),
+      )
+      .limit(1);
+
+    if (!account) {
+      throw new AppError(
+        400,
+        "INVALID_OR_EXPIRED_TOKEN",
+        "Tautan verifikasi tidak valid atau sudah kedaluwarsa.",
+      );
+    }
+
+    const now = new Date();
+    await db
+      .update(memberAccounts)
+      .set({
+        emailVerifiedAt: now,
+        verificationTokenHash: null,
+        verificationTokenExpiresAt: null,
+        updatedAt: now,
+      })
+      .where(eq(memberAccounts.id, account.id));
+
+    return reply.send({
+      data: {
+        email: account.email,
+        verified: true,
+        verifiedAt: now.toISOString(),
+      },
+    });
+  });
+
+  app.post(
+    "/resend-verification",
+    { config: { rateLimit: { max: 3, timeWindow: "15 minutes" } } },
+    async (request, reply) => {
+      const { email } = z
+        .object({ email: z.string().email() })
+        .parse(request.body);
+
+      const [result] = await db
+        .select({
+          account: memberAccounts,
+          member: members,
+        })
+        .from(memberAccounts)
+        .innerJoin(members, eq(memberAccounts.memberId, members.id))
+        .where(eq(memberAccounts.email, email.toLowerCase()))
+        .limit(1);
+
+      if (!result) {
+        // Return success even if not found to prevent user enumeration
+        return reply.send({
+          data: {
+            message:
+              "Jika email terdaftar, tautan verifikasi baru telah dikirimkan.",
+          },
+        });
+      }
+
+      if (result.account.emailVerifiedAt) {
+        return reply.send({
+          data: {
+            message: "Email akun Anda sudah terverifikasi sebelumnya.",
+            alreadyVerified: true,
+          },
+        });
+      }
+
+      const rawToken = randomBytes(24).toString("hex");
+      const tokenHash = hashMemberSessionToken(rawToken);
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      await db
+        .update(memberAccounts)
+        .set({
+          verificationTokenHash: tokenHash,
+          verificationTokenExpiresAt: expiresAt,
+          updatedAt: new Date(),
+        })
+        .where(eq(memberAccounts.id, result.account.id));
+
+      const verificationUrl = `${config.WEB_ORIGIN}/member/verify-email?token=${rawToken}`;
+      void sendEmailVerificationNotification({
+        name: result.member.name,
+        email: result.account.email,
+        phone: result.member.phone,
+        token: rawToken,
+        verificationUrl,
+      });
+
+      return reply.send({
+        data: {
+          message: "Tautan verifikasi baru berhasil dikirimkan.",
+          email: result.account.email,
         },
       });
     },
@@ -308,7 +499,7 @@ export const memberPortalRoutes: FastifyPluginAsync = async (app) => {
       if (!member)
         throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
 
-      const [card, site] = await Promise.all([
+      const [card, site, account] = await Promise.all([
         db
           .select()
           .from(membershipCards)
@@ -327,12 +518,22 @@ export const memberPortalRoutes: FastifyPluginAsync = async (app) => {
           .where(eq(siteSettings.id, "default"))
           .limit(1)
           .then((rows) => rows[0] ?? null),
+        db
+          .select({
+            id: memberAccounts.id,
+            emailVerifiedAt: memberAccounts.emailVerifiedAt,
+          })
+          .from(memberAccounts)
+          .where(eq(memberAccounts.memberId, member.id))
+          .limit(1)
+          .then((rows) => rows[0] ?? null),
       ]);
 
       return {
         data: {
           member,
           card,
+          emailVerified: Boolean(account?.emailVerifiedAt),
           organization: {
             id: "default",
             name: site?.name ?? "OpenOrg Association",
@@ -561,6 +762,22 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
         application,
         result,
       );
+
+      if (input.decision === "approve" && result.card) {
+        const cardCode = result.card.code;
+        const cardUrl = `${config.WEB_ORIGIN}/verify?code=${encodeURIComponent(cardCode)}`;
+        const portalUrl = `${config.WEB_ORIGIN}/member/login`;
+        void sendApplicationApprovedNotification({
+          name: application.fullName,
+          email: application.email,
+          phone: application.phone,
+          memberNumber: result.memberNumber,
+          cardCode,
+          cardUrl,
+          portalUrl,
+        });
+      }
+
       return { data: result };
     },
   );

@@ -43,6 +43,14 @@ const configSchema = z
       .url()
       .default("http://localhost:4000/uploads"),
     DEFAULT_ORGANIZATION_SLUG: z.string().min(2).default("demo"),
+    WAHA_API_URL: z.string().url().optional(),
+    WAHA_API_KEY: z.string().optional(),
+    WAHA_SESSION: z.string().default("default"),
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.coerce.number().int().optional(),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
+    SMTP_FROM: z.string().default("APTI Indonesia <no-reply@apti.or.id>"),
   })
   .superRefine((value, context) => {
     if (

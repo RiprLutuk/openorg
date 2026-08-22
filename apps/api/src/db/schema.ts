@@ -459,6 +459,11 @@ export const memberAccounts = pgTable("member_accounts", {
   email: varchar("email", { length: 320 }).notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   status: userStatus("status").notNull().default("active"),
+  emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+  verificationTokenHash: bytea("verification_token_hash"),
+  verificationTokenExpiresAt: timestamp("verification_token_expires_at", {
+    withTimezone: true,
+  }),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   ...timestamps,
 });

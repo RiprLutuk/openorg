@@ -64,17 +64,29 @@ export function MembershipRegistration({
     return (
       <div className="member-success-card">
         <span>
-          <BadgeCheck size={28} />
+          <BadgeCheck size={32} />
         </span>
-        <p className="eyebrow">Application submitted</p>
-        <h2>Your registration is complete.</h2>
+        <p className="eyebrow">Pendaftaran Berhasil Dikirim</p>
+        <h2>Permohonan Anda Sedang Diproses</h2>
         <p>
-          The {organizationName} team can now review your application. Sign in
-          anytime to see its status and complete your profile.
+          Tautan verifikasi email telah dikirimkan ke alamat email dan nomor
+          WhatsApp Anda untuk mencegah data spam dan mengamankan akun KTA
+          Digital.
         </p>
-        <Link className="button primary" href="/member/login">
-          Open member portal <ArrowRight size={17} />
-        </Link>
+        <p className="mt-2 text-sm text-slate-500">
+          Setelah memverifikasi email, tim pengurus {organizationName} akan
+          meninjau berkas permohonan keanggotaan Anda. Anda dapat langsung masuk
+          ke portal anggota untuk melengkapi profil dan memantau status
+          persetujuan.
+        </p>
+        <div className="gate-action-buttons mt-4">
+          <Link className="button primary" href="/member/login">
+            Buka Portal Anggota <ArrowRight size={17} />
+          </Link>
+          <Link className="button secondary" href="/member/verify-email">
+            Cek Verifikasi Email
+          </Link>
+        </div>
       </div>
     );
   }

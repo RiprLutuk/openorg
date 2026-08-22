@@ -290,6 +290,25 @@ export function MemberPortal() {
           <LogOut size={17} /> Sign out
         </button>
       </div>
+
+      {!data.emailVerified && (
+        <div className="email-unverified-alert">
+          <div className="alert-copy">
+            <strong>⚠️ Email Akun Belum Diverifikasi</strong>
+            <p>
+              Untuk mengamankan akun dan mencegah pembatalan KTA Digital,
+              silakan lakukan verifikasi email/WhatsApp Anda.
+            </p>
+          </div>
+          <Link
+            className="button secondary verify-btn"
+            href="/member/verify-email"
+          >
+            Verifikasi Sekarang
+          </Link>
+        </div>
+      )}
+
       <div className="member-status-strip">
         <span className="member-status-icon">
           <BadgeCheck size={22} />
