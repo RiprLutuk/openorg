@@ -5302,35 +5302,33 @@ function KtaCardModal({
                 padding: "20px 22px 16px",
               }}
             >
-              {/* Top Ambient Highlight */}
+              {/* Top Ambient Highlight (Zero-Transform Pure Coordinate) */}
               <div
                 style={{
                   position: "absolute",
                   top: 0,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: "280px",
+                  left: 0,
+                  right: 0,
                   height: "140px",
                   background:
-                    "radial-gradient(ellipse at top, rgba(99, 102, 241, 0.18) 0%, transparent 70%)",
+                    "radial-gradient(ellipse at center top, rgba(99, 102, 241, 0.18) 0%, transparent 70%)",
                   pointerEvents: "none",
                   zIndex: 1,
                 }}
               />
 
-              {/* Semi-Transparent Organization Logo Watermark Background */}
+              {/* Semi-Transparent Organization Logo Watermark Background (Zero-Transform Pure Flex Center) */}
               <div
                 style={{
                   position: "absolute",
-                  top: "46%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  width: "240px",
-                  height: "240px",
+                  top: "60px",
+                  left: 0,
+                  right: 0,
+                  bottom: "120px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  opacity: 0.06,
+                  opacity: 0.05,
                   pointerEvents: "none",
                   zIndex: 1,
                   userSelect: "none",
@@ -5342,8 +5340,8 @@ function KtaCardModal({
                     alt=""
                     crossOrigin="anonymous"
                     style={{
-                      width: "100%",
-                      height: "100%",
+                      width: "220px",
+                      height: "220px",
                       objectFit: "contain",
                       filter: "grayscale(100%) brightness(1.8)",
                     }}
@@ -5356,6 +5354,11 @@ function KtaCardModal({
                       color: "#ffffff",
                       letterSpacing: "4px",
                       textTransform: "uppercase",
+                      lineHeight: "1",
+                      textAlign: "center",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
                     {orgName.slice(0, 2).toUpperCase()}
@@ -5400,19 +5403,16 @@ function KtaCardModal({
                     lineHeight: "1",
                   }}
                 >
-                  <span
-                    style={{
-                      width: "5.5px",
-                      height: "5.5px",
-                      borderRadius: "50%",
-                      background: "#34d399",
-                      boxShadow: "0 0 6px rgba(52, 211, 153, 0.8)",
-                      display: "inline-block",
-                      flexShrink: 0,
-                      marginTop: "1px",
-                    }}
-                  />
-                  <span style={{ display: "inline-block", lineHeight: "1" }}>
+                  <svg
+                    width="6"
+                    height="6"
+                    viewBox="0 0 6 6"
+                    aria-hidden="true"
+                    style={{ display: "block", flexShrink: 0 }}
+                  >
+                    <circle cx="3" cy="3" r="3" fill="#34d399" />
+                  </svg>
+                  <span style={{ display: "block", lineHeight: "1" }}>
                     AKTIF
                   </span>
                 </div>
