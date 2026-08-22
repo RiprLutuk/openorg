@@ -322,9 +322,13 @@ h3,
 .user-avatar {
   display: grid;
   place-items: center;
-  width: 35px;
-  height: 35px;
-  border-radius: 9px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  max-width: 34px;
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
   color: #fff;
   font-weight: 800;
   font-size: 12px;
@@ -332,8 +336,12 @@ h3,
 .org-avatar.compact {
   width: 28px;
   height: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
   font-size: 10px;
-  border-radius: 7px;
+  border-radius: 6px;
 }
 .org-avatar {
   background: var(--brand);
@@ -366,21 +374,21 @@ h3,
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  padding: 6px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.6), 0 4px 12px -2px rgba(0, 0, 0, 0.4);
   z-index: 100;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  animation: popoverFadeIn 0.15s ease-out;
+  animation: popoverFadeIn 0.14s ease-out;
 }
 @keyframes popoverFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-6px);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
@@ -388,10 +396,10 @@ h3,
   }
 }
 .popover-header {
-  padding: 6px 10px 4px;
-  font-size: 10px;
+  padding: 5px 8px 3px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #64748b;
 }
@@ -399,13 +407,13 @@ h3,
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
+  gap: 9px;
+  padding: 7px 9px;
+  border-radius: 6px;
   border: none;
   background: transparent;
   color: #cbd5e1;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   text-align: left;
   text-decoration: none;
@@ -414,11 +422,14 @@ h3,
 }
 .popover-item:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  color: #ffffff;
 }
 .popover-item.active {
-  background: rgba(59, 91, 219, 0.2);
-  color: #fff;
+  background: rgba(59, 91, 219, 0.25);
+  color: #ffffff;
+}
+.popover-item.danger {
+  color: #f87171;
 }
 .popover-item.danger:hover {
   background: rgba(239, 68, 68, 0.15);
@@ -429,24 +440,32 @@ h3,
   flex-direction: column;
   min-width: 0;
   flex: 1;
+  overflow: hidden;
 }
 .popover-item strong {
   font-size: 12px;
   font-weight: 700;
   color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .popover-item small {
   font-size: 10px;
   color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .check-icon {
-  color: #3b5bdb;
+  color: #60a5fa;
+  flex-shrink: 0;
   margin-left: auto;
 }
 .popover-divider {
   height: 1px;
   background: rgba(255, 255, 255, 0.08);
-  margin: 4px 0;
+  margin: 3px 0;
 }
 
 .sidebar nav {
