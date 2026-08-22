@@ -5451,13 +5451,12 @@ function KtaCardModal({
                     style={{
                       fontSize: "13px",
                       fontWeight: 900,
-                      letterSpacing: "0.8px",
+                      letterSpacing: "0.5px",
                       color: "#ffffff",
                       textTransform: "uppercase",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      textShadow: "0 2px 8px rgba(0, 0, 0, 0.6)",
+                      lineHeight: "1.4",
+                      display: "block",
+                      textShadow: "0 1px 4px rgba(0, 0, 0, 0.8)",
                     }}
                   >
                     {orgName}
@@ -5467,7 +5466,8 @@ function KtaCardModal({
                       fontSize: "9px",
                       color: "#cbd5e1",
                       fontWeight: 600,
-                      letterSpacing: "0.5px",
+                      letterSpacing: "0.3px",
+                      lineHeight: "1.3",
                       marginTop: "1px",
                     }}
                   >
@@ -5476,18 +5476,19 @@ function KtaCardModal({
                 </div>
                 <div
                   style={{
-                    display: "flex",
+                    display: "inline-flex",
                     alignItems: "center",
-                    gap: "5px",
+                    gap: "6px",
                     background: "rgba(16, 185, 129, 0.2)",
                     border: "1.5px solid #10b981",
                     color: "#34d399",
                     fontSize: "9.5px",
                     fontWeight: 900,
                     letterSpacing: "1px",
-                    padding: "3px 9px",
+                    padding: "4px 10px",
                     borderRadius: "20px",
                     flexShrink: 0,
+                    lineHeight: "1",
                     boxShadow: "0 0 12px rgba(16, 185, 129, 0.3)",
                   }}
                 >
@@ -5603,13 +5604,14 @@ function KtaCardModal({
               >
                 <div
                   style={{
-                    fontSize: "19.5px",
+                    fontSize: "19px",
                     fontWeight: 900,
                     color: "#ffffff",
-                    letterSpacing: "0.6px",
+                    letterSpacing: "0.5px",
                     textTransform: "uppercase",
-                    textShadow: "0 2px 12px rgba(0, 0, 0, 0.8)",
-                    lineHeight: 1.2,
+                    textShadow: "0 2px 10px rgba(0, 0, 0, 0.8)",
+                    lineHeight: "1.3",
+                    padding: "2px 0",
                   }}
                 >
                   {member.name}
@@ -5642,11 +5644,9 @@ function KtaCardModal({
               {/* HUD Details Box */}
               <div
                 style={{
-                  background: "rgba(15, 23, 42, 0.85)",
-                  border: "1.5px solid rgba(255, 255, 255, 0.18)",
-                  backdropFilter: "blur(18px)",
-                  WebkitBackdropFilter: "blur(18px)",
-                  borderRadius: "16px",
+                  background: "rgba(15, 23, 42, 0.9)",
+                  border: "1.5px solid rgba(56, 189, 248, 0.4)",
+                  borderRadius: "14px",
                   padding: "12px 14px",
                   position: "relative",
                   zIndex: 10,
@@ -5654,33 +5654,9 @@ function KtaCardModal({
                   alignItems: "center",
                   justifyContent: "space-between",
                   gap: "10px",
-                  boxShadow:
-                    "0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2)",
+                  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.6)",
                 }}
               >
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "4px",
-                    left: "4px",
-                    width: "7px",
-                    height: "7px",
-                    borderTop: "2px solid #38bdf8",
-                    borderLeft: "2px solid #38bdf8",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "4px",
-                    right: "4px",
-                    width: "7px",
-                    height: "7px",
-                    borderBottom: "2px solid #ec4899",
-                    borderRight: "2px solid #ec4899",
-                  }}
-                />
-
                 <div
                   style={{
                     flex: 1,
@@ -5706,7 +5682,7 @@ function KtaCardModal({
                       style={{
                         fontSize: "11.5px",
                         fontWeight: 800,
-                        lineHeight: 1.2,
+                        lineHeight: "1.3",
                         color: "#38bdf8",
                         textShadow: "0 0 10px rgba(56, 189, 248, 0.5)",
                       }}
@@ -5731,7 +5707,7 @@ function KtaCardModal({
                       style={{
                         fontSize: "11.5px",
                         fontWeight: 800,
-                        lineHeight: 1.2,
+                        lineHeight: "1.3",
                         color: "#4ade80",
                         textShadow: "0 0 10px rgba(74, 222, 128, 0.5)",
                       }}
@@ -5816,18 +5792,19 @@ function KtaCardModal({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "6px",
-                  fontSize: "8px",
+                  gap: "8px",
+                  fontSize: "8.5px",
                   fontWeight: 800,
-                  letterSpacing: "1.2px",
+                  letterSpacing: "1px",
                   color: "#94a3b8",
                   fontFamily: "monospace",
                   position: "relative",
                   zIndex: 10,
+                  whiteSpace: "nowrap",
                 }}
               >
-                <span>COMPLYFLOW SECURE CREDENTIAL</span>
-                <span style={{ color: "#ec4899" }}>{"///"}</span>
+                <span>COMPLYFLOW ID</span>
+                <span style={{ color: "#ec4899" }}>{"●"}</span>
                 <span>ZERO-TRUST VERIFIED</span>
               </div>
             </div>

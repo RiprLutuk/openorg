@@ -236,9 +236,6 @@ export function MemberPortraitCard({
 
         {/* Cyber-HUD Bottom Glass Container */}
         <div className="cyber-hud-glass">
-          <div className="hud-corner-tl" />
-          <div className="hud-corner-br" />
-
           <div className="hud-info-col">
             <div className="hud-item">
               <span className="hud-label">UNIT / WILAYAH</span>
@@ -278,8 +275,8 @@ export function MemberPortraitCard({
 
         {/* Bottom Security Micro-Decal */}
         <div className="cyber-bottom-decal">
-          <span>COMPLYFLOW SECURE CREDENTIAL</span>
-          <span className="decal-divider">{"///"}</span>
+          <span>COMPLYFLOW ID</span>
+          <span className="decal-divider">{"●"}</span>
           <span>ZERO-TRUST VERIFIED</span>
         </div>
       </div>
