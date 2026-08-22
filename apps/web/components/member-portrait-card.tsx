@@ -278,11 +278,15 @@ export function MemberPortraitCard({
                 height: "6px",
                 borderRadius: "50%",
                 background: "#34d399",
-                boxShadow: "0 0 8px #34d399",
+                boxShadow: "0 0 6px rgba(52, 211, 153, 0.8)",
                 display: "inline-block",
+                flexShrink: 0,
+                transform: "translateY(0.5px)",
               }}
             />
-            <span>AKTIF</span>
+            <span style={{ display: "inline-block", lineHeight: "1" }}>
+              AKTIF
+            </span>
           </div>
         </div>
 
@@ -475,7 +479,7 @@ export function MemberPortraitCard({
               fontFamily:
                 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
               marginTop: "4px",
-              lineHeight: "1",
+              lineHeight: "1.3",
               color: "#38bdf8",
             }}
           >
@@ -517,8 +521,8 @@ export function MemberPortraitCard({
                   color: "#64748b",
                   textTransform: "uppercase",
                   display: "block",
-                  lineHeight: "1",
-                  marginBottom: "2px",
+                  lineHeight: "1.3",
+                  marginBottom: "1px",
                 }}
               >
                 WILAYAH
@@ -527,12 +531,11 @@ export function MemberPortraitCard({
                 style={{
                   fontSize: "11.5px",
                   fontWeight: 800,
-                  lineHeight: "1.2",
+                  lineHeight: "1.4",
                   color: "#f8fafc",
                   whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
                   display: "block",
+                  padding: "1px 0",
                 }}
               >
                 {dpdText}
@@ -548,8 +551,8 @@ export function MemberPortraitCard({
                   color: "#64748b",
                   textTransform: "uppercase",
                   display: "block",
-                  lineHeight: "1",
-                  marginBottom: "2px",
+                  lineHeight: "1.3",
+                  marginBottom: "1px",
                 }}
               >
                 STATUS
@@ -558,12 +561,11 @@ export function MemberPortraitCard({
                 style={{
                   fontSize: "11.5px",
                   fontWeight: 800,
-                  lineHeight: "1.2",
+                  lineHeight: "1.4",
                   color: "#34d399",
                   whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
                   display: "block",
+                  padding: "1px 0",
                 }}
               >
                 {positionText}
@@ -588,7 +590,7 @@ export function MemberPortraitCard({
                     color: "#64748b",
                     textTransform: "uppercase",
                     display: "block",
-                    lineHeight: "1",
+                    lineHeight: "1.3",
                     marginBottom: "1px",
                   }}
                 >
@@ -598,9 +600,11 @@ export function MemberPortraitCard({
                   style={{
                     fontSize: "10px",
                     fontWeight: 700,
+                    lineHeight: "1.3",
                     color: "#cbd5e1",
                     whiteSpace: "nowrap",
                     display: "block",
+                    padding: "1px 0",
                   }}
                 >
                   {formattedIssueDate}
@@ -616,7 +620,7 @@ export function MemberPortraitCard({
                     color: "#64748b",
                     textTransform: "uppercase",
                     display: "block",
-                    lineHeight: "1",
+                    lineHeight: "1.3",
                     marginBottom: "1px",
                   }}
                 >
@@ -626,9 +630,11 @@ export function MemberPortraitCard({
                   style={{
                     fontSize: "10px",
                     fontWeight: 700,
+                    lineHeight: "1.3",
                     color: "#cbd5e1",
                     whiteSpace: "nowrap",
                     display: "block",
+                    padding: "1px 0",
                   }}
                 >
                   v{card.version ?? 1}.0

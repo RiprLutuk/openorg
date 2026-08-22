@@ -5396,11 +5396,15 @@ function KtaCardModal({
                       height: "6px",
                       borderRadius: "50%",
                       background: "#34d399",
-                      boxShadow: "0 0 8px #34d399",
+                      boxShadow: "0 0 6px rgba(52, 211, 153, 0.8)",
                       display: "inline-block",
+                      flexShrink: 0,
+                      transform: "translateY(0.5px)",
                     }}
-                  />{" "}
-                  AKTIF
+                  />
+                  <span style={{ display: "inline-block", lineHeight: "1" }}>
+                    AKTIF
+                  </span>
                 </div>
               </div>
 
@@ -5446,7 +5450,7 @@ function KtaCardModal({
                 </div>
               </div>
 
-              {/* Concentric Avatar */}
+              {/* Concentric Avatar Visual */}
               <div
                 style={{
                   display: "flex",
@@ -5463,6 +5467,7 @@ function KtaCardModal({
                     height: "104px",
                   }}
                 >
+                  {/* Outer Ring */}
                   <div
                     style={{
                       position: "absolute",
@@ -5475,6 +5480,7 @@ function KtaCardModal({
                       boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
                     }}
                   />
+                  {/* Dark Gap Bezel */}
                   <div
                     style={{
                       position: "absolute",
@@ -5486,6 +5492,7 @@ function KtaCardModal({
                       background: "#080c14",
                     }}
                   />
+                  {/* Avatar Image / Placeholder */}
                   <div
                     style={{
                       position: "absolute",
@@ -5501,6 +5508,7 @@ function KtaCardModal({
                       <img
                         src={member.avatarUrl}
                         alt={member.name}
+                        className="cyber-avatar-img"
                         crossOrigin="anonymous"
                         style={{
                           width: "100%",
@@ -5588,7 +5596,7 @@ function KtaCardModal({
                     fontFamily:
                       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
                     marginTop: "4px",
-                    lineHeight: 1,
+                    lineHeight: "1.3",
                     color: "#38bdf8",
                   }}
                 >
@@ -5630,8 +5638,8 @@ function KtaCardModal({
                         color: "#64748b",
                         textTransform: "uppercase",
                         display: "block",
-                        lineHeight: "1",
-                        marginBottom: "2px",
+                        lineHeight: "1.3",
+                        marginBottom: "1px",
                       }}
                     >
                       WILAYAH
@@ -5640,12 +5648,11 @@ function KtaCardModal({
                       style={{
                         fontSize: "11.5px",
                         fontWeight: 800,
-                        lineHeight: "1.2",
+                        lineHeight: "1.4",
                         color: "#f8fafc",
                         whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
                         display: "block",
+                        padding: "1px 0",
                       }}
                     >
                       {dpdText}
@@ -5661,8 +5668,8 @@ function KtaCardModal({
                         color: "#64748b",
                         textTransform: "uppercase",
                         display: "block",
-                        lineHeight: "1",
-                        marginBottom: "2px",
+                        lineHeight: "1.3",
+                        marginBottom: "1px",
                       }}
                     >
                       STATUS
@@ -5671,12 +5678,11 @@ function KtaCardModal({
                       style={{
                         fontSize: "11.5px",
                         fontWeight: 800,
-                        lineHeight: "1.2",
+                        lineHeight: "1.4",
                         color: "#34d399",
                         whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
                         display: "block",
+                        padding: "1px 0",
                       }}
                     >
                       CERTIFIED PRACTITIONER
@@ -5701,7 +5707,7 @@ function KtaCardModal({
                           color: "#64748b",
                           textTransform: "uppercase",
                           display: "block",
-                          lineHeight: "1",
+                          lineHeight: "1.3",
                           marginBottom: "1px",
                         }}
                       >
@@ -5711,9 +5717,11 @@ function KtaCardModal({
                         style={{
                           fontSize: "10px",
                           fontWeight: 700,
+                          lineHeight: "1.3",
                           color: "#cbd5e1",
                           whiteSpace: "nowrap",
                           display: "block",
+                          padding: "1px 0",
                         }}
                       >
                         {new Date(
@@ -5734,7 +5742,7 @@ function KtaCardModal({
                           color: "#64748b",
                           textTransform: "uppercase",
                           display: "block",
-                          lineHeight: "1",
+                          lineHeight: "1.3",
                           marginBottom: "1px",
                         }}
                       >
@@ -5744,9 +5752,11 @@ function KtaCardModal({
                         style={{
                           fontSize: "10px",
                           fontWeight: 700,
+                          lineHeight: "1.3",
                           color: "#cbd5e1",
                           whiteSpace: "nowrap",
                           display: "block",
+                          padding: "1px 0",
                         }}
                       >
                         v{cardData?.card.version ?? 1}.0
