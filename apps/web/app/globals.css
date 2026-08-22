@@ -49,22 +49,25 @@ img {
   bottom: 24px;
   z-index: 20;
   display: inline-flex;
-  gap: 9px;
   align-items: center;
-  padding: 14px 18px;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
   color: #344054;
   border: 1px solid #eaecf0;
   text-decoration: none;
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: 0 12px 32px #1018281f;
-  font-weight: 800;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.18);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .quick-contact svg {
   color: var(--color-accent);
 }
 .quick-contact:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 16px 36px rgba(16, 24, 40, 0.25);
 }
 .announcement-backdrop {
   position: fixed;

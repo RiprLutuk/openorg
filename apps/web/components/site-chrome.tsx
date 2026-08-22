@@ -131,9 +131,11 @@ export function Footer({ site }: { site: PublicSite }) {
           className="quick-contact"
           href={site.quickContact.href}
           aria-label={site.quickContact.label}
+          title={site.quickContact.label}
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          <MessageCircle size={19} />
-          <span>{site.quickContact.label}</span>
+          <MessageCircle size={22} />
         </a>
       )}
       <footer className="site-footer">

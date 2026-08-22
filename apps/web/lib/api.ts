@@ -3,7 +3,7 @@ import type { PageSection, PublicSite } from "@openorg/contracts";
 const API_URL =
   process.env.INTERNAL_API_URL ??
   process.env.NEXT_PUBLIC_API_URL ??
-  "http://localhost:4000";
+  "http://127.0.0.1:4000";
 
 export type PublicPage = {
   id: string;
@@ -134,6 +134,7 @@ export async function publicApi<T>(
     const response = await fetch(`${API_URL}/v1/public${path}`, {
       ...options,
       headers: { ...options?.headers },
+      signal: AbortSignal.timeout(3000),
       next: { revalidate: 60 },
     });
     if (!response.ok)
