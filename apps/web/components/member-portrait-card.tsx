@@ -56,18 +56,29 @@ export function MemberPortraitCard({
   const [qrUrl, setQrUrl] = useState<string>("");
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const primaryColor =
+  const rawPrimary =
     organization.theme?.colors?.primary ||
     organization.primaryColor ||
-    "var(--color-primary, #8b5cf6)";
-  const secondaryColor =
+    "#8b5cf6";
+  const rawSecondary =
     organization.theme?.colors?.secondary ||
     organization.secondaryColor ||
-    "var(--color-secondary, #06b6d4)";
+    "#06b6d4";
+  const rawAccent =
+    organization.theme?.colors?.accent || organization.accentColor || "#f59e0b";
+
+  const primaryColor =
+    rawPrimary.startsWith("#") || rawPrimary.startsWith("rgb")
+      ? rawPrimary
+      : "#8b5cf6";
+  const secondaryColor =
+    rawSecondary.startsWith("#") || rawSecondary.startsWith("rgb")
+      ? rawSecondary
+      : "#06b6d4";
   const accentColor =
-    organization.theme?.colors?.accent ||
-    organization.accentColor ||
-    "var(--color-accent, #f59e0b)";
+    rawAccent.startsWith("#") || rawAccent.startsWith("rgb")
+      ? rawAccent
+      : "#f59e0b";
 
   const cardCustomStyles = {
     "--kta-primary": primaryColor,
@@ -97,8 +108,10 @@ export function MemberPortraitCard({
       const canvas = await html2canvas(cardRef.current, {
         scale: 3, // Ultra HD Retina 300 DPI
         useCORS: true,
+        allowTaint: true,
         backgroundColor: null,
         logging: false,
+        imageTimeout: 15000,
       });
 
       const dataUrl = canvas.toDataURL("image/png");

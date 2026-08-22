@@ -5116,8 +5116,10 @@ function KtaCardModal({
       const canvas = await html2canvas(cardRef.current, {
         scale: 3,
         useCORS: true,
+        allowTaint: true,
         backgroundColor: null,
         logging: false,
+        imageTimeout: 15000,
       });
       const dataUrl = canvas.toDataURL("image/png");
       const link = document.createElement("a");
@@ -5128,8 +5130,13 @@ function KtaCardModal({
       link.click();
       document.body.removeChild(link);
       toast.success(`KTA Digital ${member.name} berhasil diunduh!`);
-    } catch {
-      toast.error("Gagal mengunduh kartu KTA.");
+    } catch (err: unknown) {
+      console.error("Gagal mengunduh kartu KTA:", err);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Gagal mengunduh kartu KTA. Silakan coba lagi.",
+      );
     } finally {
       setIsDownloading(false);
     }
@@ -5192,15 +5199,28 @@ function KtaCardModal({
     .slice(0, 2)
     .toUpperCase();
 
-  const primaryColor =
+  const rawPrimary =
     cardData?.organization.theme?.colors?.primary ||
     cardData?.organization.primaryColor ||
     "#8b5cf6";
-  const secondaryColor =
+  const rawSecondary =
     cardData?.organization.theme?.colors?.secondary ||
     cardData?.organization.secondaryColor ||
     "#06b6d4";
-  const accentColor = cardData?.organization.theme?.colors?.accent || "#f59e0b";
+  const rawAccent = cardData?.organization.theme?.colors?.accent || "#f59e0b";
+
+  const primaryColor =
+    rawPrimary.startsWith("#") || rawPrimary.startsWith("rgb")
+      ? rawPrimary
+      : "#8b5cf6";
+  const secondaryColor =
+    rawSecondary.startsWith("#") || rawSecondary.startsWith("rgb")
+      ? rawSecondary
+      : "#06b6d4";
+  const accentColor =
+    rawAccent.startsWith("#") || rawAccent.startsWith("rgb")
+      ? rawAccent
+      : "#f59e0b";
 
   const cardCustomStyles = {
     "--kta-primary": primaryColor,
