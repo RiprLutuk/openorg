@@ -95,9 +95,12 @@ export function Header({ site }: { site: PublicSite }) {
     },
     {
       id: "membership",
-      label: "Keanggotaan",
+      label: "Keanggotaan & Direktori",
       href: "/join",
       children: [
+        { id: "tech-locator", label: "Cari Teknisi Terverifikasi", href: "/technicians" },
+        { id: "clubs-directory", label: "Direktori Klub & TKT", href: "/clubs" },
+        { id: "lender-verifier", label: "Cek Platform Fintech Berizin", href: "/lenders" },
         { id: "join-terms", label: "Syarat & Pendaftaran", href: "/join" },
         { id: "verify-kta", label: "Verifikasi KTA & Kredensial", href: "/verify" },
         { id: "member-portal", label: "Portal Anggota", href: "/member/login" },
@@ -114,11 +117,13 @@ export function Header({ site }: { site: PublicSite }) {
     },
     {
       id: "advocacy",
-      label: "Advokasi & Data",
+      label: "Advokasi & Layanan",
       href: "/regulations",
       children: [
+        { id: "working-groups", label: "Kelompok Kerja (Pokja) Advokasi", href: "/working-groups" },
         { id: "regulations-list", label: "Regulasi & Policy Papers", href: "/regulations" },
-        { id: "industry-stats", label: "Statistik Industri & IXP", href: "/statistics" },
+        { id: "industry-stats", label: "Statistik Industri", href: "/statistics" },
+        { id: "whois-lookup", label: "Lookup WHOIS & Traffic IIX", href: "/whois" },
         { id: "public-complaints", label: "Layanan Pengaduan Etik", href: "/complaints" },
       ],
     },

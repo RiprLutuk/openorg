@@ -1035,6 +1035,57 @@ export const industryStatistics = pgTable("industry_statistics", {
   ...timestamps,
 });
 
+export const workingGroups = pgTable("working_groups", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 180 }).notNull(),
+  slug: varchar("slug", { length: 160 }).notNull().unique(),
+  chairName: varchar("chair_name", { length: 160 }),
+  category: varchar("category", { length: 80 }).notNull().default("advocacy"),
+  description: text("description"),
+  memberCount: integer("member_count").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  ...timestamps,
+});
+
+export const technicianDirectories = pgTable("technician_directories", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 160 }).notNull(),
+  ktaNumber: varchar("kta_number", { length: 80 }).notNull().unique(),
+  skillLevel: varchar("skill_level", { length: 80 }).notNull().default("Level 3 Residensial"),
+  province: varchar("province", { length: 100 }).notNull(),
+  city: varchar("city", { length: 100 }).notNull(),
+  phone: varchar("phone", { length: 40 }),
+  workshopName: varchar("workshop_name", { length: 160 }),
+  rating: varchar("rating", { length: 10 }).default("4.9"),
+  certifiedBnsp: boolean("certified_bnsp").notNull().default(true),
+  isAvailable: boolean("is_available").notNull().default(true),
+  ...timestamps,
+});
+
+export const registeredClubs = pgTable("registered_clubs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  clubName: varchar("club_name", { length: 180 }).notNull(),
+  codeTkt: varchar("code_tkt", { length: 80 }).notNull().unique(),
+  province: varchar("province", { length: 100 }).notNull(),
+  category: varchar("category", { length: 80 }).notNull().default("Mobility & Community"),
+  chairName: varchar("chair_name", { length: 160 }),
+  activeMembers: integer("active_members").notNull().default(1),
+  status: varchar("status", { length: 40 }).notNull().default("verified"),
+  ...timestamps,
+});
+
+export const lenderRegistries = pgTable("lender_registries", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  brandName: varchar("brand_name", { length: 160 }).notNull(),
+  companyName: varchar("company_name", { length: 220 }).notNull(),
+  licenseNumber: varchar("license_number", { length: 120 }).notNull().unique(),
+  sectorType: varchar("sector_type", { length: 80 }).notNull().default("P2P Lending Produktif"),
+  ojkStatus: varchar("ojk_status", { length: 60 }).notNull().default("Berizin OJK"),
+  websiteUrl: text("website_url"),
+  isAfpiMember: boolean("is_afpi_member").notNull().default(true),
+  ...timestamps,
+});
+
 // Relations definitions
 export const userRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),

@@ -9,14 +9,18 @@ import {
   contents,
   events,
   industryStatistics,
+  lenderRegistries,
   members,
   organizationUnits,
   pages,
   positionAssignments,
   positions,
   publicComplaints,
+  registeredClubs,
   regulations,
   siteSettings,
+  technicianDirectories,
+  workingGroups,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
 
@@ -433,5 +437,97 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       .orderBy(asc(industryStatistics.sortOrder), asc(industryStatistics.metricKey));
 
     return { data: rows };
+  });
+
+  // Cari Teknisi Terverifikasi (ASISI / APITU)
+  app.get("/technicians", async (request) => {
+    const query = z.object({ city: z.string().optional(), search: z.string().optional() }).parse(request.query);
+    const conditions = [];
+    if (query.city) conditions.push(ilike(technicianDirectories.city, `%${query.city}%`));
+    if (query.search) {
+      conditions.push(
+        or(
+          ilike(technicianDirectories.name, `%${query.search}%`),
+          ilike(technicianDirectories.ktaNumber, `%${query.search}%`),
+          ilike(technicianDirectories.workshopName, `%${query.search}%`),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(technicianDirectories)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(desc(technicianDirectories.rating));
+
+    return { data: rows };
+  });
+
+  // Kelompok Kerja / Pokja Advokasi (APINDO, AFTECH, idEA)
+  app.get("/working-groups", async () => {
+    const rows = await db
+      .select()
+      .from(workingGroups)
+      .where(eq(workingGroups.isActive, true))
+      .orderBy(asc(workingGroups.name));
+
+    return { data: rows };
+  });
+
+  // Direktori Klub & Pengprov TKT (IMI, APITU)
+  app.get("/clubs", async (request) => {
+    const query = z.object({ province: z.string().optional() }).parse(request.query);
+    const conditions = [];
+    if (query.province) conditions.push(ilike(registeredClubs.province, `%${query.province}%`));
+
+    const rows = await db
+      .select()
+      .from(registeredClubs)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(desc(registeredClubs.activeMembers));
+
+    return { data: rows };
+  });
+
+  // Verifikasi Platform Fintech & Multifinance (AFPI, AFTECH, APPI)
+  app.get("/lenders", async (request) => {
+    const query = z.object({ search: z.string().optional() }).parse(request.query);
+    const conditions = [];
+    if (query.search) {
+      conditions.push(
+        or(
+          ilike(lenderRegistries.brandName, `%${query.search}%`),
+          ilike(lenderRegistries.companyName, `%${query.search}%`),
+          ilike(lenderRegistries.licenseNumber, `%${query.search}%`),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(lenderRegistries)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(lenderRegistries.brandName));
+
+    return { data: rows };
+  });
+
+  // WHOIS IP/ASN & IIX Traffic Simulator (APJII)
+  app.get("/whois", async (request) => {
+    const query = z.object({ query: z.string().optional() }).parse(request.query);
+    const q = query.query?.trim() ?? "APJII-IDNIC-ASN";
+
+    return {
+      data: {
+        query: q,
+        asn: "AS134371",
+        organization: "APJII IDNIC NIR National Registry",
+        ipRange: "103.28.144.0/22",
+        status: "ACTIVE_ALLOCATION",
+        iixTrafficPeakGbps: "2,480 Gbps",
+        peeringStatus: "CONNECTED_TO_IIX_JKT01",
+        updatedAt: new Date().toISOString(),
+      },
+    };
   });
 };

@@ -6,6 +6,7 @@ import {
   contents,
   events,
   industryStatistics,
+  lenderRegistries,
   members,
   membershipCards,
   organizationUnits,
@@ -13,12 +14,15 @@ import {
   positionAssignments,
   positions,
   publicComplaints,
+  registeredClubs,
   regulations,
   rolePermissions,
   roles,
   siteSettings,
+  technicianDirectories,
   userRoles,
   users,
+  workingGroups,
 } from "./schema";
 
 const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@demo.openorg";
@@ -58,6 +62,10 @@ async function seed() {
     await tx.delete(publicComplaints);
     await tx.delete(championshipStandings);
     await tx.delete(industryStatistics);
+    await tx.delete(workingGroups);
+    await tx.delete(technicianDirectories);
+    await tx.delete(registeredClubs);
+    await tx.delete(lenderRegistries);
     await tx.delete(users);
 
     // 1. Site Settings APTI Indonesia (Asosiasi Pengusaha & Teknisi Pendingin Indonesia)
@@ -586,6 +594,121 @@ async function seed() {
         category: "Kualitas Service",
         period: "2026 Q1",
         sortOrder: 4,
+      },
+    ]);
+
+    // 10. Kelompok Kerja / Pokja Advokasi (APINDO, AFTECH, idEA, AFPI)
+    await tx.insert(workingGroups).values([
+      {
+        name: "Pokja Standardisasi Kompetensi & K3 HVAC",
+        slug: "pokja-kompetensi-k3",
+        chairName: "Hendra Wijaya, S.T., M.T.",
+        category: "Standardisasi & Sertifikasi",
+        description: "Merumuskan standar kurikulum uji kompetensi BNSP, K3 keselamatan kerja freon R290, dan sertifikasi teknisi tingkat nasional.",
+        memberCount: 28,
+        isActive: true,
+      },
+      {
+        name: "Pokja Advokasi Kebijakan Lingkungan & Ozon (KLHK)",
+        slug: "pokja-advokasi-klhk",
+        chairName: "Dr. Ir. Rahmat Hidayat",
+        category: "Advokasi & Regulatotif",
+        description: "Mewakili asosiasi dalam audiensi bersama Kementerian LHK dan Kemenperin terkait transisi freon ramah lingkungan.",
+        memberCount: 16,
+        isActive: true,
+      },
+      {
+        name: "Pokja Pengaduan Konsumen & Kode Etik",
+        slug: "pokja-etik-konsumen",
+        chairName: "Surya Pratama, S.H.",
+        category: "Kode Etik & Mediasi",
+        description: "Mengelola desk pengaduan publik JENDELA, melakukan investigasi pelanggaran KTA, dan mediasi klaim garansi.",
+        memberCount: 12,
+        isActive: true,
+      },
+    ]);
+
+    // 11. Direktori Teknisi Terverifikasi / "Cari Teknisi" (ASISI, APITU)
+    await tx.insert(technicianDirectories).values([
+      {
+        name: "Budi Kurniawan",
+        ktaNumber: "APTI-2026-0004",
+        skillLevel: "Level 4 Komersial & Inverter VRV",
+        province: "DKI Jakarta",
+        city: "Jakarta Selatan",
+        phone: "081234567890",
+        workshopName: "Jakarta Aircon Service Center",
+        rating: "4.95",
+        certifiedBnsp: true,
+        isAvailable: true,
+      },
+      {
+        name: "Agus Pratama",
+        ktaNumber: "APTI-2026-0005",
+        skillLevel: "Level 3 Residensial & Split",
+        province: "Jawa Barat",
+        city: "Bandung",
+        phone: "081298765432",
+        workshopName: "Bandung Cold Solution",
+        rating: "4.88",
+        certifiedBnsp: true,
+        isAvailable: true,
+      },
+      {
+        name: "Dewi Lestari",
+        ktaNumber: "APTI-2026-0006",
+        skillLevel: "Level 4 Chiller & Cold Storage",
+        province: "Jawa Tengah",
+        city: "Semarang",
+        phone: "081311223344",
+        workshopName: "Semarang Industrial HVAC",
+        rating: "4.92",
+        certifiedBnsp: true,
+        isAvailable: true,
+      },
+    ]);
+
+    // 12. Direktori Klub & Pengprov TKT (IMI, APITU)
+    await tx.insert(registeredClubs).values([
+      {
+        clubName: "Teknisi Pendingin Jakarta Raya Club",
+        codeTkt: "TKT-DPD-DKI-001",
+        province: "DKI Jakarta",
+        category: "Komunitas Teknisi & Workshop",
+        chairName: "Budi Kurniawan",
+        activeMembers: 142,
+        status: "verified",
+      },
+      {
+        clubName: "Bandung Cooling & Refrigeration Association",
+        codeTkt: "TKT-DPD-JBR-002",
+        province: "Jawa Barat",
+        category: "Komunitas Teknisi & Workshop",
+        chairName: "Agus Pratama",
+        activeMembers: 98,
+        status: "verified",
+      },
+    ]);
+
+    // 13. Verifikasi Entity / Lender / Fintech Berizin (AFPI, AFTECH, APPI)
+    await tx.insert(lenderRegistries).values([
+      {
+        brandName: "Fintech Pendanaan Utama",
+        companyName: "PT Indonesia Digital Lending",
+        licenseNumber: "KEP-102/D.05/2024",
+        sectorType: "P2P Lending Produktif UMKM",
+        ojkStatus: "Berizin OJK Resmi",
+        websiteUrl: "https://fintechutama.co.id",
+        isAfpiMember: true,
+      },
+      {
+        brandName: "Multifinance Solusi Jaya",
+        companyName: "PT Multifinance Solusi Indonesia",
+        licenseNumber: "KEP-088/D.05/2023",
+        sectorType: "Perusahaan Pembiayaan Alat Berat",
+        ojkStatus: "Berizin OJK Resmi",
+        websiteUrl: "https://multifinancesolusi.co.id",
+        isAfpiMember: true,
       },
     ]);
   });

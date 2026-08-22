@@ -3695,3 +3695,79 @@ img {
   .complaints-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
 }
+
+/* Technician Directory Styles */
+.technicians-hero, .working-groups-hero, .clubs-hero, .lenders-hero, .whois-hero {
+  padding: 60px 0 40px;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  border-bottom: 1px solid #e2e8f0;
+  text-align: center;
+}
+.technicians-hero h1, .working-groups-hero h1, .clubs-hero h1, .lenders-hero h1, .whois-hero h1 {
+  font-size: 34px; font-weight: 800; color: #0f172a; margin-top: 12px;
+}
+.technicians-body, .working-groups-body, .clubs-body, .lenders-body, .whois-body {
+  padding: 48px 0 80px;
+}
+
+.tech-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+.tech-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03); display: flex; flex-direction: column; justify-content: space-between; }
+.tech-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.tech-avatar { width: 44px; height: 44px; border-radius: 50%; background: #0284c7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; }
+.tech-card-header h3 { font-size: 17px; font-weight: 750; color: #0f172a; }
+.tech-kta { font-size: 12px; color: #0284c7; font-weight: 650; display: flex; align-items: center; gap: 4px; }
+.tech-skill { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+.tech-workshop { font-size: 13px; color: #475569; margin-bottom: 6px; }
+.tech-location { font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 4px; }
+.tech-card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 14px; margin-top: 18px; }
+.tech-rating { display: flex; align-items: center; gap: 4px; font-weight: 750; font-size: 14px; color: #0f172a; }
+.star-icon { color: #eab308; fill: #eab308; }
+.btn-contact-tech { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: #25d366; color: #ffffff; font-weight: 700; font-size: 13px; border-radius: 8px; text-decoration: none; }
+
+/* Working Groups Pokja Styles */
+.pokja-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+.pokja-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03); }
+.pokja-category-pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; background: #e0f2fe; color: #0369a1; border-radius: 20px; text-transform: uppercase; margin-bottom: 12px; }
+.pokja-card h2 { font-size: 19px; font-weight: 750; color: #0f172a; line-height: 1.35; margin-bottom: 10px; }
+.pokja-chair { font-size: 13px; color: #475569; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.pokja-desc { font-size: 14px; color: #64748b; line-height: 1.5; margin-bottom: 18px; }
+.pokja-card-footer { border-top: 1px solid #f1f5f9; padding-top: 14px; font-size: 13px; color: #64748b; font-weight: 600; }
+
+/* Clubs & TKT Styles */
+.club-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+.club-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03); }
+.club-tkt-badge { font-size: 12px; font-weight: 700; color: #0284c7; background: #f0f9ff; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 12px; }
+.club-card h2 { font-size: 18px; font-weight: 750; color: #0f172a; margin-bottom: 8px; }
+.club-location { font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+.club-chair { font-size: 13px; color: #475569; margin-bottom: 14px; }
+.club-card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 14px; }
+.badge-verified { font-size: 11px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; }
+
+/* Lenders OJK Verifier Styles */
+.lender-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+.lender-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03); }
+.lender-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.lender-icon { color: #0284c7; }
+.lender-header h2 { font-size: 18px; font-weight: 750; color: #0f172a; }
+.company-sub { font-size: 12px; color: #64748b; }
+.lender-license-badge { font-size: 12px; font-weight: 700; color: #16a34a; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 6px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.sector-tag { font-size: 13px; color: #475569; margin-bottom: 16px; }
+.lender-card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 14px; }
+.member-status-pill { font-size: 11px; font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 3px 8px; border-radius: 20px; }
+.btn-visit-site { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 650; color: #0284c7; text-decoration: none; }
+
+/* WHOIS & Peering Traffic Styles */
+.whois-card-container { max-width: 840px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+.whois-search-box { background: #ffffff; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 14px; display: flex; gap: 12px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04); }
+.search-input-wrap { flex: 1; display: flex; align-items: center; gap: 10px; color: #64748b; }
+.whois-input { width: 100%; border: none; outline: none; font-size: 15px; color: #0f172a; background: transparent; }
+.btn-search-whois { padding: 10px 20px; background: #0284c7; color: #ffffff; font-weight: 700; font-size: 14px; border: none; border-radius: 10px; cursor: pointer; }
+.whois-output-card { background: #0f172a; color: #ffffff; border-radius: 16px; padding: 32px; box-shadow: 0 12px 32px rgba(15, 23, 42, 0.15); }
+.output-header { display: flex; align-items: center; gap: 10px; color: #38bdf8; border-bottom: 1px solid #334155; padding-bottom: 18px; margin-bottom: 24px; }
+.output-header h3 { font-size: 20px; font-weight: 750; color: #ffffff; }
+.output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.output-item { display: flex; flex-direction: column; gap: 4px; }
+.item-label { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+.item-value { font-size: 16px; font-weight: 700; color: #f8fafc; }
+.item-value.traffic { color: #4ade80; font-size: 20px; }
+.status-pill { font-size: 12px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); padding: 4px 10px; border-radius: 20px; display: inline-block; width: fit-content; }
