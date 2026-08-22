@@ -246,8 +246,13 @@ export function Header({ site }: { site: PublicSite }) {
               <User size={15} />
               <span>{memberActive ? "Portal Anggota" : "Member login"}</span>
             </Link>
-            <Link href="/join" onClick={() => setMenuOpen(false)}>
-              Daftar Anggota <ArrowUpRight size={16} />
+            <Link
+              className="mobile-nav-join-link"
+              href="/join"
+              onClick={() => setMenuOpen(false)}
+            >
+              <span>Daftar Anggota</span>
+              <ArrowUpRight size={16} />
             </Link>
             <a
               className="mobile-nav-contact-link"
