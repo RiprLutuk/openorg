@@ -36,6 +36,13 @@
       "when": 1787373743532,
       "tag": "0004_bent_the_fallen",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787378420042,
+      "tag": "0005_normal_lizard",
+      "breakpoints": true
     }
   ]
 }

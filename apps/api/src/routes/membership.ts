@@ -429,7 +429,7 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
-  app.get("/cards/:code", async (request) => {
+  const getCardHandler = async (request: FastifyRequest) => {
     const { code } = z.object({ code: z.string() }).parse(request.params);
     const [result] = await db
       .select({
@@ -487,7 +487,10 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
         },
       },
     };
-  });
+  };
+
+  app.get("/cards/:code", getCardHandler);
+  app.get("/card/:code", getCardHandler);
 };
 
 export const memberPortalRoutes: FastifyPluginAsync = async (app) => {
