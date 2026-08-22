@@ -163,11 +163,11 @@ export function MemberPortraitCard({
         {/* Top Micro-Header Bar */}
         <div className="cyber-top-bar">
           <div className="cyber-pass-tag">
-            <Zap size={11} className="tag-icon text-amber" />
-            <span>KTA DIGITAL {"//"} PASS 2026</span>
+            <Zap size={10} className="tag-icon text-amber" />
+            <span>KTA DIGITAL</span>
           </div>
           <div className="cyber-status-pill">
-            <span className="pulse-green" /> ACTIVE
+            <span className="pulse-green" /> AKTIF
           </div>
         </div>
 
@@ -193,7 +193,7 @@ export function MemberPortraitCard({
           </div>
         </div>
 
-        {/* Futuristic Concentric Avatar Visual */}
+        {/* Concentric Avatar Visual */}
         <div className="cyber-avatar-section">
           <div className="cyber-avatar-halo">
             <div className="cyber-avatar-ring" />
@@ -213,12 +213,12 @@ export function MemberPortraitCard({
               )}
             </div>
             <div className="cyber-avatar-badge" title="Verified Member">
-              <CheckCircle2 size={16} />
+              <CheckCircle2 size={14} />
             </div>
           </div>
         </div>
 
-        {/* Member Identity & Holographic Serial */}
+        {/* Member Identity & Serial */}
         <div className="cyber-identity-section">
           <div className="cyber-member-name">{member.name}</div>
           <div className="cyber-serial-badge">
@@ -229,16 +229,16 @@ export function MemberPortraitCard({
           </div>
         </div>
 
-        {/* Cyber-HUD Bottom Glass Container */}
+        {/* Clean Info & QR Spec Card */}
         <div className="cyber-hud-glass">
           <div className="hud-info-col">
             <div className="hud-item">
               <span className="hud-label">UNIT / WILAYAH</span>
-              <span className="hud-value hud-value-cyan">{dpdText}</span>
+              <span className="hud-value">{dpdText}</span>
             </div>
             <div className="hud-item">
               <span className="hud-label">STATUS & KREDENSIAL</span>
-              <span className="hud-value hud-value-lime">{positionText}</span>
+              <span className="hud-value">{positionText}</span>
             </div>
             <div className="hud-item hud-meta-row">
               <div>
@@ -261,18 +261,16 @@ export function MemberPortraitCard({
                   className="hud-qr-image"
                 />
               ) : (
-                <QrCode size={60} color="#090d16" />
+                <QrCode size={54} color="#090d16" />
               )}
             </div>
-            <span className="qr-scan-hint">SCAN {"//"} AUTH</span>
+            <span className="qr-scan-hint">PINDAI VALIDASI</span>
           </div>
         </div>
 
         {/* Bottom Security Micro-Decal */}
         <div className="cyber-bottom-decal">
-          <span>COMPLYFLOW ID</span>
-          <span className="decal-divider">{"●"}</span>
-          <span>ZERO-TRUST VERIFIED</span>
+          <span>KARTU TANDA ANGGOTA DIGITAL RESMI</span>
         </div>
       </div>
 
