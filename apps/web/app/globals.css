@@ -301,9 +301,12 @@ img {
 
 .site-header {
   height: 68px;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 40;
   border-bottom: 1px solid #eaecf0;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
   box-shadow: 0 4px 20px rgba(16, 24, 40, 0.04);
 }
 .header-inner {
