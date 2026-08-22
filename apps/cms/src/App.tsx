@@ -1,4 +1,4 @@
-import type { PageSection, Theme } from "@openorg/contracts";
+import type { PageSection, PublicNavItem, Theme } from "@openorg/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -37,6 +37,7 @@ import {
   WalletCards,
   Trash2,
   Pencil,
+  CornerDownRight,
   X,
 } from "lucide-react";
 import QRCode from "qrcode";
@@ -6083,9 +6084,7 @@ function SettingsManager() {
     defaultPublicSettings,
   );
   const [footerLinks, setFooterLinks] = useState("[]");
-  const [navItems, setNavItems] = useState<
-    Array<{ id: string; label: string; href: string }>
-  >([]);
+  const [navItems, setNavItems] = useState<PublicNavItem[]>([]);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -6563,84 +6562,190 @@ function SettingsManager() {
 
         <section className="panel settings-panel wide-panel">
           <span className="eyebrow">Public navigation</span>
-          <h2>Header navigation menu</h2>
+          <h2>Header navigation menu (Tree Structure)</h2>
           <p>
-            Kelola menu navigasi atas yang tampil di header website publik Anda.
+            Kelola hirarki menu navigasi atas. Buat menu utama dan sub-menu (dropdown) dengan mudah tanpa batasan.
           </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "12px" }}>
-            {navItems.map((item, index) => (
-              <div
-                key={item.id || index}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr auto",
-                  gap: "10px",
-                  alignItems: "center",
-                  background: "#f8fafc",
-                  padding: "10px 12px",
-                  borderRadius: "8px",
-                  border: "1px solid #eaecf0",
-                }}
-              >
-                <label style={{ fontSize: "11px", fontWeight: 700, margin: 0 }}>
-                  Label Menu
-                  <input
-                    value={item.label}
-                    onChange={(e) =>
-                      setNavItems(
-                        navItems.map((c, i) =>
-                          i === index ? { ...c, label: e.target.value } : c,
-                        ),
-                      )
-                    }
-                    placeholder="misal: Agenda"
-                    style={{ marginTop: "4px" }}
-                  />
-                </label>
-                <label style={{ fontSize: "11px", fontWeight: 700, margin: 0 }}>
-                  URL Link Target (Href)
-                  <input
-                    value={item.href}
-                    onChange={(e) =>
-                      setNavItems(
-                        navItems.map((c, i) =>
-                          i === index ? { ...c, href: e.target.value } : c,
-                        ),
-                      )
-                    }
-                    placeholder="misal: /events atau /tentang-kami"
-                    style={{ marginTop: "4px" }}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="icon-button danger"
-                  onClick={() =>
-                    setNavItems(navItems.filter((_, i) => i !== index))
-                  }
-                  title="Hapus Menu"
-                  style={{ marginTop: "18px" }}
-                >
-                  <Trash2 size={16} />
-                </button>
+
+          <div className="nav-tree-editor">
+            {navItems.map((item, pIndex) => (
+              <div key={item.id || pIndex} className="nav-tree-card">
+                <div className="nav-tree-parent-row">
+                  <div className="nav-tree-field">
+                    <span className="nav-tree-label">Label Menu Utama</span>
+                    <input
+                      type="text"
+                      className="nav-tree-input"
+                      value={item.label}
+                      onChange={(e) =>
+                        setNavItems(
+                          navItems.map((c, i) =>
+                            i === pIndex ? { ...c, label: e.target.value } : c,
+                          ),
+                        )
+                      }
+                      placeholder="misal: Layanan & Informasi"
+                    />
+                  </div>
+                  <div className="nav-tree-field">
+                    <span className="nav-tree-label">URL Target (Href)</span>
+                    <input
+                      type="text"
+                      className="nav-tree-input"
+                      value={item.href}
+                      onChange={(e) =>
+                        setNavItems(
+                          navItems.map((c, i) =>
+                            i === pIndex ? { ...c, href: e.target.value } : c,
+                          ),
+                        )
+                      }
+                      placeholder="misal: /events atau #"
+                    />
+                  </div>
+                  <div className="nav-tree-actions">
+                    <button
+                      type="button"
+                      className="button secondary compact-btn"
+                      title="Tambah Sub-Menu under item ini"
+                      onClick={() =>
+                        setNavItems(
+                          navItems.map((c, i) =>
+                            i === pIndex
+                              ? {
+                                  ...c,
+                                  children: [
+                                    ...(c.children || []),
+                                    {
+                                      id: `sub-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                                      label: "",
+                                      href: "",
+                                    },
+                                  ],
+                                }
+                              : c,
+                          ),
+                        )
+                      }
+                    >
+                      <Plus size={14} /> Sub-Menu
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Menu Utama"
+                      onClick={() =>
+                        setNavItems(navItems.filter((_, i) => i !== pIndex))
+                      }
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sub-menu (Children) tree */}
+                {item.children && item.children.length > 0 && (
+                  <div className="nav-tree-children-list">
+                    {item.children.map((child, cIndex) => (
+                      <div key={child.id || cIndex} className="nav-tree-child-row">
+                        <div className="nav-tree-branch-icon">
+                          <CornerDownRight size={16} />
+                        </div>
+                        <div className="nav-tree-field">
+                          <span className="nav-tree-label">Label Sub-Menu</span>
+                          <input
+                            type="text"
+                            className="nav-tree-input"
+                            value={child.label}
+                            onChange={(e) =>
+                              setNavItems(
+                                navItems.map((pItem, pi) =>
+                                  pi === pIndex
+                                    ? {
+                                        ...pItem,
+                                        children: pItem.children?.map((ch, ci) =>
+                                          ci === cIndex
+                                            ? { ...ch, label: e.target.value }
+                                            : ch,
+                                        ),
+                                      }
+                                    : pItem,
+                                ),
+                              )
+                            }
+                            placeholder="misal: Sertifikasi SKP"
+                          />
+                        </div>
+                        <div className="nav-tree-field">
+                          <span className="nav-tree-label">URL Target (Href)</span>
+                          <input
+                            type="text"
+                            className="nav-tree-input"
+                            value={child.href}
+                            onChange={(e) =>
+                              setNavItems(
+                                navItems.map((pItem, pi) =>
+                                  pi === pIndex
+                                    ? {
+                                        ...pItem,
+                                        children: pItem.children?.map((ch, ci) =>
+                                          ci === cIndex
+                                            ? { ...ch, href: e.target.value }
+                                            : ch,
+                                        ),
+                                      }
+                                    : pItem,
+                                ),
+                              )
+                            }
+                            placeholder="misal: /events"
+                          />
+                        </div>
+                        <div className="nav-tree-actions">
+                          <button
+                            type="button"
+                            className="icon-button danger"
+                            title="Hapus Sub-Menu"
+                            onClick={() =>
+                              setNavItems(
+                                navItems.map((pItem, pi) =>
+                                  pi === pIndex
+                                    ? {
+                                        ...pItem,
+                                        children: pItem.children?.filter(
+                                          (_, ci) => ci !== cIndex,
+                                        ),
+                                      }
+                                    : pItem,
+                                ),
+                              )
+                            }
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
+
             <button
               type="button"
-              className="button ghost"
+              className="button secondary wide-btn"
               onClick={() =>
                 setNavItems([
                   ...navItems,
                   {
-                    id: crypto.randomUUID(),
-                    label: "Menu Baru",
-                    href: "/halaman-baru",
+                    id: `nav-${Date.now()}`,
+                    label: "",
+                    href: "",
                   },
                 ])
               }
-              style={{ alignSelf: "flex-start", marginTop: "4px" }}
             >
-              <Plus size={16} /> Tambah Menu Header
+              <Plus size={16} /> Tambah Menu Utama
             </button>
           </div>
         </section>

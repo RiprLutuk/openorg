@@ -1,7 +1,7 @@
 "use client";
 
-import type { PublicSite } from "@openorg/contracts";
-import { ArrowUpRight, Menu, MessageCircle, X } from "lucide-react";
+import type { PublicNavItem, PublicSite } from "@openorg/contracts";
+import { ArrowUpRight, ChevronDown, Menu, MessageCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { memberApi } from "@/lib/member-client";
@@ -14,6 +14,15 @@ export function Header({ site }: { site: PublicSite }) {
       .then(() => setMemberActive(true))
       .catch(() => setMemberActive(false));
   }, []);
+
+  const navItems: PublicNavItem[] = site.navigation.length
+    ? site.navigation
+    : [
+        { id: "events", label: "Agenda", href: "/events" },
+        { id: "structure", label: "Struktur", href: "/structure" },
+        { id: "verify", label: "Verifikasi Kredensial", href: "/verify" },
+      ];
+
   return (
     <header className="site-header">
       <div className="wrap header-inner">
@@ -26,22 +35,26 @@ export function Header({ site }: { site: PublicSite }) {
           <strong>{site.organization.name}</strong>
         </Link>
         <nav aria-label="Primary navigation">
-          {(site.navigation.length
-            ? site.navigation
-            : [
-                { id: "events", label: "Agenda", href: "/events" },
-                { id: "structure", label: "Struktur", href: "/structure" },
-                {
-                  id: "verify",
-                  label: "Verifikasi Kredensial",
-                  href: "/verify",
-                },
-              ]
-          ).map((item) => (
-            <Link key={item.id} href={item.href}>
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) =>
+            item.children && item.children.length > 0 ? (
+              <div key={item.id} className="nav-item-dropdown">
+                <button type="button" className="nav-dropdown-trigger">
+                  {item.label} <ChevronDown size={14} />
+                </button>
+                <div className="nav-dropdown-popover">
+                  {item.children.map((child) => (
+                    <Link key={child.id} href={child.href}>
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <Link key={item.id} href={item.href}>
+                {item.label}
+              </Link>
+            ),
+          )}
         </nav>
         <Link
           className="member-login-link"
@@ -64,26 +77,32 @@ export function Header({ site }: { site: PublicSite }) {
       </div>
       {menuOpen && (
         <nav className="mobile-navigation" aria-label="Mobile navigation">
-          {(site.navigation.length
-            ? site.navigation
-            : [
-                { id: "events", label: "Agenda", href: "/events" },
-                { id: "structure", label: "Struktur", href: "/structure" },
-                {
-                  id: "verify",
-                  label: "Verifikasi Kredensial",
-                  href: "/verify",
-                },
-              ]
-          ).map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              onClick={() => setMenuOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) =>
+            item.children && item.children.length > 0 ? (
+              <div key={item.id} className="mobile-dropdown-group">
+                <div className="mobile-dropdown-title">{item.label}</div>
+                <div className="mobile-dropdown-children">
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.id}
+                      href={child.href}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <Link
+                key={item.id}
+                href={item.href}
+                onClick={() => setMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ),
+          )}
           <Link
             href={memberActive ? "/member" : "/member/login"}
             onClick={() => setMenuOpen(false)}

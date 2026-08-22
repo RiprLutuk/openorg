@@ -87,16 +87,23 @@ export const publicQuickContactSchema = z.object({
   channel: z.enum(["message", "whatsapp", "email"]).default("message"),
 });
 
-export const publicSettingsSchema = z.object({
-  navigation: z
+export const publicNavItemSchema = z.object({
+  id: z.string(),
+  label: z.string().trim().min(1).max(80),
+  href: safePublicHrefSchema,
+  children: z
     .array(
       z.object({
-        id: z.string(),
+        id: z.string().optional(),
         label: z.string().trim().min(1).max(80),
         href: safePublicHrefSchema,
       }),
     )
     .optional(),
+});
+
+export const publicSettingsSchema = z.object({
+  navigation: z.array(publicNavItemSchema).optional(),
   footer: publicFooterSchema,
   announcement: publicAnnouncementSchema,
   quickContact: publicQuickContactSchema,
@@ -204,6 +211,7 @@ export type Theme = z.infer<typeof themeSchema>;
 export type PublicFooter = z.infer<typeof publicFooterSchema>;
 export type PublicAnnouncement = z.infer<typeof publicAnnouncementSchema>;
 export type PublicQuickContact = z.infer<typeof publicQuickContactSchema>;
+export type PublicNavItem = z.infer<typeof publicNavItemSchema>;
 export type PublicSettings = z.infer<typeof publicSettingsSchema>;
 
 export const paginationSchema = z.object({

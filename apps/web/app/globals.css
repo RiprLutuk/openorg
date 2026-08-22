@@ -252,6 +252,91 @@ img {
   font-size: 14px;
   font-weight: 650;
 }
+
+/* Navigation Dropdowns */
+.nav-item-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.nav-dropdown-trigger {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: color-mix(in srgb, var(--color-foreground) 76%, #fff);
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s ease;
+}
+.nav-item-dropdown:hover .nav-dropdown-trigger,
+.nav-dropdown-trigger:hover {
+  color: var(--color-primary);
+}
+.nav-dropdown-popover {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px -6px rgba(16, 24, 40, 0.16);
+  padding: 8px;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 500;
+}
+.nav-item-dropdown:hover .nav-dropdown-popover {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+.nav-dropdown-popover a {
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #344054 !important;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.12s ease;
+}
+.nav-dropdown-popover a:hover {
+  background: #f1f5f9;
+  color: var(--color-primary) !important;
+}
+
+.mobile-dropdown-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mobile-dropdown-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 0;
+}
+.mobile-dropdown-children {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 14px;
+  border-left: 2px solid #e2e8f0;
+}
 .header-action {
   display: inline-flex;
   align-items: center;
