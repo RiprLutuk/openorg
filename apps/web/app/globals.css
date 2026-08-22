@@ -313,7 +313,8 @@ img {
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 35px;
+  gap: 24px;
+  flex-wrap: nowrap;
 }
 .site-brand {
   margin-right: auto;
@@ -325,6 +326,7 @@ img {
     800 20px var(--font-heading),
     sans-serif;
   letter-spacing: -0.04em;
+  white-space: nowrap;
 }
 .site-brand span,
 .site-brand img {
@@ -345,7 +347,9 @@ img {
 .site-header nav {
   display: flex;
   align-items: center;
-  gap: 27px;
+  gap: 22px;
+  white-space: nowrap;
+  flex-wrap: nowrap;
 }
 .site-header nav a {
   color: color-mix(in srgb, var(--color-foreground) 76%, #fff);
