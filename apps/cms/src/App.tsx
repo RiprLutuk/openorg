@@ -5390,32 +5390,18 @@ function KtaCardModal({
                 >
                   <span>KTA DIGITAL</span>
                 </div>
-                <div
+                <span
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "5px",
-                    fontSize: "9.5px",
+                    fontSize: "9px",
                     fontWeight: 800,
-                    letterSpacing: "1.2px",
+                    letterSpacing: "1.5px",
                     color: "#34d399",
                     textTransform: "uppercase",
                     lineHeight: "1",
                   }}
                 >
-                  <svg
-                    width="6"
-                    height="6"
-                    viewBox="0 0 6 6"
-                    aria-hidden="true"
-                    style={{ display: "block", flexShrink: 0 }}
-                  >
-                    <circle cx="3" cy="3" r="3" fill="#34d399" />
-                  </svg>
-                  <span style={{ display: "block", lineHeight: "1" }}>
-                    AKTIF
-                  </span>
-                </div>
+                  AKTIF
+                </span>
               </div>
 
               {/* Organization Brand Header (Clean Minimalist) */}
