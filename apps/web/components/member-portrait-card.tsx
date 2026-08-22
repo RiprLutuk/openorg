@@ -147,129 +147,536 @@ export function MemberPortraitCard({
 
   return (
     <div className="portrait-kta-container">
-      {/* 1. Next-Gen Cyber-Energetic KTA Card (Target for Download & Print) */}
+      {/* 1. Next-Gen Modern ID Card (Target for Download & Print) */}
       <div
         id="modern-id-card"
         ref={cardRef}
         className="genz-cyber-card"
-        style={cardCustomStyles}
+        style={{
+          ...cardCustomStyles,
+          width: "350px",
+          height: "580px",
+          background: "linear-gradient(180deg, #111726 0%, #080c14 100%)",
+          borderRadius: "20px",
+          position: "relative",
+          overflow: "hidden",
+          boxShadow:
+            "0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.12)",
+          fontFamily:
+            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+          color: "#ffffff",
+          margin: "0 auto",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: "20px 22px 16px",
+        }}
       >
-        {/* Holographic Refractive Aura Flairs */}
-        <div className="cyber-flare-violet" />
-        <div className="cyber-flare-cyan" />
-        <div className="cyber-flare-amber" />
-        <div className="cyber-grid-overlay" />
+        {/* Top Ambient Highlight */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "280px",
+            height: "140px",
+            background:
+              "radial-gradient(ellipse at top, rgba(99, 102, 241, 0.18) 0%, transparent 70%)",
+            pointerEvents: "none",
+            zIndex: 1,
+          }}
+        />
 
         {/* Flat Top Micro-Header Bar */}
-        <div className="kta-flat-top-bar">
-          <div className="kta-flat-tag">
-            <span>KTA DIGITAL</span>
-          </div>
-          <div className="kta-flat-status">
-            <span className="pulse-green" />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            position: "relative",
+            zIndex: 10,
+            width: "100%",
+            paddingBottom: "2px",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "9px",
+              fontWeight: 800,
+              letterSpacing: "1.5px",
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              lineHeight: "1",
+            }}
+          >
+            KTA DIGITAL
+          </span>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "9px",
+              fontWeight: 800,
+              letterSpacing: "1.2px",
+              color: "#34d399",
+              textTransform: "uppercase",
+              lineHeight: "1",
+            }}
+          >
+            <span
+              style={{
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                background: "#34d399",
+                boxShadow: "0 0 8px #34d399",
+                display: "inline-block",
+              }}
+            />
             <span>AKTIF</span>
           </div>
         </div>
 
         {/* Organization Brand Header (Centered Symmetry) */}
-        <div className="cyber-brand-center">
-          <div className="cyber-logo-wrapper">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+            position: "relative",
+            zIndex: 10,
+            margin: "0",
+          }}
+        >
+          <div
+            style={{
+              width: "44px",
+              height: "44px",
+              borderRadius: "12px",
+              background: "#0f172a",
+              border: "1px solid rgba(255, 255, 255, 0.18)",
+              padding: "3px",
+              flexShrink: 0,
+              marginBottom: "6px",
+              boxShadow: "0 4px 14px rgba(0, 0, 0, 0.4)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             {organization.logoUrl ? (
               <img
                 src={organization.logoUrl}
                 alt={organization.name}
                 className="cyber-brand-logo"
                 crossOrigin="anonymous"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  borderRadius: "8px",
+                  display: "block",
+                }}
               />
             ) : (
-              <div className="cyber-logo-fallback">
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "8px",
+                  background:
+                    "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+                  display: "grid",
+                  placeItems: "center",
+                  fontWeight: 800,
+                  fontSize: "14px",
+                  color: "#ffffff",
+                }}
+              >
                 {organization.name.slice(0, 2).toUpperCase()}
               </div>
             )}
           </div>
-          <div className="cyber-brand-name">{organization.name}</div>
-          <div className="cyber-brand-tagline">
+          <div
+            style={{
+              fontSize: "13.5px",
+              fontWeight: 800,
+              letterSpacing: "0.6px",
+              color: "#ffffff",
+              textTransform: "uppercase",
+              lineHeight: "1.3",
+              margin: 0,
+            }}
+          >
+            {organization.name}
+          </div>
+          <div
+            style={{
+              fontSize: "8px",
+              color: "#94a3b8",
+              fontWeight: 600,
+              letterSpacing: "0.8px",
+              lineHeight: "1.2",
+              marginTop: "2px",
+              textTransform: "uppercase",
+            }}
+          >
             Official Accredited Membership
           </div>
         </div>
 
         {/* Concentric Avatar Visual */}
-        <div className="cyber-avatar-section">
-          <div className="cyber-avatar-halo">
-            <div className="cyber-avatar-ring" />
-            <div className="cyber-avatar-bezel" />
-            <div className="cyber-avatar-content">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            position: "relative",
+            zIndex: 10,
+            margin: "0",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              width: "104px",
+              height: "104px",
+            }}
+          >
+            {/* Outer Ring */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "104px",
+                height: "104px",
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #6366f1, #06b6d4)",
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.5)",
+              }}
+            />
+            {/* Dark Gap Bezel */}
+            <div
+              style={{
+                position: "absolute",
+                top: "3px",
+                left: "3px",
+                width: "98px",
+                height: "98px",
+                borderRadius: "50%",
+                background: "#080c14",
+              }}
+            />
+            {/* Avatar Image / Placeholder */}
+            <div
+              style={{
+                position: "absolute",
+                top: "6px",
+                left: "6px",
+                width: "92px",
+                height: "92px",
+                borderRadius: "50%",
+                overflow: "hidden",
+              }}
+            >
               {member.avatarUrl ? (
                 <img
                   src={member.avatarUrl}
                   alt={member.name}
                   className="cyber-avatar-img"
                   crossOrigin="anonymous"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    background: "#1e293b",
+                    display: "block",
+                  }}
                 />
               ) : (
-                <div className="cyber-avatar-placeholder">
-                  <span>{initials}</span>
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background:
+                      "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+                    color: "#ffffff",
+                    fontSize: "30px",
+                    fontWeight: 800,
+                    letterSpacing: "1px",
+                  }}
+                >
+                  {initials}
                 </div>
               )}
             </div>
-            <div className="cyber-avatar-badge" title="Verified Member">
-              <CheckCircle2 size={14} />
+            {/* Verified Check Badge */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                background: "#0284c7",
+                color: "#ffffff",
+                borderRadius: "50%",
+                width: "24px",
+                height: "24px",
+                display: "grid",
+                placeItems: "center",
+                border: "2px solid #080c14",
+                boxShadow: "0 2px 6px rgba(0, 0, 0, 0.5)",
+                zIndex: 5,
+              }}
+            >
+              <CheckCircle2 size={13} />
             </div>
           </div>
         </div>
 
         {/* Member Identity & Flat Serial */}
-        <div className="cyber-identity-section">
-          <div className="cyber-member-name">{member.name}</div>
-          <div className="kta-member-serial-flat">
-            <span className="serial-label">NO.</span>
-            <span className="serial-value">
+        <div
+          style={{
+            textAlign: "center",
+            position: "relative",
+            zIndex: 10,
+            margin: "0",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "15.5px",
+              fontWeight: 800,
+              color: "#ffffff",
+              letterSpacing: "0.4px",
+              textTransform: "uppercase",
+              lineHeight: "1.3",
+              padding: "0 4px",
+              margin: 0,
+            }}
+          >
+            {member.name}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "6px",
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "1.5px",
+              fontFamily:
+                'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
+              marginTop: "4px",
+              lineHeight: "1",
+              color: "#cbd5e1",
+            }}
+          >
+            <span style={{ color: "#64748b", fontWeight: 800 }}>NO.</span>
+            <span style={{ color: "#38bdf8" }}>
               {member.memberNumber || card.code}
             </span>
           </div>
         </div>
 
         {/* Clean Info & QR Spec Card */}
-        <div className="cyber-hud-glass">
-          <div className="hud-info-col">
-            <div className="hud-item">
-              <span className="hud-label">UNIT / WILAYAH</span>
-              <span className="hud-value">{dpdText}</span>
+        <div
+          style={{
+            background: "rgba(255, 255, 255, 0.03)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            borderRadius: "12px",
+            padding: "10px 12px",
+            position: "relative",
+            zIndex: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "10px",
+            boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.05)",
+          }}
+        >
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: "6px",
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span
+                style={{
+                  fontSize: "7.5px",
+                  fontWeight: 700,
+                  letterSpacing: "1px",
+                  color: "#64748b",
+                  textTransform: "uppercase",
+                  marginBottom: "1px",
+                }}
+              >
+                UNIT / WILAYAH
+              </span>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  lineHeight: "1.25",
+                  color: "#f1f5f9",
+                }}
+              >
+                {dpdText}
+              </span>
             </div>
-            <div className="hud-item">
-              <span className="hud-label">STATUS & KREDENSIAL</span>
-              <span className="hud-value">{positionText}</span>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span
+                style={{
+                  fontSize: "7.5px",
+                  fontWeight: 700,
+                  letterSpacing: "1px",
+                  color: "#64748b",
+                  textTransform: "uppercase",
+                  marginBottom: "1px",
+                }}
+              >
+                STATUS & KREDENSIAL
+              </span>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  lineHeight: "1.25",
+                  color: "#34d399",
+                }}
+              >
+                {positionText}
+              </span>
             </div>
-            <div className="hud-item hud-meta-row">
+            <div style={{ display: "flex", gap: "12px" }}>
               <div>
-                <span className="hud-label">TERBIT</span>
-                <span className="hud-subvalue">{formattedIssueDate}</span>
+                <span
+                  style={{
+                    fontSize: "7.5px",
+                    fontWeight: 700,
+                    letterSpacing: "1px",
+                    color: "#64748b",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  TERBIT
+                </span>
+                <div
+                  style={{
+                    fontSize: "9.5px",
+                    fontWeight: 700,
+                    color: "#cbd5e1",
+                  }}
+                >
+                  {formattedIssueDate}
+                </div>
               </div>
               <div>
-                <span className="hud-label">VERSI</span>
-                <span className="hud-subvalue">v{card.version ?? 1}.0</span>
+                <span
+                  style={{
+                    fontSize: "7.5px",
+                    fontWeight: 700,
+                    letterSpacing: "1px",
+                    color: "#64748b",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  VERSI
+                </span>
+                <div
+                  style={{
+                    fontSize: "9.5px",
+                    fontWeight: 700,
+                    color: "#cbd5e1",
+                  }}
+                >
+                  v{card.version ?? 1}.0
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="hud-qr-container">
-            <div className="qr-reticle">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <div
+              style={{
+                background: "#ffffff",
+                padding: "3px",
+                borderRadius: "6px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               {qrUrl ? (
                 <img
                   src={qrUrl}
                   alt="QR Verifikasi KTA"
-                  className="hud-qr-image"
+                  style={{
+                    width: "54px",
+                    height: "54px",
+                    display: "block",
+                  }}
                 />
               ) : (
                 <QrCode size={54} color="#090d16" />
               )}
             </div>
-            <span className="qr-scan-hint">PINDAI VALIDASI</span>
+            <span
+              style={{
+                fontSize: "7px",
+                fontWeight: 800,
+                letterSpacing: "0.8px",
+                color: "#64748b",
+                marginTop: "3px",
+                lineHeight: "1",
+                textTransform: "uppercase",
+              }}
+            >
+              PINDAI VALIDASI
+            </span>
           </div>
         </div>
 
         {/* Bottom Security Micro-Decal */}
-        <div className="cyber-bottom-decal">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "8px",
+            fontWeight: 700,
+            letterSpacing: "1.2px",
+            color: "#64748b",
+            fontFamily:
+              'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
+            position: "relative",
+            zIndex: 10,
+            whiteSpace: "nowrap",
+            lineHeight: "1",
+            textTransform: "uppercase",
+          }}
+        >
           <span>KARTU TANDA ANGGOTA DIGITAL RESMI</span>
         </div>
       </div>
