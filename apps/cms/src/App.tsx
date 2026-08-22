@@ -36,6 +36,7 @@ import {
   Users,
   WalletCards,
   Trash2,
+  Pencil,
   X,
 } from "lucide-react";
 import QRCode from "qrcode";
@@ -969,19 +970,23 @@ function Pages() {
               <span className="row-actions">
                 <button
                   type="button"
-                  className="text-button"
+                  className="icon-button"
+                  title="Edit Halaman"
+                  aria-label={`Edit ${page.title}`}
                   onClick={() => setEditor(page)}
                 >
-                  Edit
+                  <Pencil size={16} />
                 </button>
                 <button
                   type="button"
                   className="icon-button danger"
+                  title="Hapus Halaman"
+                  aria-label={`Delete ${page.title}`}
                   onClick={() =>
                     confirm(`Delete ${page.title}?`) && remove.mutate(page.id)
                   }
                 >
-                  <X size={17} />
+                  <Trash2 size={16} />
                 </button>
               </span>
             </div>
@@ -2331,20 +2336,23 @@ function EventsManager() {
               <span className="row-actions">
                 <button
                   type="button"
-                  className="text-button"
+                  className="icon-button"
+                  title="Edit Agenda"
+                  aria-label={`Edit ${item.title}`}
                   onClick={() => setEditor(item)}
                 >
-                  Edit
+                  <Pencil size={16} />
                 </button>
                 <button
                   type="button"
                   className="icon-button danger"
+                  title="Hapus Agenda"
                   aria-label={`Delete ${item.title}`}
                   onClick={() =>
                     confirm(`Delete ${item.title}?`) && remove.mutate(item.id)
                   }
                 >
-                  <X size={17} />
+                  <Trash2 size={16} />
                 </button>
               </span>
             </div>
@@ -5204,28 +5212,32 @@ function MembersManager() {
               <span className="row-actions">
                 <button
                   type="button"
-                  className="button secondary text-button"
-                  style={{ padding: "4px 8px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                  className="icon-button secondary"
+                  title="Kartu KTA Digital"
+                  aria-label={`Kartu KTA ${item.name}`}
                   onClick={() => setSelectedCardMember(item)}
                 >
-                  <CreditCard size={14} /> Kartu KTA
+                  <CreditCard size={16} />
                 </button>
                 <button
                   type="button"
-                  className="text-button"
+                  className="icon-button"
+                  title="Edit Anggota"
+                  aria-label={`Edit ${item.name}`}
                   onClick={() => setEditor(item)}
                 >
-                  Edit
+                  <Pencil size={16} />
                 </button>
                 <button
                   type="button"
                   className="icon-button danger"
+                  title="Hapus Anggota"
                   aria-label={`Delete ${item.name}`}
                   onClick={() =>
                     confirm(`Delete ${item.name}?`) && remove.mutate(item.id)
                   }
                 >
-                  <X size={17} />
+                  <Trash2 size={16} />
                 </button>
               </span>
             </div>

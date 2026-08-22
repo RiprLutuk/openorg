@@ -896,13 +896,54 @@ h3,
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  gap: 6px;
+}
+.row-actions .icon-button {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 8px;
+  border: 1px solid #eaecf0;
+  background: #ffffff;
+  color: #475467;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.14s ease;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+.row-actions .icon-button:hover {
+  background: #f8fafc;
+  border-color: #d0d5dd;
+  color: #101828;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(16, 24, 40, 0.08);
+}
+.row-actions .icon-button.secondary {
+  color: #2563eb;
+  background: #f0f6ff;
+  border-color: #dbeafe;
+}
+.row-actions .icon-button.secondary:hover {
+  background: #dbeafe;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+.row-actions .icon-button.danger {
+  color: #d92d20;
+}
+.row-actions .icon-button.danger:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b42318;
 }
 .events-row,
 .members-row {
   grid-template-columns: minmax(260px, 1.5fr) minmax(140px, 0.8fr) minmax(
       100px,
       0.5fr
-    ) 100px;
+    ) 120px;
 }
 .result-count {
   align-self: center;
