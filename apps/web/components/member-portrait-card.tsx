@@ -482,7 +482,7 @@ export function MemberPortraitCard({
           </div>
         </div>
 
-        {/* Clean Info & QR Spec Card (Refactored Structured Grid) */}
+        {/* Clean Info & QR Spec Card (Never-Wrapping Crisp Layout) */}
         <div
           style={{
             background: "rgba(255, 255, 255, 0.04)",
@@ -494,96 +494,88 @@ export function MemberPortraitCard({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "14px",
+            gap: "12px",
           }}
         >
-          {/* Spec Details 2x2 Grid */}
+          {/* Spec Details Column */}
           <div
             style={{
               flex: 1,
               display: "flex",
               flexDirection: "column",
-              gap: "8px",
+              gap: "6px",
+              minWidth: 0,
             }}
           >
-            {/* Top Row: Wilayah & Status */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "8px",
-              }}
-            >
-              <div>
-                <span
-                  style={{
-                    fontSize: "7.5px",
-                    fontWeight: 700,
-                    letterSpacing: "0.8px",
-                    color: "#64748b",
-                    textTransform: "uppercase",
-                    display: "block",
-                    marginBottom: "2px",
-                  }}
-                >
-                  WILAYAH
-                </span>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 800,
-                    lineHeight: "1.2",
-                    color: "#f8fafc",
-                    display: "block",
-                  }}
-                >
-                  {dpdText}
-                </span>
-              </div>
-
-              <div>
-                <span
-                  style={{
-                    fontSize: "7.5px",
-                    fontWeight: 700,
-                    letterSpacing: "0.8px",
-                    color: "#64748b",
-                    textTransform: "uppercase",
-                    display: "block",
-                    marginBottom: "2px",
-                  }}
-                >
-                  STATUS
-                </span>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 800,
-                    lineHeight: "1.2",
-                    color: "#34d399",
-                    display: "block",
-                  }}
-                >
-                  {positionText}
-                </span>
-              </div>
+            <div>
+              <span
+                style={{
+                  fontSize: "7.5px",
+                  fontWeight: 700,
+                  letterSpacing: "1px",
+                  color: "#64748b",
+                  textTransform: "uppercase",
+                  display: "block",
+                  lineHeight: "1",
+                  marginBottom: "2px",
+                }}
+              >
+                WILAYAH
+              </span>
+              <span
+                style={{
+                  fontSize: "11.5px",
+                  fontWeight: 800,
+                  lineHeight: "1.2",
+                  color: "#f8fafc",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "block",
+                }}
+              >
+                {dpdText}
+              </span>
             </div>
 
-            {/* Hairline Divider */}
-            <div
-              style={{
-                height: "1px",
-                background: "rgba(255, 255, 255, 0.06)",
-                width: "100%",
-              }}
-            />
+            <div>
+              <span
+                style={{
+                  fontSize: "7.5px",
+                  fontWeight: 700,
+                  letterSpacing: "1px",
+                  color: "#64748b",
+                  textTransform: "uppercase",
+                  display: "block",
+                  lineHeight: "1",
+                  marginBottom: "2px",
+                }}
+              >
+                STATUS
+              </span>
+              <span
+                style={{
+                  fontSize: "11.5px",
+                  fontWeight: 800,
+                  lineHeight: "1.2",
+                  color: "#34d399",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  display: "block",
+                }}
+              >
+                {positionText}
+              </span>
+            </div>
 
-            {/* Bottom Row: Terbit & Versi */}
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "8px",
+                display: "flex",
+                alignItems: "center",
+                gap: "14px",
+                paddingTop: "3px",
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
               }}
             >
               <div>
@@ -595,6 +587,7 @@ export function MemberPortraitCard({
                     color: "#64748b",
                     textTransform: "uppercase",
                     display: "block",
+                    lineHeight: "1",
                     marginBottom: "1px",
                   }}
                 >
@@ -605,6 +598,7 @@ export function MemberPortraitCard({
                     fontSize: "10px",
                     fontWeight: 700,
                     color: "#cbd5e1",
+                    whiteSpace: "nowrap",
                     display: "block",
                   }}
                 >
@@ -621,6 +615,7 @@ export function MemberPortraitCard({
                     color: "#64748b",
                     textTransform: "uppercase",
                     display: "block",
+                    lineHeight: "1",
                     marginBottom: "1px",
                   }}
                 >
@@ -631,6 +626,7 @@ export function MemberPortraitCard({
                     fontSize: "10px",
                     fontWeight: 700,
                     color: "#cbd5e1",
+                    whiteSpace: "nowrap",
                     display: "block",
                   }}
                 >
