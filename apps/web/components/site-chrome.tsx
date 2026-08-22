@@ -11,6 +11,7 @@ import {
   CalendarDays,
   ChevronDown,
   Compass,
+  CreditCard,
   FileText,
   Globe,
   Landmark,
@@ -26,14 +27,16 @@ import {
   Sparkles,
   Trophy,
   User,
+  UserCheck,
   UserPlus,
   Users,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { memberApi } from "@/lib/member-client";
+import { useMemberAuth } from "@/lib/use-member-auth";
 
 function getNavIcon(href: string) {
   if (href.includes("structure")) return Network;
@@ -121,14 +124,8 @@ function LinkedinIcon({ size = 13 }: { size?: number }) {
 
 export function Header({ site }: { site: PublicSite }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [memberActive, setMemberActive] = useState(false);
+  const { isLoggedIn, member } = useMemberAuth();
   const pathname = usePathname();
-
-  useEffect(() => {
-    memberApi("/v1/member/session")
-      .then(() => setMemberActive(true))
-      .catch(() => setMemberActive(false));
-  }, []);
 
   const isItemActive = (href: string, children?: Array<{ href: string }>) => {
     if (pathname === href) return true;
@@ -168,7 +165,7 @@ export function Header({ site }: { site: PublicSite }) {
     {
       id: "membership",
       label: "Keanggotaan",
-      href: "/join",
+      href: isLoggedIn ? "/member" : "/join",
       children: [
         {
           id: "tech-locator",
@@ -190,8 +187,26 @@ export function Header({ site }: { site: PublicSite }) {
           label: "Verifikasi KTA & Kredensial",
           href: "/verify",
         },
-        { id: "join-terms", label: "Syarat & Pendaftaran", href: "/join" },
-        { id: "member-portal", label: "Portal Anggota", href: "/member/login" },
+        ...(isLoggedIn
+          ? [
+              {
+                id: "member-portal",
+                label: "Portal & KTA Saya",
+                href: "/member",
+              },
+            ]
+          : [
+              {
+                id: "join-terms",
+                label: "Syarat & Pendaftaran",
+                href: "/join",
+              },
+              {
+                id: "member-portal",
+                label: "Portal Anggota",
+                href: "/member/login",
+              },
+            ]),
       ],
     },
     {
@@ -319,10 +334,14 @@ export function Header({ site }: { site: PublicSite }) {
             {/* Member Login / Portal Badge */}
             <Link
               className="top-bar-link highlight"
-              href={memberActive ? "/member" : "/member/login"}
+              href={isLoggedIn ? "/member" : "/member/login"}
             >
-              <User size={13} />
-              <span>{memberActive ? "Portal Anggota" : "Member Login"}</span>
+              {isLoggedIn ? <UserCheck size={13} /> : <User size={13} />}
+              <span>
+                {isLoggedIn
+                  ? `Portal Anggota (${member?.name ? member.name.split(" ")[0] : "Saya"})`
+                  : "Member Login"}
+              </span>
             </Link>
           </div>
         </div>
@@ -395,10 +414,17 @@ export function Header({ site }: { site: PublicSite }) {
             )}
           </nav>
 
-          <Link className="header-action" href="/join">
-            <span>Daftar Anggota</span>
-            <ArrowUpRight size={15} />
-          </Link>
+          {isLoggedIn ? (
+            <Link className="header-action" href="/member">
+              <CreditCard size={15} />
+              <span>Portal & KTA Saya</span>
+            </Link>
+          ) : (
+            <Link className="header-action" href="/join">
+              <span>Daftar Anggota</span>
+              <ArrowUpRight size={15} />
+            </Link>
+          )}
 
           <button
             type="button"
@@ -445,22 +471,36 @@ export function Header({ site }: { site: PublicSite }) {
               ),
             )}
             <div className="mobile-nav-auth-row">
-              <Link
-                className="mobile-nav-join-btn"
-                href="/join"
-                onClick={() => setMenuOpen(false)}
-              >
-                <UserPlus size={15} />
-                <span>Daftar</span>
-              </Link>
-              <Link
-                className="mobile-nav-member-btn"
-                href={memberActive ? "/member" : "/member/login"}
-                onClick={() => setMenuOpen(false)}
-              >
-                <User size={15} />
-                <span>{memberActive ? "Portal" : "Masuk"}</span>
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  className="mobile-nav-member-btn"
+                  style={{ width: "100%", justifyContent: "center" }}
+                  href="/member"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <CreditCard size={15} />
+                  <span>Buka Portal & KTA Saya</span>
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    className="mobile-nav-join-btn"
+                    href="/join"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <UserPlus size={15} />
+                    <span>Daftar</span>
+                  </Link>
+                  <Link
+                    className="mobile-nav-member-btn"
+                    href="/member/login"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <User size={15} />
+                    <span>Masuk</span>
+                  </Link>
+                </>
+              )}
             </div>
             <a
               className="mobile-nav-contact-link"
@@ -478,6 +518,7 @@ export function Header({ site }: { site: PublicSite }) {
 }
 
 export function Footer({ site }: { site: PublicSite }) {
+  const { isLoggedIn } = useMemberAuth();
   const footer = site.footer as {
     description?: string;
     copyright?: string;
@@ -488,34 +529,46 @@ export function Footer({ site }: { site: PublicSite }) {
     <>
       {site.quickContact && (
         <a
-          className="quick-contact"
+          className="floating-quick-contact"
           href={site.quickContact.href}
-          aria-label={site.quickContact.label}
-          title={site.quickContact.label}
           target="_blank"
           rel="noopener noreferrer"
         >
-          <MessageCircle size={22} />
+          <Phone size={18} />
+          <div className="quick-contact-text">
+            <small>Hotline Resmi</small>
+            <span>{site.quickContact.label}</span>
+          </div>
         </a>
       )}
 
       <footer className="site-footer">
-        <div className="wrap footer-grid">
-          {/* Brand & Contact Information Column */}
+        <div className="wrap footer-main-grid">
+          {/* Brand Info & Address */}
           <div className="footer-brand-col">
-            <div className="site-brand inverse">
+            <div className="footer-brand-header">
               {site.organization.logoUrl ? (
-                <img src={site.organization.logoUrl} alt="" />
+                <img
+                  src={site.organization.logoUrl}
+                  alt={site.organization.name}
+                  className="footer-logo"
+                />
               ) : (
-                <span>{site.organization.name.slice(0, 2).toUpperCase()}</span>
+                <span className="footer-logo-fallback">
+                  {site.organization.name.slice(0, 2).toUpperCase()}
+                </span>
               )}
-              <strong>{site.organization.name}</strong>
+              <div>
+                <strong>{site.organization.name}</strong>
+                <small>Akreditasi & Sertifikasi Terpadu</small>
+              </div>
             </div>
             <p className="footer-desc">
-              {footer.description ?? site.organization.description}
+              {footer.description ??
+                `${site.organization.name} adalah asosiasi resmi yang menaungi praktisi, pelaku usaha, dan profesional terakreditasi.`}
             </p>
             <p className="footer-address">
-              <MapPin size={14} className="address-pin-icon" />
+              <MapPin size={14} className="address-icon" />
               <span>
                 Gedung Sekretariat Pusat, Kawasan Bisnis Terpadu, Jakarta 10220
               </span>
@@ -553,7 +606,7 @@ export function Footer({ site }: { site: PublicSite }) {
             <h3>Organisasi</h3>
             <Link href="/structure">Struktur DPP & DPD</Link>
             <Link href="/regulations">AD/ART & Kode Etik</Link>
-            <Link href="/join">Pendaftaran Anggota</Link>
+            {!isLoggedIn && <Link href="/join">Pendaftaran Anggota</Link>}
             <Link href="/stories">Warta & Kabar Terkini</Link>
             <Link href="/events">Agenda & Pelatihan</Link>
           </div>
@@ -565,7 +618,9 @@ export function Footer({ site }: { site: PublicSite }) {
             <Link href="/lenders">Cek Fintech Berizin OJK</Link>
             <Link href="/clubs">Direktori Klub & TKT</Link>
             <Link href="/verify">Verifikasi KTA Digital</Link>
-            <Link href="/member/login">Portal Login Anggota</Link>
+            <Link href={isLoggedIn ? "/member" : "/member/login"}>
+              {isLoggedIn ? "Portal Anggota (KTA)" : "Portal Login Anggota"}
+            </Link>
           </div>
 
           {/* Nav Column 3: Advokasi & Data */}

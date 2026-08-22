@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useMemberAuth } from "@/lib/use-member-auth";
 
 type Props = {
   site: PublicSite;
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
+  const { isLoggedIn } = useMemberAuth();
   const [activeCardTab, setActiveCardTab] = useState<"kta" | "verify">("kta");
   const [verifyInput, setVerifyInput] = useState("");
   const [verifyResult, setVerifyResult] = useState<{
@@ -79,23 +81,42 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
           </p>
 
           <div className="hero-cta-group">
-            <Link href="/join" className="btn-hero-primary">
-              <UserPlus size={17} />
-              <span>Daftar Anggota</span>
-              <ArrowRight size={15} className="btn-arrow" />
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link href="/member" className="btn-hero-primary">
+                  <CreditCard size={17} />
+                  <span>Buka Portal & KTA Saya</span>
+                  <ArrowRight size={15} className="btn-arrow" />
+                </Link>
 
-            <div className="hero-cta-secondary-row">
-              <Link href="/member/login" className="btn-hero-secondary">
-                <CreditCard size={16} />
-                <span>Portal Anggota</span>
-              </Link>
+                <div className="hero-cta-secondary-row">
+                  <Link href="/verify" className="btn-hero-ghost">
+                    <BadgeCheck size={16} />
+                    <span>Cek Validitas KTA</span>
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <Link href="/join" className="btn-hero-primary">
+                  <UserPlus size={17} />
+                  <span>Daftar Anggota</span>
+                  <ArrowRight size={15} className="btn-arrow" />
+                </Link>
 
-              <Link href="/verify" className="btn-hero-ghost">
-                <BadgeCheck size={16} />
-                <span>Cek KTA</span>
-              </Link>
-            </div>
+                <div className="hero-cta-secondary-row">
+                  <Link href="/member/login" className="btn-hero-secondary">
+                    <CreditCard size={16} />
+                    <span>Portal Anggota</span>
+                  </Link>
+
+                  <Link href="/verify" className="btn-hero-ghost">
+                    <BadgeCheck size={16} />
+                    <span>Cek KTA</span>
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Key Metrics / Live Counters */}

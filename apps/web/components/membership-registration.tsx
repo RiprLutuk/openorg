@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowRight, BadgeCheck, Building2 } from "lucide-react";
+import { ArrowRight, BadgeCheck, Building2, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { memberApi } from "@/lib/member-client";
+import { useMemberAuth } from "@/lib/use-member-auth";
 
 type Unit = { id: string; name: string; type: string };
 
@@ -13,6 +14,7 @@ export function MembershipRegistration({
 }: {
   organizationName: string;
 }) {
+  const { isLoggedIn, member } = useMemberAuth();
   const [units, setUnits] = useState<Unit[]>([]);
   const [stage, setStage] = useState<"register" | "done">("register");
   const [error, setError] = useState("");
@@ -23,6 +25,28 @@ export function MembershipRegistration({
       .then((result) => setUnits(result.data.units))
       .catch(() => setUnits([]));
   }, []);
+
+  if (isLoggedIn) {
+    return (
+      <div className="member-success-card">
+        <span>
+          <UserCheck size={32} />
+        </span>
+        <p className="eyebrow">Akun Terdaftar</p>
+        <h2>Anda Sudah Menjadi Anggota</h2>
+        <p>
+          Anda sedang masuk dengan akun <strong>{member?.name}</strong>{" "}
+          {member?.memberNumber ? `(No. KTA: ${member.memberNumber})` : ""}.
+          Anda tidak perlu mendaftar ulang.
+        </p>
+        <div className="gate-action-buttons mt-4">
+          <Link className="button primary" href="/member">
+            Buka Portal & KTA Saya <ArrowRight size={17} />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const register = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

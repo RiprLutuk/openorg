@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowRight,
   BookOpen,
@@ -9,8 +11,11 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { useMemberAuth } from "@/lib/use-member-auth";
 
 export function InteractiveBentoServices() {
+  const { isLoggedIn } = useMemberAuth();
+
   return (
     <section className="section-space home-bento-section">
       <div className="wrap">
@@ -58,13 +63,22 @@ export function InteractiveBentoServices() {
               </div>
 
               <div className="bento-card-footer">
-                <Link href="/join" className="bento-action-link">
-                  <span>Daftar Anggota</span>
-                  <ArrowRight size={15} />
-                </Link>
-                <Link href="/member/login" className="bento-sub-link">
-                  Portal Anggota →
-                </Link>
+                {isLoggedIn ? (
+                  <Link href="/member" className="bento-action-link">
+                    <span>Buka KTA Digital Saya</span>
+                    <ArrowRight size={15} />
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/join" className="bento-action-link">
+                      <span>Daftar Anggota</span>
+                      <ArrowRight size={15} />
+                    </Link>
+                    <Link href="/member/login" className="bento-sub-link">
+                      Portal Anggota →
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

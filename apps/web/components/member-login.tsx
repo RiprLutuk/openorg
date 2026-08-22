@@ -1,15 +1,38 @@
 "use client";
 
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { memberApi } from "@/lib/member-client";
+import { useMemberAuth } from "@/lib/use-member-auth";
 
 export function MemberLogin() {
+  const { isLoggedIn, member } = useMemberAuth();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  if (isLoggedIn) {
+    return (
+      <div className="member-success-card">
+        <span>
+          <UserCheck size={32} />
+        </span>
+        <p className="eyebrow">Sesi Masuk Aktif</p>
+        <h2>Anda Sudah Masuk</h2>
+        <p>
+          Anda saat ini terhubung sebagai <strong>{member?.name}</strong>{" "}
+          {member?.memberNumber ? `(No. KTA: ${member.memberNumber})` : ""}.
+        </p>
+        <div className="gate-action-buttons mt-4">
+          <Link className="button primary" href="/member">
+            Buka Portal & KTA Digital <ArrowRight size={17} />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

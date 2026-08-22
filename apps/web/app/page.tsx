@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { HomeCtaBanner } from "@/components/home-cta-banner";
 import { HomeHeroInteractive } from "@/components/home-hero-interactive";
 import { InteractiveBentoServices } from "@/components/interactive-bento-services";
 import { getContents, getEvents, getSite, getStructure } from "@/lib/api";
@@ -158,33 +159,8 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 5. Clean Floating CTA Banner */}
-      <section className="home-cta-banner-section">
-        <div className="wrap">
-          <div className="cta-banner-glow-card">
-            <div className="cta-banner-content">
-              <span className="cta-pill">
-                <Sparkles size={14} /> Keanggotaan Resmi
-              </span>
-              <h2>Bergabung Bersama {site.organization.name}</h2>
-              <p>
-                Dapatkan akses langsung ke jejaring profesional, pelatihan
-                terakreditasi, dan KTA digital resmi.
-              </p>
-              <div className="cta-buttons-row">
-                <Link href="/join" className="btn-cta-white">
-                  <UserPlus size={16} />
-                  <span>Daftar</span>
-                </Link>
-                <Link href="/member/login" className="btn-cta-ghost">
-                  <span>Masuk</span>
-                  <ArrowRight size={15} />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 5. Clean Dynamic CTA Banner */}
+      <HomeCtaBanner organizationName={site.organization.name} />
     </div>
   );
 }
