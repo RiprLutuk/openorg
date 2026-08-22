@@ -14,6 +14,10 @@
 
 *A dedicated, self-hosted web application and administration suite designed for associations, federations, professional networks, and community organizations.*
 
+### 🌐 Live Demonstrations
+- **Public Web Portal**: [openorg.demo.pandanteknik.com](https://openorg.demo.pandanteknik.com/)
+- **Headless CMS Studio**: [cms.openorg.demo.pandanteknik.com](https://cms.openorg.demo.pandanteknik.com/)
+
 [Features](#-key-features) • [Architecture](#-architecture) • [Quickstart](#-local-development-quickstart) • [VPS Deployment](#-production-vps-deployment) • [Documentation](#-documentation-index)
 
 </div>
