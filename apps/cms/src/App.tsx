@@ -5101,9 +5101,10 @@ function KtaCardModal({
     if (!cardCode) return;
     const verifyUrl = `${window.location.origin.replace("5173", "3000")}/verify?code=${encodeURIComponent(cardCode)}`;
     QRCode.toDataURL(verifyUrl, {
-      width: 240,
+      width: 280,
       margin: 1,
-      color: { dark: "#080c14", light: "#ffffff" },
+      errorCorrectionLevel: "M",
+      color: { dark: "#f8fafc", light: "#00000000" },
     })
       .then(setQrCodeUrl)
       .catch((err) => console.error(err));
@@ -5754,126 +5755,37 @@ function KtaCardModal({
                   </div>
                 </div>
 
-                {/* Cyber Viewfinder Enlarged QR Container */}
+                {/* Inverted Glass Luxury QR Container */}
                 <div
                   style={{
-                    position: "relative",
-                    width: "74px",
-                    height: "74px",
-                    flexShrink: 0,
+                    background: "rgba(255, 255, 255, 0.05)",
+                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    borderRadius: "12px",
+                    padding: "6px",
+                    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.35)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    flexShrink: 0,
+                    width: "72px",
+                    height: "72px",
+                    position: "relative",
                   }}
                 >
-                  {/* Corner Viewfinder Accents */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "-3px",
-                      left: "-3px",
-                      width: "8px",
-                      height: "8px",
-                      borderTop: "2px solid #38bdf8",
-                      borderLeft: "2px solid #38bdf8",
-                      borderTopLeftRadius: "3px",
-                      pointerEvents: "none",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "-3px",
-                      right: "-3px",
-                      width: "8px",
-                      height: "8px",
-                      borderTop: "2px solid #38bdf8",
-                      borderRight: "2px solid #38bdf8",
-                      borderTopRightRadius: "3px",
-                      pointerEvents: "none",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: "-3px",
-                      left: "-3px",
-                      width: "8px",
-                      height: "8px",
-                      borderBottom: "2px solid #38bdf8",
-                      borderLeft: "2px solid #38bdf8",
-                      borderBottomLeftRadius: "3px",
-                      pointerEvents: "none",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: "-3px",
-                      right: "-3px",
-                      width: "8px",
-                      height: "8px",
-                      borderBottom: "2px solid #38bdf8",
-                      borderRight: "2px solid #38bdf8",
-                      borderBottomRightRadius: "3px",
-                      pointerEvents: "none",
-                    }}
-                  />
-
-                  {/* White QR Plate */}
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      height: "100%",
-                      background: "#ffffff",
-                      padding: "4px",
-                      borderRadius: "10px",
-                      boxShadow:
-                        "0 4px 16px rgba(56, 189, 248, 0.2), 0 8px 24px rgba(0, 0, 0, 0.4)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {qrCodeUrl ? (
-                      <img
-                        src={qrCodeUrl}
-                        alt="QR Verifikasi"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          borderRadius: "6px",
-                          display: "block",
-                        }}
-                      />
-                    ) : (
-                      <QrCode size={60} color="#080c14" />
-                    )}
-
-                    {/* Center Micro Security Emblem */}
-                    <div
+                  {qrCodeUrl ? (
+                    <img
+                      src={qrCodeUrl}
+                      alt="QR Verifikasi"
                       style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: "18px",
-                        height: "18px",
-                        borderRadius: "50%",
-                        background: "#080c14",
-                        border: "1.5px solid #38bdf8",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        boxShadow: "0 0 8px rgba(56, 189, 248, 0.5)",
-                        zIndex: 2,
+                        width: "100%",
+                        height: "100%",
+                        display: "block",
+                        filter: "drop-shadow(0 0 1px rgba(255, 255, 255, 0.3))",
                       }}
-                    >
-                      <CheckCircle2 size={10} color="#38bdf8" />
-                    </div>
-                  </div>
+                    />
+                  ) : (
+                    <QrCode size={56} color="#f8fafc" />
+                  )}
                 </div>
               </div>
 
