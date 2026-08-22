@@ -13,6 +13,7 @@
     "@openorg/contracts": "workspace:*",
     "@tanstack/react-query": "latest",
     "@types/qrcode": "1.5.6",
+    "html2canvas": "1.4.1",
     "lucide-react": "latest",
     "qrcode": "1.5.4",
     "react": "latest",

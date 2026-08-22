@@ -1,9 +1,9 @@
 "use client";
 
-import { BadgeCheck, Download, Printer, ShieldAlert } from "lucide-react";
+import { BadgeCheck, ShieldAlert } from "lucide-react";
 import { useEffect, useState } from "react";
-import { downloadKtaCard } from "@/lib/kta-generator";
 import { memberApi } from "@/lib/member-client";
+import { MemberPortraitCard } from "./member-portrait-card";
 
 type Verification = {
   valid: true;
@@ -14,7 +14,12 @@ type Verification = {
     unitName: string | null;
     joinedAt: string | null;
   };
-  card: { issuedAt: string; expiresAt: string | null; version: number };
+  card: {
+    code?: string;
+    issuedAt: string;
+    expiresAt: string | null;
+    version: number;
+  };
   organization: { name: string; logoUrl: string | null };
 };
 
@@ -44,91 +49,41 @@ export function MembershipVerification({ code }: { code: string }) {
     return (
       <div className="portal-loading">Checking membership credential…</div>
     );
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const handleDownload = async () => {
-    if (!result) return;
-    try {
-      setIsDownloading(true);
-      await downloadKtaCard({
-        memberName: result.member.name,
-        memberNumber: result.member.memberNumber || code,
-        cardCode: code,
-        unitName: result.member.unitName,
-        issuedAt: result.card.issuedAt,
-        expiresAt: result.card.expiresAt,
-        orgName: result.organization.name,
-        avatarUrl: result.member.avatarUrl,
-      });
-    } catch (err) {
-      console.error("Gagal mengunduh KTA:", err);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   return (
     <div className="verification-card">
       <span>
         <BadgeCheck size={30} />
       </span>
-      <p className="eyebrow">Verified credential</p>
-      <h1>Membership is active.</h1>
-      <p>This card was issued by {result.organization.name}.</p>
-      <dl>
-        <div>
-          <dt>Member</dt>
-          <dd>{result.member.name}</dd>
-        </div>
-        <div>
-          <dt>Member number</dt>
-          <dd>{result.member.memberNumber}</dd>
-        </div>
-        <div>
-          <dt>Organization unit</dt>
-          <dd>{result.member.unitName ?? "—"}</dd>
-        </div>
-        <div>
-          <dt>Issued</dt>
-          <dd>{new Date(result.card.issuedAt).toLocaleDateString()}</dd>
-        </div>
-        <div>
-          <dt>Valid until</dt>
-          <dd>
-            {result.card.expiresAt
-              ? new Date(result.card.expiresAt).toLocaleDateString()
-              : "No expiry"}
-          </dd>
-        </div>
-      </dl>
-      <div
-        className="kta-action-group no-print"
-        style={{
-          marginTop: "24px",
-          display: "flex",
-          gap: "12px",
-          justifyContent: "center",
-        }}
-      >
-        <button
-          className="button primary"
-          type="button"
-          disabled={isDownloading}
-          onClick={handleDownload}
-        >
-          <Download size={16} />{" "}
-          {isDownloading ? "Membuat KTA HD..." : "Unduh KTA (PNG)"}
-        </button>
-        <button
-          className="button secondary"
-          type="button"
-          onClick={() => window.print()}
-        >
-          <Printer size={16} /> Cetak Kartu
-        </button>
+      <p className="eyebrow">Verified Credential</p>
+      <h1>Keanggotaan Terverifikasi Aktif</h1>
+      <p>
+        Kartu Tanda Anggota (KTA) Digital Resmi diterbitkan oleh{" "}
+        <strong>{result.organization.name}</strong>.
+      </p>
+
+      <div style={{ marginTop: "24px" }}>
+        <MemberPortraitCard
+          member={{
+            name: result.member.name,
+            memberNumber: result.member.memberNumber || code,
+            avatarUrl: result.member.avatarUrl,
+            unitName: result.member.unitName,
+            positionName: "ANGGOTA RESMI",
+            status: "active",
+          }}
+          card={{
+            code: result.card.code || code,
+            issuedAt: result.card.issuedAt,
+            expiresAt: result.card.expiresAt,
+            version: result.card.version,
+          }}
+          organization={result.organization}
+        />
       </div>
+
       <small style={{ marginTop: "16px", display: "block" }}>
-        Card version {result.card.version} · Live verification
+        Card version {result.card.version} · Live Verification Engine
       </small>
     </div>
   );

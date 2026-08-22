@@ -20,6 +20,7 @@ import QRCode from "qrcode";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { downloadKtaCard } from "@/lib/kta-generator";
 import { MemberApiError, memberApi } from "@/lib/member-client";
+import { MemberPortraitCard } from "./member-portrait-card";
 
 type PortalData = {
   member: {
@@ -398,102 +399,27 @@ export function MemberPortal() {
         <section className="portal-card-section">
           <div className="portal-section-heading">
             <div>
-              <p className="eyebrow">Digital credential</p>
-              <h2>Your membership card</h2>
-              <p>Print it directly or verify its status from the QR code.</p>
-            </div>
-            <div className="kta-action-group no-print">
-              <button
-                className="button primary"
-                type="button"
-                disabled={isDownloading}
-                onClick={async () => {
-                  if (!data.card) return;
-                  try {
-                    setIsDownloading(true);
-                    await downloadKtaCard({
-                      memberName: data.member.name,
-                      memberNumber: data.member.memberNumber || data.card.code,
-                      cardCode: data.card.code,
-                      unitName:
-                        (data.member as { unitName?: string }).unitName ?? null,
-                      issuedAt: data.card.issuedAt,
-                      expiresAt: data.card.expiresAt,
-                      orgName: data.organization.name,
-                      avatarUrl: data.member.avatarUrl,
-                    });
-                  } catch (err) {
-                    console.error("Gagal mengunduh KTA:", err);
-                  } finally {
-                    setIsDownloading(false);
-                  }
-                }}
-              >
-                <Download size={17} />{" "}
-                {isDownloading ? "Membuat KTA HD..." : "Unduh KTA (PNG)"}
-              </button>
-              <button
-                className="button secondary"
-                type="button"
-                onClick={() => window.print()}
-              >
-                <Printer size={17} /> Cetak Kartu
-              </button>
+              <p className="eyebrow">Digital Credential</p>
+              <h2>Kartu Tanda Anggota (KTA) Digital</h2>
+              <p>
+                Kartu anggota resmi berstandar ID Card. Download kartu (PNG)
+                atau scan QR Code untuk verifikasi keaslian.
+              </p>
             </div>
           </div>
           <div className="membership-card-print-area">
-            <article className="membership-card">
-              <div className="membership-card-brand">
-                {data.organization.logoUrl ? (
-                  <img src={data.organization.logoUrl} alt="" />
-                ) : (
-                  <span>
-                    {data.organization.name.slice(0, 2).toUpperCase()}
-                  </span>
-                )}
-                <div>
-                  <small>Official member</small>
-                  <strong>{data.organization.name}</strong>
-                </div>
-                <CreditCard size={25} />
-              </div>
-              <div className="membership-card-body">
-                <div className="membership-photo">
-                  {data.member.avatarUrl ? (
-                    <img src={data.member.avatarUrl} alt={data.member.name} />
-                  ) : (
-                    <span>{data.member.name.slice(0, 2).toUpperCase()}</span>
-                  )}
-                </div>
-                <div className="membership-identity">
-                  <small>Member name</small>
-                  <h3>{data.member.name}</h3>
-                  <small>Member number / KTA Code</small>
-                  <strong>{data.card.code}</strong>
-                  <div>
-                    <span>
-                      <small>Issued</small>
-                      {formatDate(data.card.issuedAt)}
-                    </span>
-                    <span>
-                      <small>Valid until</small>
-                      {data.card.expiresAt
-                        ? formatDate(data.card.expiresAt)
-                        : "No expiry"}
-                    </span>
-                  </div>
-                </div>
-                <div className="membership-qr">
-                  {qrCode && (
-                    <img src={qrCode} alt="QR code to verify membership" />
-                  )}
-                  <small>Scan to verify</small>
-                </div>
-              </div>
-              <div className="membership-card-footer">
-                <ShieldCheck size={14} /> Active digital membership credential
-              </div>
-            </article>
+            <MemberPortraitCard
+              member={{
+                name: data.member.name,
+                memberNumber: data.member.memberNumber || data.card.code,
+                avatarUrl: data.member.avatarUrl,
+                unitName: (data.member as { unitName?: string }).unitName,
+                positionName: "ANGGOTA RESMI",
+                status: data.member.status,
+              }}
+              card={data.card}
+              organization={data.organization}
+            />
           </div>
         </section>
       ) : (

@@ -1,5 +1,6 @@
 import type { PageSection, PublicNavItem, Theme } from "@openorg/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import html2canvas from "html2canvas";
 import {
   ArrowRight,
   Award,
@@ -16,6 +17,7 @@ import {
   Copy,
   CornerDownRight,
   CreditCard,
+  Download,
   FileText,
   Flag,
   Globe2,
@@ -759,6 +761,8 @@ function Dashboard({
         body: JSON.stringify({
           name: wizardForm.name,
           email: wizardForm.email,
+          primaryColor: wizardForm.primaryColor,
+          secondaryColor: wizardForm.secondaryColor,
           theme: {
             colors: {
               primary: wizardForm.primaryColor,
@@ -767,11 +771,9 @@ function Dashboard({
               surface: "#f8fafc",
               foreground: "#0f172a",
             },
-            typography: {
-              heading: wizardForm.fontHeading,
-              body: wizardForm.fontBody,
-            },
-            radius: "18px",
+            fontHeading: wizardForm.fontHeading,
+            fontBody: wizardForm.fontBody,
+            radius: "medium",
           },
         }),
       });
@@ -5055,9 +5057,11 @@ function KtaCardModal({
   member: CmsMember;
   onClose: () => void;
 }) {
+  const cardRef = useRef<HTMLDivElement>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const cardQuery = useQuery({
     queryKey: ["member-card", member.id],
@@ -5083,13 +5087,39 @@ function KtaCardModal({
     if (!cardCode) return;
     const verifyUrl = `${window.location.origin.replace("5173", "3000")}/verify?code=${encodeURIComponent(cardCode)}`;
     QRCode.toDataURL(verifyUrl, {
-      width: 200,
-      margin: 1,
-      color: { dark: "#0f172a", light: "#ffffff" },
+      width: 160,
+      margin: 0,
+      color: { dark: "#0b192c", light: "#ffffff" },
     })
       .then(setQrCodeUrl)
       .catch((err) => console.error(err));
   }, [cardCode]);
+
+  const downloadKtaCardOnly = async () => {
+    if (!cardRef.current) return;
+    try {
+      setIsDownloading(true);
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+      });
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      const safeName = member.name.replace(/[^a-zA-Z0-9]/g, "_");
+      link.download = `Kartu_Anggota_${safeName}.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`KTA Digital ${member.name} berhasil diunduh!`);
+    } catch {
+      toast.error("Gagal mengunduh kartu KTA.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const generateNewCard = async () => {
     if (
@@ -5138,6 +5168,16 @@ function KtaCardModal({
     toast.success("Link verifikasi KTA disalin ke clipboard!");
   };
 
+  const orgName = cardData?.organization.name ?? "APTI INDONESIA";
+  const dpdText =
+    cardData?.member.unitName ?? member.unitName ?? "DPP NASIONAL";
+  const initials = member.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true">
       <button
@@ -5148,13 +5188,13 @@ function KtaCardModal({
       />
       <div
         className="modal-content kta-modal-box"
-        style={{ maxWidth: "620px", position: "relative", zIndex: 2 }}
+        style={{ maxWidth: "560px", position: "relative", zIndex: 2 }}
       >
         <div className="modal-header">
           <div>
             <h2>Kartu Tanda Anggota (KTA Digital)</h2>
             <p className="subtext">
-              Pratinjau KTA Digital & Kode Verifikasi Resmi {member.name}
+              Pratinjau KTA Resmi Berstandar ID Card (Portrait) · {member.name}
             </p>
           </div>
           <button type="button" className="close-btn" onClick={onClose}>
@@ -5167,205 +5207,321 @@ function KtaCardModal({
             Menyiapkan pratinjau KTA...
           </div>
         ) : (
-          <div className="kta-card-preview-container">
-            {/* Visual KTA Card */}
+          <div
+            className="kta-card-preview-container"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            {/* Visual Portrait ID Card (Target for Download) */}
             <div
-              className="kta-card-graphic"
+              id="modern-id-card"
+              ref={cardRef}
               style={{
-                background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
-                borderRadius: "16px",
-                padding: "24px",
-                color: "#ffffff",
-                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.3)",
-                border: "1px solid rgba(245, 158, 11, 0.3)",
+                width: "340px",
+                height: "560px",
+                background: "linear-gradient(135deg, #0b192c 0%, #1a365d 100%)",
+                borderRadius: "24px",
                 position: "relative",
                 overflow: "hidden",
-                marginTop: "16px",
+                boxShadow: "0 25px 50px rgba(0,0,0,0.3)",
+                color: "#ffffff",
+                margin: "16px auto",
+                border: "1px solid rgba(255,255,255,0.1)",
+                boxSizing: "border-box",
               }}
             >
+              {/* Glow effects */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: "-60px",
+                  right: "-60px",
+                  width: "250px",
+                  height: "250px",
+                  background:
+                    "radial-gradient(circle, rgba(220, 38, 38, 0.5) 0%, transparent 70%)",
+                  borderRadius: "50%",
+                  zIndex: 1,
+                  pointerEvents: "none",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "-80px",
+                  left: "-80px",
+                  width: "300px",
+                  height: "300px",
+                  background:
+                    "radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)",
+                  borderRadius: "50%",
+                  zIndex: 1,
+                  pointerEvents: "none",
+                }}
+              />
+
+              {/* Header */}
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "space-between",
                   alignItems: "center",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-                  paddingBottom: "14px",
-                  marginBottom: "16px",
+                  padding: "26px 22px 0",
+                  position: "relative",
+                  zIndex: 10,
                 }}
               >
                 <div
-                  style={{ display: "flex", alignItems: "center", gap: "10px" }}
-                >
-                  <div
-                    style={{
-                      width: "36px",
-                      height: "36px",
-                      borderRadius: "8px",
-                      background: "#F59E0B",
-                      color: "#0F172A",
-                      fontWeight: 800,
-                      display: "grid",
-                      placeItems: "center",
-                      fontSize: "14px",
-                    }}
-                  >
-                    APTI
-                  </div>
-                  <div>
-                    <div
-                      style={{
-                        fontWeight: 700,
-                        fontSize: "14px",
-                        letterSpacing: "0.5px",
-                      }}
-                    >
-                      {cardData?.organization.name ?? "APTI INDONESIA"}
-                    </div>
-                    <div style={{ fontSize: "11px", opacity: 0.7 }}>
-                      Asosiasi Pengusaha & Teknisi Pendingin Indonesia
-                    </div>
-                  </div>
-                </div>
-                <span
                   style={{
-                    background: "rgba(245, 158, 11, 0.15)",
-                    color: "#F59E0B",
-                    padding: "4px 10px",
-                    borderRadius: "20px",
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    border: "1px solid rgba(245, 158, 11, 0.4)",
+                    height: "44px",
+                    width: "44px",
+                    background: "#f59e0b",
+                    color: "#0f172a",
+                    fontWeight: 800,
+                    fontSize: "16px",
+                    borderRadius: "50%",
+                    display: "grid",
+                    placeItems: "center",
+                    boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+                    flexShrink: 0,
                   }}
                 >
-                  KTA DIGITAL RESMI
-                </span>
+                  {orgName.slice(0, 2).toUpperCase()}
+                </div>
+                <div style={{ marginLeft: "14px" }}>
+                  <h3
+                    style={{
+                      fontSize: "0.95rem",
+                      fontWeight: 800,
+                      color: "#ffffff",
+                      letterSpacing: "0.8px",
+                      margin: "0 0 2px 0",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {orgName}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: "0.55rem",
+                      color: "#94a3b8",
+                      fontWeight: 600,
+                      margin: 0,
+                      lineHeight: 1.3,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Asosiasi Praktisi Tata Udara
+                    <br />
+                    Dan Pendingin Indonesia
+                  </p>
+                </div>
               </div>
 
+              {/* Circular Profile Photo with Fiery Ring */}
               <div
-                style={{ display: "flex", gap: "18px", alignItems: "center" }}
+                style={{
+                  position: "relative",
+                  zIndex: 10,
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: "32px",
+                }}
               >
                 <div
                   style={{
-                    width: "80px",
-                    height: "80px",
-                    borderRadius: "12px",
-                    background: "#334155",
-                    border: "2px solid #F59E0B",
-                    display: "grid",
-                    placeItems: "center",
-                    fontSize: "24px",
-                    fontWeight: 700,
-                    color: "#F8FAFC",
-                    overflow: "hidden",
-                    flexShrink: 0,
+                    width: "145px",
+                    height: "145px",
+                    borderRadius: "50%",
+                    background:
+                      "linear-gradient(135deg, #dc2626, #ef4444, #f59e0b)",
+                    padding: "4px",
+                    boxShadow: "0 15px 35px rgba(220, 38, 38, 0.35)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   {member.avatarUrl ? (
                     <img
                       src={member.avatarUrl}
                       alt={member.name}
+                      crossOrigin="anonymous"
                       style={{
                         width: "100%",
                         height: "100%",
+                        borderRadius: "50%",
                         objectFit: "cover",
+                        border: "3px solid #0b192c",
+                        background: "#ffffff",
                       }}
                     />
                   ) : (
-                    member.name.slice(0, 2).toUpperCase()
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "50%",
+                        display: "grid",
+                        placeItems: "center",
+                        background: "#1e293b",
+                        color: "#38bdf8",
+                        fontSize: "42px",
+                        fontWeight: 800,
+                        border: "3px solid #0b192c",
+                      }}
+                    >
+                      {initials}
+                    </div>
                   )}
                 </div>
+              </div>
 
-                <div style={{ flex: 1 }}>
-                  <h3
-                    style={{
-                      margin: 0,
-                      fontSize: "18px",
-                      fontWeight: 700,
-                      color: "#FFFFFF",
-                    }}
-                  >
-                    {member.name}
-                  </h3>
-                  <div
-                    style={{
-                      fontSize: "13px",
-                      marginTop: "4px",
-                      color: "#F59E0B",
-                      fontWeight: 600,
-                    }}
-                  >
-                    No. KTA: {cardCode}
+              {/* Member Info */}
+              <div
+                style={{
+                  textAlign: "center",
+                  position: "relative",
+                  zIndex: 10,
+                  marginTop: "22px",
+                  padding: "0 20px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "1.25rem",
+                    fontWeight: 800,
+                    color: "#ffffff",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  {member.name}
+                </div>
+                <div
+                  style={{
+                    display: "inline-block",
+                    background: "rgba(220, 38, 38, 0.15)",
+                    border: "1px solid rgba(220, 38, 38, 0.4)",
+                    color: "#fca5a5",
+                    padding: "4px 14px",
+                    borderRadius: "30px",
+                    fontSize: "0.85rem",
+                    fontWeight: 700,
+                    letterSpacing: "1.5px",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {cardCode}
+                </div>
+              </div>
+
+              {/* Glassmorphism Bottom Details */}
+              <div
+                style={{
+                  margin: "auto 18px 20px",
+                  background: "rgba(255, 255, 255, 0.07)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  borderRadius: "16px",
+                  padding: "14px 16px",
+                  position: "relative",
+                  zIndex: 10,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                }}
+              >
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px",
+                    paddingRight: "14px",
+                    borderRight: "1px solid rgba(255, 255, 255, 0.1)",
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        fontSize: "0.55rem",
+                        color: "#94a3b8",
+                        textTransform: "uppercase",
+                        fontWeight: 700,
+                        letterSpacing: "1px",
+                        marginBottom: "2px",
+                      }}
+                    >
+                      DPD / UNIT
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        color: "#f8fafc",
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {dpdText}
+                    </div>
                   </div>
-                  <div
-                    style={{ fontSize: "12px", marginTop: "2px", opacity: 0.8 }}
-                  >
-                    Unit:{" "}
-                    {cardData?.member.unitName ??
-                      member.unitName ??
-                      "DPP INDONESIA"}
-                  </div>
-                  <div
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "4px",
-                      marginTop: "6px",
-                      background: "rgba(34, 197, 94, 0.15)",
-                      color: "#4ADE80",
-                      padding: "2px 8px",
-                      borderRadius: "6px",
-                      fontSize: "11px",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <BadgeCheck size={13} /> ANGGOTA AKTIF BERLISENSI
+                  <div>
+                    <div
+                      style={{
+                        fontSize: "0.55rem",
+                        color: "#94a3b8",
+                        textTransform: "uppercase",
+                        fontWeight: 700,
+                        letterSpacing: "1px",
+                        marginBottom: "2px",
+                      }}
+                    >
+                      STATUS JABATAN
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        color: "#f8fafc",
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      ANGGOTA RESMI
+                    </div>
                   </div>
                 </div>
-
-                <div style={{ textAlign: "center", flexShrink: 0 }}>
+                <div
+                  style={{
+                    background: "#ffffff",
+                    padding: "6px",
+                    borderRadius: "10px",
+                    marginLeft: "14px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                >
                   {qrCodeUrl ? (
                     <img
                       src={qrCodeUrl}
                       alt="QR Verifikasi"
                       style={{
-                        width: "76px",
-                        height: "76px",
-                        borderRadius: "6px",
-                        background: "#FFFFFF",
-                        padding: "4px",
+                        width: "65px",
+                        height: "65px",
+                        display: "block",
                       }}
                     />
                   ) : (
-                    <QrCode size={60} />
+                    <QrCode size={55} color="#0b192c" />
                   )}
-                  <div
-                    style={{ fontSize: "9px", opacity: 0.6, marginTop: "2px" }}
-                  >
-                    Scan Verifikasi
-                  </div>
                 </div>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "16px",
-                  paddingTop: "12px",
-                  borderTop: "1px dashed rgba(255, 255, 255, 0.15)",
-                  fontSize: "11px",
-                  opacity: 0.7,
-                }}
-              >
-                <span>Kartu Versi v{cardData?.card.version ?? 1}</span>
-                <span>
-                  Berlaku s/d:{" "}
-                  {cardData?.card.expiresAt
-                    ? new Date(cardData.card.expiresAt).toLocaleDateString(
-                        "id-ID",
-                      )
-                    : "Seumur Hidup / Selama Aktif"}
-                </span>
               </div>
             </div>
 
@@ -5374,11 +5530,21 @@ function KtaCardModal({
               style={{
                 display: "flex",
                 gap: "10px",
-                marginTop: "20px",
+                marginTop: "16px",
                 flexWrap: "wrap",
-                justifyContent: "flex-end",
+                justifyContent: "center",
+                width: "100%",
               }}
             >
+              <button
+                type="button"
+                className="button primary"
+                onClick={downloadKtaCardOnly}
+                disabled={isDownloading}
+              >
+                <Download size={16} />{" "}
+                {isDownloading ? "Mengunduh HD..." : "Download KTA (PNG)"}
+              </button>
               <button
                 type="button"
                 className="button secondary"
@@ -5393,7 +5559,7 @@ function KtaCardModal({
                 className="button secondary"
                 onClick={copyVerifyLink}
               >
-                <Copy size={16} /> Salin Link Verifikasi
+                <Copy size={16} /> Link Verifikasi
               </button>
               <button
                 type="button"
@@ -5402,14 +5568,7 @@ function KtaCardModal({
                 disabled={isGenerating}
               >
                 <RefreshCw size={16} className={isGenerating ? "spin" : ""} />{" "}
-                Terbitkan Ulang KTA
-              </button>
-              <button
-                type="button"
-                className="button primary"
-                onClick={() => window.print()}
-              >
-                <Printer size={16} /> Cetak / Download KTA
+                Terbitkan Ulang
               </button>
             </div>
           </div>

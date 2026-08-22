@@ -7468,6 +7468,7 @@ img {
   .member-info-grid,
   .portal-billing-section,
   .kta-action-group,
+  .kta-action-controls,
   .email-unverified-alert {
     display: none !important;
   }
@@ -7485,8 +7486,263 @@ img {
     border: none !important;
   }
 
-  .membership-card-print-area {
+  #modern-id-card {
+    box-shadow: none !important;
+    margin: 20px auto !important;
     page-break-inside: avoid;
     break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
+}
+
+/* ==========================================================================
+   Ultra-Premium Modern Portrait ID Card Design (ASISI Standard CR-80 Format)
+   ========================================================================== */
+.portrait-kta-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+#modern-id-card {
+  width: 340px;
+  height: 560px;
+  background: linear-gradient(135deg, #0b192c 0%, #1a365d 100%);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  font-family: inherit;
+  color: #ffffff;
+  margin: 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+}
+
+.id-glow-top-right {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(
+    circle,
+    rgba(220, 38, 38, 0.5) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.id-glow-bottom-left {
+  position: absolute;
+  bottom: -80px;
+  left: -80px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+    circle,
+    rgba(56, 189, 248, 0.25) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.id-header {
+  display: flex;
+  align-items: center;
+  padding: 26px 22px 0;
+  position: relative;
+  z-index: 10;
+}
+
+.id-header-logo {
+  height: 44px;
+  width: 44px;
+  object-fit: contain;
+  background: #ffffff;
+  border-radius: 50%;
+  padding: 5px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.id-header-logo-initial {
+  height: 44px;
+  width: 44px;
+  background: #f59e0b;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.id-header-text {
+  margin-left: 14px;
+}
+
+.id-header-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.8px;
+  margin: 0 0 2px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+}
+
+.id-header-sub {
+  font-size: 0.55rem;
+  color: #94a3b8;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.id-photo-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.id-photo-ring {
+  width: 145px;
+  height: 145px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dc2626, #ef4444, #f59e0b);
+  padding: 4px;
+  box-shadow: 0 15px 35px rgba(220, 38, 38, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.id-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  border: 3px solid #0b192c;
+  background: #ffffff;
+}
+
+.id-photo-placeholder {
+  display: grid;
+  place-items: center;
+  background: #1e293b;
+  color: #38bdf8;
+  font-size: 42px;
+  font-weight: 800;
+}
+
+.id-info {
+  text-align: center;
+  position: relative;
+  z-index: 10;
+  margin-top: 22px;
+  padding: 0 20px;
+}
+
+.id-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.id-number {
+  display: inline-block;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  color: #fca5a5;
+  padding: 4px 14px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  box-shadow: inset 0 0 10px rgba(220, 38, 38, 0.1);
+  margin-bottom: 8px;
+  font-family: monospace;
+}
+
+.id-details-glass {
+  margin: auto 18px 20px;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 14px 16px;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.id-regions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 14px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.id-region-label {
+  font-size: 0.55rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.id-region-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.3;
+}
+
+.id-qr-box {
+  background: #ffffff;
+  padding: 6px;
+  border-radius: 10px;
+  margin-left: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: grid;
+  place-items: center;
+}
+
+.id-qr-img {
+  width: 65px;
+  height: 65px;
+  display: block;
+}
+
+.kta-action-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
 }

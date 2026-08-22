@@ -237,13 +237,19 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
                   surface: z.string().optional(),
                   foreground: z.string().optional(),
                 })
+                .passthrough()
                 .optional(),
-              radius: z
-                .enum(["none", "small", "medium", "large", "pill"])
-                .optional(),
+              radius: z.string().optional(),
               fontHeading: z.string().optional(),
               fontBody: z.string().optional(),
+              typography: z
+                .object({
+                  heading: z.string().optional(),
+                  body: z.string().optional(),
+                })
+                .optional(),
             })
+            .passthrough()
             .optional(),
           navigation: z.array(z.any()).optional(),
           footer: z.record(z.string(), z.any()).optional(),
