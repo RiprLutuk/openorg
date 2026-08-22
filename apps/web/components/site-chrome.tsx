@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { memberApi } from "@/lib/member-client";
 
@@ -74,6 +75,7 @@ function LinkedinIcon({ size = 13 }: { size?: number }) {
 export function Header({ site }: { site: PublicSite }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [memberActive, setMemberActive] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     memberApi("/v1/member/session")
@@ -81,15 +83,24 @@ export function Header({ site }: { site: PublicSite }) {
       .catch(() => setMemberActive(false));
   }, []);
 
+  const isItemActive = (href: string, children?: Array<{ href: string }>) => {
+    if (pathname === href) return true;
+    if (href !== "/" && pathname.startsWith(href)) return true;
+    if (children?.some((c) => pathname === c.href || (c.href !== "/" && pathname.startsWith(c.href))))
+      return true;
+    return false;
+  };
+
   const defaultNavItems: PublicNavItem[] = [
+    { id: "home", label: "Beranda", href: "/" },
     {
       id: "profile",
-      label: "Profil",
+      label: "Profil Organisasi",
       href: "/organization-profile",
       children: [
-        { id: "org-profile", label: "Profil Organisasi", href: "/organization-profile" },
-        { id: "vision-mission", label: "Visi & Misi", href: "/vision-mission" },
-        { id: "structure", label: "Struktur Pengurus (DPP/DPD)", href: "/structure" },
+        { id: "org-profile", label: "Profil & Sejarah Organisasi", href: "/organization-profile" },
+        { id: "vision-mission", label: "Visi & Misi Organisasi", href: "/vision-mission" },
+        { id: "structure", label: "Struktur Pengurus (DPP/DPD/Korwil)", href: "/structure" },
         { id: "ad-art", label: "AD/ART & Kode Etik", href: "/regulations" },
       ],
     },
@@ -98,36 +109,36 @@ export function Header({ site }: { site: PublicSite }) {
       label: "Keanggotaan & Direktori",
       href: "/join",
       children: [
-        { id: "tech-locator", label: "Cari Teknisi Terverifikasi", href: "/technicians" },
-        { id: "clubs-directory", label: "Direktori Klub & TKT", href: "/clubs" },
-        { id: "lender-verifier", label: "Cek Platform Fintech Berizin", href: "/lenders" },
-        { id: "join-terms", label: "Syarat & Pendaftaran", href: "/join" },
+        { id: "tech-locator", label: "Cari Teknisi AC Terverifikasi (KTA)", href: "/technicians" },
+        { id: "lender-verifier", label: "Cek Platform Fintech Berizin (OJK)", href: "/lenders" },
+        { id: "clubs-directory", label: "Direktori Klub Otomotif & TKT", href: "/clubs" },
         { id: "verify-kta", label: "Verifikasi KTA & Kredensial", href: "/verify" },
-        { id: "member-portal", label: "Portal Anggota", href: "/member/login" },
+        { id: "join-terms", label: "Syarat & Pendaftaran Anggota", href: "/join" },
+        { id: "member-portal", label: "Portal Login Anggota", href: "/member/login" },
       ],
     },
     {
       id: "academy",
-      label: "Akademi & SKP",
+      label: "Akademi & Sertifikasi",
       href: "/events",
       children: [
-        { id: "events-list", label: "Agenda & Pelatihan", href: "/events" },
-        { id: "bnsp-cert", label: "Sertifikasi Profesi BNSP", href: "/events" },
+        { id: "events-list", label: "Agenda Workshop & Pelatihan Teknis", href: "/events" },
+        { id: "bnsp-cert", label: "Uji Kompetensi & Sertifikasi BNSP", href: "/events" },
+        { id: "championships", label: "Klasemen Kejuaraan & Skill Contest", href: "/championships" },
       ],
     },
     {
       id: "advocacy",
-      label: "Advokasi & Layanan",
+      label: "Advokasi & Data Sektor",
       href: "/regulations",
       children: [
         { id: "working-groups", label: "Kelompok Kerja (Pokja) Advokasi", href: "/working-groups" },
         { id: "regulations-list", label: "Regulasi & Policy Papers", href: "/regulations" },
-        { id: "industry-stats", label: "Statistik Industri", href: "/statistics" },
-        { id: "whois-lookup", label: "Lookup WHOIS & Traffic IIX", href: "/whois" },
-        { id: "public-complaints", label: "Layanan Pengaduan Etik", href: "/complaints" },
+        { id: "industry-stats", label: "Statistik Industri & Data Sektor", href: "/statistics" },
+        { id: "whois-lookup", label: "Pencarian WHOIS IP/ASN & Traffic IIX", href: "/whois" },
+        { id: "public-complaints", label: "Posko Pengaduan Etik JENDELA", href: "/complaints" },
       ],
     },
-    { id: "championships", label: "Kejuaraan", href: "/championships" },
     { id: "stories", label: "Berita & Publikasi", href: "/stories" },
   ];
 
@@ -225,19 +236,32 @@ export function Header({ site }: { site: PublicSite }) {
             {navItems.map((item) =>
               item.children && item.children.length > 0 ? (
                 <div key={item.id} className="nav-item-dropdown">
-                  <button type="button" className="nav-dropdown-trigger">
+                  <button
+                    type="button"
+                    className={`nav-dropdown-trigger ${
+                      isItemActive(item.href, item.children) ? "active" : ""
+                    }`}
+                  >
                     {item.label} <ChevronDown size={14} />
                   </button>
                   <div className="nav-dropdown-popover">
                     {item.children.map((child) => (
-                      <Link key={child.id} href={child.href}>
+                      <Link
+                        key={child.id}
+                        href={child.href}
+                        className={pathname === child.href ? "active" : ""}
+                      >
                         {child.label}
                       </Link>
                     ))}
                   </div>
                 </div>
               ) : (
-                <Link key={item.id} href={item.href}>
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className={isItemActive(item.href) ? "active" : ""}
+                >
                   {item.label}
                 </Link>
               ),
