@@ -88,6 +88,15 @@ export const publicQuickContactSchema = z.object({
 });
 
 export const publicSettingsSchema = z.object({
+  navigation: z
+    .array(
+      z.object({
+        id: z.string(),
+        label: z.string().trim().min(1).max(80),
+        href: safePublicHrefSchema,
+      }),
+    )
+    .optional(),
   footer: publicFooterSchema,
   announcement: publicAnnouncementSchema,
   quickContact: publicQuickContactSchema,

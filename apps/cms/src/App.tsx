@@ -35,6 +35,7 @@ import {
   Sparkles,
   Users,
   WalletCards,
+  Trash2,
   X,
 } from "lucide-react";
 import QRCode from "qrcode";
@@ -5872,6 +5873,9 @@ function SettingsManager() {
     defaultPublicSettings,
   );
   const [footerLinks, setFooterLinks] = useState("[]");
+  const [navItems, setNavItems] = useState<
+    Array<{ id: string; label: string; href: string }>
+  >([]);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -5912,6 +5916,15 @@ function SettingsManager() {
       },
     };
     setSettings(safeSettings);
+    setNavItems(
+      data.navigation && data.navigation.length
+        ? data.navigation
+        : [
+            { id: "events", label: "Agenda", href: "/events" },
+            { id: "structure", label: "Struktur", href: "/structure" },
+            { id: "verify", label: "Verifikasi Kredensial", href: "/verify" },
+          ],
+    );
     setFooterLinks(
       JSON.stringify(safeSettings.footer.links, null, 2),
     );
@@ -5950,6 +5963,7 @@ function SettingsManager() {
       if (!Array.isArray(parsed)) throw new Error();
       const next = {
         ...settings,
+        navigation: navItems,
         footer: { ...settings.footer, links: parsed },
       } as CmsPublicSettings;
       setSettings(next);
@@ -6334,6 +6348,90 @@ function SettingsManager() {
                 }
               />
             </label>
+          </div>
+        </section>
+
+        <section className="panel settings-panel wide-panel">
+          <span className="eyebrow">Public navigation</span>
+          <h2>Header navigation menu</h2>
+          <p>
+            Kelola menu navigasi atas yang tampil di header website publik Anda.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "12px" }}>
+            {navItems.map((item, index) => (
+              <div
+                key={item.id || index}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr auto",
+                  gap: "10px",
+                  alignItems: "center",
+                  background: "#f8fafc",
+                  padding: "10px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #eaecf0",
+                }}
+              >
+                <label style={{ fontSize: "11px", fontWeight: 700, margin: 0 }}>
+                  Label Menu
+                  <input
+                    value={item.label}
+                    onChange={(e) =>
+                      setNavItems(
+                        navItems.map((c, i) =>
+                          i === index ? { ...c, label: e.target.value } : c,
+                        ),
+                      )
+                    }
+                    placeholder="misal: Agenda"
+                    style={{ marginTop: "4px" }}
+                  />
+                </label>
+                <label style={{ fontSize: "11px", fontWeight: 700, margin: 0 }}>
+                  URL Link Target (Href)
+                  <input
+                    value={item.href}
+                    onChange={(e) =>
+                      setNavItems(
+                        navItems.map((c, i) =>
+                          i === index ? { ...c, href: e.target.value } : c,
+                        ),
+                      )
+                    }
+                    placeholder="misal: /events atau /tentang-kami"
+                    style={{ marginTop: "4px" }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="icon-button danger"
+                  onClick={() =>
+                    setNavItems(navItems.filter((_, i) => i !== index))
+                  }
+                  title="Hapus Menu"
+                  style={{ marginTop: "18px" }}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              className="button ghost"
+              onClick={() =>
+                setNavItems([
+                  ...navItems,
+                  {
+                    id: crypto.randomUUID(),
+                    label: "Menu Baru",
+                    href: "/halaman-baru",
+                  },
+                ])
+              }
+              style={{ alignSelf: "flex-start", marginTop: "4px" }}
+            >
+              <Plus size={16} /> Tambah Menu Header
+            </button>
           </div>
         </section>
 
