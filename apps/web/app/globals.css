@@ -218,6 +218,14 @@ img {
   height: 34px;
   display: flex;
   align-items: center;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-header-container.is-scrolled .site-top-bar {
+  height: 0;
+  opacity: 0;
+  border-bottom-color: transparent;
+  pointer-events: none;
 }
 .top-bar-inner {
   display: flex;
