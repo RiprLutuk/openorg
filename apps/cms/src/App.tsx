@@ -5290,7 +5290,7 @@ function KtaCardModal({
                 padding: "18px 20px 14px",
               }}
             >
-              {/* Top Micro-Header Bar */}
+              {/* Flat Top Micro-Header Bar */}
               <div
                 style={{
                   display: "flex",
@@ -5299,25 +5299,19 @@ function KtaCardModal({
                   position: "relative",
                   zIndex: 10,
                   width: "100%",
+                  paddingBottom: "2px",
                 }}
               >
                 <div
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "5px",
-                    background: "rgba(255, 255, 255, 0.06)",
-                    border: "1px solid rgba(255, 255, 255, 0.12)",
-                    padding: "4px 10px",
-                    borderRadius: "20px",
                     fontSize: "8.5px",
-                    fontWeight: 700,
-                    letterSpacing: "1px",
-                    color: "#e2e8f0",
+                    fontWeight: 800,
+                    letterSpacing: "1.5px",
+                    color: "#94a3b8",
+                    textTransform: "uppercase",
                     lineHeight: "1",
                   }}
                 >
-                  <Zap size={10} color="#fbbf24" />
                   <span>KTA DIGITAL</span>
                 </div>
                 <div
@@ -5325,15 +5319,11 @@ function KtaCardModal({
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "5px",
-                    background: "rgba(16, 185, 129, 0.15)",
-                    border: "1px solid rgba(16, 185, 129, 0.4)",
-                    color: "#34d399",
                     fontSize: "8.5px",
                     fontWeight: 800,
-                    letterSpacing: "0.8px",
-                    padding: "4px 9px",
-                    borderRadius: "20px",
-                    flexShrink: 0,
+                    letterSpacing: "1.2px",
+                    color: "#34d399",
+                    textTransform: "uppercase",
                     lineHeight: "1",
                   }}
                 >
@@ -5570,25 +5560,22 @@ function KtaCardModal({
                 </div>
                 <div
                   style={{
-                    display: "inline-flex",
+                    display: "flex",
                     alignItems: "center",
+                    justifyContent: "center",
                     gap: "6px",
-                    background: "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid rgba(255, 255, 255, 0.12)",
-                    color: "#e2e8f0",
-                    padding: "4px 12px",
-                    borderRadius: "16px",
-                    fontSize: "11px",
+                    fontSize: "11.5px",
                     fontWeight: 700,
                     letterSpacing: "1.5px",
                     fontFamily:
                       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
-                    marginTop: "5px",
+                    marginTop: "4px",
                     lineHeight: 1,
+                    color: "#cbd5e1",
                   }}
                 >
-                  <span style={{ color: "#94a3b8", fontWeight: 800 }}>NO.</span>
-                  <span>{cardCode}</span>
+                  <span style={{ color: "#64748b", fontWeight: 800 }}>NO.</span>
+                  <span style={{ color: "#f1f5f9" }}>{cardCode}</span>
                 </div>
               </div>
 

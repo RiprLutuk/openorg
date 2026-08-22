@@ -160,14 +160,14 @@ export function MemberPortraitCard({
         <div className="cyber-flare-amber" />
         <div className="cyber-grid-overlay" />
 
-        {/* Top Micro-Header Bar */}
-        <div className="cyber-top-bar">
-          <div className="cyber-pass-tag">
-            <Zap size={10} className="tag-icon text-amber" />
+        {/* Flat Top Micro-Header Bar */}
+        <div className="kta-flat-top-bar">
+          <div className="kta-flat-tag">
             <span>KTA DIGITAL</span>
           </div>
-          <div className="cyber-status-pill">
-            <span className="pulse-green" /> AKTIF
+          <div className="kta-flat-status">
+            <span className="pulse-green" />
+            <span>AKTIF</span>
           </div>
         </div>
 
@@ -218,10 +218,10 @@ export function MemberPortraitCard({
           </div>
         </div>
 
-        {/* Member Identity & Serial */}
+        {/* Member Identity & Flat Serial */}
         <div className="cyber-identity-section">
           <div className="cyber-member-name">{member.name}</div>
-          <div className="cyber-serial-badge">
+          <div className="kta-member-serial-flat">
             <span className="serial-label">NO.</span>
             <span className="serial-value">
               {member.memberNumber || card.code}

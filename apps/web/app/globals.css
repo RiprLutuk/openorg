@@ -7546,48 +7546,35 @@ img {
   display: none;
 }
 
-/* 1. Top Micro-Header */
-.cyber-top-bar {
+/* 1. Flat Top Micro-Header */
+.kta-flat-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
   z-index: 10;
   width: 100%;
+  padding-bottom: 2px;
 }
 
-.cyber-pass-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 4px 10px;
-  border-radius: 20px;
+.kta-flat-tag {
   font-size: 8.5px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #e2e8f0;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #94a3b8;
+  text-transform: uppercase;
   line-height: 1;
 }
 
-.text-amber {
-  color: var(--kta-accent, #fbbf24);
-}
-
-.cyber-status-pill {
+.kta-flat-status {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: #34d399;
   font-size: 8.5px;
   font-weight: 800;
-  letter-spacing: 0.8px;
-  padding: 4px 9px;
-  border-radius: 20px;
-  flex-shrink: 0;
+  letter-spacing: 1.2px;
+  color: #34d399;
+  text-transform: uppercase;
   line-height: 1;
 }
 
@@ -7754,7 +7741,7 @@ img {
   z-index: 5;
 }
 
-/* 4. Member Identity & Serial */
+/* 4. Member Identity & Flat Monospace Serial */
 .cyber-identity-section {
   text-align: center;
   position: relative;
@@ -7773,26 +7760,26 @@ img {
   margin: 0;
 }
 
-.cyber-serial-badge {
-  display: inline-flex;
+.kta-member-serial-flat {
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #e2e8f0;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 1.5px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  margin-top: 5px;
+  margin-top: 4px;
   line-height: 1;
 }
 
-.serial-label {
-  color: #94a3b8;
+.kta-member-serial-flat .serial-label {
+  color: #64748b;
   font-weight: 800;
+}
+
+.kta-member-serial-flat .serial-value {
+  color: #f1f5f9;
 }
 
 /* 5. Clean Info & QR Spec Card */
