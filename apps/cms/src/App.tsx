@@ -5371,6 +5371,19 @@ function MemberEditor({
   const [error, setError] = useState("");
   const [unitId, setUnitId] = useState(member?.unitId ?? "");
   const [status, setStatus] = useState<string>(member?.status ?? "applicant");
+  const [customFieldItems, setCustomFieldItems] = useState<
+    Array<{ key: string; value: string }>
+  >(() => {
+    if (!member?.customFields) return [];
+    return Object.entries(member.customFields).map(([k, v]) => ({
+      key: k,
+      value: String(v ?? ""),
+    }));
+  });
+  const [socialLinkItems, setSocialLinkItems] = useState<
+    Array<{ platform: string; url: string }>
+  >(() => member?.socialLinks ?? []);
+
   const units = useQuery({
     queryKey: ["organization-units"],
     queryFn: () => api<{ data: CmsUnit[] }>("/v1/admin/organization-units"),
@@ -5379,16 +5392,16 @@ function MemberEditor({
     mutationFn: (form: HTMLFormElement) => {
       const data = new FormData(form);
       const value = (key: string) => String(data.get(key) ?? "").trim();
-      let customFields: Record<string, unknown> = {};
-      let socialLinks: Array<{ platform: string; url: string }> = [];
-      try {
-        customFields = JSON.parse(value("customFields") || "{}");
-        socialLinks = JSON.parse(value("socialLinks") || "[]");
-      } catch {
-        throw new Error(
-          "Custom fields and social links must contain valid JSON.",
-        );
+      const customFields: Record<string, unknown> = {};
+      for (const item of customFieldItems) {
+        if (item.key.trim()) {
+          customFields[item.key.trim()] = item.value.trim();
+        }
       }
+      const socialLinks = socialLinkItems
+        .filter((s) => s.url.trim())
+        .map((s) => ({ platform: s.platform || "website", url: s.url.trim() }));
+
       return api(
         member ? `/v1/admin/members/${member.id}` : "/v1/admin/members",
         {
@@ -5522,27 +5535,156 @@ function MemberEditor({
             defaultValue={member?.biography ?? ""}
           />
         </label>
-        <label className="full">
-          Custom fields (JSON)
-          <textarea
-            className="code-field"
-            name="customFields"
-            rows={5}
-            defaultValue={JSON.stringify(member?.customFields ?? {}, null, 2)}
-          />
-          <small>
-            Store sector-specific fields without changing the database schema.
-          </small>
-        </label>
-        <label className="full">
-          Social links (JSON)
-          <textarea
-            className="code-field"
-            name="socialLinks"
-            rows={4}
-            defaultValue={JSON.stringify(member?.socialLinks ?? [], null, 2)}
-          />
-        </label>
+
+        {/* Custom Fields Builder */}
+        <div className="full" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <span style={{ fontSize: "12px", fontWeight: 700, color: "#344054" }}>
+            Custom Fields (Informasi Tambahan Organisasi)
+          </span>
+          <div className="nav-tree-editor">
+            {customFieldItems.map((item, index) => (
+              <div key={index} className="nav-tree-card" style={{ padding: "10px 12px" }}>
+                <div className="nav-tree-parent-row">
+                  <div className="nav-tree-field">
+                    <span className="nav-tree-label">Nama Field / Label</span>
+                    <input
+                      type="text"
+                      className="nav-tree-input"
+                      value={item.key}
+                      onChange={(e) =>
+                        setCustomFieldItems(
+                          customFieldItems.map((c, i) =>
+                            i === index ? { ...c, key: e.target.value } : c,
+                          ),
+                        )
+                      }
+                      placeholder="misal: Nomor Sertifikat BNSP"
+                    />
+                  </div>
+                  <div className="nav-tree-field">
+                    <span className="nav-tree-label">Nilai Field (Value)</span>
+                    <input
+                      type="text"
+                      className="nav-tree-input"
+                      value={item.value}
+                      onChange={(e) =>
+                        setCustomFieldItems(
+                          customFieldItems.map((c, i) =>
+                            i === index ? { ...c, value: e.target.value } : c,
+                          ),
+                        )
+                      }
+                      placeholder="misal: BNSP-AC-2026-98712"
+                    />
+                  </div>
+                  <div className="nav-tree-actions">
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Field"
+                      onClick={() =>
+                        setCustomFieldItems(customFieldItems.filter((_, i) => i !== index))
+                      }
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              className="button secondary wide-btn"
+              onClick={() =>
+                setCustomFieldItems([
+                  ...customFieldItems,
+                  { key: "", value: "" },
+                ])
+              }
+            >
+              <Plus size={16} /> Tambah Field Kustom
+            </button>
+          </div>
+        </div>
+
+        {/* Social Links Builder */}
+        <div className="full" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <span style={{ fontSize: "12px", fontWeight: 700, color: "#344054" }}>
+            Social Media & Web Links
+          </span>
+          <div className="nav-tree-editor">
+            {socialLinkItems.map((item, index) => (
+              <div key={index} className="nav-tree-card" style={{ padding: "10px 12px" }}>
+                <div className="nav-tree-parent-row">
+                  <div className="nav-tree-field">
+                    <span className="nav-tree-label">Platform</span>
+                    <SearchableSelect
+                      value={item.platform}
+                      onChange={(val) =>
+                        setSocialLinkItems(
+                          socialLinkItems.map((c, i) =>
+                            i === index ? { ...c, platform: val } : c,
+                          ),
+                        )
+                      }
+                      options={[
+                        { value: "instagram", label: "Instagram" },
+                        { value: "facebook", label: "Facebook" },
+                        { value: "linkedin", label: "LinkedIn" },
+                        { value: "twitter", label: "Twitter / X" },
+                        { value: "youtube", label: "YouTube" },
+                        { value: "tiktok", label: "TikTok" },
+                        { value: "whatsapp", label: "WhatsApp" },
+                        { value: "website", label: "Website / Blog" },
+                      ]}
+                    />
+                  </div>
+                  <div className="nav-tree-field">
+                    <span className="nav-tree-label">URL Media Sosial</span>
+                    <input
+                      type="url"
+                      className="nav-tree-input"
+                      value={item.url}
+                      onChange={(e) =>
+                        setSocialLinkItems(
+                          socialLinkItems.map((c, i) =>
+                            i === index ? { ...c, url: e.target.value } : c,
+                          ),
+                        )
+                      }
+                      placeholder="https://instagram.com/username"
+                    />
+                  </div>
+                  <div className="nav-tree-actions">
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Link Sosmed"
+                      onClick={() =>
+                        setSocialLinkItems(socialLinkItems.filter((_, i) => i !== index))
+                      }
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              className="button secondary wide-btn"
+              onClick={() =>
+                setSocialLinkItems([
+                  ...socialLinkItems,
+                  { platform: "instagram", url: "" },
+                ])
+              }
+            >
+              <Plus size={16} /> Tambah Link Sosmed
+            </button>
+          </div>
+        </div>
+
         <div className="form-actions full">
           <button type="button" className="button ghost" onClick={onClose}>
             Cancel
@@ -6083,7 +6225,9 @@ function SettingsManager() {
   const [settings, setSettings] = useState<CmsPublicSettings>(
     defaultPublicSettings,
   );
-  const [footerLinks, setFooterLinks] = useState("[]");
+  const [footerNavItems, setFooterNavItems] = useState<
+    Array<{ label: string; href: string }>
+  >([]);
   const [navItems, setNavItems] = useState<PublicNavItem[]>([]);
   const [message, setMessage] = useState("");
 
@@ -6134,9 +6278,7 @@ function SettingsManager() {
             { id: "verify", label: "Verifikasi Kredensial", href: "/verify" },
           ],
     );
-    setFooterLinks(
-      JSON.stringify(safeSettings.footer.links, null, 2),
-    );
+    setFooterNavItems(safeSettings.footer?.links ?? []);
   }, [publicSettings.data]);
 
   const save = useMutation({
@@ -6167,19 +6309,13 @@ function SettingsManager() {
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setMessage("");
-    try {
-      const parsed = JSON.parse(footerLinks);
-      if (!Array.isArray(parsed)) throw new Error();
-      const next = {
-        ...settings,
-        navigation: navItems,
-        footer: { ...settings.footer, links: parsed },
-      } as CmsPublicSettings;
-      setSettings(next);
-      save.mutate(next);
-    } catch {
-      setMessage("Footer links must be a valid JSON array.");
-    }
+    const next = {
+      ...settings,
+      navigation: navItems,
+      footer: { ...settings.footer, links: footerNavItems },
+    } as CmsPublicSettings;
+    setSettings(next);
+    save.mutate(next);
   };
 
   if (organization.isLoading || publicSettings.isLoading)
@@ -6753,8 +6889,8 @@ function SettingsManager() {
         <section className="panel settings-panel wide-panel">
           <span className="eyebrow">Site footer</span>
           <h2>Footer content and links</h2>
-          <div className="entity-form compact-form">
-            <label>
+          <div className="entity-form compact-form" style={{ marginBottom: "16px" }}>
+            <label className="full-span">
               Description
               <textarea
                 rows={3}
@@ -6770,10 +6906,10 @@ function SettingsManager() {
                 }
               />
             </label>
-            <label>
+            <label className="full-span">
               Copyright
               <textarea
-                rows={3}
+                rows={2}
                 value={settings.footer.copyright ?? ""}
                 onChange={(event) =>
                   setSettings({
@@ -6786,15 +6922,72 @@ function SettingsManager() {
                 }
               />
             </label>
-            <label className="full-span">
-              Links (JSON)
-              <textarea
-                className="code-input"
-                rows={8}
-                value={footerLinks}
-                onChange={(event) => setFooterLinks(event.target.value)}
-              />
-            </label>
+          </div>
+
+          <div className="nav-tree-editor">
+            <span className="nav-tree-label">Footer Quick Links</span>
+            {footerNavItems.map((item, index) => (
+              <div key={index} className="nav-tree-card" style={{ padding: "12px 14px" }}>
+                <div className="nav-tree-parent-row">
+                  <div className="nav-tree-field">
+                    <span className="nav-tree-label">Label Link Footer</span>
+                    <input
+                      type="text"
+                      className="nav-tree-input"
+                      value={item.label}
+                      onChange={(e) =>
+                        setFooterNavItems(
+                          footerNavItems.map((c, i) =>
+                            i === index ? { ...c, label: e.target.value } : c,
+                          ),
+                        )
+                      }
+                      placeholder="misal: Syarat & Ketentuan"
+                    />
+                  </div>
+                  <div className="nav-tree-field">
+                    <span className="nav-tree-label">URL Target (Href)</span>
+                    <input
+                      type="text"
+                      className="nav-tree-input"
+                      value={item.href}
+                      onChange={(e) =>
+                        setFooterNavItems(
+                          footerNavItems.map((c, i) =>
+                            i === index ? { ...c, href: e.target.value } : c,
+                          ),
+                        )
+                      }
+                      placeholder="misal: /terms"
+                    />
+                  </div>
+                  <div className="nav-tree-actions">
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Link Footer"
+                      onClick={() =>
+                        setFooterNavItems(footerNavItems.filter((_, i) => i !== index))
+                      }
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              className="button secondary wide-btn"
+              onClick={() =>
+                setFooterNavItems([
+                  ...footerNavItems,
+                  { label: "", href: "" },
+                ])
+              }
+            >
+              <Plus size={16} /> Tambah Link Footer
+            </button>
           </div>
         </section>
       </div>
