@@ -310,22 +310,23 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CTA Join Banner */}
-      <section className="home-cta-banner">
-        <div className="wrap cta-banner-inner">
-          <h2>Bergabung Menjadi Bagian dari {site.organization.name}</h2>
-          <p>
-            Dapatkan keanggotaan resmi, akses pelatihan bersertifikat SKP/CPD,
-            serta jejaring profesional secara nasional.
-          </p>
-          <div className="cta-banner-buttons">
-            <Link href="/join" className="btn-primary-inverse">
-              <UserPlus size={18} />
-              <span>Daftar Sekarang</span>
-            </Link>
-            <Link href="/member/login" className="btn-secondary-inverse">
-              <span>Masuk Portal Anggota</span>
-            </Link>
+      {/* CTA Join Floating Banner */}
+      <section className="section-space home-cta-section">
+        <div className="wrap">
+          <div className="cta-banner-card">
+            <h2>Bergabung Menjadi Bagian dari {site.organization.name}</h2>
+            <p>
+              Dapatkan keanggotaan resmi, akses pelatihan bersertifikat SKP/CPD, serta jejaring profesional secara nasional.
+            </p>
+            <div className="cta-banner-buttons">
+              <Link href="/join" className="btn-cta-primary">
+                <UserPlus size={18} />
+                <span>Daftar Keanggotaan</span>
+              </Link>
+              <Link href="/member/login" className="btn-cta-secondary">
+                <span>Masuk Portal Anggota</span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

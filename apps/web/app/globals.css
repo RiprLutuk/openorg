@@ -3534,47 +3534,75 @@ img {
   color: #12b76a;
 }
 
-.home-cta-banner {
-  padding: 60px 0;
-  background: linear-gradient(135deg, #101828 0%, #1d2939 100%);
+/* Floating CTA Banner Card */
+.home-cta-section {
+  padding-bottom: 96px !important;
+}
+.cta-banner-card {
+  background: linear-gradient(135deg, #0b3b60 0%, #0284c7 100%);
+  border-radius: 24px;
+  padding: 56px 40px;
   color: #ffffff;
   text-align: center;
-}
-
-.cta-banner-inner {
-  max-width: 680px;
+  box-shadow: 0 20px 48px rgba(11, 59, 96, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  max-width: 960px;
   margin: 0 auto;
 }
-
-.cta-banner-inner h2 {
-  font-size: 32px;
+.cta-banner-card h2 {
+  font-size: clamp(28px, 3.8vw, 42px);
   font-weight: 800;
   color: #ffffff;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  line-height: 1.2;
 }
-
-.cta-banner-inner p {
-  color: #eaecf0;
+.cta-banner-card p {
+  color: #e0f2fe;
   font-size: 16px;
-  margin-bottom: 32px;
+  line-height: 1.6;
+  max-width: 680px;
+  margin: 0 auto 32px;
 }
-
 .cta-banner-buttons {
   display: flex;
   gap: 16px;
   justify-content: center;
+  flex-wrap: wrap;
 }
-
-.btn-primary-inverse {
+.btn-cta-primary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 24px;
-  border-radius: 10px;
+  padding: 13px 28px;
+  border-radius: 12px;
   background: #ffffff;
-  color: #101828;
-  font-weight: 700;
+  color: #0b3b60;
+  font-weight: 750;
+  font-size: 15px;
   text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.btn-cta-primary:hover {
+  background: #f8fafc;
+  transform: translateY(-2px);
+}
+.btn-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+.btn-cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .btn-secondary-inverse {
