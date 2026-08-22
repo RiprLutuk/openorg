@@ -5250,18 +5250,37 @@ function KtaCardModal({
               id="modern-id-card"
               ref={cardRef}
               className="genz-cyber-card"
-              style={cardCustomStyles}
+              style={{
+                ...cardCustomStyles,
+                width: "350px",
+                height: "590px",
+                background:
+                  "linear-gradient(165deg, #131b2e 0%, #0b1120 50%, #030712 100%)",
+                borderRadius: "26px",
+                position: "relative",
+                overflow: "hidden",
+                boxShadow:
+                  "0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 40px -10px rgba(99, 102, 241, 0.4)",
+                color: "#ffffff",
+                margin: "16px auto",
+                border: "1.5px solid rgba(255, 255, 255, 0.2)",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                padding: "18px 20px 14px",
+              }}
             >
               {/* Flares */}
               <div
                 style={{
                   position: "absolute",
-                  top: "-60px",
-                  right: "-50px",
-                  width: "240px",
-                  height: "240px",
+                  top: "-50px",
+                  right: "-40px",
+                  width: "250px",
+                  height: "250px",
                   background:
-                    "radial-gradient(circle, rgba(168, 85, 247, 0.38) 0%, rgba(236, 72, 153, 0.15) 45%, transparent 70%)",
+                    "radial-gradient(circle, rgba(139, 92, 246, 0.55) 0%, rgba(236, 72, 153, 0.3) 45%, transparent 70%)",
                   borderRadius: "50%",
                   zIndex: 1,
                   pointerEvents: "none",
@@ -5270,12 +5289,12 @@ function KtaCardModal({
               <div
                 style={{
                   position: "absolute",
-                  bottom: "-60px",
-                  left: "-50px",
-                  width: "260px",
-                  height: "260px",
+                  bottom: "-50px",
+                  left: "-40px",
+                  width: "270px",
+                  height: "270px",
                   background:
-                    "radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, rgba(16, 185, 129, 0.15) 50%, transparent 70%)",
+                    "radial-gradient(circle, rgba(6, 182, 212, 0.5) 0%, rgba(99, 102, 241, 0.25) 50%, transparent 70%)",
                   borderRadius: "50%",
                   zIndex: 1,
                   pointerEvents: "none",
@@ -5286,7 +5305,7 @@ function KtaCardModal({
                   position: "absolute",
                   inset: 0,
                   backgroundImage:
-                    "linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px)",
+                    "linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px)",
                   backgroundSize: "20px 20px",
                   pointerEvents: "none",
                   zIndex: 1,
@@ -5308,14 +5327,16 @@ function KtaCardModal({
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
-                    background: "rgba(255, 255, 255, 0.06)",
-                    border: "1px solid rgba(255, 255, 255, 0.12)",
-                    padding: "3px 9px",
+                    background: "rgba(255, 255, 255, 0.08)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    padding: "4px 10px",
                     borderRadius: "20px",
-                    fontSize: "8.5px",
+                    fontSize: "9px",
                     fontWeight: 800,
                     letterSpacing: "1.2px",
-                    color: "#cbd5e1",
+                    color: "#f8fafc",
+                    backdropFilter: "blur(10px)",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
                   }}
                 >
                   <Zap size={11} color="#fbbf24" />
@@ -5327,21 +5348,22 @@ function KtaCardModal({
                     alignItems: "center",
                     gap: "5px",
                     background:
-                      "linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(234, 179, 8, 0.08))",
-                    border: "1px solid rgba(245, 158, 11, 0.4)",
+                      "linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(234, 179, 8, 0.15))",
+                    border: "1.5px solid #fbbf24",
                     padding: "3px 8px",
-                    borderRadius: "6px",
-                    color: "#fcd34d",
+                    borderRadius: "7px",
+                    color: "#fde047",
+                    boxShadow: "0 0 14px rgba(245, 158, 11, 0.35)",
                   }}
                 >
                   <Cpu size={14} />
                   <span
                     style={{
-                      width: "5px",
-                      height: "5px",
+                      width: "6px",
+                      height: "6px",
                       borderRadius: "50%",
                       background: "#22c55e",
-                      boxShadow: "0 0 8px #22c55e",
+                      boxShadow: "0 0 10px #22c55e, 0 0 4px #22c55e",
                     }}
                   />
                 </div>
@@ -5352,7 +5374,7 @@ function KtaCardModal({
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "10px",
+                  gap: "11px",
                   position: "relative",
                   zIndex: 10,
                   marginTop: "4px",
@@ -5360,52 +5382,72 @@ function KtaCardModal({
               >
                 <div
                   style={{
-                    width: "38px",
-                    height: "38px",
+                    width: "40px",
+                    height: "40px",
                     borderRadius: "12px",
                     background:
-                      "linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4)",
+                      "linear-gradient(135deg, #ec4899, #6366f1, #06b6d4)",
                     padding: "2px",
                     flexShrink: 0,
-                    boxShadow: "0 0 14px rgba(139, 92, 246, 0.35)",
+                    boxShadow: "0 0 16px rgba(99, 102, 241, 0.5)",
                   }}
                 >
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      borderRadius: "10px",
-                      background: "#0f172a",
-                      display: "grid",
-                      placeItems: "center",
-                      fontWeight: 900,
-                      fontSize: "13px",
-                      color: "#38bdf8",
-                    }}
-                  >
-                    {orgName.slice(0, 2).toUpperCase()}
-                  </div>
+                  {cardData?.organization.logoUrl ? (
+                    <img
+                      src={cardData.organization.logoUrl}
+                      alt={orgName}
+                      crossOrigin="anonymous"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        borderRadius: "10px",
+                        background: "#0f172a",
+                        padding: "3px",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "10px",
+                        background:
+                          "linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)",
+                        display: "grid",
+                        placeItems: "center",
+                        fontWeight: 900,
+                        fontSize: "14px",
+                        color: "#ffffff",
+                        textShadow: "0 1px 4px rgba(0, 0, 0, 0.6)",
+                      }}
+                    >
+                      {orgName.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     style={{
-                      fontSize: "12.5px",
-                      fontWeight: 800,
+                      fontSize: "13px",
+                      fontWeight: 900,
                       letterSpacing: "0.8px",
                       color: "#ffffff",
                       textTransform: "uppercase",
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
+                      textShadow: "0 2px 8px rgba(0, 0, 0, 0.6)",
                     }}
                   >
                     {orgName}
                   </div>
                   <div
                     style={{
-                      fontSize: "8.5px",
-                      color: "#94a3b8",
-                      letterSpacing: "0.4px",
+                      fontSize: "9px",
+                      color: "#cbd5e1",
+                      fontWeight: 600,
+                      letterSpacing: "0.5px",
                       marginTop: "1px",
                     }}
                   >
@@ -5417,24 +5459,25 @@ function KtaCardModal({
                     display: "flex",
                     alignItems: "center",
                     gap: "5px",
-                    background: "rgba(34, 197, 94, 0.15)",
-                    border: "1px solid rgba(34, 197, 94, 0.4)",
-                    color: "#4ade80",
-                    fontSize: "9px",
-                    fontWeight: 800,
+                    background: "rgba(16, 185, 129, 0.2)",
+                    border: "1.5px solid #10b981",
+                    color: "#34d399",
+                    fontSize: "9.5px",
+                    fontWeight: 900,
                     letterSpacing: "1px",
-                    padding: "3px 8px",
+                    padding: "3px 9px",
                     borderRadius: "20px",
                     flexShrink: 0,
+                    boxShadow: "0 0 12px rgba(16, 185, 129, 0.3)",
                   }}
                 >
                   <span
                     style={{
-                      width: "5px",
-                      height: "5px",
+                      width: "6px",
+                      height: "6px",
                       borderRadius: "50%",
-                      background: "#4ade80",
-                      boxShadow: "0 0 8px #4ade80",
+                      background: "#34d399",
+                      boxShadow: "0 0 10px #34d399",
                     }}
                   />{" "}
                   ACTIVE
@@ -5454,8 +5497,8 @@ function KtaCardModal({
                 <div
                   style={{
                     position: "relative",
-                    width: "135px",
-                    height: "135px",
+                    width: "140px",
+                    height: "140px",
                   }}
                 >
                   <div
@@ -5467,7 +5510,7 @@ function KtaCardModal({
                         "linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4, #10b981, #f59e0b)",
                       padding: "3.5px",
                       boxShadow:
-                        "0 10px 30px -5px rgba(139, 92, 246, 0.4), 0 0 20px rgba(6, 182, 212, 0.25)",
+                        "0 10px 35px -5px rgba(139, 92, 246, 0.6), 0 0 25px rgba(6, 182, 212, 0.45)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -5483,8 +5526,8 @@ function KtaCardModal({
                           height: "100%",
                           borderRadius: "50%",
                           objectFit: "cover",
-                          border: "3px solid #070a12",
-                          background: "#0f172a",
+                          border: "3px solid #0b1120",
+                          background: "#1e293b",
                         }}
                       />
                     ) : (
@@ -5496,11 +5539,13 @@ function KtaCardModal({
                           display: "grid",
                           placeItems: "center",
                           background:
-                            "radial-gradient(circle, #1e293b 0%, #0f172a 100%)",
-                          color: "#38bdf8",
-                          fontSize: "38px",
+                            "linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #06b6d4 100%)",
+                          color: "#ffffff",
+                          fontSize: "42px",
                           fontWeight: 900,
-                          border: "3px solid #070a12",
+                          border: "3px solid #0b1120",
+                          textShadow: "0 3px 12px rgba(0, 0, 0, 0.6)",
+                          letterSpacing: "2px",
                         }}
                       >
                         {initials}
@@ -5515,12 +5560,12 @@ function KtaCardModal({
                       background: "#0284c7",
                       color: "#ffffff",
                       borderRadius: "50%",
-                      width: "26px",
-                      height: "26px",
+                      width: "28px",
+                      height: "28px",
                       display: "grid",
                       placeItems: "center",
-                      border: "2.5px solid #070a12",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.5)",
+                      border: "2.5px solid #0b1120",
+                      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.6)",
                     }}
                   >
                     <CheckCircle2 size={16} />
@@ -5538,12 +5583,12 @@ function KtaCardModal({
               >
                 <div
                   style={{
-                    fontSize: "19px",
+                    fontSize: "19.5px",
                     fontWeight: 900,
                     color: "#ffffff",
                     letterSpacing: "0.6px",
                     textTransform: "uppercase",
-                    textShadow: "0 2px 10px rgba(0, 0, 0, 0.6)",
+                    textShadow: "0 2px 12px rgba(0, 0, 0, 0.8)",
                     lineHeight: 1.2,
                   }}
                 >
@@ -5553,21 +5598,23 @@ function KtaCardModal({
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "6px",
-                    background: "rgba(139, 92, 246, 0.16)",
-                    border: "1px solid rgba(168, 85, 247, 0.45)",
-                    color: "#c084fc",
-                    padding: "3px 12px",
+                    gap: "7px",
+                    background:
+                      "linear-gradient(90deg, rgba(56, 189, 248, 0.16), rgba(139, 92, 246, 0.24))",
+                    border: "1.5px solid rgba(56, 189, 248, 0.6)",
+                    color: "#ffffff",
+                    padding: "4px 14px",
                     borderRadius: "20px",
-                    fontSize: "12px",
+                    fontSize: "12.5px",
                     fontWeight: 800,
                     letterSpacing: "2px",
                     fontFamily: "monospace",
                     marginTop: "5px",
-                    boxShadow: "0 0 15px rgba(168, 85, 247, 0.15)",
+                    boxShadow:
+                      "0 0 20px rgba(56, 189, 248, 0.25), inset 0 0 10px rgba(56, 189, 248, 0.1)",
                   }}
                 >
-                  <span style={{ color: "#e879f9", fontWeight: 900 }}>NO.</span>
+                  <span style={{ color: "#f472b6", fontWeight: 900 }}>NO.</span>
                   <span>{cardCode}</span>
                 </div>
               </div>
@@ -5575,12 +5622,12 @@ function KtaCardModal({
               {/* HUD Details Box */}
               <div
                 style={{
-                  background: "rgba(255, 255, 255, 0.05)",
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
-                  backdropFilter: "blur(14px)",
-                  WebkitBackdropFilter: "blur(14px)",
+                  background: "rgba(15, 23, 42, 0.85)",
+                  border: "1.5px solid rgba(255, 255, 255, 0.18)",
+                  backdropFilter: "blur(18px)",
+                  WebkitBackdropFilter: "blur(18px)",
                   borderRadius: "16px",
-                  padding: "11px 13px",
+                  padding: "12px 14px",
                   position: "relative",
                   zIndex: 10,
                   display: "flex",
@@ -5588,7 +5635,7 @@ function KtaCardModal({
                   justifyContent: "space-between",
                   gap: "10px",
                   boxShadow:
-                    "inset 0 0 15px rgba(255, 255, 255, 0.02), 0 8px 24px rgba(0, 0, 0, 0.3)",
+                    "0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2)",
                 }}
               >
                 <div
@@ -5596,10 +5643,10 @@ function KtaCardModal({
                     position: "absolute",
                     top: "4px",
                     left: "4px",
-                    width: "6px",
-                    height: "6px",
-                    borderTop: "1.5px solid #38bdf8",
-                    borderLeft: "1.5px solid #38bdf8",
+                    width: "7px",
+                    height: "7px",
+                    borderTop: "2px solid #38bdf8",
+                    borderLeft: "2px solid #38bdf8",
                   }}
                 />
                 <div
@@ -5607,10 +5654,10 @@ function KtaCardModal({
                     position: "absolute",
                     bottom: "4px",
                     right: "4px",
-                    width: "6px",
-                    height: "6px",
-                    borderBottom: "1.5px solid #ec4899",
-                    borderRight: "1.5px solid #ec4899",
+                    width: "7px",
+                    height: "7px",
+                    borderBottom: "2px solid #ec4899",
+                    borderRight: "2px solid #ec4899",
                   }}
                 />
 
@@ -5625,10 +5672,10 @@ function KtaCardModal({
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <span
                       style={{
-                        fontSize: "7.5px",
+                        fontSize: "8px",
                         fontWeight: 800,
-                        letterSpacing: "1px",
-                        color: "#94a3b8",
+                        letterSpacing: "1.2px",
+                        color: "#cbd5e1",
                         textTransform: "uppercase",
                         marginBottom: "1px",
                       }}
@@ -5637,10 +5684,11 @@ function KtaCardModal({
                     </span>
                     <span
                       style={{
-                        fontSize: "11px",
+                        fontSize: "11.5px",
                         fontWeight: 800,
                         lineHeight: 1.2,
                         color: "#38bdf8",
+                        textShadow: "0 0 10px rgba(56, 189, 248, 0.5)",
                       }}
                     >
                       {dpdText}
@@ -5649,10 +5697,10 @@ function KtaCardModal({
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <span
                       style={{
-                        fontSize: "7.5px",
+                        fontSize: "8px",
                         fontWeight: 800,
-                        letterSpacing: "1px",
-                        color: "#94a3b8",
+                        letterSpacing: "1.2px",
+                        color: "#cbd5e1",
                         textTransform: "uppercase",
                         marginBottom: "1px",
                       }}
@@ -5661,10 +5709,11 @@ function KtaCardModal({
                     </span>
                     <span
                       style={{
-                        fontSize: "11px",
+                        fontSize: "11.5px",
                         fontWeight: 800,
                         lineHeight: 1.2,
-                        color: "#a3e635",
+                        color: "#4ade80",
+                        textShadow: "0 0 10px rgba(74, 222, 128, 0.5)",
                       }}
                     >
                       CERTIFIED PRACTITIONER
@@ -5674,10 +5723,10 @@ function KtaCardModal({
                     <div>
                       <span
                         style={{
-                          fontSize: "7.5px",
+                          fontSize: "8px",
                           fontWeight: 800,
-                          letterSpacing: "1px",
-                          color: "#94a3b8",
+                          letterSpacing: "1.2px",
+                          color: "#cbd5e1",
                           textTransform: "uppercase",
                         }}
                       >
@@ -5685,9 +5734,9 @@ function KtaCardModal({
                       </span>
                       <div
                         style={{
-                          fontSize: "9.5px",
-                          fontWeight: 700,
-                          color: "#cbd5e1",
+                          fontSize: "10px",
+                          fontWeight: 800,
+                          color: "#f8fafc",
                         }}
                       >
                         v{cardData?.card.version ?? 1}.0
@@ -5709,7 +5758,7 @@ function KtaCardModal({
                       background: "#ffffff",
                       padding: "4px",
                       borderRadius: "8px",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+                      boxShadow: "0 4px 15px rgba(0, 0, 0, 0.5)",
                     }}
                   >
                     {qrCodeUrl ? (
@@ -5728,11 +5777,12 @@ function KtaCardModal({
                   </div>
                   <span
                     style={{
-                      fontSize: "7px",
+                      fontSize: "7.5px",
                       fontWeight: 900,
-                      letterSpacing: "1px",
+                      letterSpacing: "1.2px",
                       color: "#38bdf8",
                       marginTop: "3px",
+                      textShadow: "0 0 8px rgba(56, 189, 248, 0.5)",
                     }}
                   >
                     SCAN {"//"} AUTH
@@ -5747,10 +5797,10 @@ function KtaCardModal({
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "6px",
-                  fontSize: "7.5px",
+                  fontSize: "8px",
                   fontWeight: 800,
                   letterSpacing: "1.2px",
-                  color: "#64748b",
+                  color: "#94a3b8",
                   fontFamily: "monospace",
                   position: "relative",
                   zIndex: 10,
