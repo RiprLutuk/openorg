@@ -5,14 +5,71 @@ import {
   ArrowUpRight,
   ChevronDown,
   HelpCircle,
+  Mail,
   Menu,
   MessageCircle,
+  Phone,
   User,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { memberApi } from "@/lib/member-client";
+
+function InstagramIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
+
+function FacebookIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+}
+
+function LinkedinIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+      <rect width="4" height="12" x="2" y="9" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  );
+}
 
 export function Header({ site }: { site: PublicSite }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -44,13 +101,66 @@ export function Header({ site }: { site: PublicSite }) {
     <div className={`site-header-container ${scrolled ? "is-scrolled" : ""}`}>
       {/* Enterprise Top Utility Bar */}
       <div className="site-top-bar">
-        <div className="wrap top-bar-inner">
-          <div className="top-bar-left">
-            <span className="top-bar-badge">
-              Platform Resmi {site.organization.name}
-            </span>
-          </div>
+        <div className="wrap top-bar-inner" style={{ justifyContent: "flex-end" }}>
           <div className="top-bar-right">
+            {/* Email Contact Shortcut */}
+            <a
+              className="top-bar-link"
+              href="mailto:sekretariat@apti.or.id"
+              title="Email Sekretariat"
+            >
+              <Mail size={13} />
+              <span>sekretariat@apti.or.id</span>
+            </a>
+
+            {/* Quick Contact / Hotline Shortcut */}
+            {site.quickContact && (
+              <a
+                className="top-bar-link"
+                href={site.quickContact.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={site.quickContact.label}
+              >
+                <Phone size={13} />
+                <span>{site.quickContact.label}</span>
+              </a>
+            )}
+
+            <div className="top-bar-divider" />
+
+            {/* Social Media Shortcuts */}
+            <a
+              className="top-bar-icon-link"
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Instagram APTI"
+            >
+              <InstagramIcon size={13} />
+            </a>
+            <a
+              className="top-bar-icon-link"
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Facebook APTI"
+            >
+              <FacebookIcon size={13} />
+            </a>
+            <a
+              className="top-bar-icon-link"
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="LinkedIn APTI"
+            >
+              <LinkedinIcon size={13} />
+            </a>
+
+            <div className="top-bar-divider" />
+
+            {/* Member Login / Portal Badge */}
             <Link
               className="top-bar-link highlight"
               href={memberActive ? "/member" : "/member/login"}
@@ -58,17 +168,6 @@ export function Header({ site }: { site: PublicSite }) {
               <User size={13} />
               <span>{memberActive ? "Portal Anggota" : "Member login"}</span>
             </Link>
-            {site.quickContact && (
-              <a
-                className="top-bar-link"
-                href={site.quickContact.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <HelpCircle size={13} />
-                <span>Sekretariat</span>
-              </a>
-            )}
           </div>
         </div>
       </div>

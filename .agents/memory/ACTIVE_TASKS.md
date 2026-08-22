@@ -17,6 +17,7 @@
 - [x] Eliminate font reload glitches via Google Fonts preloading.
 - [x] Fix sidebar workspace switcher avatar flexing distortion & interactive popover menu.
 - [x] Replace all raw JSON textareas across CMS (Footer Links, Custom Fields, Social Links) with clean interactive visual form builders.
+- [x] Refactor web navigation with Enterprise Top Utility Bar & auto-collapse on scroll.
 
 ---
 

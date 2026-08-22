@@ -286,6 +286,27 @@ img {
   background: #0284c7;
   border-color: #0284c7;
 }
+.top-bar-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 4px;
+}
+.top-bar-icon-link {
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.top-bar-icon-link:hover {
+  color: #38bdf8;
+  background: rgba(255, 255, 255, 0.08);
+}
 
 .site-header {
   height: 68px;
