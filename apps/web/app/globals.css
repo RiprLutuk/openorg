@@ -771,27 +771,30 @@ img {
   padding: clamp(72px, 8vw, 108px) 0;
 }
 .section-heading {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 25px;
-  align-items: end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
   margin-bottom: 48px;
 }
 .section-heading .eyebrow {
-  grid-column: 1 / -1;
+  margin-bottom: 8px;
 }
 .section-heading h2 {
-  margin: 8px 0 0;
-  font-size: clamp(37px, 5vw, 62px);
-  line-height: 1.05;
-  max-width: 780px;
-  text-wrap: balance;
+  margin: 0 0 12px;
+  font-size: clamp(32px, 4.5vw, 54px);
+  line-height: 1.15;
+  width: 100%;
+  max-width: 100%;
+  letter-spacing: -0.03em;
 }
 .section-heading p {
-  max-width: 650px;
-  color: #667085;
-  line-height: 1.7;
-  margin: 15px 0 0;
+  width: 100%;
+  max-width: 840px;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
 }
 .text-link,
 .feature-grid article a,
@@ -3433,9 +3436,19 @@ img {
 /* Section Flex Header */
 .section-heading-flex {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
   margin-bottom: 32px;
+}
+.section-heading-flex > div {
+  width: 100%;
+}
+.section-heading-flex h2 {
+  width: 100%;
+  font-size: clamp(32px, 4.5vw, 54px);
+  margin: 6px 0 12px;
+  line-height: 1.15;
 }
 
 .btn-link {
@@ -3795,15 +3808,36 @@ img {
   .form-row { grid-template-columns: 1fr; }
 }
 
-/* Technician Directory Styles */
-.technicians-hero, .working-groups-hero, .clubs-hero, .lenders-hero, .whois-hero {
+/* Domain Hero Section Headers */
+.technicians-hero, .working-groups-hero, .clubs-hero, .lenders-hero, .whois-hero, .regulations-hero, .complaints-hero, .championships-hero, .statistics-hero {
   padding: 60px 0 40px;
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
   border-bottom: 1px solid #e2e8f0;
-  text-align: center;
+  text-align: left;
 }
-.technicians-hero h1, .working-groups-hero h1, .clubs-hero h1, .lenders-hero h1, .whois-hero h1 {
-  font-size: 34px; font-weight: 800; color: #0f172a; margin-top: 12px;
+.technicians-hero .wrap, .working-groups-hero .wrap, .clubs-hero .wrap, .lenders-hero .wrap, .whois-hero .wrap, .regulations-hero .wrap, .complaints-hero .wrap, .championships-hero .wrap, .statistics-hero .wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.technicians-hero h1, .working-groups-hero h1, .clubs-hero h1, .lenders-hero h1, .whois-hero h1, .regulations-hero h1, .complaints-hero h1, .championships-hero h1, .statistics-hero h1 {
+  font-size: 34px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 12px;
+  margin-bottom: 10px;
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+  letter-spacing: -0.02em;
+}
+.hero-lead {
+  max-width: 840px;
+  font-size: 16px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+  text-align: left;
 }
 .technicians-body, .working-groups-body, .clubs-body, .lenders-body, .whois-body {
   padding: 48px 0 80px;
