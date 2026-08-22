@@ -468,144 +468,179 @@ export function MemberPortraitCard({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "6px",
               fontSize: "12px",
               fontWeight: 700,
-              letterSpacing: "1.5px",
+              letterSpacing: "2px",
               fontFamily:
                 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
               marginTop: "4px",
               lineHeight: "1",
-              color: "#cbd5e1",
+              color: "#38bdf8",
             }}
           >
-            <span style={{ color: "#64748b", fontWeight: 800 }}>NO.</span>
-            <span style={{ color: "#38bdf8" }}>
-              {member.memberNumber || card.code}
-            </span>
+            <span>{member.memberNumber || card.code}</span>
           </div>
         </div>
 
-        {/* Clean Info & QR Spec Card */}
+        {/* Clean Info & QR Spec Card (Refactored Structured Grid) */}
         <div
           style={{
-            background: "rgba(255, 255, 255, 0.03)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            borderRadius: "12px",
-            padding: "10px 12px",
+            background: "rgba(255, 255, 255, 0.04)",
+            border: "1px solid rgba(255, 255, 255, 0.09)",
+            borderRadius: "14px",
+            padding: "12px 14px",
             position: "relative",
             zIndex: 10,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "10px",
-            boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.05)",
+            gap: "14px",
           }}
         >
+          {/* Spec Details 2x2 Grid */}
           <div
             style={{
               flex: 1,
               display: "flex",
               flexDirection: "column",
-              gap: "6px",
+              gap: "8px",
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span
-                style={{
-                  fontSize: "7.5px",
-                  fontWeight: 700,
-                  letterSpacing: "1px",
-                  color: "#64748b",
-                  textTransform: "uppercase",
-                  marginBottom: "1px",
-                }}
-              >
-                UNIT / WILAYAH
-              </span>
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  lineHeight: "1.25",
-                  color: "#f1f5f9",
-                }}
-              >
-                {dpdText}
-              </span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <span
-                style={{
-                  fontSize: "7.5px",
-                  fontWeight: 700,
-                  letterSpacing: "1px",
-                  color: "#64748b",
-                  textTransform: "uppercase",
-                  marginBottom: "1px",
-                }}
-              >
-                STATUS & KREDENSIAL
-              </span>
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  lineHeight: "1.25",
-                  color: "#34d399",
-                }}
-              >
-                {positionText}
-              </span>
-            </div>
-            <div style={{ display: "flex", gap: "12px" }}>
+            {/* Top Row: Wilayah & Status */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "8px",
+              }}
+            >
               <div>
                 <span
                   style={{
                     fontSize: "7.5px",
                     fontWeight: 700,
-                    letterSpacing: "1px",
+                    letterSpacing: "0.8px",
                     color: "#64748b",
                     textTransform: "uppercase",
+                    display: "block",
+                    marginBottom: "2px",
+                  }}
+                >
+                  WILAYAH
+                </span>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 800,
+                    lineHeight: "1.2",
+                    color: "#f8fafc",
+                    display: "block",
+                  }}
+                >
+                  {dpdText}
+                </span>
+              </div>
+
+              <div>
+                <span
+                  style={{
+                    fontSize: "7.5px",
+                    fontWeight: 700,
+                    letterSpacing: "0.8px",
+                    color: "#64748b",
+                    textTransform: "uppercase",
+                    display: "block",
+                    marginBottom: "2px",
+                  }}
+                >
+                  STATUS
+                </span>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 800,
+                    lineHeight: "1.2",
+                    color: "#34d399",
+                    display: "block",
+                  }}
+                >
+                  {positionText}
+                </span>
+              </div>
+            </div>
+
+            {/* Hairline Divider */}
+            <div
+              style={{
+                height: "1px",
+                background: "rgba(255, 255, 255, 0.06)",
+                width: "100%",
+              }}
+            />
+
+            {/* Bottom Row: Terbit & Versi */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "8px",
+              }}
+            >
+              <div>
+                <span
+                  style={{
+                    fontSize: "7px",
+                    fontWeight: 700,
+                    letterSpacing: "0.8px",
+                    color: "#64748b",
+                    textTransform: "uppercase",
+                    display: "block",
+                    marginBottom: "1px",
                   }}
                 >
                   TERBIT
                 </span>
-                <div
+                <span
                   style={{
-                    fontSize: "9.5px",
+                    fontSize: "10px",
                     fontWeight: 700,
                     color: "#cbd5e1",
+                    display: "block",
                   }}
                 >
                   {formattedIssueDate}
-                </div>
+                </span>
               </div>
+
               <div>
                 <span
                   style={{
-                    fontSize: "7.5px",
+                    fontSize: "7px",
                     fontWeight: 700,
-                    letterSpacing: "1px",
+                    letterSpacing: "0.8px",
                     color: "#64748b",
                     textTransform: "uppercase",
+                    display: "block",
+                    marginBottom: "1px",
                   }}
                 >
                   VERSI
                 </span>
-                <div
+                <span
                   style={{
-                    fontSize: "9.5px",
+                    fontSize: "10px",
                     fontWeight: 700,
                     color: "#cbd5e1",
+                    display: "block",
                   }}
                 >
                   v{card.version ?? 1}.0
-                </div>
+                </span>
               </div>
             </div>
           </div>
 
+          {/* QR Container */}
           <div
             style={{
               display: "flex",
@@ -618,9 +653,9 @@ export function MemberPortraitCard({
             <div
               style={{
                 background: "#ffffff",
-                padding: "3px",
-                borderRadius: "6px",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+                padding: "4px",
+                borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.35)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -631,13 +666,13 @@ export function MemberPortraitCard({
                   src={qrUrl}
                   alt="QR Verifikasi KTA"
                   style={{
-                    width: "54px",
-                    height: "54px",
+                    width: "56px",
+                    height: "56px",
                     display: "block",
                   }}
                 />
               ) : (
-                <QrCode size={54} color="#090d16" />
+                <QrCode size={56} color="#090d16" />
               )}
             </div>
             <span
@@ -646,12 +681,12 @@ export function MemberPortraitCard({
                 fontWeight: 800,
                 letterSpacing: "0.8px",
                 color: "#64748b",
-                marginTop: "3px",
+                marginTop: "4px",
                 lineHeight: "1",
                 textTransform: "uppercase",
               }}
             >
-              PINDAI VALIDASI
+              PINDAI
             </span>
           </div>
         </div>
