@@ -7461,43 +7461,81 @@ img {
 }
 
 @media print {
-  .no-print,
+  @page {
+    size: auto;
+    margin: 10mm;
+  }
+
+  /* Hide absolutely all site chrome, headers, utility bars, footers, announcements, navigation, skip links, toasts, etc. */
+  .skip-link,
+  .site-top-bar,
   .site-header,
   .site-footer,
+  .campaign-announcement,
+  .quick-contact,
+  .mobile-menu-drawer,
+  .toaster,
+  [data-sonner-toaster],
+  header,
+  footer,
+  nav,
+  .no-print,
   .member-dashboard-head,
+  .member-status-strip,
+  .member-dashboard-grid,
   .member-info-grid,
+  .portal-credentials-section,
+  .portal-learning-section,
   .portal-billing-section,
+  .portal-section-heading,
+  .email-unverified-alert,
   .kta-action-group,
   .kta-action-controls,
-  .email-unverified-alert {
+  .btn-print-kta,
+  .btn-download-kta {
     display: none !important;
   }
 
-  body,
-  .member-page-shell,
-  .member-dashboard {
+  html,
+  body {
     background: #ffffff !important;
     padding: 0 !important;
     margin: 0 !important;
   }
 
-  .portal-card-section {
+  .member-page-shell,
+  .member-portal-page,
+  .member-dashboard,
+  .portal-card-section,
+  .membership-card-print-area {
+    background: transparent !important;
     padding: 0 !important;
+    margin: 0 !important;
     border: none !important;
+    box-shadow: none !important;
+  }
+
+  .portrait-kta-container {
+    margin: 0 auto !important;
+    padding: 10mm 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
 
   #modern-id-card {
     box-shadow: none !important;
-    margin: 20px auto !important;
-    page-break-inside: avoid;
-    break-inside: avoid;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    margin: 0 auto !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
     font-family:
       "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont,
       "Segoe UI", Roboto, sans-serif !important;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: optimizeLegibility !important;
   }
 }
 
