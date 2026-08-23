@@ -11773,21 +11773,23 @@ img {
 }
 
 .adart-tabs-list {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: center;
   gap: 6px;
   padding: 5px;
   background: #f1f5f9;
   border-radius: 12px;
-  min-width: max-content;
+  width: 100%;
   border: 1px solid #e2e8f0;
 }
 
 .adart-tab-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 8px 18px;
+  padding: 10px 14px;
   border-radius: 9px;
   font-size: 13.5px;
   font-weight: 700;
@@ -11797,6 +11799,8 @@ img {
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
 }
 
 .adart-tab-btn:hover {
@@ -11808,6 +11812,18 @@ img {
   background: #ffffff;
   color: #0284c7;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 960px) {
+  .adart-tabs-list {
+    display: flex;
+    min-width: max-content;
+    width: auto;
+  }
+  .adart-tab-btn {
+    width: auto;
+    flex: 1;
+  }
 }
 
 /* Full Width Search Field directly below */
