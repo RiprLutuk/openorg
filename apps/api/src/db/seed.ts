@@ -150,7 +150,7 @@ async function seed() {
             {
               id: "lender-verifier",
               label: "Direktori Mitra & Distributor Resmi",
-              href: "/lenders",
+              href: "/partners",
             },
             { id: "join-terms", label: "Syarat & Pendaftaran", href: "/join" },
             {

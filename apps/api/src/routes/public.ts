@@ -544,8 +544,8 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     return { data: rows };
   });
 
-  // Verifikasi Platform Fintech & Multifinance (AFPI, AFTECH, APPI)
-  app.get("/lenders", async (request) => {
+  // Verifikasi Mitra Prinsipal, Distributor & Rekanan Resmi (HVAC/R)
+  const handleGetPartners = async (request: any) => {
     const query = z
       .object({ search: z.string().optional() })
       .parse(request.query);
@@ -567,7 +567,10 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       .orderBy(asc(lenderRegistries.brandName));
 
     return { data: rows };
-  });
+  };
+
+  app.get("/partners", handleGetPartners);
+  app.get("/lenders", handleGetPartners);
 
   // WHOIS IP/ASN & IIX Traffic Simulator (APJII)
   app.get("/whois", async (request) => {

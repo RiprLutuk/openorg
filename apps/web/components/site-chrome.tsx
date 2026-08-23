@@ -14,6 +14,7 @@ import {
   CreditCard,
   FileText,
   Globe,
+  Handshake,
   Landmark,
   LogIn,
   Mail,
@@ -43,7 +44,13 @@ function getNavIcon(href: string) {
   if (href.includes("vision")) return Sparkles;
   if (href.includes("regulation") || href.includes("ad-art")) return FileText;
   if (href.includes("technician")) return Users;
-  if (href.includes("lender")) return Landmark;
+  if (
+    href.includes("partner") ||
+    href.includes("lender") ||
+    href.includes("mitra") ||
+    href.includes("distributor")
+  )
+    return Handshake;
   if (href.includes("club")) return Compass;
   if (href.includes("verify")) return ShieldCheck;
   if (href.includes("join")) return UserPlus;
@@ -192,7 +199,7 @@ export function Header({ site }: { site: PublicSite }) {
         {
           id: "lender-verifier",
           label: "Direktori Mitra & Distributor Resmi",
-          href: "/lenders",
+          href: "/partners",
         },
         ...(isLoggedIn
           ? [
@@ -340,9 +347,10 @@ export function Header({ site }: { site: PublicSite }) {
               childLabel.toLowerCase().includes("mitra") ||
               childLabel.toLowerCase().includes("distributor") ||
               childLabel.toLowerCase().includes("fintech") ||
-              childHref === "/lenders"
+              childHref === "/lenders" ||
+              childHref === "/partners"
             ) {
-              childHref = "/lenders";
+              childHref = "/partners";
               childLabel = "Direktori Mitra & Distributor Resmi";
             }
 
@@ -723,7 +731,7 @@ export function Footer({ site }: { site: PublicSite }) {
           <div className="footer-nav-col">
             <h3>Layanan & Direktori</h3>
             <Link href="/technicians">Cari Teknisi AC KTA</Link>
-            <Link href="/lenders">Cek Fintech Berizin OJK</Link>
+            <Link href="/partners">Mitra & Distributor Resmi</Link>
             <Link href="/clubs">Direktori Klub & TKT</Link>
             <Link href="/verify">Verifikasi KTA Digital</Link>
             <Link href={isLoggedIn ? "/member" : "/member/login"}>
