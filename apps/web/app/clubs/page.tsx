@@ -42,6 +42,7 @@ interface Club {
 
 interface ClubCategoryMeta {
   label: string;
+  shortLabel: string;
   icon: any;
   color: string;
   bgClass: string;
@@ -57,7 +58,8 @@ function getClubCategoryMeta(category: string): ClubCategoryMeta {
     lower.includes("teknisi")
   ) {
     return {
-      label: "Teknisi & Workshop",
+      label: "Komunitas Teknisi & Workshop",
+      shortLabel: "Workshop",
       icon: Wrench,
       color: "#0284c7",
       bgClass: "club-category-workshop",
@@ -74,6 +76,7 @@ function getClubCategoryMeta(category: string): ClubCategoryMeta {
   ) {
     return {
       label: "Spesialisasi HVAC/R",
+      shortLabel: "Spesialis HVAC",
       icon: Cpu,
       color: "#d97706",
       bgClass: "club-category-specialist",
@@ -88,7 +91,8 @@ function getClubCategoryMeta(category: string): ClubCategoryMeta {
     lower.includes("daerah")
   ) {
     return {
-      label: "Paguyuban Wilayah",
+      label: "Paguyuban Wilayah & Rayon",
+      shortLabel: "Korwil Daerah",
       icon: Compass,
       color: "#16a34a",
       bgClass: "club-category-region",
@@ -103,7 +107,8 @@ function getClubCategoryMeta(category: string): ClubCategoryMeta {
     lower.includes("touring")
   ) {
     return {
-      label: "Hobi & Rekreasi",
+      label: "Klub Hobi & Rekreasi",
+      shortLabel: "Hobi & Sosial",
       icon: Flame,
       color: "#6366f1",
       bgClass: "club-category-hobby",
@@ -114,6 +119,7 @@ function getClubCategoryMeta(category: string): ClubCategoryMeta {
 
   return {
     label: category || "Komunitas Terdaftar",
+    shortLabel: category || "Komunitas",
     icon: Flag,
     color: "#0284c7",
     bgClass: "club-category-workshop",
@@ -379,32 +385,29 @@ function ClubsContent() {
                           type="button"
                           className="club-tkt-badge"
                           onClick={(e) => handleCopyTkt(e, club.codeTkt)}
-                          title="Klik untuk menyalin nomor TKT"
+                          title={
+                            copiedTkt === club.codeTkt
+                              ? "Nomor TKT Tersalin!"
+                              : "Klik untuk menyalin nomor TKT"
+                          }
                           style={{
                             cursor: "pointer",
-                            border: "1px solid #bbf7d0",
                           }}
                         >
-                          <CheckCircle2 size={12} color="#16a34a" />
-                          <span>{club.codeTkt}</span>
-                          {copiedTkt === club.codeTkt && (
-                            <span
-                              style={{
-                                fontSize: "10px",
-                                color: "#15803d",
-                                fontWeight: 800,
-                              }}
-                            >
-                              (Tersalin!)
-                            </span>
+                          {copiedTkt === club.codeTkt ? (
+                            <Check size={12} color="#16a34a" />
+                          ) : (
+                            <CheckCircle2 size={12} color="#16a34a" />
                           )}
+                          <span>{club.codeTkt}</span>
                         </button>
 
                         <span
                           className={`club-category-badge ${catMeta.bgClass}`}
+                          title={catMeta.label}
                         >
                           <CatIcon size={12} />
-                          <span>{catMeta.label}</span>
+                          <span>{catMeta.shortLabel}</span>
                         </span>
                       </div>
 
