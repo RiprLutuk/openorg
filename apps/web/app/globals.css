@@ -11190,6 +11190,16 @@ img {
   flex-shrink: 0;
   box-sizing: border-box;
   line-height: 1;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.club-tkt-badge:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #15803d;
 }
 
 .club-category-badge {

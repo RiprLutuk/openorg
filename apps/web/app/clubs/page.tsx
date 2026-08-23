@@ -381,10 +381,24 @@ function ClubsContent() {
                     >
                       {/* Top Bar: TKT Badge & Category (Exact 26px Level Height) */}
                       <div className="tech-card-top">
-                        <span className="club-tkt-badge">
-                          <CheckCircle2 size={12} color="#16a34a" />
+                        <button
+                          type="button"
+                          className="club-tkt-badge"
+                          onClick={(e) => handleCopyTkt(e, club.codeTkt)}
+                          title={
+                            copiedTkt === club.codeTkt
+                              ? "Nomor TKT Tersalin!"
+                              : "Klik untuk menyalin nomor TKT"
+                          }
+                          aria-label={`Salin nomor TKT ${club.codeTkt}`}
+                        >
+                          {copiedTkt === club.codeTkt ? (
+                            <Check size={12} color="#16a34a" />
+                          ) : (
+                            <CheckCircle2 size={12} color="#16a34a" />
+                          )}
                           <span>{club.codeTkt}</span>
-                        </span>
+                        </button>
 
                         <span
                           className={`club-category-badge ${catMeta.bgClass}`}
