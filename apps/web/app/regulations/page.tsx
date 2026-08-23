@@ -13,7 +13,8 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface Regulation {
@@ -60,17 +61,25 @@ const categoryLabels: Record<
 
 const tabs = [
   { key: "all", label: "Semua Dokumen" },
-  { key: "ad_art", label: "AD / ART" },
+  { key: "ad_art", label: "AD / ART & Kode Etik" },
   { key: "se_organisasi", label: "Surat Edaran (SE)" },
-  { key: "regulasi_pemerintah", label: "Regulasi Pemerintah" },
+  { key: "regulasi_pemerintah", label: "Regulasi Pemerintah & SNI" },
   { key: "posisi_kebijakan", label: "Naskah Kebijakan" },
 ];
 
-export default function RegulationsPage() {
+function RegulationsContent() {
+  const searchParams = useSearchParams();
+  const catParam = searchParams.get("cat");
   const [regulations, setRegulations] = useState<Regulation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState(catParam || "all");
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (catParam) {
+      setActiveTab(catParam);
+    }
+  }, [catParam]);
 
   useEffect(() => {
     const fetchRegulations = async () => {
@@ -336,5 +345,20 @@ export default function RegulationsPage() {
         memberSecondaryCta={{ label: "Portal Anggota", href: "/member" }}
       />
     </div>
+  );
+}
+
+export default function RegulationsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="reg-loading-state" style={{ minHeight: "50vh" }}>
+          <Loader2 size={36} className="animate-spin text-primary" />
+          <p>Memuat repository dokumen resmi...</p>
+        </div>
+      }
+    >
+      <RegulationsContent />
+    </Suspense>
   );
 }

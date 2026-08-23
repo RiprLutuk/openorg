@@ -405,7 +405,10 @@ export default async function OrganizationProfilePage() {
                 </p>
               </div>
               <div className="doc-card-foot">
-                <Link href="/regulations" className="button outline btn-doc">
+                <Link
+                  href="/regulations?cat=ad_art"
+                  className="button outline btn-doc"
+                >
                   <Download size={15} />
                   <span>Buka di Repository</span>
                 </Link>
@@ -425,7 +428,10 @@ export default async function OrganizationProfilePage() {
                 </p>
               </div>
               <div className="doc-card-foot">
-                <Link href="/regulations" className="button outline btn-doc">
+                <Link
+                  href="/regulations?cat=se_organisasi"
+                  className="button outline btn-doc"
+                >
                   <FileCheck2 size={15} />
                   <span>Lihat Dokumen</span>
                 </Link>

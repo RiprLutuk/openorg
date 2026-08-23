@@ -157,7 +157,11 @@ export function Header({ site }: { site: PublicSite }) {
           label: "Struktur Pengurus (DPP/DPD)",
           href: "/structure",
         },
-        { id: "ad-art", label: "AD/ART & Kode Etik", href: "/regulations" },
+        {
+          id: "ad-art",
+          label: "AD/ART & Kode Etik",
+          href: "/regulations?cat=ad_art",
+        },
       ],
     },
     {
@@ -219,8 +223,13 @@ export function Header({ site }: { site: PublicSite }) {
         },
         {
           id: "regulations-list",
-          label: "Regulasi & Policy Papers",
-          href: "/regulations",
+          label: "Regulasi Pemerintah & Standar SNI",
+          href: "/regulations?cat=regulasi_pemerintah",
+        },
+        {
+          id: "se-list",
+          label: "Surat Edaran Resmi (SE)",
+          href: "/regulations?cat=se_organisasi",
         },
         {
           id: "industry-stats",
@@ -603,7 +612,7 @@ export function Footer({ site }: { site: PublicSite }) {
           <div className="footer-nav-col">
             <h3>Organisasi</h3>
             <Link href="/structure">Struktur DPP & DPD</Link>
-            <Link href="/regulations">AD/ART & Kode Etik</Link>
+            <Link href="/regulations?cat=ad_art">AD/ART & Kode Etik</Link>
             {!isLoggedIn && <Link href="/join">Pendaftaran Anggota</Link>}
             <Link href="/stories">Warta & Kabar Terkini</Link>
             <Link href="/events">Agenda & Pelatihan</Link>
@@ -625,11 +634,15 @@ export function Footer({ site }: { site: PublicSite }) {
           <div className="footer-nav-col">
             <h3>Advokasi & Data</h3>
             <Link href="/working-groups">Pokja Advokasi Tematik</Link>
-            <Link href="/regulations">Regulasi & Policy Papers</Link>
+            <Link href="/regulations?cat=regulasi_pemerintah">
+              Regulasi & Standar Industri
+            </Link>
+            <Link href="/regulations?cat=se_organisasi">
+              Surat Edaran Organisasi
+            </Link>
             <Link href="/statistics">Statistik Industri Sektor</Link>
             <Link href="/whois">Lookup WHOIS & IIX</Link>
             <Link href="/complaints">Posko Pengaduan JENDELA</Link>
-            <Link href="/events">Agenda Pelatihan BNSP</Link>
           </div>
         </div>
 
