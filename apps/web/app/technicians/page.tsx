@@ -574,96 +574,212 @@ function TechniciansContent() {
             tabIndex={0}
             role="document"
           >
-            <button
-              type="button"
-              className="leader-modal-close"
-              onClick={() => setActiveTechModal(null)}
-              aria-label="Tutup modal"
-            >
-              <X size={18} />
-            </button>
-
-            <div className="leader-modal-top">
-              <div className="leader-modal-avatar-frame tech-modal-frame">
-                <span>{activeTechModal.name.slice(0, 2).toUpperCase()}</span>
+            {/* Modal Header */}
+            <div className="leader-modal-header">
+              <div className="modal-title-wrap">
+                <ShieldCheck size={20} color="#0284c7" />
+                <h3>Kredensial & Profil Teknisi Resmi</h3>
               </div>
-              <div className="leader-modal-title-wrap">
-                {(() => {
-                  const tier = parseSkillLevel(activeTechModal.skillLevel);
-                  return (
-                    <span
-                      className={`tech-level-badge-compact ${tier.bgClass}`}
-                      style={{ fontSize: "11px" }}
-                    >
-                      {tier.shortBadge}
-                    </span>
-                  );
-                })()}
-                <h3>{activeTechModal.name}</h3>
-                <p>
-                  {activeTechModal.workshopName || "Workshop Mandiri Terdaftar"}
-                </p>
-              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setActiveTechModal(null)}
+                aria-label="Tutup detail modal"
+              >
+                <X size={18} />
+              </button>
             </div>
 
+            {/* Modal Body */}
             <div className="leader-modal-body">
-              {/* Rich Competency Leveling Breakdown */}
+              {/* Profile Hero Header */}
               {(() => {
                 const tier = parseSkillLevel(activeTechModal.skillLevel);
                 const TierIcon = tier.icon;
                 return (
-                  <div className="modal-leveling-box">
-                    <div className="modal-leveling-header">
-                      <div className="modal-leveling-title">
+                  <>
+                    <div className="modal-profile-hero">
+                      <div
+                        className="tech-avatar-frame"
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          borderRadius: "16px",
+                          fontSize: "18px",
+                        }}
+                      >
+                        <span>
+                          {activeTechModal.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase() || "TK"}
+                        </span>
+                      </div>
+
+                      <div className="modal-profile-copy" style={{ flex: 1 }}>
                         <div
                           style={{
-                            width: "34px",
-                            height: "34px",
-                            borderRadius: "10px",
-                            background: `${tier.color}18`,
-                            color: tier.color,
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
-                            flexShrink: 0,
+                            gap: "8px",
+                            marginBottom: "6px",
+                            flexWrap: "wrap",
                           }}
                         >
-                          <TierIcon size={18} />
-                        </div>
-                        <div>
-                          <h5
-                            style={{
-                              margin: 0,
-                              fontSize: "14px",
-                              fontWeight: 800,
-                              color: "#0f172a",
-                            }}
+                          <span
+                            className={`tech-level-badge-compact ${tier.bgClass}`}
+                            style={{ fontSize: "11px" }}
                           >
-                            {tier.fullName}
-                          </h5>
-                          <small style={{ color: "#64748b", fontSize: "11px" }}>
-                            {tier.skkniLevel}
-                          </small>
+                            <TierIcon size={12} />
+                            <span>{tier.shortBadge}</span>
+                          </span>
+
+                          {activeTechModal.certifiedBnsp && (
+                            <span className="tech-bnsp-badge">
+                              <Award size={11} />
+                              <span>BNSP Certified</span>
+                            </span>
+                          )}
+
+                          {activeTechModal.rating && (
+                            <span className="tech-rating-chip">
+                              <Star size={11} color="#f59e0b" fill="#f59e0b" />
+                              <span>{activeTechModal.rating}</span>
+                            </span>
+                          )}
                         </div>
+
+                        <h4
+                          style={{
+                            fontSize: "18px",
+                            fontWeight: 800,
+                            margin: "0 0 3px",
+                            color: "#0f172a",
+                          }}
+                        >
+                          {activeTechModal.name}
+                        </h4>
+                        <p
+                          className="modal-role"
+                          style={{
+                            margin: 0,
+                            fontSize: "13px",
+                            color: "#64748b",
+                          }}
+                        >
+                          {activeTechModal.workshopName ||
+                            "Praktisi / Workshop Mandiri Terdaftar"}
+                        </p>
                       </div>
-                      <span
-                        className={`tech-level-badge-compact ${tier.bgClass}`}
-                        style={{ fontSize: "10.5px" }}
-                      >
-                        {tier.shortBadge}
-                      </span>
                     </div>
 
-                    <p className="modal-leveling-scope">
-                      <strong style={{ color: "#334155" }}>
-                        Ruang Lingkup Kompetensi:
-                      </strong>{" "}
-                      {tier.scopeDescription}
-                    </p>
-                  </div>
+                    {/* Competency Leveling Box */}
+                    <div
+                      style={{
+                        background: `linear-gradient(135deg, ${tier.color}0a 0%, #f8fafc 100%)`,
+                        border: `1px solid ${tier.color}35`,
+                        borderRadius: "16px",
+                        padding: "16px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: "10px",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "36px",
+                              height: "36px",
+                              borderRadius: "10px",
+                              background: `${tier.color}18`,
+                              color: tier.color,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <TierIcon size={18} />
+                          </div>
+                          <div>
+                            <strong
+                              style={{
+                                fontSize: "14.5px",
+                                fontWeight: 800,
+                                color: "#0f172a",
+                                display: "block",
+                              }}
+                            >
+                              {tier.fullName}
+                            </strong>
+                            <small
+                              style={{
+                                color: tier.color,
+                                fontWeight: 700,
+                                fontSize: "11px",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.4px",
+                              }}
+                            >
+                              {tier.skkniLevel}
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          background: "#ffffff",
+                          border: "1px solid #f1f5f9",
+                          borderRadius: "10px",
+                          padding: "10px 12px",
+                        }}
+                      >
+                        <small
+                          style={{
+                            display: "block",
+                            fontSize: "10.5px",
+                            fontWeight: 800,
+                            color: "#64748b",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          Ruang Lingkup Pengerjaan & Kapasitas Alat
+                        </small>
+                        <p
+                          style={{
+                            margin: 0,
+                            fontSize: "12.5px",
+                            lineHeight: "1.55",
+                            color: "#334155",
+                          }}
+                        >
+                          {tier.scopeDescription}
+                        </p>
+                      </div>
+                    </div>
+                  </>
                 );
               })()}
 
+              {/* Data Grid */}
               <div className="modal-data-grid">
                 <div className="modal-data-item">
                   <small>Nomor KTA Nasional</small>
@@ -679,24 +795,22 @@ function TechniciansContent() {
                 </div>
                 <div className="modal-data-item">
                   <small>Sertifikasi BNSP</small>
-                  <strong
-                    style={{
-                      color: activeTechModal.certifiedBnsp
-                        ? "#16a34a"
-                        : "#64748b",
-                    }}
-                  >
-                    {activeTechModal.certifiedBnsp
-                      ? "Terlisensi BNSP & SKKNI"
-                      : "Dalam Proses Asesmen"}
-                  </strong>
+                  <span className="modal-status-pill">
+                    <CheckCircle2 size={12} />
+                    <span>
+                      {activeTechModal.certifiedBnsp
+                        ? "Terlisensi BNSP Sah"
+                        : "Asesmen Kompetensi"}
+                    </span>
+                  </span>
                 </div>
                 <div className="modal-data-item">
                   <small>Status Ketersediaan</small>
-                  <strong style={{ color: "#16a34a" }}>Siap Melayani</strong>
+                  <strong style={{ color: "#16a34a" }}>✓ Siap Melayani</strong>
                 </div>
               </div>
 
+              {/* Actions Row */}
               <div className="modal-actions-row">
                 {activeTechModal.phone ? (
                   <a
