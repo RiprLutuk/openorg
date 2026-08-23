@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Calculator,
+  Check,
   CheckCircle2,
   ChevronRight,
   Compass,
@@ -17,6 +18,7 @@ import {
   Maximize2,
   RefreshCw,
   RotateCcw,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   Sun,
@@ -143,6 +145,49 @@ const REFRIGERANTS: Record<string, RefrigerantData> = {
   },
 };
 
+const ROOM_PRESETS = [
+  {
+    label: "Kamar Standar (3x3m)",
+    l: 3,
+    w: 3,
+    h: 3,
+    occ: 1,
+    sun: "medium" as const,
+    type: "bedroom" as const,
+    el: 1,
+  },
+  {
+    label: "Kamar Utama (4x4m)",
+    l: 4,
+    w: 4,
+    h: 3,
+    occ: 2,
+    sun: "medium" as const,
+    type: "bedroom" as const,
+    el: 1,
+  },
+  {
+    label: "Ruang Keluarga (5x6m)",
+    l: 6,
+    w: 5,
+    h: 3.2,
+    occ: 4,
+    sun: "high" as const,
+    type: "living" as const,
+    el: 2,
+  },
+  {
+    label: "Kantor / Ruko (6x8m)",
+    l: 8,
+    w: 6,
+    h: 3.5,
+    occ: 6,
+    sun: "medium" as const,
+    type: "office" as const,
+    el: 6,
+  },
+];
+
 export default function CalculatorPage() {
   const [activeTab, setActiveTab] = useState<"pk" | "refrigerants" | "sop">(
     "pk",
@@ -197,55 +242,72 @@ export default function CalculatorPage() {
       return {
         pk: "½ PK (0.5 PK)",
         btuRating: "5.000 BTU/h",
-        wattEstimate: "350 - 410 W",
-        inverterWatt: "180 - 380 W",
+        wattEstimate: "350 - 410 Watt",
+        inverterWatt: "180 - 380 Watt",
+        monthlyCost: "Rp 120.000 - Rp 180.000",
       };
     if (btu <= 7500)
       return {
         pk: "¾ PK (0.75 PK)",
         btuRating: "7.000 BTU/h",
-        wattEstimate: "530 - 620 W",
-        inverterWatt: "220 - 580 W",
+        wattEstimate: "530 - 620 Watt",
+        inverterWatt: "220 - 580 Watt",
+        monthlyCost: "Rp 190.000 - Rp 260.000",
       };
     if (btu <= 10000)
       return {
         pk: "1 PK",
         btuRating: "9.000 BTU/h",
-        wattEstimate: "720 - 840 W",
-        inverterWatt: "280 - 750 W",
+        wattEstimate: "720 - 840 Watt",
+        inverterWatt: "280 - 750 Watt",
+        monthlyCost: "Rp 260.000 - Rp 380.000",
       };
     if (btu <= 13500)
       return {
         pk: "1.5 PK",
         btuRating: "12.000 BTU/h",
-        wattEstimate: "1.020 - 1.180 W",
-        inverterWatt: "350 - 1.050 W",
+        wattEstimate: "1.020 - 1.180 Watt",
+        inverterWatt: "350 - 1.050 Watt",
+        monthlyCost: "Rp 380.000 - Rp 520.000",
       };
     if (btu <= 19500)
       return {
         pk: "2 PK",
         btuRating: "18.000 BTU/h",
-        wattEstimate: "1.520 - 1.780 W",
-        inverterWatt: "450 - 1.600 W",
+        wattEstimate: "1.520 - 1.780 Watt",
+        inverterWatt: "450 - 1.600 Watt",
+        monthlyCost: "Rp 550.000 - Rp 780.000",
       };
     if (btu <= 26000)
       return {
         pk: "2.5 PK",
         btuRating: "24.000 BTU/h",
-        wattEstimate: "1.980 - 2.300 W",
-        inverterWatt: "580 - 2.100 W",
+        wattEstimate: "1.980 - 2.300 Watt",
+        inverterWatt: "580 - 2.100 Watt",
+        monthlyCost: "Rp 750.000 - Rp 1.050.000",
       };
     return {
       pk: "3+ PK / Multi-Split",
       btuRating: "28.000+ BTU/h",
-      wattEstimate: "2.500+ W",
-      inverterWatt: "800 - 2.800 W",
+      wattEstimate: "2.500+ Watt",
+      inverterWatt: "800 - 2.800 Watt",
+      monthlyCost: "Rp 1.100.000+",
     };
   };
 
   const recommendation = getPkRecommendation(totalRawBtu);
   const activeRefrigerant: RefrigerantData =
     REFRIGERANTS[selectedRef] ?? REFRIGERANTS.R32!;
+
+  const applyPreset = (preset: (typeof ROOM_PRESETS)[0]) => {
+    setLength(preset.l);
+    setWidth(preset.w);
+    setHeight(preset.h);
+    setOccupants(preset.occ);
+    setSunExposure(preset.sun);
+    setRoomType(preset.type);
+    setElectronics(preset.el);
+  };
 
   return (
     <div className="calculator-page-suite">
@@ -348,12 +410,18 @@ export default function CalculatorPage() {
           {/* TAB 1: KALKULATOR PK AC */}
           {activeTab === "pk" && (
             <div className="calc-workspace-grid slide-in-up">
-              {/* Input Form Panel */}
+              {/* Input Form Panel (Left Column) */}
               <div className="calc-form-card">
                 <div className="calc-card-header">
-                  <div className="calc-header-title">
-                    <Maximize2 size={20} color="#0284c7" />
+                  <div className="header-icon-wrap">
+                    <Maximize2 size={24} color="#0284c7" />
+                  </div>
+                  <div style={{ flex: 1 }}>
                     <h3>Parameter Ruangan & Beban Kalor</h3>
+                    <p>
+                      Masukkan data ukuran dan kondisi ruangan untuk menghitung
+                      kapasitas pendinginan yang akurat.
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -374,171 +442,198 @@ export default function CalculatorPage() {
                   </button>
                 </div>
 
-                {/* Section 1: Dimensi Ruangan */}
-                <div className="calc-group-section">
-                  <span className="calc-group-title">
-                    <Maximize2 size={14} />
-                    <span>1. Dimensi Ruangan (Meter)</span>
-                  </span>
-                  <div className="calc-inputs-row-3">
-                    <div className="calc-field-group">
-                      <label>Panjang (P)</label>
-                      <div className="calc-number-input">
-                        <input
-                          type="number"
-                          min="1"
-                          max="30"
-                          step="0.5"
-                          value={length}
-                          onChange={(e) =>
-                            setLength(Number(e.target.value) || 1)
-                          }
-                        />
-                        <span>m</span>
-                      </div>
-                    </div>
-
-                    <div className="calc-field-group">
-                      <label>Lebar (L)</label>
-                      <div className="calc-number-input">
-                        <input
-                          type="number"
-                          min="1"
-                          max="30"
-                          step="0.5"
-                          value={width}
-                          onChange={(e) =>
-                            setWidth(Number(e.target.value) || 1)
-                          }
-                        />
-                        <span>m</span>
-                      </div>
-                    </div>
-
-                    <div className="calc-field-group">
-                      <label>Tinggi Plafon (T)</label>
-                      <div className="calc-number-input">
-                        <input
-                          type="number"
-                          min="2"
-                          max="8"
-                          step="0.1"
-                          value={height}
-                          onChange={(e) =>
-                            setHeight(Number(e.target.value) || 2)
-                          }
-                        />
-                        <span>m</span>
-                      </div>
-                    </div>
+                {/* Preset Chips */}
+                <div className="calc-presets-bar">
+                  <span className="presets-label">Pilih Ukuran Cepat:</span>
+                  <div className="presets-chips-row">
+                    {ROOM_PRESETS.map((p) => (
+                      <button
+                        key={p.label}
+                        type="button"
+                        className="preset-chip"
+                        onClick={() => applyPreset(p)}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Section 2: Fungsi & Paparan Panas */}
-                <div className="calc-group-section mt-6">
-                  <span className="calc-group-title">
-                    <Sun size={14} />
-                    <span>2. Fungsi & Paparan Matahari</span>
-                  </span>
-                  <div className="calc-inputs-row-2">
-                    <div className="calc-field-group">
-                      <label>Fungsi / Jenis Ruangan</label>
-                      <select
-                        value={roomType}
-                        onChange={(e) => setRoomType(e.target.value as any)}
-                        className="calc-select-input"
-                      >
-                        <option value="bedroom">
-                          Kamar Tidur (Normal - 500 BTU/m²)
-                        </option>
-                        <option value="living">
-                          Ruang Tamu / Keluarga (600 BTU/m²)
-                        </option>
-                        <option value="office">
-                          Kantor / Ruang Kerja (700 BTU/m²)
-                        </option>
-                        <option value="server">
-                          Server Room / Komputer (950 BTU/m²)
-                        </option>
-                      </select>
+                <div className="calc-form-blocks">
+                  {/* Step 1: Dimensi Ruangan */}
+                  <div className="form-step-block">
+                    <div className="form-step-badge">
+                      <span className="step-num-pill">1</span>
+                      <h4>Dimensi Ruangan Fisik</h4>
                     </div>
 
-                    <div className="calc-field-group">
-                      <label>Paparan Sinar Matahari</label>
-                      <select
-                        value={sunExposure}
-                        onChange={(e) => setSunExposure(e.target.value as any)}
-                        className="calc-select-input"
-                      >
-                        <option value="low">
-                          Terlindung / Menghadap Timur (+0%)
-                        </option>
-                        <option value="medium">
-                          Normal / Jendela Sedang (+10%)
-                        </option>
-                        <option value="high">
-                          Hadap Barat / Langsung Dak Beton (+25%)
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
+                    <div className="calc-inputs-row-3">
+                      <div className="form-field">
+                        <label>Panjang (P)</label>
+                        <div className="calc-number-input">
+                          <input
+                            type="number"
+                            min="1"
+                            max="30"
+                            step="0.5"
+                            value={length}
+                            onChange={(e) =>
+                              setLength(Number(e.target.value) || 1)
+                            }
+                          />
+                          <span>meter</span>
+                        </div>
+                      </div>
 
-                {/* Section 3: Beban Tambahan */}
-                <div className="calc-group-section mt-6">
-                  <span className="calc-group-title">
-                    <Users size={14} />
-                    <span>3. Beban Tambahan Dalam Ruangan</span>
-                  </span>
-                  <div className="calc-inputs-row-2">
-                    <div className="calc-field-group">
-                      <label>Jumlah Penghuni Rutin</label>
-                      <div className="calc-number-input">
-                        <input
-                          type="number"
-                          min="1"
-                          max="50"
-                          value={occupants}
-                          onChange={(e) =>
-                            setOccupants(Number(e.target.value) || 1)
-                          }
-                        />
-                        <span>orang</span>
+                      <div className="form-field">
+                        <label>Lebar (L)</label>
+                        <div className="calc-number-input">
+                          <input
+                            type="number"
+                            min="1"
+                            max="30"
+                            step="0.5"
+                            value={width}
+                            onChange={(e) =>
+                              setWidth(Number(e.target.value) || 1)
+                            }
+                          />
+                          <span>meter</span>
+                        </div>
+                      </div>
+
+                      <div className="form-field">
+                        <label>Tinggi Plafon (T)</label>
+                        <div className="calc-number-input">
+                          <input
+                            type="number"
+                            min="2"
+                            max="8"
+                            step="0.1"
+                            value={height}
+                            onChange={(e) =>
+                              setHeight(Number(e.target.value) || 2)
+                            }
+                          />
+                          <span>meter</span>
+                        </div>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="calc-field-group">
-                      <label>Perangkat Elektronik Aktif (PC/TV)</label>
-                      <div className="calc-number-input">
-                        <input
-                          type="number"
-                          min="0"
-                          max="30"
-                          value={electronics}
+                  {/* Step 2: Karakteristik Ruangan & Matahari */}
+                  <div className="form-step-block">
+                    <div className="form-step-badge">
+                      <span className="step-num-pill">2</span>
+                      <h4>Fungsi Ruangan & Paparan Sinar Matahari</h4>
+                    </div>
+
+                    <div className="form-two-col-grid">
+                      <div className="form-field">
+                        <label>Fungsi / Jenis Ruangan</label>
+                        <select
+                          value={roomType}
+                          onChange={(e) => setRoomType(e.target.value as any)}
+                          className="form-select"
+                        >
+                          <option value="bedroom">
+                            Kamar Tidur (Normal - 500 BTU/m²)
+                          </option>
+                          <option value="living">
+                            Ruang Tamu / Keluarga (600 BTU/m²)
+                          </option>
+                          <option value="office">
+                            Kantor / Ruang Kerja (700 BTU/m²)
+                          </option>
+                          <option value="server">
+                            Server Room / Komputer (950 BTU/m²)
+                          </option>
+                        </select>
+                      </div>
+
+                      <div className="form-field">
+                        <label>Paparan Sinar Matahari</label>
+                        <select
+                          value={sunExposure}
                           onChange={(e) =>
-                            setElectronics(Number(e.target.value) || 0)
+                            setSunExposure(e.target.value as any)
                           }
-                        />
-                        <span>unit</span>
+                          className="form-select"
+                        >
+                          <option value="low">
+                            Terlindung / Menghadap Timur (+0%)
+                          </option>
+                          <option value="medium">
+                            Normal / Jendela Sedang (+10%)
+                          </option>
+                          <option value="high">
+                            Hadap Barat / Langsung Dak Beton (+25%)
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 3: Beban Tambahan Dalam Ruangan */}
+                  <div className="form-step-block">
+                    <div className="form-step-badge">
+                      <span className="step-num-pill">3</span>
+                      <h4>Beban Tambahan Dalam Ruangan</h4>
+                    </div>
+
+                    <div className="form-two-col-grid">
+                      <div className="form-field">
+                        <label>Jumlah Penghuni Rutin</label>
+                        <div className="calc-number-input">
+                          <input
+                            type="number"
+                            min="1"
+                            max="50"
+                            value={occupants}
+                            onChange={(e) =>
+                              setOccupants(Number(e.target.value) || 1)
+                            }
+                          />
+                          <span>orang</span>
+                        </div>
+                      </div>
+
+                      <div className="form-field">
+                        <label>Perangkat Elektronik Aktif (PC/TV)</label>
+                        <div className="calc-number-input">
+                          <input
+                            type="number"
+                            min="0"
+                            max="30"
+                            value={electronics}
+                            onChange={(e) =>
+                              setElectronics(Number(e.target.value) || 0)
+                            }
+                          />
+                          <span>unit</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Result Recommendation Card */}
+              {/* Result Recommendation Card (Right Column) */}
               <div className="calc-result-card">
                 <div className="calc-result-badge">
                   <Sparkles size={16} />
-                  <span>HASIL KALKULASI REKOMENDASI ASOSIASI</span>
+                  <span>REKOMENDASI STANDAR ASOSIASI</span>
                 </div>
 
                 <div className="calc-hero-pk">
                   <small>Kapasitas AC Disarankan:</small>
                   <h2>{recommendation.pk}</h2>
-                  <span className="calc-btu-chip">
-                    {totalRawBtu.toLocaleString("id-ID")} BTU/h Diperlukan
-                  </span>
+                  <div className="calc-btu-chip">
+                    <Gauge size={14} />
+                    <span>
+                      {totalRawBtu.toLocaleString("id-ID")} BTU/h Diperlukan
+                    </span>
+                  </div>
                 </div>
 
                 <div className="calc-specs-list">
@@ -555,21 +650,28 @@ export default function CalculatorPage() {
                   </div>
 
                   <div className="calc-spec-item">
-                    <small>Estimasi Daya (AC Standar/Low Watt)</small>
+                    <small>Estimasi Daya AC Standar (Low Watt)</small>
                     <strong>{recommendation.wattEstimate}</strong>
                   </div>
 
                   <div className="calc-spec-item">
-                    <small>Estimasi Daya (AC Inverter Hemat Energi)</small>
-                    <strong style={{ color: "#34d399" }}>
+                    <small>Estimasi Daya AC Inverter (Hemat)</small>
+                    <strong style={{ color: "#16a34a" }}>
                       {recommendation.inverterWatt}
+                    </strong>
+                  </div>
+
+                  <div className="calc-spec-item">
+                    <small>Estimasi Biaya Listrik Bulanan (8 Jam/Hari)</small>
+                    <strong style={{ color: "#0284c7" }}>
+                      {recommendation.monthlyCost}
                     </strong>
                   </div>
                 </div>
 
                 {/* Practical Advice Note */}
                 <div className="calc-advice-box">
-                  <Info size={18} color="#38bdf8" />
+                  <Info size={18} color="#0284c7" />
                   <p>
                     {totalRawBtu > 18000
                       ? "Ruangan besar disarankan menggunakan 2 unit AC terpisah atau sistem Multi-Split agar distribusi hembusan dingin lebih merata."

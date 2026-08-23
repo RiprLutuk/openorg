@@ -12835,75 +12835,113 @@ img {
 .calc-workspace-grid {
   display: grid;
   grid-template-columns: 1fr 400px;
-  gap: 28px;
+  gap: 32px;
   align-items: start;
 }
 
 .calc-form-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
 }
 
 .calc-card-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 24px;
-  padding-bottom: 16px;
+  padding-bottom: 18px;
   border-bottom: 1px solid #f1f5f9;
 }
 
-.calc-header-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.calc-card-header h3 {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px;
+  letter-spacing: -0.3px;
 }
 
-.calc-header-title h3 {
-  font-size: 17px;
-  font-weight: 700;
-  color: #0f172a;
+.calc-card-header p {
+  font-size: 13px;
+  color: #64748b;
   margin: 0;
+  line-height: 1.45;
 }
 
 .calc-reset-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #f8fafc;
+  background: #f1f5f9;
   border: 1px solid #cbd5e1;
-  color: #64748b;
+  color: #475569;
   border-radius: 8px;
   padding: 6px 12px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .calc-reset-btn:hover {
-  background: #f1f5f9;
+  background: #e2e8f0;
   color: #0f172a;
 }
 
-.calc-group-section {
+/* Preset Chips */
+.calc-presets-bar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
-.calc-group-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+.presets-label {
   font-size: 12px;
   font-weight: 800;
   color: #0284c7;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.presets-chips-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.preset-chip {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-chip:hover {
+  border-color: #0284c7;
+  color: #0284c7;
+  background: #f0f9ff;
+}
+
+.calc-form-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .calc-inputs-row-3 {
@@ -12912,46 +12950,20 @@ img {
   gap: 14px;
 }
 
-.calc-inputs-row-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-}
-
-.calc-inputs-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 18px;
-}
-
-.calc-field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.calc-field-group label {
-  font-size: 12px;
-  font-weight: 700;
-  color: #334155;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 .calc-number-input {
   display: flex;
   align-items: center;
-  background: #f8fafc;
+  background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
   padding: 0 12px;
   height: 44px;
-  transition: border-color 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all 0.15s ease;
 }
 
 .calc-number-input:focus-within {
   border-color: #0284c7;
-  background: #ffffff;
   box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
 }
 
@@ -12959,62 +12971,50 @@ img {
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 14.5px;
+  font-weight: 700;
   color: #0f172a;
   outline: none;
+  width: 100%;
 }
 
 .calc-number-input span {
   font-size: 12px;
   font-weight: 600;
   color: #64748b;
+  margin-left: 6px;
+  white-space: nowrap;
 }
 
-.calc-select-input {
-  height: 44px;
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
-  padding: 0 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #0f172a;
-  outline: none;
-}
-
-.calc-select-input:focus {
-  border-color: #0284c7;
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
-}
-
+/* Result Recommendation Card */
 .calc-result-card {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-  padding: 28px;
+  border-radius: 20px;
+  padding: 30px;
   color: #f8fafc;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.18);
+  position: sticky;
+  top: 24px;
 }
 
 .calc-result-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
   background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  border: 1px solid rgba(56, 189, 248, 0.35);
   color: #38bdf8;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.8px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .calc-hero-pk {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
   padding-bottom: 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -13029,19 +13029,22 @@ img {
 }
 
 .calc-hero-pk h2 {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 900;
   color: #38bdf8;
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   letter-spacing: -0.5px;
 }
 
 .calc-btu-chip {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.08);
-  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12.5px;
   font-weight: 700;
   color: #f1f5f9;
 }
@@ -13050,7 +13053,7 @@ img {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .calc-spec-item {
@@ -13058,6 +13061,13 @@ img {
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.calc-spec-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .calc-spec-item small {
@@ -13066,23 +13076,28 @@ img {
 
 .calc-spec-item strong {
   color: #f8fafc;
+  font-weight: 700;
 }
 
 .calc-advice-box {
   display: flex;
   gap: 10px;
-  background: rgba(2, 132, 199, 0.12);
-  border: 1px solid rgba(2, 132, 199, 0.25);
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 20px;
+  background: rgba(2, 132, 199, 0.15);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 22px;
 }
 
 .calc-advice-box p {
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: #e0f2fe;
   margin: 0;
+}
+
+.calc-result-actions {
+  margin-top: 4px;
 }
 
 /* Refrigerants Tab */
@@ -13091,70 +13106,54 @@ img {
   gap: 10px;
   overflow-x: auto;
   padding-bottom: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .ref-tab-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 18px;
-  border-radius: 12px;
+  padding: 12px 20px;
+  border-radius: 14px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   cursor: pointer;
   transition: all 0.15s ease;
-  min-width: 100px;
+  min-width: 110px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.ref-tab-btn span {
-  font-size: 16px;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.ref-tab-btn small {
-  font-size: 10px;
-  color: #64748b;
-  margin-top: 2px;
+.ref-tab-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 .ref-tab-btn.active {
   background: #0284c7;
   border-color: #0284c7;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.28);
 }
 
-.ref-tab-btn.active span,
-.ref-tab-btn.active small {
+.ref-tab-btn.active .ref-key-name,
+.ref-tab-btn.active .ref-formula-tag {
   color: #ffffff;
 }
 
 .ref-dossier-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
 }
 
 .ref-dossier-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
-  padding-bottom: 20px;
+  margin-bottom: 26px;
+  padding-bottom: 22px;
   border-bottom: 1px solid #f1f5f9;
-}
-
-.ref-category-tag {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  color: #0284c7;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 4px;
 }
 
 .ref-dossier-header h2 {
@@ -13162,10 +13161,11 @@ img {
   font-weight: 800;
   color: #0f172a;
   margin: 0 0 6px;
+  letter-spacing: -0.3px;
 }
 
 .ref-formula {
-  font-size: 13px;
+  font-size: 13.5px;
   color: #64748b;
   margin: 0;
 }
@@ -13174,10 +13174,10 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .ref-safety-badge.safe-a1 {
@@ -13208,31 +13208,36 @@ img {
 .ref-spec-box {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 14px;
+  border-radius: 14px;
+  padding: 16px;
 }
 
 .ref-spec-box small {
   display: block;
   font-size: 11px;
+  font-weight: 700;
   color: #64748b;
-  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 
 .ref-spec-box strong {
-  font-size: 14px;
+  font-size: 14.5px;
+  font-weight: 800;
   color: #0f172a;
 }
 
 .ref-description-box {
-  background: #f1f5f9;
-  border-radius: 12px;
-  padding: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
 }
 
 .ref-description-box h4 {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 800;
   color: #0f172a;
   margin: 0 0 8px;
 }
@@ -13241,22 +13246,27 @@ img {
   font-size: 13px;
   line-height: 1.6;
   color: #334155;
-  margin: 0 0 12px;
+  margin: 0 0 14px;
 }
 
 .ref-klhk-status {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 12.5px;
+  font-weight: 600;
   color: #166534;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 12px;
 }
 
 /* SOP Tab */
 .sop-workspace-grid {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
-  gap: 28px;
+  gap: 32px;
   align-items: start;
 }
 
@@ -13264,23 +13274,23 @@ img {
 .sop-k3-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
 }
 
 .sop-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
   background: #e0f2fe;
   color: #0369a1;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.6px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .sop-badge.warning {
@@ -13290,17 +13300,25 @@ img {
 
 .sop-card h3,
 .sop-k3-card h3 {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 800;
   color: #0f172a;
   margin: 0 0 8px;
+  letter-spacing: -0.3px;
+}
+
+.sop-card p {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.55;
+  margin: 0;
 }
 
 .sop-steps-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 .sop-step-item {
@@ -13321,17 +13339,19 @@ img {
   font-size: 13px;
   font-weight: 800;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .sop-step-item strong {
   display: block;
   font-size: 14px;
+  font-weight: 700;
   color: #0f172a;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .sop-step-item p {
-  font-size: 12px;
+  font-size: 12.5px;
   color: #64748b;
   line-height: 1.5;
   margin: 0;
@@ -13340,10 +13360,10 @@ img {
 .sop-k3-list {
   list-style: none;
   padding: 0;
-  margin: 20px 0;
+  margin: 22px 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .sop-k3-list li {
@@ -13351,8 +13371,13 @@ img {
   gap: 10px;
   align-items: flex-start;
   font-size: 13px;
-  line-height: 1.5;
   color: #334155;
+  line-height: 1.5;
+}
+
+.sop-k3-list li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 /* 2. Pokja Suite */
