@@ -22,7 +22,8 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface Technician {
@@ -39,17 +40,52 @@ interface Technician {
   isAvailable: boolean;
 }
 
-export default function TechniciansPage() {
+function TechniciansContent() {
+  const searchParams = useSearchParams();
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [selectedProvince, setSelectedProvince] = useState("all");
-  const [selectedSkill, setSelectedSkill] = useState("all");
-  const [onlyBnsp, setOnlyBnsp] = useState(false);
+  const [search, setSearch] = useState(searchParams.get("q") || "");
+  const [selectedProvince, setSelectedProvince] = useState(
+    searchParams.get("provinsi") || "all",
+  );
+  const [selectedSkill, setSelectedSkill] = useState(
+    searchParams.get("keahlian") || "all",
+  );
+  const [onlyBnsp, setOnlyBnsp] = useState(
+    searchParams.get("bnsp") === "1" || searchParams.get("bnsp") === "true",
+  );
   const [copiedKta, setCopiedKta] = useState<string | null>(null);
   const [activeTechModal, setActiveTechModal] = useState<Technician | null>(
     null,
   );
+
+  const updateUrl = (
+    newSearch: string,
+    newProvince: string,
+    newSkill: string,
+    newBnsp: boolean,
+  ) => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (newSearch.trim()) url.searchParams.set("q", newSearch.trim());
+      else url.searchParams.delete("q");
+
+      if (newProvince !== "all") url.searchParams.set("provinsi", newProvince);
+      else url.searchParams.delete("provinsi");
+
+      if (newSkill !== "all") url.searchParams.set("keahlian", newSkill);
+      else url.searchParams.delete("keahlian");
+
+      if (newBnsp) url.searchParams.set("bnsp", "1");
+      else url.searchParams.delete("bnsp");
+
+      window.history.replaceState(
+        null,
+        "",
+        url.pathname + (url.search ? url.search : ""),
+      );
+    }
+  };
 
   useEffect(() => {
     const fetchTechs = async () => {
@@ -177,13 +213,24 @@ export default function TechniciansPage() {
                 type="text"
                 placeholder="Cari nama teknisi, nomor KTA, kota, atau nama bengkel..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  updateUrl(
+                    e.target.value,
+                    selectedProvince,
+                    selectedSkill,
+                    onlyBnsp,
+                  );
+                }}
               />
               {search && (
                 <button
                   type="button"
                   className="search-clear-btn"
-                  onClick={() => setSearch("")}
+                  onClick={() => {
+                    setSearch("");
+                    updateUrl("", selectedProvince, selectedSkill, onlyBnsp);
+                  }}
                   aria-label="Bersihkan pencarian"
                 >
                   <X size={14} />
@@ -197,7 +244,10 @@ export default function TechniciansPage() {
               {provinces.length > 0 && (
                 <select
                   value={selectedProvince}
-                  onChange={(e) => setSelectedProvince(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedProvince(e.target.value);
+                    updateUrl(search, e.target.value, selectedSkill, onlyBnsp);
+                  }}
                   className="tech-select-input"
                 >
                   <option value="all">
@@ -215,7 +265,15 @@ export default function TechniciansPage() {
               {skillLevels.length > 0 && (
                 <select
                   value={selectedSkill}
-                  onChange={(e) => setSelectedSkill(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedSkill(e.target.value);
+                    updateUrl(
+                      search,
+                      selectedProvince,
+                      e.target.value,
+                      onlyBnsp,
+                    );
+                  }}
                   className="tech-select-input"
                 >
                   <option value="all">Semua Jenjang Keahlian</option>
@@ -231,7 +289,11 @@ export default function TechniciansPage() {
               <button
                 type="button"
                 className={`tech-toggle-btn ${onlyBnsp ? "active" : ""}`}
-                onClick={() => setOnlyBnsp(!onlyBnsp)}
+                onClick={() => {
+                  const nextBnsp = !onlyBnsp;
+                  setOnlyBnsp(nextBnsp);
+                  updateUrl(search, selectedProvince, selectedSkill, nextBnsp);
+                }}
               >
                 <Award size={14} />
                 <span>Hanya BNSP Certified</span>
@@ -370,6 +432,7 @@ export default function TechniciansPage() {
                       setSelectedProvince("all");
                       setSelectedSkill("all");
                       setOnlyBnsp(false);
+                      updateUrl("", "all", "all", false);
                     }}
                   >
                     Reset Filter Pencarian
@@ -402,69 +465,67 @@ export default function TechniciansPage() {
           onKeyDown={(e) => {
             if (e.key === "Escape") setActiveTechModal(null);
           }}
+          tabIndex={-1}
           role="dialog"
           aria-modal="true"
-          tabIndex={-1}
         >
-          <div className="leader-modal-card" role="document">
-            <div className="leader-modal-header">
-              <div className="modal-title-wrap">
-                <ShieldCheck size={20} color="#38bdf8" />
-                <h3>Profil Teknisi & Workshop Resmi</h3>
+          <div
+            className="leader-modal-card"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            tabIndex={0}
+            role="document"
+          >
+            <button
+              type="button"
+              className="leader-modal-close"
+              onClick={() => setActiveTechModal(null)}
+              aria-label="Tutup modal"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="leader-modal-top">
+              <div className="leader-modal-avatar-frame tech-modal-frame">
+                <span>{activeTechModal.name.slice(0, 2).toUpperCase()}</span>
               </div>
-              <button
-                type="button"
-                className="modal-close-btn"
-                onClick={() => setActiveTechModal(null)}
-                aria-label="Tutup detail modal"
-              >
-                <X size={18} />
-              </button>
+              <div className="leader-modal-title-wrap">
+                <span className="leader-modal-unit-badge">
+                  {activeTechModal.skillLevel || "Teknisi Pendingin"}
+                </span>
+                <h3>{activeTechModal.name}</h3>
+                <p>
+                  {activeTechModal.workshopName || "Workshop Mandiri Terdaftar"}
+                </p>
+              </div>
             </div>
 
             <div className="leader-modal-body">
-              <div className="modal-profile-hero">
-                <div className="modal-avatar-frame">
-                  <span className="modal-avatar-fallback">
-                    {activeTechModal.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .filter(Boolean)
-                      .slice(0, 2)
-                      .join("")
-                      .toUpperCase() || "TK"}
-                  </span>
-                </div>
-
-                <div className="modal-profile-copy">
-                  <span className="modal-tier-badge">
-                    {activeTechModal.skillLevel || "Teknisi Profesional"}
-                  </span>
-                  <h4>{activeTechModal.name}</h4>
-                  {activeTechModal.workshopName && (
-                    <p className="modal-role">{activeTechModal.workshopName}</p>
-                  )}
-                </div>
-              </div>
-
               <div className="modal-data-grid">
                 <div className="modal-data-item">
-                  <small>Nomor KTA Digital</small>
-                  <strong>{activeTechModal.ktaNumber}</strong>
+                  <small>Nomor KTA Nasional</small>
+                  <strong className="font-mono">
+                    {activeTechModal.ktaNumber}
+                  </strong>
+                </div>
+                <div className="modal-data-item">
+                  <small>Wilayah Penugasan</small>
+                  <strong>
+                    {activeTechModal.city}, {activeTechModal.province}
+                  </strong>
                 </div>
                 <div className="modal-data-item">
                   <small>Sertifikasi BNSP</small>
-                  <span className="modal-status-pill">
-                    <CheckCircle2 size={12} />{" "}
+                  <strong
+                    style={{
+                      color: activeTechModal.certifiedBnsp
+                        ? "#16a34a"
+                        : "#64748b",
+                    }}
+                  >
                     {activeTechModal.certifiedBnsp
-                      ? "Terakreditasi BNSP"
-                      : "Dalam Proses"}
-                  </span>
-                </div>
-                <div className="modal-data-item">
-                  <small>Wilayah Layanan</small>
-                  <strong>
-                    {activeTechModal.city}, {activeTechModal.province}
+                      ? "Terlisensi BNSP & SKKNI"
+                      : "Dalam Proses Asesmen"}
                   </strong>
                 </div>
                 <div className="modal-data-item">
@@ -512,5 +573,20 @@ export default function TechniciansPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TechniciansPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="tech-loading-state" style={{ minHeight: "50vh" }}>
+          <Loader2 size={36} className="animate-spin text-primary" />
+          <p>Memuat direktori teknisi resmi...</p>
+        </div>
+      }
+    >
+      <TechniciansContent />
+    </Suspense>
   );
 }

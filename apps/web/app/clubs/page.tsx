@@ -17,7 +17,8 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface Club {
@@ -31,13 +32,42 @@ interface Club {
   status: string;
 }
 
-export default function ClubsPage() {
+function ClubsContent() {
+  const searchParams = useSearchParams();
   const [clubs, setClubs] = useState<Club[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [selectedProvince, setSelectedProvince] = useState("all");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [search, setSearch] = useState(searchParams.get("q") || "");
+  const [selectedProvince, setSelectedProvince] = useState(
+    searchParams.get("provinsi") || "all",
+  );
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("kategori") || "all",
+  );
   const [activeClubModal, setActiveClubModal] = useState<Club | null>(null);
+
+  const updateUrl = (
+    newSearch: string,
+    newProvince: string,
+    newCategory: string,
+  ) => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (newSearch.trim()) url.searchParams.set("q", newSearch.trim());
+      else url.searchParams.delete("q");
+
+      if (newProvince !== "all") url.searchParams.set("provinsi", newProvince);
+      else url.searchParams.delete("provinsi");
+
+      if (newCategory !== "all") url.searchParams.set("kategori", newCategory);
+      else url.searchParams.delete("kategori");
+
+      window.history.replaceState(
+        null,
+        "",
+        url.pathname + (url.search ? url.search : ""),
+      );
+    }
+  };
 
   useEffect(() => {
     const fetchClubs = async () => {
@@ -159,13 +189,19 @@ export default function ClubsPage() {
                 type="text"
                 placeholder="Cari nama klub, kode TKT, atau nama ketua..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  updateUrl(e.target.value, selectedProvince, selectedCategory);
+                }}
               />
               {search && (
                 <button
                   type="button"
                   className="search-clear-btn"
-                  onClick={() => setSearch("")}
+                  onClick={() => {
+                    setSearch("");
+                    updateUrl("", selectedProvince, selectedCategory);
+                  }}
                   aria-label="Bersihkan pencarian"
                 >
                   <X size={14} />
@@ -179,7 +215,10 @@ export default function ClubsPage() {
               {provinces.length > 0 && (
                 <select
                   value={selectedProvince}
-                  onChange={(e) => setSelectedProvince(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedProvince(e.target.value);
+                    updateUrl(search, e.target.value, selectedCategory);
+                  }}
                   className="tech-select-input"
                 >
                   <option value="all">
@@ -197,7 +236,10 @@ export default function ClubsPage() {
               {categories.length > 0 && (
                 <select
                   value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value);
+                    updateUrl(search, selectedProvince, e.target.value);
+                  }}
                   className="tech-select-input"
                 >
                   <option value="all">Semua Kategori</option>
@@ -299,6 +341,7 @@ export default function ClubsPage() {
                       setSearch("");
                       setSelectedProvince("all");
                       setSelectedCategory("all");
+                      updateUrl("", "all", "all");
                     }}
                   >
                     Reset Filter Pencarian
@@ -421,5 +464,20 @@ export default function ClubsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ClubsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="tech-loading-state" style={{ minHeight: "50vh" }}>
+          <Loader2 size={36} className="animate-spin text-primary" />
+          <p>Memuat direktori klub terdaftar...</p>
+        </div>
+      }
+    >
+      <ClubsContent />
+    </Suspense>
   );
 }

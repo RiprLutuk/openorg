@@ -160,7 +160,7 @@ export function Header({ site }: { site: PublicSite }) {
         {
           id: "ad-art",
           label: "AD/ART & Kode Etik",
-          href: "/regulations?cat=ad_art",
+          href: "/regulations?kategori=ad-art",
         },
       ],
     },
@@ -224,12 +224,12 @@ export function Header({ site }: { site: PublicSite }) {
         {
           id: "regulations-list",
           label: "Regulasi Pemerintah & Standar SNI",
-          href: "/regulations?cat=regulasi_pemerintah",
+          href: "/regulations?kategori=regulasi-pemerintah",
         },
         {
           id: "se-list",
           label: "Surat Edaran Resmi (SE)",
-          href: "/regulations?cat=se_organisasi",
+          href: "/regulations?kategori=surat-edaran",
         },
         {
           id: "industry-stats",
@@ -612,7 +612,7 @@ export function Footer({ site }: { site: PublicSite }) {
           <div className="footer-nav-col">
             <h3>Organisasi</h3>
             <Link href="/structure">Struktur DPP & DPD</Link>
-            <Link href="/regulations?cat=ad_art">AD/ART & Kode Etik</Link>
+            <Link href="/regulations?kategori=ad-art">AD/ART & Kode Etik</Link>
             {!isLoggedIn && <Link href="/join">Pendaftaran Anggota</Link>}
             <Link href="/stories">Warta & Kabar Terkini</Link>
             <Link href="/events">Agenda & Pelatihan</Link>
@@ -634,10 +634,10 @@ export function Footer({ site }: { site: PublicSite }) {
           <div className="footer-nav-col">
             <h3>Advokasi & Data</h3>
             <Link href="/working-groups">Pokja Advokasi Tematik</Link>
-            <Link href="/regulations?cat=regulasi_pemerintah">
+            <Link href="/regulations?kategori=regulasi-pemerintah">
               Regulasi & Standar Industri
             </Link>
-            <Link href="/regulations?cat=se_organisasi">
+            <Link href="/regulations?kategori=surat-edaran">
               Surat Edaran Organisasi
             </Link>
             <Link href="/statistics">Statistik Industri Sektor</Link>

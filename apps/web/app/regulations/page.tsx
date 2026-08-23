@@ -59,27 +59,112 @@ const categoryLabels: Record<
   },
 };
 
+const slugToCategory: Record<string, string> = {
+  "ad-art": "ad_art",
+  ad_art: "ad_art",
+  "surat-edaran": "se_organisasi",
+  se_organisasi: "se_organisasi",
+  se: "se_organisasi",
+  "regulasi-pemerintah": "regulasi_pemerintah",
+  regulasi_pemerintah: "regulasi_pemerintah",
+  pemerintah: "regulasi_pemerintah",
+  "naskah-kebijakan": "posisi_kebijakan",
+  posisi_kebijakan: "posisi_kebijakan",
+  kebijakan: "posisi_kebijakan",
+  semua: "all",
+  all: "all",
+};
+
+const categoryToSlug: Record<string, string> = {
+  all: "semua",
+  ad_art: "ad-art",
+  se_organisasi: "surat-edaran",
+  regulasi_pemerintah: "regulasi-pemerintah",
+  posisi_kebijakan: "naskah-kebijakan",
+};
+
 const tabs = [
-  { key: "all", label: "Semua Dokumen" },
-  { key: "ad_art", label: "AD / ART & Kode Etik" },
-  { key: "se_organisasi", label: "Surat Edaran (SE)" },
-  { key: "regulasi_pemerintah", label: "Regulasi Pemerintah & SNI" },
-  { key: "posisi_kebijakan", label: "Naskah Kebijakan" },
+  { key: "all", label: "Semua Dokumen", slug: "semua" },
+  { key: "ad_art", label: "AD / ART & Kode Etik", slug: "ad-art" },
+  { key: "se_organisasi", label: "Surat Edaran (SE)", slug: "surat-edaran" },
+  {
+    key: "regulasi_pemerintah",
+    label: "Regulasi Pemerintah & SNI",
+    slug: "regulasi-pemerintah",
+  },
+  {
+    key: "posisi_kebijakan",
+    label: "Naskah Kebijakan",
+    slug: "naskah-kebijakan",
+  },
 ];
 
 function RegulationsContent() {
   const searchParams = useSearchParams();
-  const catParam = searchParams.get("cat");
+  const rawParam =
+    searchParams.get("kategori") ||
+    searchParams.get("cat") ||
+    searchParams.get("category") ||
+    "all";
+  const initialCategory = slugToCategory[rawParam] || "all";
+
   const [regulations, setRegulations] = useState<Regulation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(catParam || "all");
-  const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState(initialCategory);
+  const [search, setSearch] = useState(searchParams.get("q") || "");
 
+  // Sync state if URL query params change (e.g. back/forward navigation)
   useEffect(() => {
-    if (catParam) {
-      setActiveTab(catParam);
+    const currentParam =
+      searchParams.get("kategori") ||
+      searchParams.get("cat") ||
+      searchParams.get("category") ||
+      "all";
+    const mapped = slugToCategory[currentParam] || "all";
+    setActiveTab(mapped);
+    if (searchParams.has("q")) {
+      setSearch(searchParams.get("q") || "");
     }
-  }, [catParam]);
+  }, [searchParams]);
+
+  const handleTabChange = (key: string) => {
+    setActiveTab(key);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (key === "all") {
+        url.searchParams.delete("kategori");
+        url.searchParams.delete("cat");
+        url.searchParams.delete("category");
+      } else {
+        const friendlySlug = categoryToSlug[key] || key;
+        url.searchParams.set("kategori", friendlySlug);
+        url.searchParams.delete("cat");
+        url.searchParams.delete("category");
+      }
+      window.history.replaceState(
+        null,
+        "",
+        url.pathname + (url.search ? url.search : ""),
+      );
+    }
+  };
+
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (val.trim()) {
+        url.searchParams.set("q", val.trim());
+      } else {
+        url.searchParams.delete("q");
+      }
+      window.history.replaceState(
+        null,
+        "",
+        url.pathname + (url.search ? url.search : ""),
+      );
+    }
+  };
 
   useEffect(() => {
     const fetchRegulations = async () => {
@@ -196,7 +281,7 @@ function RegulationsContent() {
                 <button
                   key={tab.key}
                   type="button"
-                  onClick={() => setActiveTab(tab.key)}
+                  onClick={() => handleTabChange(tab.key)}
                   className={`reg-tab-btn ${activeTab === tab.key ? "active" : ""}`}
                 >
                   {tab.label}
@@ -210,13 +295,13 @@ function RegulationsContent() {
                 type="text"
                 placeholder="Cari judul regulasi, nomor surat, kata kunci..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               {search && (
                 <button
                   type="button"
                   className="search-clear-btn"
-                  onClick={() => setSearch("")}
+                  onClick={() => handleSearchChange("")}
                   aria-label="Bersihkan pencarian"
                 >
                   <X size={15} />
@@ -321,8 +406,8 @@ function RegulationsContent() {
                     type="button"
                     className="button secondary btn-reset-search"
                     onClick={() => {
-                      setActiveTab("all");
-                      setSearch("");
+                      handleTabChange("all");
+                      handleSearchChange("");
                     }}
                   >
                     Tampilkan Semua Dokumen

@@ -14,7 +14,8 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface Lender {
@@ -28,15 +29,35 @@ interface Lender {
   isAfpiMember: boolean;
 }
 
-export default function LendersPage() {
+function LendersContent() {
+  const searchParams = useSearchParams();
   const [lenders, setLenders] = useState<Lender[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [selectedSector, setSelectedSector] = useState("all");
+  const [search, setSearch] = useState(searchParams.get("q") || "");
+  const [selectedSector, setSelectedSector] = useState(
+    searchParams.get("sektor") || "all",
+  );
   const [copiedLicense, setCopiedLicense] = useState<string | null>(null);
   const [activeLenderModal, setActiveLenderModal] = useState<Lender | null>(
     null,
   );
+
+  const updateUrl = (newSearch: string, newSector: string) => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (newSearch.trim()) url.searchParams.set("q", newSearch.trim());
+      else url.searchParams.delete("q");
+
+      if (newSector !== "all") url.searchParams.set("sektor", newSector);
+      else url.searchParams.delete("sektor");
+
+      window.history.replaceState(
+        null,
+        "",
+        url.pathname + (url.search ? url.search : ""),
+      );
+    }
+  };
 
   useEffect(() => {
     const fetchLenders = async () => {
@@ -157,13 +178,19 @@ export default function LendersPage() {
                 type="text"
                 placeholder="Cari nama platform, nama PT, atau nomor izin OJK..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  updateUrl(e.target.value, selectedSector);
+                }}
               />
               {search && (
                 <button
                   type="button"
                   className="search-clear-btn"
-                  onClick={() => setSearch("")}
+                  onClick={() => {
+                    setSearch("");
+                    updateUrl("", selectedSector);
+                  }}
                   aria-label="Bersihkan pencarian"
                 >
                   <X size={14} />
@@ -176,7 +203,10 @@ export default function LendersPage() {
               <div className="tech-filters-group">
                 <select
                   value={selectedSector}
-                  onChange={(e) => setSelectedSector(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedSector(e.target.value);
+                    updateUrl(search, e.target.value);
+                  }}
                   className="tech-select-input"
                 >
                   <option value="all">Semua Sektor Pembiayaan</option>
@@ -297,6 +327,7 @@ export default function LendersPage() {
                     onClick={() => {
                       setSearch("");
                       setSelectedSector("all");
+                      updateUrl("", "all");
                     }}
                   >
                     Reset Filter Pencarian
@@ -316,7 +347,7 @@ export default function LendersPage() {
         guestPrimaryCta={{ label: "Lapor Entitas Ilegal", href: "/complaints" }}
         guestSecondaryCta={{
           label: "Pedoman Etik Keuangan",
-          href: "/regulations",
+          href: "/regulations?kategori=regulasi-pemerintah",
         }}
         memberTitle="Akses Fasilitas Pembiayaan Alat & Modal"
         memberDescription="Sebagai anggota aktif terverifikasi, Anda berhak mengajukan skema fasilitas permodalan bengkel melalui mitra resmi asosiasi yang berizin OJK."
@@ -428,5 +459,20 @@ export default function LendersPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LendersPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="tech-loading-state" style={{ minHeight: "50vh" }}>
+          <Loader2 size={36} className="animate-spin text-primary" />
+          <p>Memuat direktori lembaga pembiayaan terverifikasi...</p>
+        </div>
+      }
+    >
+      <LendersContent />
+    </Suspense>
   );
 }
