@@ -275,7 +275,10 @@ export default function StatisticsPage() {
           </div>
 
           {/* Factsheet & Methodology Assurance Banner */}
-          <div className="stats-assurance-banner slide-in-up mt-8">
+          <div
+            className="stats-assurance-banner slide-in-up"
+            style={{ marginTop: "2rem" }}
+          >
             <div className="stats-banner-text">
               <div className="banner-badge">
                 <ShieldCheck size={16} />
