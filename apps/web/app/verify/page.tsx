@@ -9,6 +9,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
+import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { InteractiveCredentialChecker } from "@/components/interactive-credential-checker";
 import { MembershipVerification } from "@/components/membership-verification";
 import { getSite } from "@/lib/api";
@@ -17,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const site = await getSite();
   return {
     title: `Verifikasi Kredensial & KTA Digital · ${site.organization.name}`,
-    description: `Layanan audit instan keabsahan kartu tanda anggota (KTA) digital, sertifikat kompetensi BNSP, dan status keaktifan resmi ${site.organization.name}.`,
+    description: `Layanan audit instan keabsahan kartu tanda anggota (KTA) digital, sertifikat kompetensi BNSP, kode TKT klub, dan SK kemitraan resmi ${site.organization.name}.`,
   };
 }
 
@@ -46,9 +47,9 @@ export default async function VerifyPage({ searchParams }: Props) {
 
           <p className="tech-hero-lead">
             Audit instan keabsahan kartu tanda anggota (KTA), sertifikat
-            kompetensi BNSP, dan status keaktifan profesi{" "}
-            <strong>{site.organization.name}</strong> secara transparan dan
-            terenkripsi.
+            kompetensi BNSP, nomor akreditasi klub (TKT), dan legalitas
+            kemitraan <strong>{site.organization.name}</strong> secara
+            transparan dan terenkripsi.
           </p>
 
           {/* Impact Metrics Bar */}
@@ -126,8 +127,9 @@ export default async function VerifyPage({ searchParams }: Props) {
                 </div>
                 <h3>Sinkronisasi Database Real-Time</h3>
                 <p>
-                  Status keaktifan anggota dan SKP terhubung langsung dengan
-                  buku besar digital pusat {site.organization.name}.
+                  Status keaktifan anggota, SKP pelatihan, dan DPD terhubung
+                  langsung dengan buku besar digital pusat{" "}
+                  {site.organization.name}.
                 </p>
               </div>
 
@@ -138,7 +140,7 @@ export default async function VerifyPage({ searchParams }: Props) {
                 <h3>Standar Uji Kompetensi BNSP</h3>
                 <p>
                   Membuktikan legalitas sertifikasi profesi teknisi dan pengurus
-                  dengan standar mutu kompetensi nasional.
+                  dengan standar mutu kompetensi teknis nasional SKKNI.
                 </p>
               </div>
 
@@ -148,14 +150,30 @@ export default async function VerifyPage({ searchParams }: Props) {
                 </div>
                 <h3>QR Code Anti-Pemalsuan</h3>
                 <p>
-                  Setiap KTA digital dilengkapi token kriptografi unik yang
-                  tidak dapat diduplikasi atau dipalsukan.
+                  Setiap KTA digital dilengkapi token verifikasi unik yang tidak
+                  dapat diduplikasi atau dipalsukan oleh pihak luar.
                 </p>
               </div>
             </div>
           </section>
         </div>
       </section>
+
+      {/* 4. Bottom CTA: Get Certified */}
+      <DynamicBottomCta
+        organizationName={site.organization.name}
+        guestTitle="Ingin Memiliki KTA Digital & Sertifikasi BNSP Resmi?"
+        guestDescription="Bergabunglah dengan ribuan teknisi berlisensi di 38 provinsi dan dapatkan akses uji kompetensi, perlindungan hukum, serta direktori teknisi nasional."
+        guestPrimaryCta={{ label: "Daftar Anggota Sekarang", href: "/join" }}
+        guestSecondaryCta={{
+          label: "Cari Teknisi Terdekat",
+          href: "/technicians",
+        }}
+        memberTitle="Perpanjang KTA atau Unduh Kartu Digital"
+        memberDescription="Masuk ke portal anggota untuk memeriksa masa berlaku kartu, mengumpulkan poin SKP, atau memperbarui data keahlian bengkel Anda."
+        memberPrimaryCta={{ label: "Buka Portal Anggota", href: "/member" }}
+        memberSecondaryCta={{ label: "Agenda Sertifikasi", href: "/events" }}
+      />
     </div>
   );
 }

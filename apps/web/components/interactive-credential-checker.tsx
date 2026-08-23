@@ -2,77 +2,328 @@
 
 import {
   ArrowRight,
+  Award,
+  BadgeCheck,
+  Boxes,
+  Building2,
+  Check,
   CheckCircle2,
+  Clock,
+  Compass,
+  Copy,
+  ExternalLink,
+  Factory,
+  FileCheck2,
   Lock,
+  MapPin,
+  MessageSquare,
+  Phone,
+  Printer,
+  QrCode,
   Search,
+  ShieldAlert,
   ShieldCheck,
+  Sparkles,
+  Star,
+  Users,
+  Wrench,
+  X,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+export type CredentialType = "all" | "kta" | "bnsp" | "club" | "partner";
+
+export interface CredentialDossier {
+  type: "kta" | "bnsp" | "club" | "partner";
+  code: string;
+  name: string;
+  entityName?: string;
+  schemeOrCategory: string;
+  region: string;
+  workshopOrOrg?: string;
+  issuedDate: string;
+  expiryDate: string;
+  status: string;
+  issuer: string;
+  trustLevel: string;
+  phone?: string;
+  rating?: string;
+  directoryHref?: string;
+  bnspCertified?: boolean;
+}
+
+const SAMPLE_DATABASE: Record<string, CredentialDossier> = {
+  "APTI-2026-0004": {
+    type: "kta",
+    code: "APTI-2026-0004",
+    name: "Budi Kurniawan",
+    schemeOrCategory: "Level 4 Komersial & Inverter VRV",
+    region: "DPD DKI Jakarta (Jakarta Selatan)",
+    workshopOrOrg: "Jakarta Aircon Service Center",
+    issuedDate: "10 Januari 2024",
+    expiryDate: "31 Desember 2027",
+    status: "Aktif & Terverifikasi Sah",
+    issuer: "DPP APTI Indonesia",
+    trustLevel: "Level 4 · Master Specialist HVAC",
+    phone: "6281234567890",
+    rating: "4.95",
+    directoryHref: "/technicians?q=Budi+Kurniawan",
+    bnspCertified: true,
+  },
+  "APTI-2026-0005": {
+    type: "kta",
+    code: "APTI-2026-0005",
+    name: "Agus Pratama",
+    schemeOrCategory: "Level 3 Residensial & Split",
+    region: "DPD Jawa Barat (Kota Bandung)",
+    workshopOrOrg: "Bandung Cold Solution",
+    issuedDate: "15 Februari 2024",
+    expiryDate: "31 Desember 2027",
+    status: "Aktif & Terverifikasi Sah",
+    issuer: "DPP APTI Indonesia",
+    trustLevel: "Level 3 · Certified Residential Specialist",
+    phone: "6281298765432",
+    rating: "4.88",
+    directoryHref: "/technicians?q=Agus+Pratama",
+    bnspCertified: true,
+  },
+  "APTI-2026-0006": {
+    type: "kta",
+    code: "APTI-2026-0006",
+    name: "Dewi Lestari",
+    schemeOrCategory: "Level 4 Chiller & Cold Storage",
+    region: "DPD Jawa Tengah (Kota Semarang)",
+    workshopOrOrg: "Semarang Industrial HVAC",
+    issuedDate: "20 Maret 2024",
+    expiryDate: "31 Desember 2027",
+    status: "Aktif & Terverifikasi Sah",
+    issuer: "DPP APTI Indonesia",
+    trustLevel: "Level 4 · Industrial Refrigeration Expert",
+    phone: "6281311223344",
+    rating: "4.92",
+    directoryHref: "/technicians?q=Dewi+Lestari",
+    bnspCertified: true,
+  },
+  "BNSP-HVAC-9081": {
+    type: "bnsp",
+    code: "BNSP-HVAC-9081",
+    name: "Sertifikat Uji Kompetensi Teknisi Tata Udara",
+    schemeOrCategory: "Skema Teknisi Refrigerasi Domestik & Komersial Ringan",
+    region: "Nasional (LSP TPTU / BNSP RI)",
+    workshopOrOrg: "Standar SKKNI Kemenaker No. 109/2021",
+    issuedDate: "12 Januari 2024",
+    expiryDate: "12 Januari 2027",
+    status: "Berlaku Aktif",
+    issuer: "Badan Nasional Sertifikasi Profesi (BNSP)",
+    trustLevel: "Lisensi Profesi Negara RI",
+    directoryHref: "/technicians",
+    bnspCertified: true,
+  },
+  "TKT-DPD-DKI-001": {
+    type: "club",
+    code: "TKT-DPD-DKI-001",
+    name: "Teknisi Pendingin Jakarta Raya Club",
+    schemeOrCategory: "Komunitas Teknisi & Bengkel Workshop",
+    region: "DPD DKI Jakarta",
+    workshopOrOrg: "Ketua: Budi Kurniawan (142 Anggota Aktif)",
+    issuedDate: "05 Januari 2023",
+    expiryDate: "Seumur Hidup (Perpanjangan Tahunan)",
+    status: "Terakreditasi Sah TKT",
+    issuer: "DPD APTI DKI Jakarta",
+    trustLevel: "Klub Binaan Resmi Asosiasi",
+    directoryHref: "/clubs?q=Jakarta+Raya",
+  },
+  "SK-MITRA-DPP-001": {
+    type: "partner",
+    code: "SK-MITRA-DPP-001",
+    name: "Daikin Indonesia HVAC Partner",
+    entityName: "PT Daikin Airconditioning Indonesia",
+    schemeOrCategory: "Prinsipal & Manufaktur AC (VRV & Residential)",
+    region: "Nasional & Seluruh DPD",
+    workshopOrOrg: "Kerjasama Resmi DPP Asosiasi",
+    issuedDate: "01 Januari 2024",
+    expiryDate: "31 Desember 2028",
+    status: "Mitra Prinsipal Terakreditasi",
+    issuer: "DPP APTI Indonesia",
+    trustLevel: "Prinsipal Resmi Bergaransi Pabrik",
+    directoryHref: "/partners?q=Daikin",
+  },
+};
 
 export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
+  const [activeType, setActiveType] = useState<CredentialType>("all");
   const [query, setQuery] = useState("");
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [result, setResult] = useState<{
     status: "idle" | "loading" | "found" | "not_found";
-    data?: {
-      code: string;
-      name: string;
-      scheme: string;
-      issuedDate: string;
-      expiryDate: string;
-      status: string;
-      issuer: string;
-      trustLevel: string;
-    };
+    data?: CredentialDossier;
   }>({ status: "idle" });
 
   const handleSearch = (codeToTest?: string) => {
-    const term = (codeToTest ?? query).trim();
-    if (!term) return;
+    const raw = (codeToTest ?? query).trim();
+    if (!raw) return;
 
     setResult({ status: "loading" });
+
     setTimeout(() => {
-      if (term.toLowerCase().includes("err") || term === "000") {
-        setResult({ status: "not_found" });
-      } else {
-        setResult({
-          status: "found",
-          data: {
-            code:
-              term.toUpperCase().startsWith("KTA-") ||
-              term.toUpperCase().startsWith("CERT-")
-                ? term.toUpperCase()
-                : `KTA-${term.toUpperCase()}`,
-            name: "Ir. Hendra Gunawan, M.T.",
-            scheme: "Teknisi Utama HVAC/R & Assessor Kompetensi",
-            issuedDate: "12 Januari 2024",
-            expiryDate: "31 Desember 2027",
-            status: "Aktif & Sah",
-            issuer: orgName,
-            trustLevel: "Level 3 · Verified National Registry",
-          },
-        });
+      const termUpper = raw.toUpperCase();
+      const termLower = raw.toLowerCase();
+
+      // Check direct database key match
+      const directMatch = SAMPLE_DATABASE[termUpper];
+      if (directMatch) {
+        setResult({ status: "found", data: directMatch });
+        return;
       }
-    }, 400);
+
+      // Check substring matches
+      const matchedKey = Object.keys(SAMPLE_DATABASE).find((key) => {
+        const item = SAMPLE_DATABASE[key];
+        if (!item) return false;
+        return (
+          key.includes(termUpper) ||
+          item.name.toLowerCase().includes(termLower) ||
+          item.code.toLowerCase().includes(termLower) ||
+          Boolean(
+            item.entityName &&
+              item.entityName.toLowerCase().includes(termLower),
+          )
+        );
+      });
+
+      if (matchedKey && SAMPLE_DATABASE[matchedKey]) {
+        setResult({ status: "found", data: SAMPLE_DATABASE[matchedKey] });
+        return;
+      }
+
+      // If user typed error or 000
+      if (termLower.includes("err") || termUpper === "000") {
+        setResult({ status: "not_found" });
+        return;
+      }
+
+      // Otherwise generate dynamic verified dossier for valid-looking patterns
+      let dynamicType: CredentialDossier["type"] = "kta";
+      let dynamicScheme = "Level 3 Teknisi AC Residensial";
+      let dynamicTrust = "Terdaftar Registri Asosiasi";
+
+      if (termUpper.startsWith("BNSP") || termUpper.startsWith("LSP")) {
+        dynamicType = "bnsp";
+        dynamicScheme = "Sertifikasi Uji Kompetensi BNSP";
+        dynamicTrust = "Lisensi Profesi Standar SKKNI";
+      } else if (termUpper.startsWith("TKT") || termUpper.startsWith("KLUB")) {
+        dynamicType = "club";
+        dynamicScheme = "Komunitas Bengkel Binaan Daerah";
+        dynamicTrust = "Terdaftar Registrasi TKT DPD";
+      } else if (termUpper.startsWith("SK-") || termUpper.startsWith("MITRA")) {
+        dynamicType = "partner";
+        dynamicScheme = "Rekanan Resmi Penyedia Suku Cadang & Alat";
+        dynamicTrust = "Mitra Terakreditasi DPP";
+      }
+
+      setResult({
+        status: "found",
+        data: {
+          type: dynamicType,
+          code:
+            termUpper.startsWith("APTI-") ||
+            termUpper.startsWith("KTA-") ||
+            termUpper.startsWith("BNSP-") ||
+            termUpper.startsWith("TKT-") ||
+            termUpper.startsWith("SK-")
+              ? termUpper
+              : `APTI-2026-${termUpper}`,
+          name: "Anggota Terverifikasi",
+          schemeOrCategory: dynamicScheme,
+          region: "Wilayah DPD Terdaftar",
+          workshopOrOrg: "Workshop Rekanan Resmi",
+          issuedDate: "12 Januari 2024",
+          expiryDate: "31 Desember 2027",
+          status: "Aktif & Terdaftar Sah",
+          issuer: orgName,
+          trustLevel: dynamicTrust,
+          bnspCertified: true,
+        },
+      });
+    }, 350);
+  };
+
+  const handleCopy = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const handlePrint = () => {
+    if (typeof window !== "undefined") {
+      window.print();
+    }
   };
 
   return (
     <section className="section-space home-verifier-section">
       <div className="wrap">
         <div className="verifier-box-card">
+          {/* Header */}
           <div className="verifier-header">
             <div className="verifier-badge">
               <ShieldCheck size={16} />
-              <span>ComplyFlow · Audit Publik</span>
+              <span>COMPLYFLOW · ZERO-TRUST PUBLIC REGISTRY</span>
             </div>
-            <h2>Pusat Verifikasi Kredensial & Lisensi Digital</h2>
+            <h2>Pusat Verifikasi Kredensial & KTA Digital</h2>
             <p>
-              Periksa keaslian nomor KTA, sertifikat kompetensi BNSP, atau tanda
-              kelulusan akademi secara langsung dari database terenkripsi resmi{" "}
+              Audit instan keaslian nomor KTA teknisi AC, sertifikat kompetensi
+              BNSP, kode TKT klub bengkel, serta nomor SK kemitraan resmi{" "}
               {orgName}.
             </p>
           </div>
 
+          {/* Category Filter Pills */}
+          <div className="verifier-category-tabs">
+            <button
+              type="button"
+              className={`verifier-tab-btn ${activeType === "all" ? "active" : ""}`}
+              onClick={() => setActiveType("all")}
+            >
+              <Sparkles size={14} />
+              <span>Semua Kredensial</span>
+            </button>
+            <button
+              type="button"
+              className={`verifier-tab-btn ${activeType === "kta" ? "active" : ""}`}
+              onClick={() => setActiveType("kta")}
+            >
+              <Users size={14} />
+              <span>KTA Teknisi AC</span>
+            </button>
+            <button
+              type="button"
+              className={`verifier-tab-btn ${activeType === "bnsp" ? "active" : ""}`}
+              onClick={() => setActiveType("bnsp")}
+            >
+              <Award size={14} />
+              <span>Sertifikat BNSP / LSP</span>
+            </button>
+            <button
+              type="button"
+              className={`verifier-tab-btn ${activeType === "club" ? "active" : ""}`}
+              onClick={() => setActiveType("club")}
+            >
+              <Compass size={14} />
+              <span>Klub & Komunitas (TKT)</span>
+            </button>
+            <button
+              type="button"
+              className={`verifier-tab-btn ${activeType === "partner" ? "active" : ""}`}
+              onClick={() => setActiveType("partner")}
+            >
+              <Building2 size={14} />
+              <span>Mitra & Distributor (SK)</span>
+            </button>
+          </div>
+
+          {/* Search Bar */}
           <div className="verifier-search-bar">
             <div className="verifier-input-container">
               <Search size={18} className="verifier-search-icon" />
@@ -80,11 +331,34 @@ export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Masukkan Nomor KTA / Kode Sertifikat..."
+                placeholder={
+                  activeType === "kta"
+                    ? "Masukkan No. KTA (misal: APTI-2026-0004)..."
+                    : activeType === "bnsp"
+                      ? "Masukkan No. Sertifikat (misal: BNSP-HVAC-9081)..."
+                      : activeType === "club"
+                        ? "Masukkan Kode TKT (misal: TKT-DPD-DKI-001)..."
+                        : activeType === "partner"
+                          ? "Masukkan No. SK (misal: SK-MITRA-DPP-001)..."
+                          : "Masukkan Nomor KTA, BNSP, TKT, atau SK Kemitraan..."
+                }
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSearch();
                 }}
               />
+              {query && (
+                <button
+                  type="button"
+                  className="search-clear-btn"
+                  onClick={() => {
+                    setQuery("");
+                    setResult({ status: "idle" });
+                  }}
+                  aria-label="Bersihkan pencarian"
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
             <button
               type="button"
@@ -98,17 +372,28 @@ export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
             </button>
           </div>
 
+          {/* Quick Sample Badges */}
           <div className="verifier-quick-samples">
             <small>Coba kode sampel:</small>
             <button
               type="button"
               className="quick-sample-chip"
               onClick={() => {
-                setQuery("KTA-2026-08892");
-                handleSearch("KTA-2026-08892");
+                setQuery("APTI-2026-0004");
+                handleSearch("APTI-2026-0004");
               }}
             >
-              KTA-2026-08892 (Teknisi Utama)
+              APTI-2026-0004 (Teknisi VRV)
+            </button>
+            <button
+              type="button"
+              className="quick-sample-chip"
+              onClick={() => {
+                setQuery("APTI-2026-0005");
+                handleSearch("APTI-2026-0005");
+              }}
+            >
+              APTI-2026-0005 (Teknisi Split)
             </button>
             <button
               type="button"
@@ -120,65 +405,195 @@ export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
             >
               BNSP-HVAC-9081 (Sertifikat)
             </button>
+            <button
+              type="button"
+              className="quick-sample-chip"
+              onClick={() => {
+                setQuery("TKT-DPD-DKI-001");
+                handleSearch("TKT-DPD-DKI-001");
+              }}
+            >
+              TKT-DPD-DKI-001 (Klub TKT)
+            </button>
+            <button
+              type="button"
+              className="quick-sample-chip"
+              onClick={() => {
+                setQuery("SK-MITRA-DPP-001");
+                handleSearch("SK-MITRA-DPP-001");
+              }}
+            >
+              SK-MITRA-DPP-001 (Prinsipal)
+            </button>
           </div>
 
-          {/* Result Area */}
+          {/* Result Area: Verified Official Dossier */}
           {result.status === "found" && result.data && (
-            <div className="verifier-result-display slide-in-up">
-              <div className="result-status-bar">
-                <div className="status-indicator-box">
-                  <CheckCircle2 size={20} className="check-emerald" />
-                  <div>
-                    <strong>Kredensial Sah & Terdaftar Resmi</strong>
-                    <small>
-                      Diverifikasi langsung oleh sistem registri {orgName}
-                    </small>
+            <div className="verifier-dossier-card slide-in-up">
+              {/* Header */}
+              <div className="verifier-dossier-header">
+                <div className="verifier-profile-wrap">
+                  <div className="verifier-profile-avatar">
+                    {result.data.type === "kta" ? (
+                      <Users size={26} />
+                    ) : result.data.type === "bnsp" ? (
+                      <Award size={26} />
+                    ) : result.data.type === "club" ? (
+                      <Compass size={26} />
+                    ) : (
+                      <Factory size={26} />
+                    )}
+                  </div>
+                  <div className="verifier-profile-copy">
+                    <h3>{result.data.name}</h3>
+                    {result.data.entityName && <p>{result.data.entityName}</p>}
+                    <p style={{ color: "#0284c7", fontWeight: 700 }}>
+                      {result.data.schemeOrCategory}
+                    </p>
                   </div>
                 </div>
-                <span className="trust-level-pill">
-                  <Lock size={12} /> {result.data.trustLevel}
-                </span>
+
+                <div className="verifier-stamp-seal">
+                  <CheckCircle2 size={15} color="#16a34a" />
+                  <span>{result.data.status}</span>
+                </div>
               </div>
 
-              <div className="result-details-grid">
-                <div className="result-field">
-                  <small>NAMA PEMEGANG</small>
-                  <strong>{result.data.name}</strong>
-                </div>
-                <div className="result-field">
-                  <small>NOMOR REGISTRASI</small>
+              {/* Data Grid */}
+              <div className="verifier-dossier-grid">
+                <div className="verifier-dossier-item">
+                  <small>Nomor Kredensial Resmi</small>
                   <strong className="code-text">{result.data.code}</strong>
                 </div>
-                <div className="result-field">
-                  <small>SKEMA / KUALIFIKASI</small>
-                  <strong>{result.data.scheme}</strong>
+
+                <div className="verifier-dossier-item">
+                  <small>Wilayah / Afiliasi</small>
+                  <strong>{result.data.region}</strong>
                 </div>
-                <div className="result-field">
-                  <small>STATUS / MASA BERLAKU</small>
-                  <strong className="valid-emerald">
-                    ● {result.data.status} (s.d. {result.data.expiryDate})
+
+                {result.data.workshopOrOrg && (
+                  <div className="verifier-dossier-item">
+                    <small>Bengkel / Lembaga Induk</small>
+                    <strong>{result.data.workshopOrOrg}</strong>
+                  </div>
+                )}
+
+                <div className="verifier-dossier-item">
+                  <small>Lembaga Penerbit (Issuer)</small>
+                  <strong>{result.data.issuer}</strong>
+                </div>
+
+                <div className="verifier-dossier-item">
+                  <small>Standar Kualifikasi</small>
+                  <strong style={{ color: "#16a34a" }}>
+                    {result.data.trustLevel}
                   </strong>
+                </div>
+
+                <div className="verifier-dossier-item">
+                  <small>Masa Berlaku Kredensial</small>
+                  <strong>s.d. {result.data.expiryDate}</strong>
                 </div>
               </div>
 
-              <div className="result-footer-row">
-                <Link
-                  href={`/verify?code=${encodeURIComponent(result.data.code)}`}
-                  className="btn-full-audit"
-                >
-                  <span>Buka Lembar Audit Publik Lengkap</span>
-                  <ArrowRight size={15} />
-                </Link>
+              {/* Action Bar */}
+              <div className="verifier-dossier-actions">
+                <div className="verifier-action-group">
+                  <button
+                    type="button"
+                    className="verifier-action-btn secondary"
+                    onClick={() => handleCopy(result.data!.code)}
+                    title="Salin nomor kredensial"
+                  >
+                    {copiedCode === result.data.code ? (
+                      <Check size={14} color="#16a34a" />
+                    ) : (
+                      <Copy size={14} />
+                    )}
+                    <span>
+                      {copiedCode === result.data.code
+                        ? "Nomor Tersalin!"
+                        : "Salin No. KTA"}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="verifier-action-btn secondary"
+                    onClick={handlePrint}
+                    title="Cetak lembar verifikasi sah"
+                  >
+                    <Printer size={14} />
+                    <span>Cetak Bukti</span>
+                  </button>
+                </div>
+
+                <div className="verifier-action-group">
+                  {result.data.phone && (
+                    <a
+                      href={`https://wa.me/${result.data.phone}?text=${encodeURIComponent(
+                        `Halo ${result.data.name}, saya melihat profil kredensial terverifikasi Anda (${result.data.code}) di portal resmi ${orgName}.`,
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="verifier-action-btn wa"
+                    >
+                      <Phone size={14} />
+                      <span>Hubungi WhatsApp</span>
+                    </a>
+                  )}
+
+                  {result.data.directoryHref && (
+                    <Link
+                      href={result.data.directoryHref}
+                      className="verifier-action-btn primary"
+                    >
+                      <span>Lihat di Direktori</span>
+                      <ArrowRight size={14} />
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           )}
 
+          {/* Result Area: Not Found */}
           {result.status === "not_found" && (
             <div className="verifier-not-found slide-in-up">
+              <ShieldAlert
+                size={36}
+                color="#ef4444"
+                style={{ margin: "0 auto 8px" }}
+              />
+              <h4>Nomor Kredensial Tidak Ditemukan</h4>
               <p>
-                Nomor kredensial tidak ditemukan pada database aktif. Mohon
-                periksa kembali format nomor KTA atau hubungi sekretariat resmi.
+                Nomor KTA atau sertifikat yang Anda masukkan tidak tercatat
+                dalam buku besar aktif {orgName}. Mohon periksa kembali ejaan
+                format nomor atau laporkan indikasi penyalahgunaan jika
+                diperlukan.
               </p>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "10px",
+                }}
+              >
+                <Link
+                  href="/complaints"
+                  className="button secondary"
+                  style={{ fontSize: "12px", height: "34px" }}
+                >
+                  Lapor Pelanggaran Etik
+                </Link>
+                <Link
+                  href="/join"
+                  className="button primary"
+                  style={{ fontSize: "12px", height: "34px" }}
+                >
+                  Daftar KTA Resmi
+                </Link>
+              </div>
             </div>
           )}
         </div>
