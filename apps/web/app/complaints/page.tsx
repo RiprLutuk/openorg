@@ -417,7 +417,7 @@ export default function ComplaintsPage() {
 
                     <div className="form-row-grid">
                       <div className="form-field">
-                        <label>Pihak yang Dilaporkan *</label>
+                        <label>Jenis Pihak Terlapor *</label>
                         <select
                           name="targetType"
                           required
@@ -436,7 +436,7 @@ export default function ComplaintsPage() {
                       </div>
 
                       <div className="form-field">
-                        <label>Nomor KTA / Nama Teknisi / Nama Bengkel *</label>
+                        <label>Nomor KTA / Nama Terlapor *</label>
                         <input
                           type="text"
                           name="targetIdentifier"

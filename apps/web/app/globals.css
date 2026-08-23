@@ -13781,19 +13781,21 @@ img {
   color: #0284c7;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .form-row-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+  align-items: start;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .form-field.full-width {
@@ -13804,18 +13806,47 @@ img {
   font-size: 12px;
   font-weight: 700;
   color: #334155;
+  min-height: 18px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .form-field input,
-.form-field select,
-.form-field textarea {
+.form-field select {
+  height: 44px;
+  box-sizing: border-box;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
   background: #f8fafc;
-  padding: 10px 14px;
-  font-size: 14px;
+  padding: 0 14px;
+  font-size: 13.5px;
   color: #0f172a;
   outline: none;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+
+.form-field select {
+  cursor: pointer;
+}
+
+.form-field textarea {
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  color: #0f172a;
+  outline: none;
+  width: 100%;
+  resize: vertical;
+  min-height: 105px;
+  line-height: 1.5;
+  transition: all 0.15s ease;
 }
 
 .form-field input:focus,
@@ -13830,7 +13861,9 @@ img {
   margin-top: 20px;
   width: 100%;
   justify-content: center;
-  height: 46px;
+  height: 48px;
+  font-weight: 700;
+  font-size: 14px;
 }
 
 .guidance-header {
