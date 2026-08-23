@@ -9,6 +9,7 @@ import {
   Calendar,
   Check,
   CheckCircle2,
+  ChevronRight,
   Clock,
   Copy,
   FileCheck2,
@@ -159,7 +160,6 @@ export default function ComplaintsPage() {
 
       setTrackResult(json.data);
     } catch (err: unknown) {
-      // Fallback demo sample tracker for demonstration if not in backend DB
       if (
         query.toUpperCase().startsWith("COMP-") ||
         query.toUpperCase().startsWith("TIK-")
@@ -260,7 +260,7 @@ export default function ComplaintsPage() {
       {/* 2. Main Workspace */}
       <section className="tech-body section-space">
         <div className="wrap">
-          {/* Action Tabs Bar using Clean Pill Toolbar */}
+          {/* Action Tabs Bar */}
           <div className="directory-controls-row">
             <div className="directory-cat-pills">
               <button
@@ -286,15 +286,17 @@ export default function ComplaintsPage() {
           {/* TAB 1: FORM PENGADUAN BARU */}
           {activeTab === "submit" && (
             <div className="complaint-workspace-grid slide-in-up">
-              {/* Form Container */}
+              {/* Form Container (Left Column) */}
               <div className="complaint-form-card">
                 <div className="complaint-card-header">
-                  <ShieldAlert size={22} color="#f59e0b" />
+                  <div className="header-icon-wrap">
+                    <ShieldAlert size={24} color="#0284c7" />
+                  </div>
                   <div>
                     <h3>Formulir Pelaporan JENDELA</h3>
                     <p>
-                      Isi rincian pengaduan dengan data yang valid dan dapat
-                      dipertanggungjawabkan.
+                      Sampaikan rincian kendala dengan data yang valid.
+                      Identitas pelapor dijamin kerahasiaannya.
                     </p>
                   </div>
                 </div>
@@ -302,7 +304,7 @@ export default function ComplaintsPage() {
                 {submitSuccess ? (
                   <div className="complaint-success-box slide-in-up">
                     <div className="success-icon-wrap">
-                      <CheckCircle2 size={42} color="#16a34a" />
+                      <CheckCircle2 size={48} color="#16a34a" />
                     </div>
                     <h3>Pengaduan Anda Berhasil Diterima!</h3>
                     <p>
@@ -362,7 +364,7 @@ export default function ComplaintsPage() {
                 ) : (
                   <form
                     onSubmit={handleSubmit}
-                    className="complaint-actual-form"
+                    className="complaint-refined-form"
                   >
                     {submitError && (
                       <div className="form-error-banner">
@@ -371,81 +373,85 @@ export default function ComplaintsPage() {
                       </div>
                     )}
 
-                    <div className="form-section-title">
-                      <Users size={16} />
-                      <span>
-                        1. Identitas Pelapor (Konsumen / Pemilik Unit)
-                      </span>
-                    </div>
+                    {/* SECTION 1: Identitas Pelapor */}
+                    <div className="form-step-block">
+                      <div className="form-step-badge">
+                        <span className="step-num-pill">1</span>
+                        <h4>Identitas Pelapor (Konsumen / Pemilik Unit)</h4>
+                      </div>
 
-                    <div className="form-row-grid">
-                      <div className="form-field">
+                      <div className="form-field full-width">
                         <label>Nama Lengkap Pelapor *</label>
                         <input
                           type="text"
                           name="complainantName"
                           required
-                          placeholder="Nama sesuai KTP..."
+                          placeholder="Nama lengkap sesuai KTP..."
                         />
                       </div>
 
-                      <div className="form-field">
-                        <label>Alamat Email Aktif *</label>
-                        <input
-                          type="email"
-                          name="complainantEmail"
-                          required
-                          placeholder="nama@email.com..."
-                        />
-                      </div>
+                      <div className="form-two-col-grid">
+                        <div className="form-field">
+                          <label>Alamat Email Aktif *</label>
+                          <input
+                            type="email"
+                            name="complainantEmail"
+                            required
+                            placeholder="nama@email.com..."
+                          />
+                        </div>
 
-                      <div className="form-field">
-                        <label>Nomor WhatsApp / HP *</label>
-                        <input
-                          type="tel"
-                          name="complainantPhone"
-                          required
-                          placeholder="0812xxxxxxx..."
-                        />
+                        <div className="form-field">
+                          <label>Nomor WhatsApp / HP *</label>
+                          <input
+                            type="tel"
+                            name="complainantPhone"
+                            required
+                            placeholder="0812xxxxxxx..."
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    <div className="form-section-title mt-6">
-                      <Wrench size={16} />
-                      <span>2. Pihak yang Dilaporkan & Kategori Masalah</span>
-                    </div>
-
-                    <div className="form-row-grid">
-                      <div className="form-field">
-                        <label>Jenis Pihak Terlapor *</label>
-                        <select
-                          name="targetType"
-                          required
-                          className="form-select"
-                        >
-                          <option value="technician">
-                            Teknisi Individu (KTA Asosiasi)
-                          </option>
-                          <option value="workshop">
-                            Bengkel / Workshop Mitra (TKT)
-                          </option>
-                          <option value="partner">
-                            Distributor / Pabrikan AC Rekanan
-                          </option>
-                        </select>
+                    {/* SECTION 2: Pihak Terlapor & Kategori Masalah */}
+                    <div className="form-step-block">
+                      <div className="form-step-badge">
+                        <span className="step-num-pill">2</span>
+                        <h4>Pihak Terlapor & Kategori Masalah</h4>
                       </div>
 
-                      <div className="form-field">
-                        <label>Nomor KTA / Nama Terlapor *</label>
-                        <input
-                          type="text"
-                          name="targetIdentifier"
-                          required
-                          placeholder="Contoh: APTI-2026-0004 atau Nama..."
-                        />
+                      <div className="form-two-col-grid">
+                        <div className="form-field">
+                          <label>Jenis Pihak Terlapor *</label>
+                          <select
+                            name="targetType"
+                            required
+                            className="form-select"
+                          >
+                            <option value="technician">
+                              Teknisi Individu (KTA Asosiasi)
+                            </option>
+                            <option value="workshop">
+                              Bengkel / Workshop Mitra (TKT)
+                            </option>
+                            <option value="partner">
+                              Distributor / Pabrikan Rekanan
+                            </option>
+                          </select>
+                        </div>
+
+                        <div className="form-field">
+                          <label>Nomor KTA / Nama Terlapor *</label>
+                          <input
+                            type="text"
+                            name="targetIdentifier"
+                            required
+                            placeholder="Contoh: APTI-2026-0004 atau Nama..."
+                          />
+                        </div>
                       </div>
 
-                      <div className="form-field">
+                      <div className="form-field full-width">
                         <label>Kategori Masalah Pengaduan *</label>
                         <select
                           name="category"
@@ -453,37 +459,49 @@ export default function ComplaintsPage() {
                           className="form-select"
                         >
                           <option value="Klaim Garansi Servis & Pengerjaan Ulang">
-                            Klaim Garansi Servis (&lt;30 Hari)
+                            Klaim Garansi Servis (Unit Tidak Dingin Kembali
+                            &lt;30 Hari)
                           </option>
                           <option value="Dugaan Malpraktik & Kerusakan Unit">
-                            Dugaan Kerusakan Unit / Malpraktik
+                            Dugaan Malpraktik / Pipa Patah / Kompresor Rusak
                           </option>
                           <option value="Kecurangan Takaran Freon & Biaya">
-                            Kecurangan Takaran Freon & Kwitansi
+                            Kecurangan Takaran Freon / Tidak Sesuai Nota
+                            Kwitansi
                           </option>
                           <option value="Pelanggaran Kode Etik & Perilaku">
-                            Pelanggaran Kode Etik & Perilaku
+                            Pelanggaran Kode Etik / Perilaku Tidak Sopan
                           </option>
                           <option value="Penggunaan Freon Ilegal / ODS R22 Tanpa Izin">
-                            Penggunaan Freon Ilegal / Non-Standar
+                            Penggunaan Freon Ilegal / Dilarang KLHK
                           </option>
                         </select>
                       </div>
                     </div>
 
-                    <div className="form-section-title mt-6">
-                      <FileText size={16} />
-                      <span>3. Kronologi & Bukti Pengerjaan</span>
-                    </div>
+                    {/* SECTION 3: Kronologi & Bukti */}
+                    <div className="form-step-block">
+                      <div className="form-step-badge">
+                        <span className="step-num-pill">3</span>
+                        <h4>Kronologi Kejadian & Rincian Keluhan</h4>
+                      </div>
 
-                    <div className="form-field full-width">
-                      <label>Kronologi Kejadian & Rincian Keluhan *</label>
-                      <textarea
-                        name="description"
-                        required
-                        rows={4}
-                        placeholder="Jelaskan secara runtut tanggal pengerjaan, jenis unit AC, keluhan awal, tindakan teknisi, serta respon teknisi saat diminta pertanggungjawaban..."
-                      />
+                      <div className="form-field full-width">
+                        <label>Uraian Lengkap Kejadian *</label>
+                        <textarea
+                          name="description"
+                          required
+                          rows={4}
+                          placeholder="Jelaskan secara runtut: tanggal pengerjaan, merk/kapasitas unit AC, keluhan awal, tindakan yang dilakukan teknisi, serta respon teknisi saat Anda hubungi..."
+                        />
+                        <small className="form-hint-text">
+                          <Info size={13} />
+                          <span>
+                            Sertakan foto kwitansi, nameplate outdoor, atau
+                            tangkapan layar chat WA saat mediasi berlangsung.
+                          </span>
+                        </small>
+                      </div>
                     </div>
 
                     <div className="form-submit-row">
@@ -495,7 +513,7 @@ export default function ComplaintsPage() {
                         {isSubmitting ? (
                           <>
                             <Loader2 size={16} className="animate-spin" />
-                            <span>Mengirim Pengaduan...</span>
+                            <span>Mengirim Laporan Pengaduan...</span>
                           </>
                         ) : (
                           <>
@@ -509,53 +527,62 @@ export default function ComplaintsPage() {
                 )}
               </div>
 
-              {/* Side Guidance Card */}
+              {/* Side Guidance & Assurance Panel (Right Column) */}
               <div className="complaint-guidance-card">
                 <div className="guidance-header">
                   <Scale size={20} color="#0284c7" />
-                  <h4>Standar Mediasi Garansi</h4>
+                  <h4>Standar Jaminan Konsumen</h4>
                 </div>
 
                 <ul className="guidance-list">
                   <li>
-                    <CheckCircle2 size={15} color="#16a34a" />
+                    <div className="guidance-icon-bullet">
+                      <CheckCircle2 size={16} color="#16a34a" />
+                    </div>
                     <div>
-                      <strong>Garansi Pengerjaan 30 Hari</strong>
+                      <strong>Garansi Servis Min. 30 Hari</strong>
                       <p>
-                        Seluruh teknisi ber-KTA sah wajib memberikan garansi
-                        servis minimum 30 hari untuk pekerjaan pengelasan dan
-                        pengisian freon.
+                        Setiap teknisi pemegang KTA sah wajib memberikan garansi
+                        pengerjaan minimum 30 hari untuk servis freon dan las
+                        pipa.
                       </p>
                     </div>
                   </li>
+
                   <li>
-                    <CheckCircle2 size={15} color="#16a34a" />
+                    <div className="guidance-icon-bullet">
+                      <FileCheck2 size={16} color="#0284c7" />
+                    </div>
                     <div>
-                      <strong>Kwitansi & Buku Servis Sah</strong>
+                      <strong>Kwitansi & Identitas Sah</strong>
                       <p>
-                        Simpan nota fisik, foto nameplate outdoor AC, atau chat
-                        WhatsApp sebagai bukti pendukung mediasi.
+                        Gunakan bukti nota fisik, nomor KTA teknisi, atau nomor
+                        HP untuk memudahkan proses pemanggilan mediasi.
                       </p>
                     </div>
                   </li>
+
                   <li>
-                    <CheckCircle2 size={15} color="#16a34a" />
+                    <div className="guidance-icon-bullet">
+                      <ShieldAlert size={16} color="#f59e0b" />
+                    </div>
                     <div>
-                      <strong>Sanksi Tegas Pelanggaran</strong>
+                      <strong>Sanksi Pelanggaran Tegas</strong>
                       <p>
-                        Teknisi yang terbukti melanggar kode etik dapat dikenai
-                        sanksi pembekuan hingga pencabutan KTA permanen.
+                        Dewan Etik berwenang membekukan KTA, memberi surat
+                        peringatan, hingga mencabut izin praktik asosiasi.
                       </p>
                     </div>
                   </li>
                 </ul>
 
-                <div className="guidance-emergency-box">
-                  <LifeBuoy size={18} color="#0284c7" />
-                  <p>
-                    Butuh konsultasi cepat? Hubungi hotline mediasi:{" "}
+                <div className="guidance-hotline-box">
+                  <LifeBuoy size={20} color="#0284c7" />
+                  <div>
+                    <small>HOTLINE ADVOKASI KONSUMEN</small>
                     <strong>0811-APTI-HELP</strong>
-                  </p>
+                    <p>Senin – Sabtu (08:00 – 17:00 WIB)</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -590,17 +617,8 @@ export default function ComplaintsPage() {
                 </form>
 
                 {/* Quick Sample Button */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    marginTop: "14px",
-                    fontSize: "12px",
-                    color: "#64748b",
-                  }}
-                >
-                  <span>Coba sampel tiket:</span>
+                <div className="quick-sample-row">
+                  <span>Coba sampel tiket resmi:</span>
                   <button
                     type="button"
                     className="quick-sample-chip"
@@ -609,7 +627,7 @@ export default function ComplaintsPage() {
                       void handleTrack(undefined, "COMP-2026-0001");
                     }}
                   >
-                    COMP-2026-0001 (Klaim Garansi)
+                    COMP-2026-0001 (Klaim Garansi Budi Kurniawan)
                   </button>
                 </div>
 
