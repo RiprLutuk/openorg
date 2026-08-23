@@ -1,7 +1,28 @@
 "use client";
 
-import { Flag, Loader2, Medal, Search, Star, Trophy } from "lucide-react";
+import {
+  Award,
+  Calendar,
+  Compass,
+  Crown,
+  Flag,
+  Flame,
+  Gauge,
+  Loader2,
+  Medal,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Trophy,
+  Users,
+  Wrench,
+  X,
+  Zap,
+} from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface ChampionshipStanding {
   id: string;
@@ -19,6 +40,7 @@ export default function ChampionshipsPage() {
   const [standings, setStandings] = useState<ChampionshipStanding[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedSeason, setSelectedSeason] = useState<number>(2026);
 
   useEffect(() => {
     const fetchChampionships = async () => {
@@ -26,7 +48,7 @@ export default function ChampionshipsPage() {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
         const res = await fetch(`${apiUrl}/v1/public/championships`);
-        if (!res.ok) throw new Error("Failed to load championships");
+        if (!res.ok) throw new Error("Gagal memuat data kejuaraan");
         const json = await res.json();
         setStandings(json.data ?? []);
       } catch (err) {
@@ -39,58 +61,185 @@ export default function ChampionshipsPage() {
   }, []);
 
   const filtered = standings.filter((row) => {
+    const matchSeason = !row.seasonYear || row.seasonYear === selectedSeason;
+    if (!matchSeason) return false;
+
     if (!search) return true;
     const q = search.toLowerCase();
     return (
       row.participantName.toLowerCase().includes(q) ||
       row.unitName?.toLowerCase().includes(q) ||
       row.teamName?.toLowerCase().includes(q) ||
+      row.category?.toLowerCase().includes(q) ||
       row.achievements?.toLowerCase().includes(q)
     );
   });
 
-  return (
-    <div className="page-shell">
-      {/* Hero Header */}
-      <section className="championships-hero">
-        <div className="wrap">
-          <div className="hero-pill trophy">
-            <Trophy size={14} />
-            <span>National Skill Competition Standings 2026</span>
-          </div>
-          <h1>Klasemen Kejuaraan & Kontes Keterampilan</h1>
-          <p className="hero-lead">
-            Papan skor resmi kompetisi teknisi pendingin Indonesia. Penghargaan
-            tinggi atas akurasi diagnosis, waktu kerja vakum, dan kepatuhan K3
-            keselamatan kerja.
-          </p>
-        </div>
-      </section>
+  const topPodium = filtered.slice(0, 3);
 
-      {/* Leaderboard Table Grid */}
-      <section className="championships-body">
+  return (
+    <div className="championships-page-suite">
+      {/* 1. Flagship Dark Hero Header */}
+      <header className="tech-hero champ-hero-master">
+        <div className="wrap tech-hero-inner">
+          <div className="tech-hero-pill trophy">
+            <Trophy size={15} color="#f59e0b" />
+            <span>NATIONAL HVAC/R SKILL COMPETITION 2026</span>
+          </div>
+
+          <h1 className="tech-hero-title">
+            Klasemen Kejuaraan &{" "}
+            <span className="text-gradient">Skill Contest Teknisi</span>
+          </h1>
+
+          <p className="tech-hero-lead">
+            Papan peringkat resmi kontes keterampilan refrigerasi dan tata udara
+            tingkat nasional. Pengujian ketat akurasi sambungan brazing
+            nitrogen, kecepatan uji vakum &lt;500µ, serta presisi diagnosis
+            modul inverter.
+          </p>
+
+          {/* Key Metrics Row */}
+          <div className="tech-hero-metrics">
+            <div className="tech-metric-box">
+              <div className="tech-metric-icon">
+                <Trophy size={22} color="#f59e0b" />
+              </div>
+              <div>
+                <strong>Standar WorldSkills</strong>
+                <small>Uji Presisi Sektoral</small>
+              </div>
+            </div>
+            <div className="tech-metric-box">
+              <div className="tech-metric-icon">
+                <Gauge size={22} color="#38bdf8" />
+              </div>
+              <div>
+                <strong>Vakum &lt;500 Micron</strong>
+                <small>Pengujian Ketat K3</small>
+              </div>
+            </div>
+            <div className="tech-metric-box">
+              <div className="tech-metric-icon">
+                <Flag size={22} color="#34d399" />
+              </div>
+              <div>
+                <strong>Kontingen 38 DPD</strong>
+                <small>Juara Daerah & Nasional</small>
+              </div>
+            </div>
+            <div className="tech-metric-box">
+              <div className="tech-metric-icon">
+                <Star size={22} color="#818cf8" />
+              </div>
+              <div>
+                <strong>Poin Akumulasi KTA</strong>
+                <small>Kredit Prestasi Master</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* 2. Main Content & Leaderboard Section */}
+      <section className="tech-body section-space">
         <div className="wrap">
-          {/* Search Bar */}
-          <div className="directory-filter-bar mb-6">
-            <div className="search-input-wrap flex-1">
-              <Search size={18} />
+          {/* Controls Bar: Season Pills & Search */}
+          <div className="directory-controls-row">
+            <div className="directory-cat-pills">
+              <button
+                type="button"
+                className={`dir-cat-btn ${selectedSeason === 2026 ? "active" : ""}`}
+                onClick={() => setSelectedSeason(2026)}
+              >
+                <Trophy size={14} />
+                <span>Musim 2026 (Aktif)</span>
+              </button>
+              <button
+                type="button"
+                className={`dir-cat-btn ${selectedSeason === 2025 ? "active" : ""}`}
+                onClick={() => setSelectedSeason(2025)}
+              >
+                <Calendar size={14} />
+                <span>Musim 2025</span>
+              </button>
+            </div>
+
+            <div className="dir-search-wrap">
+              <Search size={16} />
               <input
                 type="text"
-                placeholder="Cari nama kontestan, DPD kontingen, atau kategori prestasi..."
+                placeholder="Cari kontestan, kontingen DPD, atau bengkel..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="directory-search-input"
               />
+              {search && (
+                <button
+                  type="button"
+                  className="search-clear-btn"
+                  onClick={() => setSearch("")}
+                  aria-label="Bersihkan pencarian"
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="leaderboard-card">
-            <div className="leaderboard-header">
-              <div className="header-title">
-                <Flag size={20} />
-                <h2>Klasemen Nasional Musim 2026</h2>
+          {/* Top 3 Podium Cards */}
+          {topPodium.length > 0 && !search && (
+            <div className="podium-grid slide-in-up mb-8">
+              {topPodium.map((pod, idx) => (
+                <div
+                  key={pod.id}
+                  className={`podium-card rank-${pod.rank} ${pod.rank === 1 ? "champion-card" : ""}`}
+                >
+                  <div className="podium-rank-badge">
+                    {pod.rank === 1 ? (
+                      <Crown size={20} color="#f59e0b" />
+                    ) : pod.rank === 2 ? (
+                      <Medal size={20} color="#94a3b8" />
+                    ) : (
+                      <Medal size={20} color="#b45309" />
+                    )}
+                    <span>Peringkat #{pod.rank}</span>
+                  </div>
+
+                  <div className="podium-avatar">
+                    <Users size={28} />
+                  </div>
+
+                  <h3 className="podium-name">{pod.participantName}</h3>
+                  {pod.teamName && (
+                    <p className="podium-team">{pod.teamName}</p>
+                  )}
+
+                  <div className="podium-points-chip">
+                    <Star size={14} />
+                    <span>{pod.points} Total Poin</span>
+                  </div>
+
+                  {pod.achievements && (
+                    <div className="podium-achievement-box">
+                      <Sparkles size={13} color="#f59e0b" />
+                      <span>{pod.achievements}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Full Leaderboard Card Table */}
+          <div className="leaderboard-table-card slide-in-up">
+            <div className="leaderboard-table-header">
+              <div className="table-header-title">
+                <Flag size={18} color="#0284c7" />
+                <h3>Papan Skor Nasional Musim {selectedSeason}</h3>
               </div>
-              <span className="season-badge">Musim 2026</span>
+              <span className="partner-cat-badge">
+                {filtered.length} Kontestan Tercatat
+              </span>
             </div>
 
             {isLoading ? (
@@ -99,14 +248,14 @@ export default function ChampionshipsPage() {
               </div>
             ) : (
               <div className="table-responsive">
-                <table className="leaderboard-table">
+                <table className="leaderboard-custom-table">
                   <thead>
                     <tr>
-                      <th>Peringkat</th>
-                      <th>Nama Kontestan</th>
-                      <th>Tim / Kontingon DPD</th>
-                      <th>Total Poin</th>
-                      <th>Pencapaian Prestasi</th>
+                      <th style={{ width: "90px" }}>Posisi</th>
+                      <th>Nama Kontestan & Bengkel</th>
+                      <th>Kontingen DPD / Tim</th>
+                      <th style={{ width: "140px" }}>Total Poin</th>
+                      <th>Kualifikasi & Keunggulan Uji</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -114,42 +263,55 @@ export default function ChampionshipsPage() {
                       filtered.map((row) => (
                         <tr
                           key={row.id}
-                          className={`rank-row rank-${row.rank}`}
+                          className={`leaderboard-row row-rank-${row.rank}`}
                         >
-                          <td className="rank-cell">
-                            {row.rank === 1 && (
-                              <Medal className="icon-gold" size={20} />
-                            )}
-                            {row.rank === 2 && (
-                              <Medal className="icon-silver" size={20} />
-                            )}
-                            {row.rank === 3 && (
-                              <Medal className="icon-bronze" size={20} />
-                            )}
-                            <span className="rank-num">#{row.rank}</span>
+                          <td className="rank-td">
+                            <span className={`rank-chip rank-chip-${row.rank}`}>
+                              #{row.rank}
+                            </span>
                           </td>
-                          <td className="participant-cell">
+                          <td className="contestant-td">
                             <strong>{row.participantName}</strong>
                             {row.unitName && (
-                              <span className="unit-tag">{row.unitName}</span>
+                              <span className="workshop-chip">
+                                {row.unitName}
+                              </span>
                             )}
                           </td>
-                          <td>{row.teamName ?? "-"}</td>
-                          <td className="points-cell">
-                            <Star size={14} className="icon-star" />
-                            <strong>{row.points} Pts</strong>
+                          <td className="team-td">
+                            <span className="team-pill">
+                              {row.teamName ?? "Mandiri"}
+                            </span>
                           </td>
-                          <td className="achievement-cell">
-                            {row.achievements ?? "-"}
+                          <td className="points-td">
+                            <div className="points-wrap">
+                              <Star size={13} color="#f59e0b" />
+                              <strong>{row.points} Pts</strong>
+                            </div>
+                          </td>
+                          <td className="achievement-td">
+                            {row.achievements ? (
+                              <span className="achievement-badge">
+                                {row.achievements}
+                              </span>
+                            ) : (
+                              <span className="text-muted">-</span>
+                            )}
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={5} className="empty-td">
-                          {search
-                            ? "Tidak ada kontestan yang sesuai pencarian."
-                            : "Belum ada data klasemen kejuaraan yang dipublikasikan."}
+                        <td colSpan={5} className="empty-table-cell">
+                          <Trophy
+                            size={36}
+                            color="#94a3b8"
+                            style={{ margin: "0 auto 8px" }}
+                          />
+                          <p>
+                            Tidak ada kontestan yang sesuai dengan kriteria
+                            pencarian.
+                          </p>
                         </td>
                       </tr>
                     )}
@@ -160,6 +322,22 @@ export default function ChampionshipsPage() {
           </div>
         </div>
       </section>
+
+      {/* 3. Bottom CTA */}
+      <DynamicBottomCta
+        organizationName="APTI Indonesia"
+        guestTitle="Ingin Mewakili Daerah Anda di Kontes Keterampilan 2026?"
+        guestDescription="Ikuti seleksi daerah melalui DPD dan buktikan keahlian teknis Anda di panggung kompetisi nasional."
+        guestPrimaryCta={{ label: "Daftar Anggota Teknisi", href: "/join" }}
+        guestSecondaryCta={{
+          label: "Jadwal Workshop & Uji",
+          href: "/events",
+        }}
+        memberTitle="Poin Kejuaraan Menambah Reputasi KTA Anda"
+        memberDescription="Peringkat dan medali kejuaraan akan disematkan secara resmi pada profil KTA digital Anda di direktori publik."
+        memberPrimaryCta={{ label: "Buka Portal Anggota", href: "/member" }}
+        memberSecondaryCta={{ label: "Verifikasi KTA", href: "/verify" }}
+      />
     </div>
   );
 }

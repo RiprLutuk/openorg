@@ -8,6 +8,7 @@ import {
   BookOpen,
   Briefcase,
   Building2,
+  Calculator,
   CalendarDays,
   ChevronDown,
   Compass,
@@ -58,6 +59,12 @@ function getNavIcon(href: string) {
   if (href.includes("working-groups") || href.includes("pokja"))
     return Briefcase;
   if (href.includes("stat")) return BarChart3;
+  if (
+    href.includes("calc") ||
+    href.includes("calculator") ||
+    href.includes("whois")
+  )
+    return Calculator;
   if (href.includes("whois")) return Globe;
   if (href.includes("complaint")) return ShieldAlert;
   if (href.includes("event")) return CalendarDays;
@@ -244,9 +251,9 @@ export function Header({ site }: { site: PublicSite }) {
           href: "/statistics",
         },
         {
-          id: "whois-lookup",
-          label: "Lookup WHOIS IP/ASN & IIX",
-          href: "/whois",
+          id: "calculator",
+          label: "Kalkulator PK AC & Data Freon",
+          href: "/calculator",
         },
         {
           id: "public-complaints",
@@ -352,6 +359,16 @@ export function Header({ site }: { site: PublicSite }) {
             ) {
               childHref = "/partners";
               childLabel = "Direktori Mitra & Distributor Resmi";
+            } else if (
+              childId === "whois-lookup" ||
+              childId === "calculator" ||
+              childLabel.toLowerCase().includes("whois") ||
+              childLabel.toLowerCase().includes("kalkulator") ||
+              childHref === "/whois" ||
+              childHref === "/calculator"
+            ) {
+              childHref = "/calculator";
+              childLabel = "Kalkulator PK AC & Data Freon";
             }
 
             return {

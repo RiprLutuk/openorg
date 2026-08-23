@@ -28,6 +28,11 @@ const nextConfig: NextConfig = {
         destination: "/partners",
         permanent: true,
       },
+      {
+        source: "/whois",
+        destination: "/calculator",
+        permanent: true,
+      },
     ];
   },
 };

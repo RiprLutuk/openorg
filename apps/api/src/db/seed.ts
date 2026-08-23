@@ -191,9 +191,9 @@ async function seed() {
               href: "/statistics",
             },
             {
-              id: "whois-lookup",
-              label: "Lookup WHOIS IP/ASN & IIX",
-              href: "/whois",
+              id: "calculator",
+              label: "Kalkulator PK AC & Data Freon",
+              href: "/calculator",
             },
             {
               id: "public-complaints",
@@ -789,7 +789,7 @@ async function seed() {
         sortOrder: 2,
       },
       {
-        metricKey: "iix_traffic_gbps",
+        metricKey: "serviced_units_volume",
         metricLabel: "Volume Servis Unit AC Terverifikasi",
         metricValue: "142,800",
         metricUnit: "Unit AC/Bulan",
