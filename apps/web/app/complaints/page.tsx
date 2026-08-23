@@ -260,24 +260,24 @@ export default function ComplaintsPage() {
       {/* 2. Main Workspace */}
       <section className="tech-body section-space">
         <div className="wrap">
-          {/* Action Tabs Bar */}
-          <div className="join-tabs-bar" style={{ marginBottom: "28px" }}>
-            <div className="join-tabs-nav">
+          {/* Action Tabs Bar using Clean Pill Toolbar */}
+          <div className="directory-controls-row">
+            <div className="directory-cat-pills">
               <button
                 type="button"
-                className={`join-tab-item ${activeTab === "submit" ? "active" : ""}`}
+                className={`dir-cat-btn ${activeTab === "submit" ? "active" : ""}`}
                 onClick={() => setActiveTab("submit")}
               >
-                <Send size={16} />
+                <Send size={15} />
                 <span>Buat Laporan Pengaduan Baru</span>
               </button>
 
               <button
                 type="button"
-                className={`join-tab-item ${activeTab === "track" ? "active" : ""}`}
+                className={`dir-cat-btn ${activeTab === "track" ? "active" : ""}`}
                 onClick={() => setActiveTab("track")}
               >
-                <Search size={16} />
+                <Search size={15} />
                 <span>Lacak Status Tiket Pengaduan</span>
               </button>
             </div>
@@ -441,7 +441,7 @@ export default function ComplaintsPage() {
                           type="text"
                           name="targetIdentifier"
                           required
-                          placeholder="Contoh: APTI-2026-0004 atau Nama Teknisi..."
+                          placeholder="Contoh: APTI-2026-0004 atau Nama..."
                         />
                       </div>
 
@@ -453,20 +453,19 @@ export default function ComplaintsPage() {
                           className="form-select"
                         >
                           <option value="Klaim Garansi Servis & Pengerjaan Ulang">
-                            Klaim Garansi Servis (Tidak Dingin Kembali &lt;30
-                            Hari)
+                            Klaim Garansi Servis (&lt;30 Hari)
                           </option>
                           <option value="Dugaan Malpraktik & Kerusakan Unit">
-                            Dugaan Malpraktik Pipa / Kompresor Jebol
+                            Dugaan Kerusakan Unit / Malpraktik
                           </option>
                           <option value="Kecurangan Takaran Freon & Biaya">
-                            Kecurangan Takaran Freon / Tidak Sesuai Kwitansi
+                            Kecurangan Takaran Freon & Kwitansi
                           </option>
                           <option value="Pelanggaran Kode Etik & Perilaku">
-                            Pelanggaran Kode Etik / Perilaku Tidak Sopan
+                            Pelanggaran Kode Etik & Perilaku
                           </option>
                           <option value="Penggunaan Freon Ilegal / ODS R22 Tanpa Izin">
-                            Penggunaan Freon Ilegal / Dilarang KLHK
+                            Penggunaan Freon Ilegal / Non-Standar
                           </option>
                         </select>
                       </div>
@@ -590,6 +589,30 @@ export default function ComplaintsPage() {
                   </button>
                 </form>
 
+                {/* Quick Sample Button */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginTop: "14px",
+                    fontSize: "12px",
+                    color: "#64748b",
+                  }}
+                >
+                  <span>Coba sampel tiket:</span>
+                  <button
+                    type="button"
+                    className="quick-sample-chip"
+                    onClick={() => {
+                      setTrackTicket("COMP-2026-0001");
+                      void handleTrack(undefined, "COMP-2026-0001");
+                    }}
+                  >
+                    COMP-2026-0001 (Klaim Garansi)
+                  </button>
+                </div>
+
                 {trackError && (
                   <div className="track-error-box slide-in-up">
                     <AlertCircle size={18} color="#ef4444" />
@@ -600,7 +623,10 @@ export default function ComplaintsPage() {
 
               {/* Track Result Display */}
               {trackResult && (
-                <div className="track-result-dossier slide-in-up">
+                <div
+                  className="track-result-dossier slide-in-up"
+                  style={{ marginTop: "24px" }}
+                >
                   <div className="track-result-header">
                     <div>
                       <span className="eyebrow">HASIL PELACAKAN PENGADUAN</span>
@@ -673,7 +699,7 @@ export default function ComplaintsPage() {
                   {trackResult.responseNotes && (
                     <div className="track-official-response">
                       <div className="response-title">
-                        <ShieldCheck size={16} color="#16a34a" />
+                        <ShieldCheck size={16} color="#166534" />
                         <strong>Catatan Resmi Dewan Etik & Mediasi:</strong>
                       </div>
                       <p>{trackResult.responseNotes}</p>

@@ -315,32 +315,32 @@ export default function CalculatorPage() {
       <section className="tech-body section-space">
         <div className="wrap">
           {/* Workspace Tabs */}
-          <div className="join-tabs-bar" style={{ marginBottom: "28px" }}>
-            <div className="join-tabs-nav">
+          <div className="directory-controls-row">
+            <div className="directory-cat-pills">
               <button
                 type="button"
-                className={`join-tab-item ${activeTab === "pk" ? "active" : ""}`}
+                className={`dir-cat-btn ${activeTab === "pk" ? "active" : ""}`}
                 onClick={() => setActiveTab("pk")}
               >
-                <Calculator size={16} />
+                <Calculator size={15} />
                 <span>Kalkulator PK & BTU/h</span>
               </button>
 
               <button
                 type="button"
-                className={`join-tab-item ${activeTab === "refrigerants" ? "active" : ""}`}
+                className={`dir-cat-btn ${activeTab === "refrigerants" ? "active" : ""}`}
                 onClick={() => setActiveTab("refrigerants")}
               >
-                <Droplets size={16} />
+                <Droplets size={15} />
                 <span>Database Freon & Tekanan</span>
               </button>
 
               <button
                 type="button"
-                className={`join-tab-item ${activeTab === "sop" ? "active" : ""}`}
+                className={`dir-cat-btn ${activeTab === "sop" ? "active" : ""}`}
                 onClick={() => setActiveTab("sop")}
               >
-                <ShieldCheck size={16} />
+                <ShieldCheck size={15} />
                 <span>Standar SOP Vakum & K3</span>
               </button>
             </div>
