@@ -231,7 +231,10 @@ export default function ChampionshipsPage() {
           )}
 
           {/* Full Leaderboard Card Table */}
-          <div className="leaderboard-table-card slide-in-up">
+          <div
+            className="leaderboard-table-card slide-in-up"
+            style={{ marginTop: "2.25rem" }}
+          >
             <div className="leaderboard-table-header">
               <div className="table-header-title">
                 <Flag size={18} color="#0284c7" />
