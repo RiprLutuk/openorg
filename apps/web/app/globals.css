@@ -11747,38 +11747,49 @@ img {
   position: sticky;
   top: 72px;
   z-index: 30;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.03);
-  padding: 10px 0;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+  padding: 12px 0 14px;
 }
 
-.adart-nav-row {
+.adart-nav-column {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
-  flex-wrap: wrap;
+  width: 100%;
+}
+
+.adart-tabs-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.adart-tabs-scroll-container::-webkit-scrollbar {
+  display: none;
 }
 
 .adart-tabs-list {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  overflow-x: auto;
-  padding: 4px;
+  padding: 5px;
   background: #f1f5f9;
   border-radius: 12px;
+  min-width: max-content;
+  border: 1px solid #e2e8f0;
 }
 
 .adart-tab-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 16px;
+  gap: 8px;
+  padding: 8px 18px;
   border-radius: 9px;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #64748b;
   background: transparent;
@@ -11790,12 +11801,47 @@ img {
 
 .adart-tab-btn:hover {
   color: #0f172a;
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .adart-tab-btn.active {
   background: #ffffff;
   color: #0284c7;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Full Width Search Field directly below */
+.adart-search-field-full {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 10px 16px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+  transition: all 0.2s ease;
+}
+
+.adart-search-field-full:focus-within {
+  border-color: #0284c7;
+  box-shadow:
+    0 0 0 3px rgba(2, 132, 199, 0.12),
+    0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.adart-search-field-full input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  color: #0f172a;
+  width: 100%;
+}
+
+.adart-search-field-full input::placeholder {
+  color: #94a3b8;
 }
 
 .adart-search-field {

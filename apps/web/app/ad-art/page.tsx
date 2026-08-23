@@ -540,52 +540,56 @@ function AdArtContent() {
 
       {/* 2. Interactive Navigation Tabs & Real-time Clause Search */}
       <nav className="adart-nav-sticky">
-        <div className="wrap adart-nav-row">
-          <div className="adart-tabs-list">
-            <button
-              type="button"
-              className={`adart-tab-btn ${activeTab === "ringkasan" ? "active" : ""}`}
-              onClick={() => setActiveTab("ringkasan")}
-            >
-              <Sparkles size={15} />
-              <span>Ringkasan Eksekutif</span>
-            </button>
-            <button
-              type="button"
-              className={`adart-tab-btn ${activeTab === "ad" ? "active" : ""}`}
-              onClick={() => setActiveTab("ad")}
-            >
-              <Landmark size={15} />
-              <span>Anggaran Dasar (AD)</span>
-            </button>
-            <button
-              type="button"
-              className={`adart-tab-btn ${activeTab === "art" ? "active" : ""}`}
-              onClick={() => setActiveTab("art")}
-            >
-              <FileText size={15} />
-              <span>Anggaran Rumah Tangga (ART)</span>
-            </button>
-            <button
-              type="button"
-              className={`adart-tab-btn ${activeTab === "etik" ? "active" : ""}`}
-              onClick={() => setActiveTab("etik")}
-            >
-              <ShieldCheck size={15} />
-              <span>9 Butir Pakta Integritas</span>
-            </button>
-            <button
-              type="button"
-              className={`adart-tab-btn ${activeTab === "unduhan" ? "active" : ""}`}
-              onClick={() => setActiveTab("unduhan")}
-            >
-              <Download size={15} />
-              <span>Unduh Dokumen</span>
-            </button>
+        <div className="wrap adart-nav-column">
+          {/* Top Row: Scrollable Tabs */}
+          <div className="adart-tabs-scroll-container">
+            <div className="adart-tabs-list">
+              <button
+                type="button"
+                className={`adart-tab-btn ${activeTab === "ringkasan" ? "active" : ""}`}
+                onClick={() => setActiveTab("ringkasan")}
+              >
+                <Sparkles size={15} />
+                <span>Ringkasan Eksekutif</span>
+              </button>
+              <button
+                type="button"
+                className={`adart-tab-btn ${activeTab === "ad" ? "active" : ""}`}
+                onClick={() => setActiveTab("ad")}
+              >
+                <Landmark size={15} />
+                <span>Anggaran Dasar (AD)</span>
+              </button>
+              <button
+                type="button"
+                className={`adart-tab-btn ${activeTab === "art" ? "active" : ""}`}
+                onClick={() => setActiveTab("art")}
+              >
+                <FileText size={15} />
+                <span>Anggaran Rumah Tangga (ART)</span>
+              </button>
+              <button
+                type="button"
+                className={`adart-tab-btn ${activeTab === "etik" ? "active" : ""}`}
+                onClick={() => setActiveTab("etik")}
+              >
+                <ShieldCheck size={15} />
+                <span>9 Butir Pakta Integritas</span>
+              </button>
+              <button
+                type="button"
+                className={`adart-tab-btn ${activeTab === "unduhan" ? "active" : ""}`}
+                onClick={() => setActiveTab("unduhan")}
+              >
+                <Download size={15} />
+                <span>Unduh Dokumen</span>
+              </button>
+            </div>
           </div>
 
-          <div className="adart-search-field">
-            <Search size={15} color="#94a3b8" />
+          {/* Bottom Row: Full Width Search Field */}
+          <div className="adart-search-field-full">
+            <Search size={17} color="#0284c7" />
             <input
               type="text"
               placeholder="Cari pasal, kata kunci (misal: KTA, iuran, K3)..."
@@ -601,10 +605,13 @@ function AdArtContent() {
                   border: "none",
                   cursor: "pointer",
                   color: "#94a3b8",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "4px",
                 }}
                 aria-label="Hapus pencarian"
               >
-                <X size={14} />
+                <X size={16} />
               </button>
             )}
           </div>
