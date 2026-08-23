@@ -1,6 +1,18 @@
 "use client";
 
-import { ArrowRight, BadgeCheck, Building2, UserCheck } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Building2,
+  CheckCircle2,
+  Lock,
+  Mail,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  User,
+  UserCheck,
+} from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -32,16 +44,16 @@ export function MembershipRegistration({
         <span>
           <UserCheck size={32} />
         </span>
-        <p className="eyebrow">Akun Terdaftar</p>
-        <h2>Anda Sudah Menjadi Anggota</h2>
+        <p className="eyebrow">Akun Terverifikasi</p>
+        <h2>Anda Sudah Terdaftar Sebagai Anggota</h2>
         <p>
-          Anda sedang masuk dengan akun <strong>{member?.name}</strong>{" "}
+          Anda saat ini sedang login dengan akun <strong>{member?.name}</strong>{" "}
           {member?.memberNumber ? `(No. KTA: ${member.memberNumber})` : ""}.
-          Anda tidak perlu mendaftar ulang.
+          Anda tidak perlu mengisi formulir pendaftaran ulang.
         </p>
         <div className="gate-action-buttons mt-4">
           <Link className="button primary" href="/member">
-            Buka Portal & KTA Saya <ArrowRight size={17} />
+            Buka Portal & KTA Digital Saya <ArrowRight size={17} />
           </Link>
         </div>
       </div>
@@ -76,7 +88,9 @@ export function MembershipRegistration({
       setStage("done");
     } catch (reason) {
       const msg =
-        reason instanceof Error ? reason.message : "Pendaftaran gagal.";
+        reason instanceof Error
+          ? reason.message
+          : "Pendaftaran gagal dikirimkan.";
       setError(msg);
       toast.error(`Pendaftaran gagal: ${msg}`);
     } finally {
@@ -88,27 +102,64 @@ export function MembershipRegistration({
     return (
       <div className="member-success-card">
         <span>
-          <BadgeCheck size={32} />
+          <BadgeCheck size={36} color="#16a34a" />
         </span>
-        <p className="eyebrow">Pendaftaran Berhasil Dikirim</p>
-        <h2>Permohonan Anda Sedang Diproses</h2>
+        <p className="eyebrow text-emerald-600 font-bold">
+          Pendaftaran Berhasil Terkirim
+        </p>
+        <h2>Permohonan Anda Sedang Ditinjau</h2>
         <p>
-          Tautan verifikasi email telah dikirimkan ke alamat email dan nomor
-          WhatsApp Anda untuk mencegah data spam dan mengamankan akun KTA
-          Digital.
+          Tautan aktivasi akun dan verifikasi email telah dikirimkan ke alamat
+          email dan nomor WhatsApp Anda untuk keamanan penerbitan KTA Digital.
         </p>
-        <p className="mt-2 text-sm text-slate-500">
-          Setelah memverifikasi email, tim pengurus {organizationName} akan
-          meninjau berkas permohonan keanggotaan Anda. Anda dapat langsung masuk
-          ke portal anggota untuk melengkapi profil dan memantau status
-          persetujuan.
-        </p>
+        <div
+          style={{
+            background: "#f0fdf4",
+            border: "1px solid #bbf7d0",
+            borderRadius: "14px",
+            padding: "16px",
+            margin: "16px 0",
+            textAlign: "left",
+          }}
+        >
+          <h4
+            style={{
+              fontSize: "13.5px",
+              fontWeight: 800,
+              color: "#166534",
+              margin: "0 0 6px",
+            }}
+          >
+            Langkah Selanjutnya:
+          </h4>
+          <ul
+            style={{
+              margin: 0,
+              paddingLeft: "20px",
+              fontSize: "12.5px",
+              color: "#334155",
+              lineHeight: 1.6,
+            }}
+          >
+            <li>
+              Buka email masuk / WhatsApp Anda dan klik tautan konfirmasi.
+            </li>
+            <li>
+              Pengurus Daerah (DPD) {organizationName} akan memvalidasi berkas
+              Anda.
+            </li>
+            <li>
+              Setelah diverifikasi, Nomor KTA dan barcode digital aktif
+              otomatis.
+            </li>
+          </ul>
+        </div>
         <div className="gate-action-buttons mt-4">
           <Link className="button primary" href="/member/login">
-            Buka Portal Anggota <ArrowRight size={17} />
+            Masuk ke Portal Anggota <ArrowRight size={17} />
           </Link>
           <Link className="button secondary" href="/member/verify-email">
-            Cek Verifikasi Email
+            Cek Status Verifikasi Email
           </Link>
         </div>
       </div>
@@ -119,72 +170,196 @@ export function MembershipRegistration({
     <form className="member-form" onSubmit={register}>
       <div className="member-form-heading">
         <span className="member-form-icon">
-          <Building2 size={23} />
+          <Building2 size={24} color="#0284c7" />
         </span>
         <div>
-          <p className="eyebrow">Membership application</p>
-          <h2>Tell us about yourself</h2>
+          <p className="eyebrow">Formulir Registrasi Mandiri</p>
+          <h2>Data Permohonan Anggota Baru</h2>
         </div>
       </div>
-      {error && <p className="form-error full">{error}</p>}
+
+      {error && (
+        <div
+          className="form-error full"
+          style={{
+            padding: "12px 16px",
+            borderRadius: "10px",
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            color: "#b91c1c",
+            fontSize: "13px",
+            fontWeight: 600,
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      {/* Field: Full Name */}
       <label>
-        Full name
-        <input name="name" required minLength={2} autoComplete="name" />
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            marginBottom: "4px",
+          }}
+        >
+          <User size={13} color="#0284c7" /> Nama Lengkap (Sesuai KTP) *
+        </span>
+        <input
+          name="name"
+          placeholder="Contoh: Budi Santoso, S.T."
+          required
+          minLength={2}
+          autoComplete="name"
+        />
       </label>
+
+      {/* Field: Email */}
       <label>
-        Email address
-        <input name="email" type="email" required autoComplete="email" />
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            marginBottom: "4px",
+          }}
+        >
+          <Mail size={13} color="#0284c7" /> Alamat Email Aktif *
+        </span>
+        <input
+          name="email"
+          type="email"
+          placeholder="email.aktif@domain.com"
+          required
+          autoComplete="email"
+        />
       </label>
+
+      {/* Field: Phone */}
       <label>
-        Mobile number
-        <input name="phone" required minLength={8} autoComplete="tel" />
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            marginBottom: "4px",
+          }}
+        >
+          <Phone size={13} color="#0284c7" /> No. WhatsApp / HP Aktif *
+        </span>
+        <input
+          name="phone"
+          placeholder="081234567890"
+          required
+          minLength={8}
+          autoComplete="tel"
+        />
       </label>
+
+      {/* Field: Date of Birth */}
       <label>
-        Date of birth
+        <span style={{ marginBottom: "4px", display: "block" }}>
+          Tanggal Lahir
+        </span>
         <input name="dateOfBirth" type="date" />
       </label>
+
+      {/* Field: DPD / Unit Selection */}
       <label>
-        Organization unit
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            marginBottom: "4px",
+          }}
+        >
+          <MapPin size={13} color="#0284c7" /> Pengurus Daerah (DPD Pengampu)
+        </span>
         <select name="unitId" defaultValue="">
-          <option value="">Choose later</option>
+          <option value="">Pilih Pengurus Daerah Terdekat...</option>
           {units.map((unit) => (
             <option key={unit.id} value={unit.id}>
-              {unit.name} · {unit.type}
+              {unit.name} ({unit.type})
             </option>
           ))}
         </select>
       </label>
+
+      {/* Field: Workshop / Company Name */}
       <label>
-        Company / institution
-        <input name="companyName" autoComplete="organization" />
+        <span style={{ marginBottom: "4px", display: "block" }}>
+          Nama Bengkel / Workshop / Instansi (Opsional)
+        </span>
+        <input
+          name="companyName"
+          placeholder="Contoh: Berkah Teknik AC"
+          autoComplete="organization"
+        />
       </label>
+
+      {/* Field: Full Address */}
       <label className="full">
-        Address
-        <textarea name="address" rows={3} autoComplete="street-address" />
+        <span style={{ marginBottom: "4px", display: "block" }}>
+          Alamat Lengkap Domisili / Bengkel
+        </span>
+        <textarea
+          name="address"
+          rows={3}
+          placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kota/Kabupaten..."
+          autoComplete="street-address"
+        />
       </label>
-      <label>
-        Create password
+
+      {/* Field: Password */}
+      <label className="full">
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            marginBottom: "4px",
+          }}
+        >
+          <Lock size={13} color="#0284c7" /> Buat Kata Sandi Akun Portal *
+        </span>
         <input
           name="password"
           type="password"
+          placeholder="Minimal 8 karakter (kombinasi huruf & angka)"
           required
           minLength={8}
           autoComplete="new-password"
         />
       </label>
+
+      {/* Consent Checkbox */}
       <label className="member-consent full">
         <input name="consent" type="checkbox" required />
         <span>
-          I confirm this information is accurate and consent to its use for
-          membership administration.
+          Saya menyatakan bahwa seluruh data yang saya isikan adalah benar dan
+          sah. Saya bersedia mematuhi <strong>AD/ART</strong> serta{" "}
+          <strong>9 Butir Pakta Integritas</strong> {organizationName}.
         </span>
       </label>
+
+      {/* Actions Bar */}
       <div className="member-form-actions full">
         <span>
-          Already registered? <Link href="/member/login">Sign in</Link>
+          Sudah punya akun?{" "}
+          <Link
+            href="/member/login"
+            style={{ color: "#0284c7", fontWeight: 700 }}
+          >
+            Masuk Portal
+          </Link>
         </span>
         <button className="button primary" type="submit" disabled={pending}>
-          {pending ? "Submitting application…" : "Submit application"}
+          {pending
+            ? "Mengirimkan Permohonan..."
+            : "Kirim Pendaftaran Keanggotaan"}
           {!pending && <ArrowRight size={17} />}
         </button>
       </div>

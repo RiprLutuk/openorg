@@ -167,27 +167,32 @@ export function Header({ site }: { site: PublicSite }) {
     {
       id: "membership",
       label: "Keanggotaan",
-      href: isLoggedIn ? "/member" : "/join",
+      href: "/join",
       children: [
+        {
+          id: "join-terms",
+          label: "Syarat & Pendaftaran Anggota",
+          href: "/join",
+        },
         {
           id: "tech-locator",
           label: "Cari Teknisi AC Terverifikasi",
           href: "/technicians",
         },
         {
-          id: "lender-verifier",
-          label: "Cek Platform Fintech Berizin",
-          href: "/lenders",
-        },
-        {
           id: "clubs-directory",
-          label: "Direktori Klub & TKT",
+          label: "Direktori Komunitas & Klub (TKT)",
           href: "/clubs",
         },
         {
           id: "verify-kta",
           label: "Verifikasi KTA & Kredensial",
           href: "/verify",
+        },
+        {
+          id: "lender-verifier",
+          label: "Cek Platform Fintech Berizin",
+          href: "/lenders",
         },
         ...(isLoggedIn
           ? [
@@ -199,13 +204,8 @@ export function Header({ site }: { site: PublicSite }) {
             ]
           : [
               {
-                id: "join-terms",
-                label: "Syarat & Pendaftaran",
-                href: "/join",
-              },
-              {
                 id: "member-portal",
-                label: "Portal Anggota",
+                label: "Login Portal Anggota",
                 href: "/member/login",
               },
             ]),
@@ -327,6 +327,14 @@ export function Header({ site }: { site: PublicSite }) {
                   childHref.includes("posisi_kebijakan")))
             ) {
               childHref = "/regulations?kategori=naskah-kebijakan";
+            } else if (
+              childId === "join-terms" ||
+              childLabel.toLowerCase().includes("syarat") ||
+              childLabel.toLowerCase().includes("pendaftaran") ||
+              childHref === "/join"
+            ) {
+              childHref = "/join";
+              childLabel = "Syarat & Pendaftaran Anggota";
             }
 
             return {
