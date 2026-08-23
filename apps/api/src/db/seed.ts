@@ -125,7 +125,11 @@ async function seed() {
               label: "Struktur Pengurus (DPP/DPD)",
               href: "/structure",
             },
-            { id: "ad-art", label: "AD/ART & Kode Etik", href: "/regulations" },
+            {
+              id: "ad-art",
+              label: "AD/ART & Kode Etik",
+              href: "/regulations?kategori=ad-art",
+            },
           ],
         },
         {
@@ -164,7 +168,7 @@ async function seed() {
         {
           id: "services",
           label: "Layanan & Data",
-          href: "/regulations",
+          href: "/working-groups",
           children: [
             {
               id: "working-groups",
@@ -173,8 +177,18 @@ async function seed() {
             },
             {
               id: "regulations-list",
-              label: "Regulasi & Policy Papers",
-              href: "/regulations",
+              label: "Regulasi Pemerintah & Standar SNI",
+              href: "/regulations?kategori=regulasi-pemerintah",
+            },
+            {
+              id: "se-list",
+              label: "Surat Edaran Resmi (SE)",
+              href: "/regulations?kategori=surat-edaran",
+            },
+            {
+              id: "policy-papers",
+              label: "Naskah Kebijakan",
+              href: "/regulations?kategori=naskah-kebijakan",
             },
             {
               id: "industry-stats",

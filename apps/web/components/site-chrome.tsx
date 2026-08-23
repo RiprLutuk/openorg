@@ -264,10 +264,99 @@ export function Header({ site }: { site: PublicSite }) {
   const hasChildren = (items: PublicNavItem[]) =>
     items.some((item) => item.children && item.children.length > 0);
 
-  const navItems: PublicNavItem[] =
+  const normalizeNavItems = (items: PublicNavItem[]): PublicNavItem[] => {
+    return items.map((item) => {
+      let href = item.href;
+      let label = item.label;
+
+      if (
+        item.id === "ad-art" ||
+        (label.toLowerCase().includes("ad/art") &&
+          (href === "/regulations" || href.includes("ad_art")))
+      ) {
+        href = "/regulations?kategori=ad-art";
+      } else if (
+        item.id === "regulations-list" ||
+        (label.toLowerCase().includes("regulasi") &&
+          (href === "/regulations" || href.includes("regulasi_pemerintah")))
+      ) {
+        href = "/regulations?kategori=regulasi-pemerintah";
+        label = "Regulasi Pemerintah & Standar SNI";
+      } else if (
+        item.id === "se-list" ||
+        (label.toLowerCase().includes("surat edaran") &&
+          (href === "/regulations" || href.includes("se_organisasi")))
+      ) {
+        href = "/regulations?kategori=surat-edaran";
+      } else if (
+        item.id === "policy-papers" ||
+        (label.toLowerCase().includes("naskah") &&
+          (href === "/regulations" || href.includes("posisi_kebijakan")))
+      ) {
+        href = "/regulations?kategori=naskah-kebijakan";
+      } else if (item.id === "services" && href === "/regulations") {
+        href = "/working-groups";
+      }
+
+      const children = item.children
+        ? item.children.map((child, idx) => {
+            let childHref = child.href;
+            let childLabel = child.label;
+            const childId = child.id || `${item.id}-child-${idx}`;
+
+            if (
+              childId === "ad-art" ||
+              (childLabel.toLowerCase().includes("ad/art") &&
+                (childHref === "/regulations" || childHref.includes("ad_art")))
+            ) {
+              childHref = "/regulations?kategori=ad-art";
+            } else if (
+              childId === "regulations-list" ||
+              (childLabel.toLowerCase().includes("regulasi") &&
+                (childHref === "/regulations" ||
+                  childHref.includes("regulasi_pemerintah")))
+            ) {
+              childHref = "/regulations?kategori=regulasi-pemerintah";
+              childLabel = "Regulasi Pemerintah & Standar SNI";
+            } else if (
+              childId === "se-list" ||
+              (childLabel.toLowerCase().includes("surat edaran") &&
+                (childHref === "/regulations" ||
+                  childHref.includes("se_organisasi")))
+            ) {
+              childHref = "/regulations?kategori=surat-edaran";
+            } else if (
+              childId === "policy-papers" ||
+              (childLabel.toLowerCase().includes("naskah") &&
+                (childHref === "/regulations" ||
+                  childHref.includes("posisi_kebijakan")))
+            ) {
+              childHref = "/regulations?kategori=naskah-kebijakan";
+            }
+
+            return {
+              id: childId,
+              label: childLabel,
+              href: childHref,
+            };
+          })
+        : [];
+
+      return {
+        ...item,
+        label,
+        href,
+        children,
+      };
+    });
+  };
+
+  const rawNav: PublicNavItem[] =
     site.navigation.length && hasChildren(site.navigation)
       ? site.navigation
       : defaultNavItems;
+
+  const navItems: PublicNavItem[] = normalizeNavItems(rawNav);
 
   return (
     <>
