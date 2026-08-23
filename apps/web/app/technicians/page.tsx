@@ -470,24 +470,10 @@ function TechniciansContent() {
 
                     {/* Footer Row: KTA Number + Actions */}
                     <div className="tech-card-footer">
-                      <button
-                        type="button"
-                        className="tech-kta-btn"
-                        onClick={(e) => handleCopyKta(e, tech.ktaNumber)}
-                        title="Klik untuk menyalin nomor KTA"
-                      >
-                        <QrCode size={12} />
+                      <span className="tech-kta-chip">
+                        <QrCode size={12} color="#0284c7" />
                         <span>{tech.ktaNumber}</span>
-                        {copiedKta === tech.ktaNumber ? (
-                          <span className="copy-indicator success">
-                            <Check size={11} /> Salin!
-                          </span>
-                        ) : (
-                          <span className="copy-indicator">
-                            <Copy size={11} />
-                          </span>
-                        )}
-                      </button>
+                      </span>
 
                       <div className="tech-actions-quick">
                         {tech.phone && (

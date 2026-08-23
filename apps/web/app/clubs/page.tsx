@@ -379,28 +379,12 @@ function ClubsContent() {
                       className="tech-card-modern club-card"
                       key={club.id}
                     >
-                      {/* Top Bar: TKT Badge & Category */}
+                      {/* Top Bar: TKT Badge & Category (Exact 26px Level Height) */}
                       <div className="tech-card-top">
-                        <button
-                          type="button"
-                          className="club-tkt-badge"
-                          onClick={(e) => handleCopyTkt(e, club.codeTkt)}
-                          title={
-                            copiedTkt === club.codeTkt
-                              ? "Nomor TKT Tersalin!"
-                              : "Klik untuk menyalin nomor TKT"
-                          }
-                          style={{
-                            cursor: "pointer",
-                          }}
-                        >
-                          {copiedTkt === club.codeTkt ? (
-                            <Check size={12} color="#16a34a" />
-                          ) : (
-                            <CheckCircle2 size={12} color="#16a34a" />
-                          )}
+                        <span className="club-tkt-badge">
+                          <CheckCircle2 size={12} color="#16a34a" />
                           <span>{club.codeTkt}</span>
-                        </button>
+                        </span>
 
                         <span
                           className={`club-category-badge ${catMeta.bgClass}`}
@@ -443,37 +427,21 @@ function ClubsContent() {
                         </div>
                       </div>
 
-                      {/* Footer Row: Actions */}
+                      {/* Footer Row: Clean Status & Single Detail CTA */}
                       <div className="tech-card-footer">
                         <span className="club-status-chip">
                           <CheckCircle2 size={11} color="#16a34a" />
                           <span>SK DPD Sah</span>
                         </span>
 
-                        <div className="tech-actions-quick">
-                          <button
-                            type="button"
-                            className="tech-kta-btn"
-                            onClick={(e) => handleCopyTkt(e, club.codeTkt)}
-                            title="Salin Nomor TKT"
-                          >
-                            <Copy size={12} />
-                            <span>
-                              {copiedTkt === club.codeTkt
-                                ? "Tersalin!"
-                                : "Salin TKT"}
-                            </span>
-                          </button>
-
-                          <button
-                            type="button"
-                            className="tech-detail-btn"
-                            onClick={() => setActiveClubModal(club)}
-                          >
-                            <span>Detail</span>
-                            <ArrowRight size={12} />
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          className="tech-detail-btn"
+                          onClick={() => setActiveClubModal(club)}
+                        >
+                          <span>Detail Klub</span>
+                          <ArrowRight size={12} />
+                        </button>
                       </div>
                     </article>
                   );

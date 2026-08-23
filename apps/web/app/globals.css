@@ -10890,29 +10890,23 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-}
-
-.tech-skill-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 800;
-  color: #0284c7;
-  background: rgba(2, 132, 199, 0.08);
-  border: 1px solid rgba(2, 132, 199, 0.2);
-  padding: 4px 10px;
-  border-radius: 9999px;
+  min-height: 26px;
 }
 
 .tech-level-badge-compact {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 7px;
   font-size: 11px;
   font-weight: 800;
-  padding: 4px 9px;
-  border-radius: 8px;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
   letter-spacing: 0.2px;
   transition: all 0.2s ease;
 }
@@ -10982,27 +10976,35 @@ img {
 .tech-bnsp-badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 7px;
   font-size: 10.5px;
   font-weight: 800;
   color: #16a34a;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
-  padding: 3px 8px;
-  border-radius: 6px;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
 .tech-rating-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 7px;
   font-size: 11.5px;
   font-weight: 800;
   color: #d97706;
   background: #fffbeb;
   border: 1px solid #fde68a;
-  padding: 3px 8px;
-  border-radius: 6px;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
 .tech-profile-btn {
@@ -11083,6 +11085,22 @@ img {
   font-size: 11.5px;
 }
 
+.tech-kta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+  font-size: 11px;
+  box-sizing: border-box;
+}
+
 .tech-kta-btn {
   display: inline-flex;
   align-items: center;
@@ -11157,30 +11175,36 @@ img {
 .club-tkt-badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
+  height: 26px;
   font-size: 11px;
   font-weight: 800;
   color: #16a34a;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 0 9px;
+  border-radius: 7px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   white-space: nowrap;
   flex-shrink: 0;
+  box-sizing: border-box;
   line-height: 1;
 }
 
 .club-category-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 10.5px;
+  justify-content: center;
+  gap: 5px;
+  height: 26px;
+  font-size: 11px;
   font-weight: 800;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 0 9px;
+  border-radius: 7px;
   white-space: nowrap;
   flex-shrink: 0;
+  box-sizing: border-box;
   line-height: 1;
 }
 
