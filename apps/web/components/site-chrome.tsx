@@ -160,7 +160,7 @@ export function Header({ site }: { site: PublicSite }) {
         {
           id: "ad-art",
           label: "AD/ART & Kode Etik",
-          href: "/regulations?kategori=ad-art",
+          href: "/ad-art",
         },
       ],
     },
@@ -269,18 +269,14 @@ export function Header({ site }: { site: PublicSite }) {
       let href = item.href;
       let label = item.label;
 
-      if (
-        item.id === "ad-art" ||
-        (label.toLowerCase().includes("ad/art") &&
-          (href === "/regulations" || href.includes("ad_art")))
-      ) {
-        href = "/regulations?kategori=ad-art";
+      if (item.id === "ad-art" || label.toLowerCase().includes("ad/art")) {
+        href = "/ad-art";
       } else if (
         item.id === "regulations-list" ||
         (label.toLowerCase().includes("regulasi") &&
           (href === "/regulations" || href.includes("regulasi_pemerintah")))
       ) {
-        href = "/regulations?kategori=regulasi-pemerintah";
+        href = "/regulations";
         label = "Regulasi Pemerintah & Standar SNI";
       } else if (
         item.id === "se-list" ||
@@ -306,17 +302,16 @@ export function Header({ site }: { site: PublicSite }) {
 
             if (
               childId === "ad-art" ||
-              (childLabel.toLowerCase().includes("ad/art") &&
-                (childHref === "/regulations" || childHref.includes("ad_art")))
+              childLabel.toLowerCase().includes("ad/art")
             ) {
-              childHref = "/regulations?kategori=ad-art";
+              childHref = "/ad-art";
             } else if (
               childId === "regulations-list" ||
               (childLabel.toLowerCase().includes("regulasi") &&
                 (childHref === "/regulations" ||
                   childHref.includes("regulasi_pemerintah")))
             ) {
-              childHref = "/regulations?kategori=regulasi-pemerintah";
+              childHref = "/regulations";
               childLabel = "Regulasi Pemerintah & Standar SNI";
             } else if (
               childId === "se-list" ||
@@ -701,7 +696,7 @@ export function Footer({ site }: { site: PublicSite }) {
           <div className="footer-nav-col">
             <h3>Organisasi</h3>
             <Link href="/structure">Struktur DPP & DPD</Link>
-            <Link href="/regulations?kategori=ad-art">AD/ART & Kode Etik</Link>
+            <Link href="/ad-art">AD/ART & Kode Etik</Link>
             {!isLoggedIn && <Link href="/join">Pendaftaran Anggota</Link>}
             <Link href="/stories">Warta & Kabar Terkini</Link>
             <Link href="/events">Agenda & Pelatihan</Link>

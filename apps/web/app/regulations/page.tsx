@@ -210,66 +210,103 @@ function RegulationsContent() {
         <div className="wrap reg-hero-inner">
           <div className="reg-hero-pill">
             <BookOpen size={15} color="#38bdf8" />
-            <span>REPOSITORY HUKUM & ADVOKASI</span>
+            <span>REPOSITORI REGULASI INDUSTRI & KEBIJAKAN SEKTOR</span>
           </div>
 
           <h1 className="reg-hero-title">
-            Regulasi, Naskah AD/ART &{" "}
+            Regulasi Pemerintah, Standar SNI &{" "}
             <span className="text-gradient">Kebijakan Resmi</span>
           </h1>
 
           <p className="reg-hero-lead">
-            Pusat repositori resmi Anggaran Dasar & Rumah Tangga (AD/ART), Surat
-            Edaran Dewan Pimpinan Pusat, Peraturan Pemerintah sektor pendingin &
-            K3, serta Naskah Posisi Kebijakan Nasional.
+            Pusat rujukan hukum dan kepatuhan standar refrigerasi: Peraturan
+            Menteri Lingkungan Hidup (KLHK), SKKNI & BNSP, Surat Edaran DPP,
+            serta naskah kebijakan transisi refrigeran ramah lingkungan.
           </p>
 
-          {/* Impact Metrics Bar */}
+          {/* Key Metrics Row */}
           <div className="reg-hero-metrics">
             <div className="reg-metric-box">
               <div className="reg-metric-icon">
-                <FileText size={22} color="#38bdf8" />
+                <Scale size={22} color="#818cf8" />
               </div>
               <div>
-                <strong>{regulations.length || 18} Dokumen Terbit</strong>
-                <small>Legalitas & Advokasi</small>
+                <strong>Standar SNI & KLHK</strong>
+                <small>Regulasi Pemerintah Sah</small>
               </div>
             </div>
             <div className="reg-metric-box">
               <div className="reg-metric-icon">
-                <Scale size={22} color="#34d399" />
+                <FileCheck2 size={22} color="#34d399" />
               </div>
               <div>
-                <strong>{adartCount || 4} Naskah AD/ART</strong>
-                <small>Pedoman & Kode Etik</small>
-              </div>
-            </div>
-            <div className="reg-metric-box">
-              <div className="reg-metric-icon">
-                <FileCheck2 size={22} color="#818cf8" />
-              </div>
-              <div>
-                <strong>{seCount || 8} Surat Edaran</strong>
+                <strong>{seCount || 4} Surat Edaran (SE)</strong>
                 <small>Instruksi Resmi DPP</small>
               </div>
             </div>
             <div className="reg-metric-box">
               <div className="reg-metric-icon">
-                <Download size={22} color="#f59e0b" />
+                <FileText size={22} color="#f59e0b" />
+              </div>
+              <div>
+                <strong>Naskah Kebijakan</strong>
+                <small>Advokasi & Posisi Sektor</small>
+              </div>
+            </div>
+            <div className="reg-metric-box">
+              <div className="reg-metric-icon">
+                <Download size={22} color="#38bdf8" />
               </div>
               <div>
                 <strong>
-                  {totalDownloads > 0
-                    ? totalDownloads.toLocaleString()
-                    : "1.450+"}{" "}
-                  Unduhan
+                  {totalDownloads > 0 ? `${totalDownloads}+` : "2.400+"} Kali
                 </strong>
-                <small>Akses Publik Terbuka</small>
+                <small>Total Unduhan Publik</small>
               </div>
             </div>
           </div>
         </div>
       </header>
+
+      {/* 1.5 Quick Link to Constitution / AD-ART */}
+      <div className="wrap" style={{ marginTop: "1.5rem" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "1rem",
+            padding: "1rem 1.25rem",
+            background: "rgba(2, 132, 199, 0.05)",
+            border: "1px solid rgba(2, 132, 199, 0.18)",
+            borderRadius: "12px",
+            flexWrap: "wrap",
+          }}
+        >
+          <div
+            style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+          >
+            <FileText size={20} color="#0284c7" />
+            <div>
+              <strong style={{ fontSize: "0.95rem", color: "#0f172a" }}>
+                Mencari Anggaran Dasar & Anggaran Rumah Tangga (AD/ART)?
+              </strong>
+              <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b" }}>
+                Naskah konstitusi organisasi, SK Kemenkumham, dan 9 Butir Pakta
+                Integritas tersedia di halaman khusus.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/ad-art"
+            className="button primary"
+            style={{ padding: "0.5rem 1rem", fontSize: "0.85rem" }}
+          >
+            <span>Buka Halaman AD/ART</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+      </div>
 
       {/* 2. Main Content & Search Controls */}
       <section className="reg-body section-space">

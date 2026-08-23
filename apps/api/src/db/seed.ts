@@ -128,7 +128,7 @@ async function seed() {
             {
               id: "ad-art",
               label: "AD/ART & Kode Etik",
-              href: "/regulations?kategori=ad-art",
+              href: "/ad-art",
             },
           ],
         },

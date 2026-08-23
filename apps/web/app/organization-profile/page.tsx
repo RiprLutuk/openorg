@@ -405,12 +405,9 @@ export default async function OrganizationProfilePage() {
                 </p>
               </div>
               <div className="doc-card-foot">
-                <Link
-                  href="/regulations?kategori=ad-art"
-                  className="button outline btn-doc"
-                >
+                <Link href="/ad-art" className="button outline btn-doc">
                   <Download size={15} />
-                  <span>Buka di Repository</span>
+                  <span>Buka Naskah AD/ART</span>
                 </Link>
               </div>
             </article>
