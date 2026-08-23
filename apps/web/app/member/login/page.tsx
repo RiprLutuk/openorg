@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
 import { MemberLogin } from "@/components/member-login";
+import { getSite } from "@/lib/api";
 
-export const metadata: Metadata = {
-  title: "Masuk Portal Anggota · KTA & Layanan Digital",
-  description:
-    "Akses akun keanggotaan, kartu KTA digital, dan buku log SKP/CPD.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSite();
+  return {
+    title: `Masuk Portal Anggota · ${site.organization.name}`,
+    description: `Akses akun keanggotaan resmi ${site.organization.name}, unduh kartu KTA digital, dan pantau buku log SKP/CPD.`,
+  };
+}
 
-export default function MemberLoginPage() {
+export default async function MemberLoginPage() {
+  const site = await getSite();
   return (
-    <section className="member-page-shell login-member-page">
-      <div className="wrap member-login-wrap">
-        <MemberLogin />
+    <div className="login-page-suite">
+      <div className="login-ambient-glow" />
+      <div className="wrap login-page-inner">
+        <MemberLogin organizationName={site.organization.name} />
       </div>
-    </section>
+    </div>
   );
 }
