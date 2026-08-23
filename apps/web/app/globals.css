@@ -11168,11 +11168,46 @@ img {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+.club-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.club-category-workshop {
+  background: rgba(2, 132, 199, 0.08);
+  color: #0284c7;
+  border: 1px solid rgba(2, 132, 199, 0.22);
+}
+
+.club-category-specialist {
+  background: rgba(245, 158, 11, 0.1);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+
+.club-category-region {
+  background: rgba(22, 163, 74, 0.08);
+  color: #15803d;
+  border: 1px solid rgba(22, 163, 74, 0.22);
+}
+
+.club-category-hobby {
+  background: rgba(99, 102, 241, 0.08);
+  color: #4f46e5;
+  border: 1px solid rgba(99, 102, 241, 0.22);
+}
+
 .club-meta-grid {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  padding: 6px 0;
 }
 
 .club-members-count {
@@ -11180,8 +11215,12 @@ img {
   align-items: center;
   gap: 5px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 750;
   color: #0284c7;
+  background: #f0f9ff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #e0f2fe;
 }
 
 .club-status-chip {
@@ -11191,6 +11230,10 @@ img {
   font-size: 11px;
   font-weight: 750;
   color: #16a34a;
+  background: #f0fdf4;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #bbf7d0;
 }
 
 /* Lender Specific Cards */

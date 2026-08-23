@@ -2,11 +2,18 @@
 
 import {
   ArrowRight,
+  Award,
   BadgeCheck,
   Building2,
+  Check,
   CheckCircle2,
+  Compass,
+  Copy,
+  Cpu,
   ExternalLink,
   Flag,
+  Flame,
+  Globe,
   Loader2,
   MapPin,
   QrCode,
@@ -14,6 +21,7 @@ import {
   ShieldCheck,
   Sparkles,
   Users,
+  Wrench,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -32,6 +40,88 @@ interface Club {
   status: string;
 }
 
+interface ClubCategoryMeta {
+  label: string;
+  icon: any;
+  color: string;
+  bgClass: string;
+  description: string;
+}
+
+function getClubCategoryMeta(category: string): ClubCategoryMeta {
+  const lower = (category || "").toLowerCase();
+
+  if (
+    lower.includes("workshop") ||
+    lower.includes("bengkel") ||
+    lower.includes("teknisi")
+  ) {
+    return {
+      label: "Teknisi & Workshop",
+      icon: Wrench,
+      color: "#0284c7",
+      bgClass: "club-category-workshop",
+      description:
+        "Paguyuban praktisi tata udara, asosiasi bengkel mandiri, dan jejaring teknisi lapangan.",
+    };
+  }
+
+  if (
+    lower.includes("spesialis") ||
+    lower.includes("chiller") ||
+    lower.includes("vrf") ||
+    lower.includes("riset")
+  ) {
+    return {
+      label: "Spesialisasi HVAC/R",
+      icon: Cpu,
+      color: "#d97706",
+      bgClass: "club-category-specialist",
+      description:
+        "Komunitas pakar sistem sentral, VRV/VRF, cold storage, dan retrofit refrigeran ramah lingkungan.",
+    };
+  }
+
+  if (
+    lower.includes("korwil") ||
+    lower.includes("rayon") ||
+    lower.includes("daerah")
+  ) {
+    return {
+      label: "Paguyuban Wilayah",
+      icon: Compass,
+      color: "#16a34a",
+      bgClass: "club-category-region",
+      description:
+        "Forum koordinasi wilayah tingkat kota/kabupaten binaan Pengurus Daerah setempat.",
+    };
+  }
+
+  if (
+    lower.includes("hobi") ||
+    lower.includes("olahraga") ||
+    lower.includes("touring")
+  ) {
+    return {
+      label: "Hobi & Rekreasi",
+      icon: Flame,
+      color: "#6366f1",
+      bgClass: "club-category-hobby",
+      description:
+        "Klub kebersamaan anggota mencakup olahraga, rekreasi, dan kegiatan sosial kemasyarakatan.",
+    };
+  }
+
+  return {
+    label: category || "Komunitas Terdaftar",
+    icon: Flag,
+    color: "#0284c7",
+    bgClass: "club-category-workshop",
+    description:
+      "Klub profesi terakreditasi di bawah koordinasi pengurus wilayah.",
+  };
+}
+
 function ClubsContent() {
   const searchParams = useSearchParams();
   const [clubs, setClubs] = useState<Club[]>([]);
@@ -43,7 +133,17 @@ function ClubsContent() {
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("kategori") || "all",
   );
+  const [copiedTkt, setCopiedTkt] = useState<string | null>(null);
   const [activeClubModal, setActiveClubModal] = useState<Club | null>(null);
+
+  const handleCopyTkt = (e: React.MouseEvent, tkt: string) => {
+    e.stopPropagation();
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      void navigator.clipboard.writeText(tkt);
+      setCopiedTkt(tkt);
+      setTimeout(() => setCopiedTkt(null), 2500);
+    }
+  };
 
   const updateUrl = (
     newSearch: string,
@@ -99,7 +199,8 @@ function ClubsContent() {
       !search ||
       c.clubName.toLowerCase().includes(search.toLowerCase()) ||
       c.codeTkt.toLowerCase().includes(search.toLowerCase()) ||
-      c.chairName?.toLowerCase().includes(search.toLowerCase());
+      c.chairName?.toLowerCase().includes(search.toLowerCase()) ||
+      c.province.toLowerCase().includes(search.toLowerCase());
 
     const matchProvince =
       selectedProvince === "all" || c.province === selectedProvince;
@@ -109,6 +210,9 @@ function ClubsContent() {
 
     return matchSearch && matchProvince && matchCategory;
   });
+
+  const totalMembers =
+    clubs.reduce((acc, c) => acc + (c.activeMembers || 0), 0) || 1250;
 
   return (
     <div className="clubs-page-suite">
@@ -126,9 +230,9 @@ function ClubsContent() {
           </h1>
 
           <p className="tech-hero-lead">
-            Daftar resmi paguyuban bengkel, komunitas teknisi, dan klub profesi
-            pendingin yang memegang Tanda Klub Terdaftar (TKT) resmi dari
-            pengurus daerah setempat.
+            Daftar resmi paguyuban bengkel, komunitas praktisi, dan klub profesi
+            pendingin yang memegang Tanda Klub Terdaftar (TKT) resmi di bawah
+            koordinasi Dewan Pimpinan Daerah (DPD).
           </p>
 
           {/* Impact Metrics Bar */}
@@ -147,12 +251,8 @@ function ClubsContent() {
                 <Users size={22} color="#34d399" />
               </div>
               <div>
-                <strong>
-                  {clubs.reduce((acc, c) => acc + (c.activeMembers || 0), 0) ||
-                    1200}
-                  + Anggota
-                </strong>
-                <small>Jejaring Solid</small>
+                <strong>{totalMembers}+ Anggota</strong>
+                <small>Jejaring Praktisi</small>
               </div>
             </div>
             <div className="tech-metric-box">
@@ -160,7 +260,7 @@ function ClubsContent() {
                 <Building2 size={22} color="#818cf8" />
               </div>
               <div>
-                <strong>38 DPD Pengampu</strong>
+                <strong>{provinces.length || 38} DPD Pengampu</strong>
                 <small>Seluruh Indonesia</small>
               </div>
             </div>
@@ -242,7 +342,9 @@ function ClubsContent() {
                   }}
                   className="tech-select-input"
                 >
-                  <option value="all">Semua Kategori</option>
+                  <option value="all">
+                    Semua Kategori ({categories.length})
+                  </option>
                   {categories.map((c) => (
                     <option key={c} value={c}>
                       {c}
@@ -262,70 +364,117 @@ function ClubsContent() {
           ) : (
             <div className="tech-cards-grid">
               {filtered.length > 0 ? (
-                filtered.map((club) => (
-                  <article className="tech-card-modern club-card" key={club.id}>
-                    {/* Top Bar: TKT Pill & Category */}
-                    <div className="tech-card-top">
-                      <span className="club-tkt-badge">
-                        <CheckCircle2 size={12} color="#16a34a" />
-                        <span>{club.codeTkt}</span>
-                      </span>
+                filtered.map((club) => {
+                  const catMeta = getClubCategoryMeta(club.category);
+                  const CatIcon = catMeta.icon;
 
-                      <span className="tech-skill-badge">
-                        <span>{club.category || "Komunitas"}</span>
-                      </span>
-                    </div>
-
-                    {/* Profile Header Button */}
-                    <button
-                      type="button"
-                      className="tech-profile-btn"
-                      onClick={() => setActiveClubModal(club)}
+                  return (
+                    <article
+                      className="tech-card-modern club-card"
+                      key={club.id}
                     >
-                      <div className="tech-avatar-frame club-avatar">
-                        <Flag size={24} color="#0284c7" />
+                      {/* Top Bar: TKT Badge & Category */}
+                      <div className="tech-card-top">
+                        <button
+                          type="button"
+                          className="club-tkt-badge"
+                          onClick={(e) => handleCopyTkt(e, club.codeTkt)}
+                          title="Klik untuk menyalin nomor TKT"
+                          style={{
+                            cursor: "pointer",
+                            border: "1px solid #bbf7d0",
+                          }}
+                        >
+                          <CheckCircle2 size={12} color="#16a34a" />
+                          <span>{club.codeTkt}</span>
+                          {copiedTkt === club.codeTkt && (
+                            <span
+                              style={{
+                                fontSize: "10px",
+                                color: "#15803d",
+                                fontWeight: 800,
+                              }}
+                            >
+                              (Tersalin!)
+                            </span>
+                          )}
+                        </button>
+
+                        <span
+                          className={`club-category-badge ${catMeta.bgClass}`}
+                        >
+                          <CatIcon size={12} />
+                          <span>{catMeta.label}</span>
+                        </span>
                       </div>
 
-                      <div className="tech-profile-copy">
-                        <h4>{club.clubName}</h4>
-                        {club.chairName && (
-                          <p className="tech-workshop-text">
-                            Ketua: {club.chairName}
-                          </p>
-                        )}
-                      </div>
-                    </button>
-
-                    {/* Meta Row: Members & Location */}
-                    <div className="club-meta-grid">
-                      <div className="tech-location-row">
-                        <MapPin size={13} color="#64748b" />
-                        <span>{club.province}</span>
-                      </div>
-                      <div className="club-members-count">
-                        <Users size={13} color="#0284c7" />
-                        <span>{club.activeMembers || 0} Anggota</span>
-                      </div>
-                    </div>
-
-                    {/* Footer Row: Actions */}
-                    <div className="tech-card-footer">
-                      <span className="club-status-chip">
-                        <CheckCircle2 size={11} color="#16a34a" />
-                        <span>Status Aktif</span>
-                      </span>
-
+                      {/* Profile Header Button */}
                       <button
                         type="button"
-                        className="tech-detail-btn"
+                        className="tech-profile-btn"
                         onClick={() => setActiveClubModal(club)}
                       >
-                        <span>Detail Klub</span>
-                        <ArrowRight size={12} />
+                        <div className="tech-avatar-frame club-avatar">
+                          <Flag size={24} color="#0284c7" />
+                        </div>
+
+                        <div className="tech-profile-copy">
+                          <h4>{club.clubName}</h4>
+                          {club.chairName && (
+                            <p className="tech-workshop-text">
+                              Ketua: {club.chairName}
+                            </p>
+                          )}
+                        </div>
                       </button>
-                    </div>
-                  </article>
-                ))
+
+                      {/* Meta Row: Members & Location */}
+                      <div className="club-meta-grid">
+                        <div className="tech-location-row">
+                          <MapPin size={13} color="#64748b" />
+                          <span>{club.province}</span>
+                        </div>
+                        <div className="club-members-count">
+                          <Users size={13} color="#0284c7" />
+                          <span>{club.activeMembers || 0} Anggota</span>
+                        </div>
+                      </div>
+
+                      {/* Footer Row: Actions */}
+                      <div className="tech-card-footer">
+                        <span className="club-status-chip">
+                          <CheckCircle2 size={11} color="#16a34a" />
+                          <span>SK DPD Sah</span>
+                        </span>
+
+                        <div className="tech-actions-quick">
+                          <button
+                            type="button"
+                            className="tech-kta-btn"
+                            onClick={(e) => handleCopyTkt(e, club.codeTkt)}
+                            title="Salin Nomor TKT"
+                          >
+                            <Copy size={12} />
+                            <span>
+                              {copiedTkt === club.codeTkt
+                                ? "Tersalin!"
+                                : "Salin TKT"}
+                            </span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="tech-detail-btn"
+                            onClick={() => setActiveClubModal(club)}
+                          >
+                            <span>Detail</span>
+                            <ArrowRight size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })
               ) : (
                 <div className="tech-empty-state">
                   <Flag size={44} color="#94a3b8" />
@@ -382,10 +531,11 @@ function ClubsContent() {
           tabIndex={-1}
         >
           <div className="leader-modal-card" role="document">
+            {/* Modal Header */}
             <div className="leader-modal-header">
               <div className="modal-title-wrap">
-                <Flag size={20} color="#38bdf8" />
-                <h3>Detail Tanda Klub Terdaftar (TKT)</h3>
+                <Flag size={20} color="#0284c7" />
+                <h3>Kredensial Tanda Klub Terdaftar (TKT)</h3>
               </div>
               <button
                 type="button"
@@ -397,34 +547,184 @@ function ClubsContent() {
               </button>
             </div>
 
+            {/* Modal Body */}
             <div className="leader-modal-body">
-              <div className="modal-profile-hero">
-                <div className="modal-avatar-frame club-modal-avatar">
-                  <Flag size={28} color="#0284c7" />
-                </div>
+              {(() => {
+                const catMeta = getClubCategoryMeta(activeClubModal.category);
+                const CatIcon = catMeta.icon;
 
-                <div className="modal-profile-copy">
-                  <span className="modal-tier-badge">
-                    {activeClubModal.category || "Komunitas Terdaftar"}
-                  </span>
-                  <h4>{activeClubModal.clubName}</h4>
-                  {activeClubModal.chairName && (
-                    <p className="modal-role">
-                      Ketua Pengurus: {activeClubModal.chairName}
-                    </p>
-                  )}
-                </div>
-              </div>
+                return (
+                  <>
+                    <div className="modal-profile-hero">
+                      <div
+                        className="tech-avatar-frame club-avatar"
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          borderRadius: "16px",
+                          fontSize: "18px",
+                        }}
+                      >
+                        <Flag size={26} color="#0284c7" />
+                      </div>
 
+                      <div className="modal-profile-copy" style={{ flex: 1 }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            marginBottom: "6px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <span
+                            className={`club-category-badge ${catMeta.bgClass}`}
+                            style={{ fontSize: "11px" }}
+                          >
+                            <CatIcon size={12} />
+                            <span>{catMeta.label}</span>
+                          </span>
+
+                          <span className="club-status-chip">
+                            <CheckCircle2 size={11} color="#16a34a" />
+                            <span>SK DPD Sah</span>
+                          </span>
+                        </div>
+
+                        <h4
+                          style={{
+                            fontSize: "18px",
+                            fontWeight: 800,
+                            margin: "0 0 3px",
+                            color: "#0f172a",
+                          }}
+                        >
+                          {activeClubModal.clubName}
+                        </h4>
+                        {activeClubModal.chairName && (
+                          <p
+                            className="modal-role"
+                            style={{
+                              margin: 0,
+                              fontSize: "13px",
+                              color: "#64748b",
+                            }}
+                          >
+                            Ketua Pengurus: {activeClubModal.chairName}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* TKT Legal Certificate Showcase Box */}
+                    <div
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(2, 132, 199, 0.06) 0%, #f8fafc 100%)",
+                        border: "1px solid rgba(2, 132, 199, 0.25)",
+                        borderRadius: "16px",
+                        padding: "16px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "10px",
+                            background: "rgba(2, 132, 199, 0.12)",
+                            color: "#0284c7",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <ShieldCheck size={18} />
+                        </div>
+                        <div>
+                          <strong
+                            style={{
+                              fontSize: "14.5px",
+                              fontWeight: 800,
+                              color: "#0f172a",
+                              display: "block",
+                            }}
+                          >
+                            Surat Tanda Klub Terdaftar (TKT)
+                          </strong>
+                          <small
+                            style={{
+                              color: "#0284c7",
+                              fontWeight: 700,
+                              fontSize: "11px",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.4px",
+                            }}
+                          >
+                            Registrasi Resmi Pengurus Wilayah DPD
+                          </small>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          background: "#ffffff",
+                          border: "1px solid #f1f5f9",
+                          borderRadius: "10px",
+                          padding: "10px 12px",
+                        }}
+                      >
+                        <small
+                          style={{
+                            display: "block",
+                            fontSize: "10.5px",
+                            fontWeight: 800,
+                            color: "#64748b",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          Fokus & Ruang Lingkup Paguyuban
+                        </small>
+                        <p
+                          style={{
+                            margin: 0,
+                            fontSize: "12.5px",
+                            lineHeight: "1.55",
+                            color: "#334155",
+                          }}
+                        >
+                          {catMeta.description}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+
+              {/* Data Grid */}
               <div className="modal-data-grid">
                 <div className="modal-data-item">
                   <small>Nomor TKT Resmi</small>
-                  <strong>{activeClubModal.codeTkt}</strong>
+                  <strong className="font-mono">
+                    {activeClubModal.codeTkt}
+                  </strong>
                 </div>
                 <div className="modal-data-item">
                   <small>Status Legalitas</small>
                   <span className="modal-status-pill">
-                    <CheckCircle2 size={12} /> SK DPD Terverifikasi
+                    <CheckCircle2 size={12} />
+                    <span>SK DPD Terverifikasi Sah</span>
                   </span>
                 </div>
                 <div className="modal-data-item">
@@ -434,11 +734,12 @@ function ClubsContent() {
                 <div className="modal-data-item">
                   <small>Jumlah Anggota Aktif</small>
                   <strong style={{ color: "#0284c7" }}>
-                    {activeClubModal.activeMembers || 0} Anggota
+                    {activeClubModal.activeMembers || 0} Anggota Terdata
                   </strong>
                 </div>
               </div>
 
+              {/* Actions Row */}
               <div className="modal-actions-row">
                 <Link
                   href={`/whois?q=${encodeURIComponent(activeClubModal.codeTkt)}`}
@@ -446,17 +747,19 @@ function ClubsContent() {
                   onClick={() => setActiveClubModal(null)}
                 >
                   <ExternalLink size={15} />
-                  <span>Audit Kredensial di Registri</span>
+                  <span>Audit di Registri Publik</span>
                 </Link>
                 <button
                   type="button"
                   className="button secondary btn-modal-copy"
-                  onClick={() => {
-                    navigator.clipboard.writeText(activeClubModal.codeTkt);
-                  }}
+                  onClick={(e) => handleCopyTkt(e, activeClubModal.codeTkt)}
                 >
-                  <QrCode size={15} />
-                  <span>Salin No. TKT</span>
+                  <Copy size={15} />
+                  <span>
+                    {copiedTkt === activeClubModal.codeTkt
+                      ? "TKT Tersalin!"
+                      : "Salin No. TKT"}
+                  </span>
                 </button>
               </div>
             </div>
