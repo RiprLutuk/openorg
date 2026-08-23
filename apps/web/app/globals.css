@@ -11706,3 +11706,361 @@ img {
     justify-content: center;
   }
 }
+
+/* ==========================================================================
+   AD/ART & KODE ETIK BESPOKE DESIGN SUITE
+   ========================================================================== */
+.adart-page-suite {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.adart-hero {
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(2, 132, 199, 0.18),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(99, 102, 241, 0.12),
+      transparent 50%
+    ),
+    linear-gradient(180deg, #090d16 0%, #0f172a 100%);
+  color: #ffffff;
+  padding: clamp(50px, 8vw, 85px) 0 45px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.adart-hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 960px;
+}
+
+.adart-nav-sticky {
+  position: sticky;
+  top: 72px;
+  z-index: 30;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.03);
+  padding: 10px 0;
+}
+
+.adart-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.adart-tabs-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 4px;
+  background: #f1f5f9;
+  border-radius: 12px;
+}
+
+.adart-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.adart-tab-btn:hover {
+  color: #0f172a;
+}
+
+.adart-tab-btn.active {
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.adart-search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 6px 12px;
+  min-width: 260px;
+}
+
+.adart-search-field input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  color: #0f172a;
+  width: 100%;
+}
+
+.adart-chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.adart-chapter-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.02);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.adart-chapter-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+  transform: translateY(-2px);
+}
+
+.adart-chapter-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.adart-badge-num {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.adart-article-accordion {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adart-article-item {
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  background: #f8fafc;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.adart-article-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.adart-article-header:hover {
+  background: #f1f5f9;
+}
+
+.adart-article-body {
+  padding: 12px 14px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #475569;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+/* 9 Butir Pakta Integritas Bespoke Grid */
+.pledge-grid-refined {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.pledge-card-refined {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.pledge-card-refined:hover {
+  border-color: #0284c7;
+  box-shadow: 0 12px 30px rgba(2, 132, 199, 0.08);
+  transform: translateY(-3px);
+}
+
+.pledge-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.pledge-num-badge {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0284c7;
+  letter-spacing: -0.02em;
+}
+
+.pledge-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.pledge-copy-btn {
+  margin-top: auto;
+  padding-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.pledge-copy-btn:hover {
+  color: #0284c7;
+}
+
+/* Piagam Komitmen Certificate Banner */
+.adart-piagam-shell {
+  background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e293b 100%);
+  border: 2px solid rgba(217, 119, 6, 0.35);
+  border-radius: 24px;
+  padding: 36px 32px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.adart-piagam-watermark {
+  position: absolute;
+  right: -30px;
+  bottom: -30px;
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+.piagam-gold-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.piagam-signatures-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.piagam-sign-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: center;
+}
+
+.piagam-sign-box small {
+  display: block;
+  font-size: 10px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.piagam-sign-box strong {
+  display: block;
+  font-size: 13px;
+  color: #f8fafc;
+}
+
+@media (max-width: 960px) {
+  .adart-chapter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pledge-grid-refined {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .piagam-signatures-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .pledge-grid-refined {
+    grid-template-columns: 1fr;
+  }
+
+  .adart-nav-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .adart-search-field {
+    width: 100%;
+  }
+}
