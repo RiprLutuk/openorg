@@ -1,6 +1,13 @@
 "use client";
 
-import { ArrowRight, ShieldCheck, UserCheck } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Landmark,
+  QrCode,
+  ShieldCheck,
+  UserCheck,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import type { PublicStructure } from "@/lib/api";
@@ -8,6 +15,17 @@ import type { PublicStructure } from "@/lib/api";
 type Props = {
   structure: PublicStructure;
 };
+
+function formatUnitBadge(name?: string, type?: string) {
+  if (!name) return "DPP Pusat";
+  if (type === "national" || name.toLowerCase().includes("pusat")) {
+    return "DPP Pusat";
+  }
+  return name
+    .replace(/APTI\s+/gi, "")
+    .replace(/ASISI\s+/gi, "")
+    .trim();
+}
 
 export function InteractiveStructurePreview({ structure }: Props) {
   const [selectedUnitId, setSelectedUnitId] = useState<string>("all");
@@ -17,7 +35,7 @@ export function InteractiveStructurePreview({ structure }: Props) {
 
   const filteredAssignments =
     selectedUnitId === "all"
-      ? assignments.slice(0, 6)
+      ? assignments.slice(0, 8)
       : assignments.filter((item) => {
           const pos = structure.positions.find(
             (p) => p.id === item.assignment.positionId,
@@ -30,11 +48,12 @@ export function InteractiveStructurePreview({ structure }: Props) {
       <div className="wrap">
         <div className="section-heading-flex">
           <div>
-            <span className="eyebrow">Tata Kelola Organisasi</span>
-            <h2>Dewan Pimpinan & Struktur Kepengurusan</h2>
+            <span className="eyebrow">DEWAN PIMPINAN & EKSEKUTIF</span>
+            <h2>Struktur Kepengurusan Aktif</h2>
             <p>
-              Pimpinan organisasi yang mengkoordinasikan kegiatan anggota,
-              pelatihan profesi, serta kemitraan strategis nasional.
+              Jajaran pimpinan yang mengemban amanah koordinasi anggota teknisi,
+              standardisasi uji kompetensi BNSP, dan kemitraan industri
+              nasional.
             </p>
           </div>
 
@@ -45,7 +64,7 @@ export function InteractiveStructurePreview({ structure }: Props) {
               className={`filter-pill ${selectedUnitId === "all" ? "active" : ""}`}
               onClick={() => setSelectedUnitId("all")}
             >
-              Semua Pengurus
+              Semua Pimpinan
             </button>
             {units.slice(0, 4).map((unit) => (
               <button
@@ -56,7 +75,7 @@ export function InteractiveStructurePreview({ structure }: Props) {
                 }`}
                 onClick={() => setSelectedUnitId(unit.id)}
               >
-                {unit.name}
+                {formatUnitBadge(unit.name, unit.type)}
               </button>
             ))}
           </div>
@@ -70,10 +89,36 @@ export function InteractiveStructurePreview({ structure }: Props) {
                 (p) => p.id === item.assignment.positionId,
               );
               const unit = structure.units.find((u) => u.id === pos?.unitId);
+              const isNational =
+                unit?.type === "national" ||
+                unit?.name?.toLowerCase().includes("pusat");
 
               return (
-                <div className="leader-card-refined" key={item.assignment.id}>
-                  <div className="leader-card-top">
+                <div
+                  className={`leader-card-refined ${isNational ? "is-national" : ""}`}
+                  key={item.assignment.id}
+                >
+                  {/* Top Bar: Unit Badge & Verified SK */}
+                  <div className="leader-card-top-bar">
+                    <span
+                      className={`leader-badge-pill ${isNational ? "badge-national" : "badge-regional"}`}
+                    >
+                      {isNational ? (
+                        <Landmark size={12} />
+                      ) : (
+                        <ShieldCheck size={12} />
+                      )}
+                      <span>{formatUnitBadge(unit?.name, unit?.type)}</span>
+                    </span>
+
+                    <span className="leader-sk-badge">
+                      <CheckCircle2 size={11} color="#16a34a" />
+                      <span>SK DPP</span>
+                    </span>
+                  </div>
+
+                  {/* Profile Header: Avatar & Info */}
+                  <div className="leader-profile-row">
                     <div className="leader-avatar-frame">
                       {item.member.avatarUrl ? (
                         <img
@@ -83,26 +128,32 @@ export function InteractiveStructurePreview({ structure }: Props) {
                         />
                       ) : (
                         <span className="leader-avatar-placeholder">
-                          {item.member.name.slice(0, 2).toUpperCase()}
+                          {item.member.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase() || "AP"}
                         </span>
                       )}
-                      <span className="avatar-status-dot" />
                     </div>
 
-                    <div className="leader-badge-pill">
-                      <ShieldCheck size={12} />
-                      <span>{unit?.name ?? "Pusat"}</span>
+                    <div className="leader-card-info">
+                      <h4 title={item.member.name}>{item.member.name}</h4>
+                      <p className="leader-position">
+                        {pos?.title ?? "Pengurus Organisasi"}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="leader-card-info">
-                    <h4>{item.member.name}</h4>
-                    <p className="leader-position">
-                      {pos?.title ?? "Pengurus"}
-                    </p>
-                    <small className="leader-id">
-                      No. KTA: {item.member.memberNumber}
-                    </small>
+                  {/* Card Footer: KTA Number */}
+                  <div className="leader-card-bottom-row">
+                    <span className="leader-id-tag">
+                      <QrCode size={12} />
+                      <span>{item.member.memberNumber}</span>
+                    </span>
+                    <span className="leader-active-tag">Pengurus Aktif</span>
                   </div>
                 </div>
               );
@@ -115,9 +166,10 @@ export function InteractiveStructurePreview({ structure }: Props) {
           )}
         </div>
 
-        <div className="section-action-center">
-          <Link href="/structure" className="btn-secondary-action">
-            <span>Lihat Bagan Struktur Pengurus Lengkap</span>
+        {/* Centered Action Button */}
+        <div className="leadership-action-center">
+          <Link href="/structure" className="btn-leadership-action">
+            <span>Buka Direktori Struktur & Unit Lengkap</span>
             <ArrowRight size={16} />
           </Link>
         </div>
