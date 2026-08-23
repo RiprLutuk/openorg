@@ -7,6 +7,7 @@ import {
   Check,
   CheckCircle2,
   Copy,
+  Crown,
   ExternalLink,
   Loader2,
   MapPin,
@@ -20,6 +21,7 @@ import {
   Users,
   Wrench,
   X,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -38,6 +40,93 @@ interface Technician {
   rating: string | null;
   certifiedBnsp: boolean;
   isAvailable: boolean;
+}
+
+interface SkillTierInfo {
+  levelNumber: number;
+  shortBadge: string;
+  fullName: string;
+  skkniLevel: string;
+  scopeDescription: string;
+  color: string;
+  bgClass: string;
+  icon: any;
+}
+
+function parseSkillLevel(rawLevel: string): SkillTierInfo {
+  const lower = (rawLevel || "").toLowerCase();
+
+  if (
+    lower.includes("4") ||
+    lower.includes("chiller") ||
+    lower.includes("central") ||
+    lower.includes("vrv") ||
+    lower.includes("vrf") ||
+    lower.includes("master") ||
+    lower.includes("utama")
+  ) {
+    return {
+      levelNumber: 4,
+      shortBadge: "Level 4 · Master",
+      fullName: "Teknisi Utama & Ahli Sentral (Level IV)",
+      skkniLevel: "Kualifikasi Level IV SKKNI / BNSP",
+      scopeDescription:
+        "Sistem tata udara sentral, Chiller industri, VRV/VRF multi-inverter komersial, perancangan ducting, dan cold storage kapasitas besar.",
+      color: "#d97706",
+      bgClass: "tier-level-4",
+      icon: Crown,
+    };
+  }
+
+  if (
+    lower.includes("3") ||
+    lower.includes("madya") ||
+    lower.includes("komersial") ||
+    lower.includes("senior")
+  ) {
+    return {
+      levelNumber: 3,
+      shortBadge: "Level 3 · Madya",
+      fullName: "Teknisi Madya / Senior HVAC (Level III)",
+      skkniLevel: "Kualifikasi Level III SKKNI / BNSP",
+      scopeDescription:
+        "Instalasi dan perbaikan AC cassette, standing floor komersial, multi-split inverter, dan prosedur recovery refrigeran standar K3.",
+      color: "#0284c7",
+      bgClass: "tier-level-3",
+      icon: ShieldCheck,
+    };
+  }
+
+  if (
+    lower.includes("2") ||
+    lower.includes("pratama") ||
+    lower.includes("residensial") ||
+    lower.includes("split")
+  ) {
+    return {
+      levelNumber: 2,
+      shortBadge: "Level 2 · Pratama",
+      fullName: "Teknisi Pratama Tata Udara (Level II)",
+      skkniLevel: "Kualifikasi Level II SKKNI / BNSP",
+      scopeDescription:
+        "Pemasangan unit baru AC split residensial, cuci servis berkala, pengujian kebocoran tekanan pipa tembaga, dan proses vakum pompa.",
+      color: "#16a34a",
+      bgClass: "tier-level-2",
+      icon: Wrench,
+    };
+  }
+
+  return {
+    levelNumber: 1,
+    shortBadge: "Level 1 · Muda",
+    fullName: "Teknisi Muda / Asisten Teknisi (Level I)",
+    skkniLevel: "Kualifikasi Level I SKKNI / BNSP",
+    scopeDescription:
+      "Pemeliharaan preventif dasar, pembersihan filter indoor/outdoor unit, dan asisten teknisi pada instalasi lapangan.",
+    color: "#6366f1",
+    bgClass: "tier-level-1",
+    icon: Sparkles,
+  };
 }
 
 function TechniciansContent() {
@@ -312,12 +401,21 @@ function TechniciansContent() {
               {filtered.length > 0 ? (
                 filtered.map((tech) => (
                   <article className="tech-card-modern" key={tech.id}>
-                    {/* Top Bar: Skill Badge & Status */}
+                    {/* Top Bar: Compact Skill Level Badge & BNSP/Rating */}
                     <div className="tech-card-top">
-                      <span className="tech-skill-badge">
-                        <Wrench size={12} />
-                        <span>{tech.skillLevel || "Teknisi"}</span>
-                      </span>
+                      {(() => {
+                        const tier = parseSkillLevel(tech.skillLevel);
+                        const TierIcon = tier.icon;
+                        return (
+                          <span
+                            className={`tech-level-badge-compact ${tier.bgClass}`}
+                            title={`Jenjang: ${tier.fullName}`}
+                          >
+                            <TierIcon size={12} />
+                            <span>{tier.shortBadge}</span>
+                          </span>
+                        );
+                      })()}
 
                       {tech.certifiedBnsp && (
                         <span className="tech-bnsp-badge">
@@ -490,9 +588,17 @@ function TechniciansContent() {
                 <span>{activeTechModal.name.slice(0, 2).toUpperCase()}</span>
               </div>
               <div className="leader-modal-title-wrap">
-                <span className="leader-modal-unit-badge">
-                  {activeTechModal.skillLevel || "Teknisi Pendingin"}
-                </span>
+                {(() => {
+                  const tier = parseSkillLevel(activeTechModal.skillLevel);
+                  return (
+                    <span
+                      className={`tech-level-badge-compact ${tier.bgClass}`}
+                      style={{ fontSize: "11px" }}
+                    >
+                      {tier.shortBadge}
+                    </span>
+                  );
+                })()}
                 <h3>{activeTechModal.name}</h3>
                 <p>
                   {activeTechModal.workshopName || "Workshop Mandiri Terdaftar"}
@@ -501,6 +607,63 @@ function TechniciansContent() {
             </div>
 
             <div className="leader-modal-body">
+              {/* Rich Competency Leveling Breakdown */}
+              {(() => {
+                const tier = parseSkillLevel(activeTechModal.skillLevel);
+                const TierIcon = tier.icon;
+                return (
+                  <div className="modal-leveling-box">
+                    <div className="modal-leveling-header">
+                      <div className="modal-leveling-title">
+                        <div
+                          style={{
+                            width: "34px",
+                            height: "34px",
+                            borderRadius: "10px",
+                            background: `${tier.color}18`,
+                            color: tier.color,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <TierIcon size={18} />
+                        </div>
+                        <div>
+                          <h5
+                            style={{
+                              margin: 0,
+                              fontSize: "14px",
+                              fontWeight: 800,
+                              color: "#0f172a",
+                            }}
+                          >
+                            {tier.fullName}
+                          </h5>
+                          <small style={{ color: "#64748b", fontSize: "11px" }}>
+                            {tier.skkniLevel}
+                          </small>
+                        </div>
+                      </div>
+                      <span
+                        className={`tech-level-badge-compact ${tier.bgClass}`}
+                        style={{ fontSize: "10.5px" }}
+                      >
+                        {tier.shortBadge}
+                      </span>
+                    </div>
+
+                    <p className="modal-leveling-scope">
+                      <strong style={{ color: "#334155" }}>
+                        Ruang Lingkup Kompetensi:
+                      </strong>{" "}
+                      {tier.scopeDescription}
+                    </p>
+                  </div>
+                );
+              })()}
+
               <div className="modal-data-grid">
                 <div className="modal-data-item">
                   <small>Nomor KTA Nasional</small>
