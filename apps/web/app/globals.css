@@ -12889,6 +12889,35 @@ img {
   color: #0f172a;
 }
 
+.calc-group-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.calc-group-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0284c7;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.calc-inputs-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.calc-inputs-row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
 .calc-inputs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -14549,6 +14578,8 @@ img {
   .events-cards-grid,
   .podium-grid,
   .calc-inputs-grid,
+  .calc-inputs-row-3,
+  .calc-inputs-row-2,
   .ref-specs-grid,
   .track-details-grid {
     grid-template-columns: 1fr;

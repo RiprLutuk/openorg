@@ -6,6 +6,7 @@ import {
   Calculator,
   CheckCircle2,
   ChevronRight,
+  Compass,
   Copy,
   Droplets,
   ExternalLink,
@@ -21,6 +22,7 @@ import {
   Sun,
   Users,
   Wind,
+  Wrench,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
@@ -163,12 +165,9 @@ export default function CalculatorPage() {
   const [selectedRef, setSelectedRef] = useState<string>("R32");
 
   // Calculation Logic (Indonesian Standard HVAC Sizing)
-  // Base: Area * 500 BTU (Standard Indonesian Tropical Climate)
   const area = length * width;
   const volume = area * height;
 
-  // Base BTU calculation:
-  // Standard factor: 500 BTU/m² for normal room, 600 for living, 700 for office, 900 for server
   const roomFactors = {
     bedroom: 500,
     living: 600,
@@ -177,9 +176,9 @@ export default function CalculatorPage() {
   };
 
   const sunMultipliers = {
-    low: 1.0, // Terlindung / Hadap Timur
-    medium: 1.1, // Normal / Jendela Standar
-    high: 1.25, // Hadap Barat / Lantai Atas Langsung Dak Beton
+    low: 1.0,
+    medium: 1.1,
+    high: 1.25,
   };
 
   const baseBtu = area * roomFactors[roomType];
@@ -314,7 +313,7 @@ export default function CalculatorPage() {
       {/* 2. Main Interactive Workspace Section */}
       <section className="tech-body section-space">
         <div className="wrap">
-          {/* Workspace Tabs */}
+          {/* Workspace Tabs Toolbar */}
           <div className="directory-controls-row">
             <div className="directory-cat-pills">
               <button
@@ -354,7 +353,7 @@ export default function CalculatorPage() {
                 <div className="calc-card-header">
                   <div className="calc-header-title">
                     <Maximize2 size={20} color="#0284c7" />
-                    <h3>Parameter Ruangan & Beban Panas</h3>
+                    <h3>Parameter Ruangan & Beban Kalor</h3>
                   </div>
                   <button
                     type="button"
@@ -375,127 +374,153 @@ export default function CalculatorPage() {
                   </button>
                 </div>
 
-                <div className="calc-inputs-grid">
-                  {/* Dimensi Ruangan */}
-                  <div className="calc-field-group">
-                    <label>Panjang Ruangan (meter)</label>
-                    <div className="calc-number-input">
-                      <input
-                        type="number"
-                        min="1"
-                        max="30"
-                        step="0.5"
-                        value={length}
-                        onChange={(e) => setLength(Number(e.target.value) || 1)}
-                      />
-                      <span>meter</span>
+                {/* Section 1: Dimensi Ruangan */}
+                <div className="calc-group-section">
+                  <span className="calc-group-title">
+                    <Maximize2 size={14} />
+                    <span>1. Dimensi Ruangan (Meter)</span>
+                  </span>
+                  <div className="calc-inputs-row-3">
+                    <div className="calc-field-group">
+                      <label>Panjang (P)</label>
+                      <div className="calc-number-input">
+                        <input
+                          type="number"
+                          min="1"
+                          max="30"
+                          step="0.5"
+                          value={length}
+                          onChange={(e) =>
+                            setLength(Number(e.target.value) || 1)
+                          }
+                        />
+                        <span>m</span>
+                      </div>
+                    </div>
+
+                    <div className="calc-field-group">
+                      <label>Lebar (L)</label>
+                      <div className="calc-number-input">
+                        <input
+                          type="number"
+                          min="1"
+                          max="30"
+                          step="0.5"
+                          value={width}
+                          onChange={(e) =>
+                            setWidth(Number(e.target.value) || 1)
+                          }
+                        />
+                        <span>m</span>
+                      </div>
+                    </div>
+
+                    <div className="calc-field-group">
+                      <label>Tinggi Plafon (T)</label>
+                      <div className="calc-number-input">
+                        <input
+                          type="number"
+                          min="2"
+                          max="8"
+                          step="0.1"
+                          value={height}
+                          onChange={(e) =>
+                            setHeight(Number(e.target.value) || 2)
+                          }
+                        />
+                        <span>m</span>
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  <div className="calc-field-group">
-                    <label>Lebar Ruangan (meter)</label>
-                    <div className="calc-number-input">
-                      <input
-                        type="number"
-                        min="1"
-                        max="30"
-                        step="0.5"
-                        value={width}
-                        onChange={(e) => setWidth(Number(e.target.value) || 1)}
-                      />
-                      <span>meter</span>
+                {/* Section 2: Fungsi & Paparan Panas */}
+                <div className="calc-group-section mt-6">
+                  <span className="calc-group-title">
+                    <Sun size={14} />
+                    <span>2. Fungsi & Paparan Matahari</span>
+                  </span>
+                  <div className="calc-inputs-row-2">
+                    <div className="calc-field-group">
+                      <label>Fungsi / Jenis Ruangan</label>
+                      <select
+                        value={roomType}
+                        onChange={(e) => setRoomType(e.target.value as any)}
+                        className="calc-select-input"
+                      >
+                        <option value="bedroom">
+                          Kamar Tidur (Normal - 500 BTU/m²)
+                        </option>
+                        <option value="living">
+                          Ruang Tamu / Keluarga (600 BTU/m²)
+                        </option>
+                        <option value="office">
+                          Kantor / Ruang Kerja (700 BTU/m²)
+                        </option>
+                        <option value="server">
+                          Server Room / Komputer (950 BTU/m²)
+                        </option>
+                      </select>
+                    </div>
+
+                    <div className="calc-field-group">
+                      <label>Paparan Sinar Matahari</label>
+                      <select
+                        value={sunExposure}
+                        onChange={(e) => setSunExposure(e.target.value as any)}
+                        className="calc-select-input"
+                      >
+                        <option value="low">
+                          Terlindung / Menghadap Timur (+0%)
+                        </option>
+                        <option value="medium">
+                          Normal / Jendela Sedang (+10%)
+                        </option>
+                        <option value="high">
+                          Hadap Barat / Langsung Dak Beton (+25%)
+                        </option>
+                      </select>
                     </div>
                   </div>
+                </div>
 
-                  <div className="calc-field-group">
-                    <label>Tinggi Plafon (meter)</label>
-                    <div className="calc-number-input">
-                      <input
-                        type="number"
-                        min="2"
-                        max="8"
-                        step="0.1"
-                        value={height}
-                        onChange={(e) => setHeight(Number(e.target.value) || 2)}
-                      />
-                      <span>meter</span>
+                {/* Section 3: Beban Tambahan */}
+                <div className="calc-group-section mt-6">
+                  <span className="calc-group-title">
+                    <Users size={14} />
+                    <span>3. Beban Tambahan Dalam Ruangan</span>
+                  </span>
+                  <div className="calc-inputs-row-2">
+                    <div className="calc-field-group">
+                      <label>Jumlah Penghuni Rutin</label>
+                      <div className="calc-number-input">
+                        <input
+                          type="number"
+                          min="1"
+                          max="50"
+                          value={occupants}
+                          onChange={(e) =>
+                            setOccupants(Number(e.target.value) || 1)
+                          }
+                        />
+                        <span>orang</span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Jenis Ruangan */}
-                  <div className="calc-field-group">
-                    <label>Fungsi / Jenis Ruangan</label>
-                    <select
-                      value={roomType}
-                      onChange={(e) => setRoomType(e.target.value as any)}
-                      className="calc-select-input"
-                    >
-                      <option value="bedroom">
-                        Kamar Tidur (Normal - 500 BTU/m²)
-                      </option>
-                      <option value="living">
-                        Ruang Tamu / Keluarga (600 BTU/m²)
-                      </option>
-                      <option value="office">
-                        Kantor / Ruang Kerja (700 BTU/m²)
-                      </option>
-                      <option value="server">
-                        Server Room / Komputer (950 BTU/m²)
-                      </option>
-                    </select>
-                  </div>
-
-                  {/* Jumlah Orang */}
-                  <div className="calc-field-group">
-                    <label>Jumlah Penghuni Rutin</label>
-                    <div className="calc-number-input">
-                      <input
-                        type="number"
-                        min="1"
-                        max="50"
-                        value={occupants}
-                        onChange={(e) =>
-                          setOccupants(Number(e.target.value) || 1)
-                        }
-                      />
-                      <span>orang</span>
-                    </div>
-                  </div>
-
-                  {/* Paparan Sinar Matahari */}
-                  <div className="calc-field-group">
-                    <label>Paparan Sinar Matahari</label>
-                    <select
-                      value={sunExposure}
-                      onChange={(e) => setSunExposure(e.target.value as any)}
-                      className="calc-select-input"
-                    >
-                      <option value="low">
-                        Terlindung / Menghadap Timur (+0%)
-                      </option>
-                      <option value="medium">
-                        Normal / Jendela Sedang (+10%)
-                      </option>
-                      <option value="high">
-                        Hadap Barat / Langsung Dak Beton (+25%)
-                      </option>
-                    </select>
-                  </div>
-
-                  {/* Elektronik Panas */}
-                  <div className="calc-field-group">
-                    <label>Perangkat Elektronik Aktif (PC/TV/Dispenser)</label>
-                    <div className="calc-number-input">
-                      <input
-                        type="number"
-                        min="0"
-                        max="30"
-                        value={electronics}
-                        onChange={(e) =>
-                          setElectronics(Number(e.target.value) || 0)
-                        }
-                      />
-                      <span>unit</span>
+                    <div className="calc-field-group">
+                      <label>Perangkat Elektronik Aktif (PC/TV)</label>
+                      <div className="calc-number-input">
+                        <input
+                          type="number"
+                          min="0"
+                          max="30"
+                          value={electronics}
+                          onChange={(e) =>
+                            setElectronics(Number(e.target.value) || 0)
+                          }
+                        />
+                        <span>unit</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -536,7 +561,7 @@ export default function CalculatorPage() {
 
                   <div className="calc-spec-item">
                     <small>Estimasi Daya (AC Inverter Hemat Energi)</small>
-                    <strong style={{ color: "#16a34a" }}>
+                    <strong style={{ color: "#34d399" }}>
                       {recommendation.inverterWatt}
                     </strong>
                   </div>
@@ -544,7 +569,7 @@ export default function CalculatorPage() {
 
                 {/* Practical Advice Note */}
                 <div className="calc-advice-box">
-                  <Info size={18} color="#0284c7" />
+                  <Info size={18} color="#38bdf8" />
                   <p>
                     {totalRawBtu > 18000
                       ? "Ruangan besar disarankan menggunakan 2 unit AC terpisah atau sistem Multi-Split agar distribusi hembusan dingin lebih merata."
@@ -572,27 +597,34 @@ export default function CalculatorPage() {
             <div className="refrigerants-suite slide-in-up">
               {/* Refrigerant Selector Chips */}
               <div className="ref-selector-bar">
-                {Object.keys(REFRIGERANTS).map((key) => (
-                  <button
-                    key={key}
-                    type="button"
-                    className={`ref-tab-btn ${selectedRef === key ? "active" : ""}`}
-                    onClick={() => setSelectedRef(key)}
-                  >
-                    <span>{key}</span>
-                    <small>{REFRIGERANTS[key]?.type}</small>
-                  </button>
-                ))}
+                {Object.keys(REFRIGERANTS).map((key) => {
+                  const item = REFRIGERANTS[key]!;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`ref-tab-btn ${selectedRef === key ? "active" : ""}`}
+                      onClick={() => setSelectedRef(key)}
+                    >
+                      <span className="ref-key-name">{key}</span>
+                      <small className="ref-formula-tag">
+                        {item.chemicalFormula}
+                      </small>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Dossier Card for Selected Refrigerant */}
               <div className="ref-dossier-card">
                 <div className="ref-dossier-header">
                   <div>
-                    <span className="ref-category-tag">
+                    <span className="partner-cat-badge">
                       {activeRefrigerant.type}
                     </span>
-                    <h2>{activeRefrigerant.name}</h2>
+                    <h2 style={{ marginTop: "8px" }}>
+                      {activeRefrigerant.name}
+                    </h2>
                     <p className="ref-formula">
                       Formula Kimia:{" "}
                       <strong>{activeRefrigerant.chemicalFormula}</strong>
@@ -774,7 +806,7 @@ export default function CalculatorPage() {
                   </li>
                 </ul>
 
-                <div className="sop-k3-footer">
+                <div className="sop-k3-footer" style={{ marginTop: "24px" }}>
                   <Link
                     href="/events"
                     className="button secondary"
