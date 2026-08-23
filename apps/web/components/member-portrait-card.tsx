@@ -7,7 +7,6 @@ import {
   Printer,
   QrCode,
   RefreshCw,
-  Zap,
 } from "lucide-react";
 import QRCode from "qrcode";
 import { useEffect, useRef, useState } from "react";

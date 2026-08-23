@@ -19,7 +19,6 @@ import {
   Mail,
   MapPin,
   Menu,
-  MessageCircle,
   Network,
   Phone,
   ShieldAlert,
@@ -35,7 +34,6 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { memberApi } from "@/lib/member-client";
 import { useMemberAuth } from "@/lib/use-member-auth";
 
 function getNavIcon(href: string) {

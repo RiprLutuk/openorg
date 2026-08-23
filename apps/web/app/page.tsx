@@ -1,10 +1,4 @@
-import {
-  ArrowRight,
-  CalendarDays,
-  MapPin,
-  Sparkles,
-  UserPlus,
-} from "lucide-react";
+import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HomeCtaBanner } from "@/components/home-cta-banner";
