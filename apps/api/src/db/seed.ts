@@ -143,19 +143,14 @@ async function seed() {
               href: "/technicians",
             },
             {
-              id: "lender-verifier",
-              label: "Cek Platform Fintech Berizin",
-              href: "/lenders",
-            },
-            {
-              id: "clubs-directory",
-              label: "Direktori Klub & TKT",
-              href: "/clubs",
-            },
-            {
               id: "verify-kta",
               label: "Verifikasi KTA & Kredensial",
               href: "/verify",
+            },
+            {
+              id: "lender-verifier",
+              label: "Direktori Mitra & Distributor Resmi",
+              href: "/lenders",
             },
             { id: "join-terms", label: "Syarat & Pendaftaran", href: "/join" },
             {
@@ -913,24 +908,51 @@ async function seed() {
       },
     ]);
 
-    // 13. Verifikasi Entity / Lender / Fintech Berizin (AFPI, AFTECH, APPI)
+    // 13. Verifikasi Entity / Mitra Prinsipal & Distributor Resmi Sektor HVAC/R
     await tx.insert(lenderRegistries).values([
       {
-        brandName: "Fintech Pendanaan Utama",
-        companyName: "PT Indonesia Digital Lending",
-        licenseNumber: "KEP-102/D.05/2024",
-        sectorType: "P2P Lending Produktif UMKM",
-        ojkStatus: "Berizin OJK Resmi",
-        websiteUrl: "https://fintechutama.co.id",
+        brandName: "Daikin Indonesia HVAC Partner",
+        companyName: "PT Daikin Airconditioning Indonesia",
+        licenseNumber: "SK-MITRA-DPP-001",
+        sectorType: "Prinsipal & Manufaktur AC",
+        ojkStatus: "Mitra Prinsipal Resmi",
+        websiteUrl: "https://daikin.co.id",
         isAfpiMember: true,
       },
       {
-        brandName: "Multifinance Solusi Jaya",
-        companyName: "PT Multifinance Solusi Indonesia",
-        licenseNumber: "KEP-088/D.05/2023",
-        sectorType: "Perusahaan Pembiayaan Alat Berat",
-        ojkStatus: "Berizin OJK Resmi",
-        websiteUrl: "https://multifinancesolusi.co.id",
+        brandName: "Panasonic Cooling Solutions",
+        companyName: "PT Panasonic Gobel Indonesia",
+        licenseNumber: "SK-MITRA-DPP-002",
+        sectorType: "Prinsipal & Manufaktur AC",
+        ojkStatus: "Mitra Prinsipal Resmi",
+        websiteUrl: "https://panasonic.com/id",
+        isAfpiMember: true,
+      },
+      {
+        brandName: "Danfoss Refrigeration Supply",
+        companyName: "PT Danfoss Indonesia",
+        licenseNumber: "SK-DIST-DPP-003",
+        sectorType: "Distributor Komponen & Kompresor",
+        ojkStatus: "Distributor Terakreditasi",
+        websiteUrl: "https://danfoss.com",
+        isAfpiMember: true,
+      },
+      {
+        brandName: "Refco & Value Tools Indonesia",
+        companyName: "PT Prima Alat Refrigerasi",
+        licenseNumber: "SK-DIST-DPP-004",
+        sectorType: "Penyedia Alat Kerja & Pompa Vakum",
+        ojkStatus: "Distributor Terakreditasi",
+        websiteUrl: "https://refco.ch",
+        isAfpiMember: true,
+      },
+      {
+        brandName: "Kredit Usaha Mandiri Alat HVAC",
+        companyName: "PT Sinergi Pembiayaan Bengkel",
+        licenseNumber: "KEP-102/D.05/2024",
+        sectorType: "Pembiayaan Alat & Modal Bengkel",
+        ojkStatus: "Berizin OJK & Rekanan Resmi",
+        websiteUrl: "https://sinergipembiayaan.co.id",
         isAfpiMember: true,
       },
     ]);

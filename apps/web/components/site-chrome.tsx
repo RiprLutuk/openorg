@@ -191,7 +191,7 @@ export function Header({ site }: { site: PublicSite }) {
         },
         {
           id: "lender-verifier",
-          label: "Cek Platform Fintech Berizin",
+          label: "Direktori Mitra & Distributor Resmi",
           href: "/lenders",
         },
         ...(isLoggedIn
@@ -335,6 +335,15 @@ export function Header({ site }: { site: PublicSite }) {
             ) {
               childHref = "/join";
               childLabel = "Syarat & Pendaftaran Anggota";
+            } else if (
+              childId === "lender-verifier" ||
+              childLabel.toLowerCase().includes("mitra") ||
+              childLabel.toLowerCase().includes("distributor") ||
+              childLabel.toLowerCase().includes("fintech") ||
+              childHref === "/lenders"
+            ) {
+              childHref = "/lenders";
+              childLabel = "Direktori Mitra & Distributor Resmi";
             }
 
             return {

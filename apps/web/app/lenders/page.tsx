@@ -2,15 +2,24 @@
 
 import {
   ArrowRight,
-  BadgeCheck,
+  Boxes,
   Building2,
+  Check,
   CheckCircle2,
-  Copy,
+  Coins,
+  Cpu,
   ExternalLink,
+  Factory,
+  Gauge,
+  Handshake,
+  Landmark,
   Loader2,
+  PackageCheck,
   Search,
-  ShieldAlert,
+  Shield,
   ShieldCheck,
+  Sparkles,
+  Wrench,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -27,6 +36,95 @@ interface Lender {
   ojkStatus: string;
   websiteUrl: string | null;
   isAfpiMember: boolean;
+}
+
+interface PartnerSectorMeta {
+  label: string;
+  shortLabel: string;
+  icon: any;
+  color: string;
+  bgClass: string;
+  description: string;
+}
+
+function getPartnerSectorMeta(sector: string): PartnerSectorMeta {
+  const lower = (sector || "").toLowerCase();
+
+  if (
+    lower.includes("prinsipal") ||
+    lower.includes("manufaktur") ||
+    lower.includes("pabrik")
+  ) {
+    return {
+      label: "Prinsipal & Manufaktur AC",
+      shortLabel: "Manufaktur AC",
+      icon: Factory,
+      color: "#0284c7",
+      bgClass: "partner-cat-principal",
+      description:
+        "Pabrikan resmi unit pendingin residensial & komersial dengan sertifikasi mutu SNI dan garansi prinsipal.",
+    };
+  }
+
+  if (
+    lower.includes("distributor") ||
+    lower.includes("komponen") ||
+    lower.includes("kompresor") ||
+    lower.includes("freon")
+  ) {
+    return {
+      label: "Distributor Komponen & Kompresor",
+      shortLabel: "Suku Cadang",
+      icon: Boxes,
+      color: "#d97706",
+      bgClass: "partner-cat-distributor",
+      description:
+        "Distributor resmi penyedia suku cadang asli, kompresor inverter, pipa tembaga, dan refrigeran ramah lingkungan.",
+    };
+  }
+
+  if (
+    lower.includes("alat") ||
+    lower.includes("pompa") ||
+    lower.includes("vakum") ||
+    lower.includes("tools")
+  ) {
+    return {
+      label: "Peralatan Kerja & Pompa Vakum",
+      shortLabel: "Alat Kerja",
+      icon: Wrench,
+      color: "#16a34a",
+      bgClass: "partner-cat-tools",
+      description:
+        "Penyedia manifold digital, pompa vakum dua tahap, flaring kit berstandar K3, dan instrumen ukur refrigerasi.",
+    };
+  }
+
+  if (
+    lower.includes("pembiayaan") ||
+    lower.includes("modal") ||
+    lower.includes("kredit") ||
+    lower.includes("fintech")
+  ) {
+    return {
+      label: "Pembiayaan Alat & Modal Bengkel",
+      shortLabel: "Pembiayaan",
+      icon: Landmark,
+      color: "#6366f1",
+      bgClass: "partner-cat-finance",
+      description:
+        "Mitra lembaga pembiayaan resmi berizin OJK untuk fasilitas permodalan kerja dan pengadaan alat workshop anggota.",
+    };
+  }
+
+  return {
+    label: sector || "Mitra Industri HVAC/R",
+    shortLabel: sector || "Mitra Resmi",
+    icon: Handshake,
+    color: "#0284c7",
+    bgClass: "partner-cat-principal",
+    description: "Perusahaan rekanan resmi ekosistem pendingin & tata udara.",
+  };
 }
 
 function LendersContent() {
@@ -65,7 +163,7 @@ function LendersContent() {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
         const res = await fetch(`${apiUrl}/v1/public/lenders`);
-        if (!res.ok) throw new Error("Failed to load lenders");
+        if (!res.ok) throw new Error("Failed to load partners");
         const json = await res.json();
         setLenders(json.data ?? []);
       } catch (err) {
@@ -109,19 +207,20 @@ function LendersContent() {
       <header className="tech-hero lenders-hero-refined">
         <div className="wrap tech-hero-inner">
           <div className="tech-hero-pill">
-            <ShieldCheck size={15} color="#38bdf8" />
-            <span>PORTAL PROTEKSI KONSUMEN & FINTECH BERIZIN</span>
+            <Sparkles size={15} color="#38bdf8" />
+            <span>PORTAL EKOSISTEM SUPPLY CHAIN & REKANAN RESMI</span>
           </div>
 
           <h1 className="tech-hero-title">
-            Direktori Pembiayaan & Fintech{" "}
-            <span className="text-gradient">Resmi Berizin OJK</span>
+            Direktori Mitra Prinsipal &{" "}
+            <span className="text-gradient">Distributor Resmi</span>
           </h1>
 
           <p className="tech-hero-lead">
-            Pastikan mitra pembiayaan modal kerja, pengadaan alat, dan suku
-            cadang bengkel Anda telah memiliki izin resmi Otoritas Jasa Keuangan
-            (OJK) serta patuh pada standar kode etik asosiasi.
+            Daftar resmi pabrikan AC, distributor suku cadang, penyedia alat
+            ukur refrigerasi, dan mitra pembiayaan pengadaan alat kerja bengkel
+            yang terakreditasi oleh asosiasi demi menjamin keaslian komponen dan
+            standar keselamatan kerja K3.
           </p>
 
           {/* Impact Metrics Bar */}
@@ -131,8 +230,8 @@ function LendersContent() {
                 <ShieldCheck size={22} color="#34d399" />
               </div>
               <div>
-                <strong>100% Berizin OJK</strong>
-                <small>Legalitas Terverifikasi</small>
+                <strong>100% Rekanan Sah</strong>
+                <small>Akreditasi DPP Asosiasi</small>
               </div>
             </div>
             <div className="tech-metric-box">
@@ -140,25 +239,25 @@ function LendersContent() {
                 <Building2 size={22} color="#38bdf8" />
               </div>
               <div>
-                <strong>{lenders.length || 10}+ Platform Mitra</strong>
-                <small>Modal Kerja & Alat</small>
+                <strong>{lenders.length || 5}+ Mitra Terdaftar</strong>
+                <small>Pabrikan & Distributor</small>
               </div>
             </div>
             <div className="tech-metric-box">
               <div className="tech-metric-icon">
-                <BadgeCheck size={22} color="#818cf8" />
+                <PackageCheck size={22} color="#818cf8" />
               </div>
               <div>
-                <strong>Anggota AFPI Resmi</strong>
-                <small>Bunga Transparan</small>
+                <strong>Suku Cadang Asli</strong>
+                <small>Garansi Resmi Pabrikan</small>
               </div>
             </div>
             <div className="tech-metric-box">
               <div className="tech-metric-icon">
-                <ShieldAlert size={22} color="#f59e0b" />
+                <Handshake size={22} color="#f59e0b" />
               </div>
               <div>
-                <strong>Zero Pinjol Ilegal</strong>
+                <strong>Dukungan Advokasi</strong>
                 <small>Proteksi Anggota</small>
               </div>
             </div>
@@ -176,7 +275,7 @@ function LendersContent() {
               <Search size={17} className="search-icon" />
               <input
                 type="text"
-                placeholder="Cari nama platform, nama PT, atau nomor izin OJK..."
+                placeholder="Cari nama mitra, nama perusahaan, atau no. SK kemitraan..."
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -209,7 +308,7 @@ function LendersContent() {
                   }}
                   className="tech-select-input"
                 >
-                  <option value="all">Semua Sektor Pembiayaan</option>
+                  <option value="all">Semua Kategori Kemitraan</option>
                   {sectors.map((s) => (
                     <option key={s} value={s}>
                       {s}
@@ -224,102 +323,118 @@ function LendersContent() {
           {isLoading ? (
             <div className="tech-loading-state">
               <Loader2 size={36} className="animate-spin text-primary" />
-              <p>Memuat direktori lembaga pembiayaan terverifikasi...</p>
+              <p>Memuat direktori mitra & distributor terakreditasi...</p>
             </div>
           ) : (
             <div className="tech-cards-grid">
               {filtered.length > 0 ? (
-                filtered.map((lender) => (
-                  <article
-                    className="tech-card-modern lender-card"
-                    key={lender.id}
-                  >
-                    {/* Top Bar: OJK Badge & Sector */}
-                    <div className="tech-card-top">
-                      <span className="lender-ojk-badge">
-                        <ShieldCheck size={12} color="#16a34a" />
-                        <span>Izin OJK Sah</span>
-                      </span>
+                filtered.map((partner) => {
+                  const catMeta = getPartnerSectorMeta(partner.sectorType);
+                  const CatIcon = catMeta.icon;
 
-                      <span className="tech-skill-badge">
-                        <span>{lender.sectorType || "Fintech Lending"}</span>
-                      </span>
-                    </div>
-
-                    {/* Profile Header Button */}
-                    <button
-                      type="button"
-                      className="tech-profile-btn"
-                      onClick={() => setActiveLenderModal(lender)}
+                  return (
+                    <article
+                      className="tech-card-modern lender-card"
+                      key={partner.id}
                     >
-                      <div className="tech-avatar-frame lender-avatar">
-                        <Building2 size={24} color="#0284c7" />
-                      </div>
-
-                      <div className="tech-profile-copy">
-                        <h4>{lender.brandName}</h4>
-                        <p className="tech-workshop-text">
-                          {lender.companyName}
-                        </p>
-                      </div>
-                    </button>
-
-                    {/* License Badge */}
-                    <div className="lender-license-row">
-                      <small>No. Keputusan OJK:</small>
-                      <strong>{lender.licenseNumber}</strong>
-                    </div>
-
-                    {/* Footer Row: Actions */}
-                    <div className="tech-card-footer">
-                      <button
-                        type="button"
-                        className="tech-kta-btn"
-                        onClick={(e) =>
-                          handleCopyLicense(e, lender.licenseNumber)
-                        }
-                        title="Klik untuk menyalin nomor izin OJK"
-                      >
-                        <Copy size={12} />
-                        <span>
-                          {copiedLicense === lender.licenseNumber
-                            ? "Izin Tersalin!"
-                            : "Salin Izin"}
-                        </span>
-                      </button>
-
-                      <div className="tech-actions-quick">
-                        {lender.websiteUrl && (
-                          <a
-                            href={lender.websiteUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn-quick-wa"
-                            title="Buka Website Resmi"
-                          >
-                            <ExternalLink size={13} />
-                            <span>Website</span>
-                          </a>
-                        )}
+                      {/* Top Bar: SK Kemitraan Badge & Category (Exact 26px Height) */}
+                      <div className="tech-card-top">
                         <button
                           type="button"
-                          className="tech-detail-btn"
-                          onClick={() => setActiveLenderModal(lender)}
+                          className="partner-sk-badge"
+                          onClick={(e) =>
+                            handleCopyLicense(e, partner.licenseNumber)
+                          }
+                          title={
+                            copiedLicense === partner.licenseNumber
+                              ? "Nomor SK Tersalin!"
+                              : "Klik untuk menyalin nomor SK"
+                          }
+                          aria-label={`Salin SK ${partner.licenseNumber}`}
                         >
-                          <span>Detail</span>
-                          <ArrowRight size={12} />
+                          {copiedLicense === partner.licenseNumber ? (
+                            <Check size={12} color="#16a34a" />
+                          ) : (
+                            <CheckCircle2 size={12} color="#16a34a" />
+                          )}
+                          <span>{partner.licenseNumber}</span>
                         </button>
+
+                        <span
+                          className={`partner-cat-badge ${catMeta.bgClass}`}
+                          title={catMeta.label}
+                        >
+                          <CatIcon size={12} />
+                          <span>{catMeta.shortLabel}</span>
+                        </span>
                       </div>
-                    </div>
-                  </article>
-                ))
+
+                      {/* Profile Header Button */}
+                      <button
+                        type="button"
+                        className="tech-profile-btn"
+                        onClick={() => setActiveLenderModal(partner)}
+                      >
+                        <div className="tech-avatar-frame lender-avatar">
+                          <CatIcon size={24} color={catMeta.color} />
+                        </div>
+
+                        <div className="tech-profile-copy">
+                          <h4>{partner.brandName}</h4>
+                          <p className="tech-workshop-text">
+                            {partner.companyName}
+                          </p>
+                        </div>
+                      </button>
+
+                      {/* License Info Box */}
+                      <div className="lender-license-row">
+                        <small>Status Kemitraan Organisasi:</small>
+                        <strong>
+                          {partner.ojkStatus || "Mitra Resmi Terakreditasi"}
+                        </strong>
+                      </div>
+
+                      {/* Footer Row: Actions */}
+                      <div className="tech-card-footer">
+                        <span className="club-status-chip">
+                          <CheckCircle2 size={11} color="#16a34a" />
+                          <span>Terverifikasi DPP</span>
+                        </span>
+
+                        <div className="tech-actions-quick">
+                          {partner.websiteUrl && (
+                            <a
+                              href={partner.websiteUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-quick-wa"
+                              title="Buka Website Resmi Mitra"
+                            >
+                              <ExternalLink size={12} />
+                              <span>Website</span>
+                            </a>
+                          )}
+                          <button
+                            type="button"
+                            className="tech-detail-btn"
+                            onClick={() => setActiveLenderModal(partner)}
+                          >
+                            <span>Detail</span>
+                            <ArrowRight size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })
               ) : (
                 <div className="tech-empty-state">
                   <ShieldCheck size={44} color="#94a3b8" />
-                  <h3>Platform Tidak Ditemukan</h3>
+                  <h3>Mitra / Distributor Tidak Ditemukan</h3>
                   <p>
-                    Periksa kembali ejaan nama platform atau nomor izin OJK yang
-                    Anda cari.
+                    Periksa kembali kata kunci pencarian atau kategori kemitraan
+                    yang Anda pilih.
                   </p>
                   <button
                     type="button"
@@ -339,20 +454,20 @@ function LendersContent() {
         </div>
       </section>
 
-      {/* 3. Smart Consumer Warning & Protection Banner */}
+      {/* 3. Bottom CTA: Partnership Engagement */}
       <DynamicBottomCta
         organizationName="APTI Indonesia"
-        guestTitle="Waspada Penipuan Pinjaman Online Ilegal!"
-        guestDescription="Asosiasi mengimbau seluruh anggota untuk tidak menggunakan jasa keuangan yang tidak terdaftar di OJK. Hubungi layanan pengaduan konsumen jika menemukan indikasi pelanggaran."
-        guestPrimaryCta={{ label: "Lapor Entitas Ilegal", href: "/complaints" }}
+        guestTitle="Ingin Menjadi Mitra Resmi Pabrikan atau Distributor?"
+        guestDescription="Jalin kerjasama resmi bersama asosiasi untuk menyalurkan produk suku cadang bergaransi asli dan pelatihan teknis langsung kepada ribuan teknisi di seluruh Indonesia."
+        guestPrimaryCta={{ label: "Ajukan Kerjasama Kemitraan", href: "/join" }}
         guestSecondaryCta={{
-          label: "Pedoman Etik Keuangan",
-          href: "/regulations?kategori=regulasi-pemerintah",
+          label: "Konsultasi Sekretariat DPP",
+          href: "/organization-profile",
         }}
-        memberTitle="Akses Fasilitas Pembiayaan Alat & Modal"
-        memberDescription="Sebagai anggota aktif terverifikasi, Anda berhak mengajukan skema fasilitas permodalan bengkel melalui mitra resmi asosiasi yang berizin OJK."
+        memberTitle="Akses Diskon Khusus Suku Cadang & Alat Kerja"
+        memberDescription="Sebagai anggota aktif KTA, Anda berhak memperoleh potongan harga khusus dari prinsipal mitra serta fasilitas pembiayaan alat kerja bengkel."
         memberPrimaryCta={{ label: "Buka Portal Anggota", href: "/member" }}
-        memberSecondaryCta={{ label: "Posko Pengaduan", href: "/complaints" }}
+        memberSecondaryCta={{ label: "Cek Agenda Workshop", href: "/events" }}
       />
 
       {/* 4. Interactive Detail Modal */}
@@ -371,7 +486,7 @@ function LendersContent() {
             <div className="leader-modal-header">
               <div className="modal-title-wrap">
                 <ShieldCheck size={20} color="#38bdf8" />
-                <h3>Kredensial Legalitas Lembaga Pembiayaan</h3>
+                <h3>Kredensial Akreditasi Kemitraan Resmi</h3>
               </div>
               <button
                 type="button"
@@ -384,76 +499,107 @@ function LendersContent() {
             </div>
 
             <div className="leader-modal-body">
-              <div className="modal-profile-hero">
-                <div className="modal-avatar-frame lender-modal-avatar">
-                  <Building2 size={28} color="#0284c7" />
-                </div>
+              {(() => {
+                const catMeta = getPartnerSectorMeta(
+                  activeLenderModal.sectorType,
+                );
+                const CatIcon = catMeta.icon;
 
-                <div className="modal-profile-copy">
-                  <span className="modal-tier-badge">
-                    {activeLenderModal.sectorType || "Fintech Lending"}
-                  </span>
-                  <h4>{activeLenderModal.brandName}</h4>
-                  <p className="modal-role">
-                    Badan Hukum: {activeLenderModal.companyName}
-                  </p>
-                </div>
-              </div>
+                return (
+                  <>
+                    <div className="modal-profile-hero">
+                      <div className="modal-avatar-frame lender-modal-avatar">
+                        <CatIcon size={28} color={catMeta.color} />
+                      </div>
 
-              <div className="modal-data-grid">
-                <div className="modal-data-item">
-                  <small>Nomor Izin OJK Resmi</small>
-                  <strong>{activeLenderModal.licenseNumber}</strong>
-                </div>
-                <div className="modal-data-item">
-                  <small>Status Pengawasan</small>
-                  <span className="modal-status-pill">
-                    <CheckCircle2 size={12} /> Terdaftar & Berizin OJK
-                  </span>
-                </div>
-                <div className="modal-data-item">
-                  <small>Keanggotaan Asosiasi</small>
-                  <strong>
-                    {activeLenderModal.isAfpiMember
-                      ? "Anggota Resmi AFPI"
-                      : "Dalam Proses Asosiasi"}
-                  </strong>
-                </div>
-                <div className="modal-data-item">
-                  <small>Peruntukan Pembiayaan</small>
-                  <strong style={{ color: "#0284c7" }}>
-                    Modal Kerja & Pengadaan Alat Bengkel
-                  </strong>
-                </div>
-              </div>
+                      <div className="modal-profile-copy">
+                        <span
+                          className={`partner-cat-badge ${catMeta.bgClass}`}
+                          style={{ marginBottom: "6px" }}
+                        >
+                          <CatIcon size={12} />
+                          <span>{catMeta.label}</span>
+                        </span>
+                        <h4>{activeLenderModal.brandName}</h4>
+                        <p className="modal-role">
+                          Badan Hukum: {activeLenderModal.companyName}
+                        </p>
+                      </div>
+                    </div>
 
-              <div className="modal-actions-row">
-                {activeLenderModal.websiteUrl && (
-                  <a
-                    href={activeLenderModal.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="button primary btn-modal-action"
-                  >
-                    <ExternalLink size={15} />
-                    <span>Kunjungi Portal Resmi</span>
-                  </a>
-                )}
-                <button
-                  type="button"
-                  className="button secondary btn-modal-copy"
-                  onClick={(e) =>
-                    handleCopyLicense(e, activeLenderModal.licenseNumber)
-                  }
-                >
-                  <Copy size={15} />
-                  <span>
-                    {copiedLicense === activeLenderModal.licenseNumber
-                      ? "Izin Tersalin!"
-                      : "Salin No. Izin"}
-                  </span>
-                </button>
-              </div>
+                    {/* Piagam Kemitraan Box */}
+                    <div className="modal-leveling-box">
+                      <div className="modal-leveling-header">
+                        <div className="modal-leveling-title">
+                          <Handshake size={18} color="#0284c7" />
+                          <h5>Pengesahan Rekanan Ekosistem DPP</h5>
+                        </div>
+                        <span className="modal-status-pill">
+                          <CheckCircle2 size={12} /> Terakreditasi Sah
+                        </span>
+                      </div>
+                      <p className="modal-leveling-scope">
+                        {catMeta.description} Perusahaan ini terdaftar resmi
+                        dalam MoU kerjasama organisasi untuk penyediaan suku
+                        cadang asli, transfer teknologi, dan dukungan garansi
+                        bagi teknisi anggota.
+                      </p>
+                    </div>
+
+                    <div className="modal-data-grid">
+                      <div className="modal-data-item">
+                        <small>Nomor SK Kemitraan DPP</small>
+                        <strong>{activeLenderModal.licenseNumber}</strong>
+                      </div>
+                      <div className="modal-data-item">
+                        <small>Status Akreditasi</small>
+                        <span className="modal-status-pill">
+                          <CheckCircle2 size={12} />{" "}
+                          {activeLenderModal.ojkStatus || "Rekanan Resmi"}
+                        </span>
+                      </div>
+                      <div className="modal-data-item">
+                        <small>Kategori Ekosistem</small>
+                        <strong>{catMeta.label}</strong>
+                      </div>
+                      <div className="modal-data-item">
+                        <small>Jaminan Produk</small>
+                        <strong style={{ color: "#16a34a" }}>
+                          ✓ 100% Original Bergaransi
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="modal-actions-row">
+                      {activeLenderModal.websiteUrl && (
+                        <a
+                          href={activeLenderModal.websiteUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="button primary btn-modal-action"
+                        >
+                          <ExternalLink size={15} />
+                          <span>Kunjungi Portal Resmi</span>
+                        </a>
+                      )}
+                      <button
+                        type="button"
+                        className="button secondary btn-modal-copy"
+                        onClick={(e) =>
+                          handleCopyLicense(e, activeLenderModal.licenseNumber)
+                        }
+                      >
+                        <Check size={15} />
+                        <span>
+                          {copiedLicense === activeLenderModal.licenseNumber
+                            ? "SK Tersalin!"
+                            : "Salin No. SK"}
+                        </span>
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -468,7 +614,7 @@ export default function LendersPage() {
       fallback={
         <div className="tech-loading-state" style={{ minHeight: "50vh" }}>
           <Loader2 size={36} className="animate-spin text-primary" />
-          <p>Memuat direktori lembaga pembiayaan terverifikasi...</p>
+          <p>Memuat direktori mitra & distributor terakreditasi...</p>
         </div>
       }
     >
