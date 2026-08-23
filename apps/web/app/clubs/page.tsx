@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface Club {
   id: string;
@@ -309,30 +310,21 @@ export default function ClubsPage() {
         </div>
       </section>
 
-      {/* 3. Bottom Conversion CTA */}
-      <section className="tech-bottom-cta">
-        <div className="wrap">
-          <div className="tech-cta-shell">
-            <div className="tech-cta-content">
-              <h2>Ingin Mendaftarkan Komunitas Anda Mendapat TKT?</h2>
-              <p>
-                Dapatkan nomor Tanda Klub Terdaftar (TKT) resmi dari pengurus
-                DPD/DPP untuk pengakuan legalitas, akses pelatihan bersama, dan
-                advokasi profesi.
-              </p>
-            </div>
-            <div className="tech-cta-actions">
-              <Link href="/join" className="button primary btn-cta-main">
-                <span>Ajukan Registrasi Klub</span>
-                <ArrowRight size={17} />
-              </Link>
-              <Link href="/structure" className="button secondary btn-cta-sec">
-                <span>Kontak Pengurus DPD</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 3. Smart Conversion CTA */}
+      <DynamicBottomCta
+        organizationName="APTI Indonesia"
+        guestTitle="Ingin Mendaftarkan Komunitas Anda Mendapat TKT?"
+        guestDescription="Dapatkan nomor Tanda Klub Terdaftar (TKT) resmi dari pengurus DPD/DPP untuk pengakuan legalitas, akses pelatihan bersama, dan advokasi profesi."
+        guestPrimaryCta={{ label: "Ajukan Registrasi Klub", href: "/join" }}
+        guestSecondaryCta={{ label: "Kontak Pengurus DPD", href: "/structure" }}
+        memberTitle="Daftarkan Komunitas atau Bengkel Anda"
+        memberDescription="Sebagai anggota aktif, Anda dapat membentuk dan mendaftarkan klub binaan daerah untuk mendapatkan nomor TKT resmi."
+        memberPrimaryCta={{ label: "Buka Portal Anggota", href: "/member" }}
+        memberSecondaryCta={{
+          label: "Struktur Kepengurusan",
+          href: "/structure",
+        }}
+      />
 
       {/* 4. Interactive Detail Modal */}
       {activeClubModal && (

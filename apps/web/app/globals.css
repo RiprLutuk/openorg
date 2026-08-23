@@ -11200,6 +11200,9 @@ img {
 }
 
 .btn-cta-main {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
   background: #ffffff !important;
   color: #0284c7 !important;
   font-weight: 800 !important;
@@ -11213,6 +11216,9 @@ img {
 }
 
 .btn-cta-sec {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
   background: rgba(255, 255, 255, 0.15) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;

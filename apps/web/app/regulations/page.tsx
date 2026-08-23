@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface Regulation {
   id: string;
@@ -324,29 +325,16 @@ export default function RegulationsPage() {
         </div>
       </section>
 
-      {/* 3. Bottom Conversion CTA */}
-      <section className="reg-bottom-cta">
-        <div className="wrap">
-          <div className="reg-cta-shell">
-            <div className="reg-cta-content">
-              <h2>Butuh Bantuan Konsultasi Hukum & Regulasi?</h2>
-              <p>
-                Sekretariat DPP siap membantu mediasi sengketa etik, konsultasi
-                standar kerja K3, serta advokasi kebijakan industri pendingin.
-              </p>
-            </div>
-            <div className="reg-cta-actions">
-              <Link href="/complaints" className="button primary btn-cta-main">
-                <span>Posko Pengaduan JENDELA</span>
-                <ArrowRight size={17} />
-              </Link>
-              <Link href="/structure" className="button secondary btn-cta-sec">
-                <span>Kontak Pengurus</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 3. Smart Conversion CTA */}
+      <DynamicBottomCta
+        organizationName="APTI Indonesia"
+        guestTitle="Butuh Bantuan Konsultasi Hukum & Regulasi?"
+        guestDescription="Sekretariat DPP siap membantu mediasi sengketa etik, konsultasi standar kerja K3, serta advokasi kebijakan industri pendingin."
+        guestPrimaryCta={{ label: "Posko Pengaduan", href: "/complaints" }}
+        guestSecondaryCta={{ label: "Kontak Pengurus", href: "/structure" }}
+        memberPrimaryCta={{ label: "Posko Pengaduan", href: "/complaints" }}
+        memberSecondaryCta={{ label: "Portal Anggota", href: "/member" }}
+      />
     </div>
   );
 }

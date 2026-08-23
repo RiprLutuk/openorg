@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { getSite } from "@/lib/api";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -454,29 +455,14 @@ export default async function OrganizationProfilePage() {
         </div>
       </section>
 
-      {/* 7. Conversion Footer Banner */}
-      <section className="org-bottom-cta">
-        <div className="wrap">
-          <div className="org-cta-shell">
-            <div className="org-cta-content">
-              <h2>Tingkatkan Legitimasi Profesionalisme Usaha Anda</h2>
-              <p>
-                Bergabunglah bersama ribuan praktisi dan workshop pendingin
-                terakreditasi di seluruh Indonesia dengan KTA Digital resmi.
-              </p>
-            </div>
-            <div className="org-cta-actions">
-              <Link href="/join" className="button primary btn-cta-main">
-                <span>Daftar Jadi Anggota</span>
-                <ArrowRight size={17} />
-              </Link>
-              <Link href="/whois" className="button secondary btn-cta-sec">
-                <span>Cek Validitas KTA</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 7. Smart Conversion Footer Banner */}
+      <DynamicBottomCta
+        organizationName={site.organization.name}
+        guestTitle="Tingkatkan Legitimasi Profesionalisme Usaha Anda"
+        guestDescription="Bergabunglah bersama ribuan praktisi dan workshop pendingin terakreditasi di seluruh Indonesia dengan KTA Digital resmi."
+        guestPrimaryCta={{ label: "Daftar Jadi Anggota", href: "/join" }}
+        guestSecondaryCta={{ label: "Cek Validitas KTA", href: "/verify" }}
+      />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { getSite } from "@/lib/api";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -404,29 +405,14 @@ export default async function VisionMissionPage() {
         </div>
       </section>
 
-      {/* 6. High-Impact Conversion CTA */}
-      <section className="vm-bottom-cta">
-        <div className="wrap">
-          <div className="vm-cta-shell">
-            <div className="vm-cta-content">
-              <h2>Wujudkan Industri Pendingin yang Profesional & Kredibel</h2>
-              <p>
-                Mari bergabung bersama ribuan teknisi dan bengkel terakreditasi
-                di 38 provinsi di seluruh Nusantara.
-              </p>
-            </div>
-            <div className="vm-cta-actions">
-              <Link href="/join" className="button primary btn-cta-main">
-                <span>Daftar Keanggotaan</span>
-                <ArrowRight size={17} />
-              </Link>
-              <Link href="/whois" className="button secondary btn-cta-sec">
-                <span>Cek Registri Anggota</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 6. Smart Conversion Footer Banner */}
+      <DynamicBottomCta
+        organizationName={site.organization.name}
+        guestTitle="Wujudkan Industri Pendingin yang Profesional & Kredibel"
+        guestDescription="Mari bergabung bersama ribuan teknisi dan bengkel terakreditasi di 38 provinsi di seluruh Nusantara."
+        guestPrimaryCta={{ label: "Daftar Keanggotaan", href: "/join" }}
+        guestSecondaryCta={{ label: "Cek Registri Anggota", href: "/verify" }}
+      />
     </div>
   );
 }

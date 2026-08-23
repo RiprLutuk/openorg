@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { InteractiveStructurePreview } from "@/components/interactive-structure-preview";
 import { getSite, getStructure } from "@/lib/api";
 
@@ -230,33 +231,14 @@ export default async function StructurePage() {
         </div>
       </section>
 
-      {/* 4. Bottom Conversion Banner */}
-      <section className="struct-bottom-cta">
-        <div className="wrap">
-          <div className="struct-cta-shell">
-            <div className="struct-cta-content">
-              <h2>Ingin Berkontribusi dalam Kepengurusan Daerah?</h2>
-              <p>
-                Asosiasi membuka kesempatan bagi para praktisi dan pemilik
-                workshop terakreditasi untuk bergabung dalam jejaring pengurus
-                DPD provinsi dan Korwil.
-              </p>
-            </div>
-            <div className="struct-cta-actions">
-              <Link href="/join" className="button primary btn-cta-main">
-                <span>Daftar Keanggotaan</span>
-                <ArrowRight size={17} />
-              </Link>
-              <Link
-                href="/regulations"
-                className="button secondary btn-cta-sec"
-              >
-                <span>Pelajari AD/ART</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 4. Smart Conversion Banner */}
+      <DynamicBottomCta
+        organizationName={site.organization.name}
+        guestTitle="Ingin Berkontribusi dalam Kepengurusan Daerah?"
+        guestDescription="Asosiasi membuka kesempatan bagi para praktisi dan pemilik workshop terakreditasi untuk bergabung dalam jejaring pengurus DPD provinsi dan Korwil."
+        guestPrimaryCta={{ label: "Daftar Keanggotaan", href: "/join" }}
+        guestSecondaryCta={{ label: "Verifikasi Pengurus", href: "/verify" }}
+      />
     </div>
   );
 }

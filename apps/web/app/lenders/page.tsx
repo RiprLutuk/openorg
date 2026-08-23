@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface Lender {
   id: string;
@@ -307,33 +308,21 @@ export default function LendersPage() {
         </div>
       </section>
 
-      {/* 3. Bottom Consumer Warning & Protection Banner */}
-      <section className="tech-bottom-cta">
-        <div className="wrap">
-          <div className="tech-cta-shell">
-            <div className="tech-cta-content">
-              <h2>Waspada Penipuan Pinjaman Online Ilegal!</h2>
-              <p>
-                Asosiasi mengimbau seluruh anggota untuk tidak menggunakan jasa
-                keuangan yang tidak terdaftar di OJK. Hubungi layanan pengaduan
-                konsumen jika menemukan indikasi pelanggaran.
-              </p>
-            </div>
-            <div className="tech-cta-actions">
-              <Link href="/complaints" className="button primary btn-cta-main">
-                <span>Lapor Entitas Ilegal</span>
-                <ArrowRight size={17} />
-              </Link>
-              <Link
-                href="/regulations"
-                className="button secondary btn-cta-sec"
-              >
-                <span>Pedoman Etik Keuangan</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 3. Smart Consumer Warning & Protection Banner */}
+      <DynamicBottomCta
+        organizationName="APTI Indonesia"
+        guestTitle="Waspada Penipuan Pinjaman Online Ilegal!"
+        guestDescription="Asosiasi mengimbau seluruh anggota untuk tidak menggunakan jasa keuangan yang tidak terdaftar di OJK. Hubungi layanan pengaduan konsumen jika menemukan indikasi pelanggaran."
+        guestPrimaryCta={{ label: "Lapor Entitas Ilegal", href: "/complaints" }}
+        guestSecondaryCta={{
+          label: "Pedoman Etik Keuangan",
+          href: "/regulations",
+        }}
+        memberTitle="Akses Fasilitas Pembiayaan Alat & Modal"
+        memberDescription="Sebagai anggota aktif terverifikasi, Anda berhak mengajukan skema fasilitas permodalan bengkel melalui mitra resmi asosiasi yang berizin OJK."
+        memberPrimaryCta={{ label: "Buka Portal Anggota", href: "/member" }}
+        memberSecondaryCta={{ label: "Posko Pengaduan", href: "/complaints" }}
+      />
 
       {/* 4. Interactive Detail Modal */}
       {activeLenderModal && (

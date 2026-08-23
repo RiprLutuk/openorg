@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface Technician {
   id: string;
@@ -380,30 +381,18 @@ export default function TechniciansPage() {
         </div>
       </section>
 
-      {/* 3. Bottom Conversion CTA */}
-      <section className="tech-bottom-cta">
-        <div className="wrap">
-          <div className="tech-cta-shell">
-            <div className="tech-cta-content">
-              <h2>Anda Teknisi Pendingin dan Belum Memiliki KTA?</h2>
-              <p>
-                Daftarkan keahlian Anda sekarang untuk terdaftar di direktori
-                resmi nasional, mendapatkan sertifikasi BNSP, dan kredit SKP
-                profesi.
-              </p>
-            </div>
-            <div className="tech-cta-actions">
-              <Link href="/join" className="button primary btn-cta-main">
-                <span>Daftar Keanggotaan</span>
-                <ArrowRight size={17} />
-              </Link>
-              <Link href="/verify" className="button secondary btn-cta-sec">
-                <span>Cek Validitas KTA</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 3. Smart Conversion CTA */}
+      <DynamicBottomCta
+        organizationName="APTI Indonesia"
+        guestTitle="Anda Teknisi Pendingin dan Belum Memiliki KTA?"
+        guestDescription="Daftarkan keahlian Anda sekarang untuk terdaftar di direktori resmi nasional, mendapatkan sertifikasi BNSP, dan kredit SKP profesi."
+        guestPrimaryCta={{ label: "Daftar Keanggotaan", href: "/join" }}
+        guestSecondaryCta={{ label: "Cek Validitas KTA", href: "/verify" }}
+        memberTitle="Perbarui Portofolio & Keahlian Anda"
+        memberDescription="Pastikan data bengkel dan nomor kontak WhatsApp Anda selalu mutakhir di direktori publik untuk kemudahan order pelanggan."
+        memberPrimaryCta={{ label: "Buka Portal & KTA Saya", href: "/member" }}
+        memberSecondaryCta={{ label: "Audit KTA Saya", href: "/whois" }}
+      />
 
       {/* 4. Interactive Detail Modal */}
       {activeTechModal && (
