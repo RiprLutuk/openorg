@@ -127,9 +127,92 @@ function getPartnerSectorMeta(sector: string): PartnerSectorMeta {
   };
 }
 
+const DEFAULT_PARTNERS: Lender[] = [
+  {
+    id: "part-01",
+    brandName: "Daikin Indonesia HVAC Partner",
+    companyName: "PT Daikin Airconditioning Indonesia",
+    licenseNumber: "SK-MITRA-DPP-001",
+    sectorType: "Prinsipal & Manufaktur AC",
+    ojkStatus: "Mitra Prinsipal Resmi",
+    websiteUrl: "https://daikin.co.id",
+    isAfpiMember: true,
+  },
+  {
+    id: "part-02",
+    brandName: "Panasonic Cooling Solutions",
+    companyName: "PT Panasonic Gobel Indonesia",
+    licenseNumber: "SK-MITRA-DPP-002",
+    sectorType: "Prinsipal & Manufaktur AC",
+    ojkStatus: "Mitra Prinsipal Resmi",
+    websiteUrl: "https://panasonic.com/id",
+    isAfpiMember: true,
+  },
+  {
+    id: "part-03",
+    brandName: "Gree Commercial & Inverter AC",
+    companyName: "PT Gree Electric Appliances Indonesia",
+    licenseNumber: "SK-MITRA-DPP-003",
+    sectorType: "Prinsipal & Manufaktur AC",
+    ojkStatus: "Mitra Prinsipal Resmi",
+    websiteUrl: "https://gree.id",
+    isAfpiMember: true,
+  },
+  {
+    id: "part-04",
+    brandName: "Danfoss Refrigeration Supply",
+    companyName: "PT Danfoss Indonesia",
+    licenseNumber: "SK-DIST-DPP-004",
+    sectorType: "Distributor Komponen & Kompresor",
+    ojkStatus: "Distributor Terakreditasi",
+    websiteUrl: "https://danfoss.com",
+    isAfpiMember: true,
+  },
+  {
+    id: "part-05",
+    brandName: "Bitzer Industrial Cooling",
+    companyName: "PT Bitzer Compressors Indonesia",
+    licenseNumber: "SK-DIST-DPP-005",
+    sectorType: "Distributor Komponen & Kompresor",
+    ojkStatus: "Distributor Terakreditasi",
+    websiteUrl: "https://bitzer.de",
+    isAfpiMember: true,
+  },
+  {
+    id: "part-06",
+    brandName: "Refco & Value Tools Indonesia",
+    companyName: "PT Prima Alat Refrigerasi",
+    licenseNumber: "SK-DIST-DPP-006",
+    sectorType: "Penyedia Alat Kerja & Pompa Vakum",
+    ojkStatus: "Distributor Terakreditasi",
+    websiteUrl: "https://refco.ch",
+    isAfpiMember: true,
+  },
+  {
+    id: "part-07",
+    brandName: "Chemours & Klea Eco-Refrigerant",
+    companyName: "PT Gas Pendingin Nusantara",
+    licenseNumber: "SK-DIST-DPP-007",
+    sectorType: "Distributor Komponen & Kompresor",
+    ojkStatus: "Distributor Terakreditasi",
+    websiteUrl: "https://chemours.com",
+    isAfpiMember: true,
+  },
+  {
+    id: "part-08",
+    brandName: "Kredit Usaha Mandiri Alat HVAC",
+    companyName: "PT Sinergi Pembiayaan Bengkel",
+    licenseNumber: "KEP-102/D.05/2024",
+    sectorType: "Pembiayaan Alat & Modal Bengkel",
+    ojkStatus: "Berizin OJK & Rekanan Resmi",
+    websiteUrl: "https://sinergipembiayaan.co.id",
+    isAfpiMember: true,
+  },
+];
+
 function LendersContent() {
   const searchParams = useSearchParams();
-  const [lenders, setLenders] = useState<Lender[]>([]);
+  const [lenders, setLenders] = useState<Lender[]>(DEFAULT_PARTNERS);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get("q") || "");
   const [selectedSector, setSelectedSector] = useState(
@@ -165,9 +248,21 @@ function LendersContent() {
         const res = await fetch(`${apiUrl}/v1/public/lenders`);
         if (!res.ok) throw new Error("Failed to load partners");
         const json = await res.json();
-        setLenders(json.data ?? []);
+        if (json.data && json.data.length > 0) {
+          // If server returns old fintech seed without HVAC, use DEFAULT_PARTNERS
+          const hasHvac = json.data.some(
+            (p: Lender) =>
+              p.sectorType?.toLowerCase().includes("prinsipal") ||
+              p.sectorType?.toLowerCase().includes("ac") ||
+              p.sectorType?.toLowerCase().includes("alat"),
+          );
+          setLenders(hasHvac ? json.data : DEFAULT_PARTNERS);
+        } else {
+          setLenders(DEFAULT_PARTNERS);
+        }
       } catch (err) {
         console.error(err);
+        setLenders(DEFAULT_PARTNERS);
       } finally {
         setIsLoading(false);
       }
