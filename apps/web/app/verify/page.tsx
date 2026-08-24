@@ -32,62 +32,82 @@ export default async function VerifyPage({ searchParams }: Props) {
 
   return (
     <div className="verify-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
-      <header className="tech-hero verify-hero-master">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill">
-            <ShieldCheck size={15} color="#38bdf8" />
-            <span>COMPLYFLOW · ZERO-TRUST VALIDATION ENGINE</span>
+      {/* 1. Flagship 2-Column Split Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
+              <ShieldCheck size={14} />
+              <span>COMPLYFLOW · ZERO-TRUST VALIDATION ENGINE</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Verifikasi Kredensial & KTA{" "}
+              <span className="text-gradient">Resmi Real-Time</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Audit instan keabsahan kartu tanda anggota (KTA), sertifikat
+              kompetensi BNSP, nomor akreditasi klub (TKT), dan legalitas
+              kemitraan <strong>{site.organization.name}</strong> secara
+              transparan dan terenkripsi.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Verifikasi Kredensial & KTA{" "}
-            <span className="text-gradient">Resmi Real-Time</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Audit instan keabsahan kartu tanda anggota (KTA), sertifikat
-            kompetensi BNSP, nomor akreditasi klub (TKT), dan legalitas
-            kemitraan <strong>{site.organization.name}</strong> secara
-            transparan dan terenkripsi.
-          </p>
-
-          {/* Impact Metrics Bar */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Zap size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>Audit Instan &lt;1 Detik</strong>
-                <small>Buku Besar Digital</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">ComplyFlow Engine</span>
+              <span className="stats-card-status">● Real-time Ledger</span>
             </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Lock size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                >
+                  <Zap size={20} />
+                </div>
+                <div>
+                  <strong>&lt; 1 Detik</strong>
+                  <small>Audit Real-time</small>
+                </div>
               </div>
-              <div>
-                <strong>QR Anti-Pemalsuan</strong>
-                <small>Token Kriptografi</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                >
+                  <Lock size={20} />
+                </div>
+                <div>
+                  <strong>QR Anti-Palsu</strong>
+                  <small>Token Kriptografi</small>
+                </div>
               </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Award size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                >
+                  <Award size={20} />
+                </div>
+                <div>
+                  <strong>Lisensi BNSP</strong>
+                  <small>Standar SKKNI</small>
+                </div>
               </div>
-              <div>
-                <strong>Terhubung BNSP</strong>
-                <small>Lisensi Standar SKKNI</small>
-              </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <ShieldCheck size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>100% Data Sah</strong>
-                <small>Audit Registri Terbuka</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <strong>100% Sah</strong>
+                  <small>Buku Besar Terbuka</small>
+                </div>
               </div>
             </div>
           </div>

@@ -80,62 +80,82 @@ export default function ChampionshipsPage() {
 
   return (
     <div className="championships-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
-      <header className="tech-hero champ-hero-master">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill trophy">
-            <Trophy size={15} color="#f59e0b" />
-            <span>NATIONAL HVAC/R SKILL COMPETITION 2026</span>
+      {/* 1. Flagship 2-Column Split Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill trophy">
+              <Trophy size={14} color="#f59e0b" />
+              <span>NATIONAL HVAC/R SKILL COMPETITION 2026</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Klasemen Kejuaraan &{" "}
+              <span className="text-gradient">Skill Contest Teknisi</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Papan peringkat resmi kontes keterampilan refrigerasi dan tata udara
+              tingkat nasional. Pengujian ketat akurasi sambungan brazing
+              nitrogen, kecepatan uji vakum &lt;500µ, serta presisi diagnosis
+              modul inverter.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Klasemen Kejuaraan &{" "}
-            <span className="text-gradient">Skill Contest Teknisi</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Papan peringkat resmi kontes keterampilan refrigerasi dan tata udara
-            tingkat nasional. Pengujian ketat akurasi sambungan brazing
-            nitrogen, kecepatan uji vakum &lt;500µ, serta presisi diagnosis
-            modul inverter.
-          </p>
-
-          {/* Key Metrics Row */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Trophy size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>Standar WorldSkills</strong>
-                <small>Uji Presisi Sektoral</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">WorldSkills Standard</span>
+              <span className="stats-card-status">● Live Leaderboard</span>
             </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Gauge size={22} color="#38bdf8" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                >
+                  <Trophy size={20} />
+                </div>
+                <div>
+                  <strong>WorldSkills</strong>
+                  <small>Uji Presisi Sektoral</small>
+                </div>
               </div>
-              <div>
-                <strong>Vakum &lt;500 Micron</strong>
-                <small>Pengujian Ketat K3</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                >
+                  <Gauge size={20} />
+                </div>
+                <div>
+                  <strong>&lt; 500 Micron</strong>
+                  <small>Uji Vakum K3</small>
+                </div>
               </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Flag size={22} color="#34d399" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                >
+                  <Flag size={20} />
+                </div>
+                <div>
+                  <strong>38 DPD Kontingen</strong>
+                  <small>Juara Nasional</small>
+                </div>
               </div>
-              <div>
-                <strong>Kontingen 38 DPD</strong>
-                <small>Juara Daerah & Nasional</small>
-              </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Star size={22} color="#818cf8" />
-              </div>
-              <div>
-                <strong>Poin Akumulasi KTA</strong>
-                <small>Kredit Prestasi Master</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                >
+                  <Star size={20} />
+                </div>
+                <div>
+                  <strong>Poin KTA</strong>
+                  <small>Kredit Prestasi</small>
+                </div>
               </div>
             </div>
           </div>

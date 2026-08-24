@@ -149,62 +149,82 @@ export default function WorkingGroupsPage() {
 
   return (
     <div className="working-groups-suite">
-      {/* 1. Flagship Dark Hero Header */}
-      <header className="tech-hero pokja-hero-master">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill">
-            <Briefcase size={15} color="#38bdf8" />
-            <span>ADVOCACY, STANDARD & SPECIAL COMMITTEES</span>
+      {/* 1. Flagship 2-Column Split Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
+              <Briefcase size={14} />
+              <span>ADVOCACY, STANDARD & SPECIAL COMMITTEES</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Kelompok Kerja (Pokja) &{" "}
+              <span className="text-gradient">Komite Advokasi</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Wadah kolaborasi tenaga ahli, praktisi senior, dan perwakilan
+              pengurus dalam merumuskan standar kompetensi SKKNI, naskah advokasi
+              regulasi refrigeran ramah lingkungan, serta penegakan etika profesi
+              nasional.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Kelompok Kerja (Pokja) &{" "}
-            <span className="text-gradient">Komite Advokasi</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Wadah kolaborasi tenaga ahli, praktisi senior, dan perwakilan
-            pengurus dalam merumuskan standar kompetensi SKKNI, naskah advokasi
-            regulasi refrigeran ramah lingkungan, serta penegakan etika profesi
-            nasional.
-          </p>
-
-          {/* Key Metrics Row */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <ShieldCheck size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>3 Pokja Strategis</strong>
-                <small>Struktur DPP Resmi</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Struktur Komite DPP</span>
+              <span className="stats-card-status">● Komite Aktif</span>
             </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Landmark size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <strong>3 Pokja Utama</strong>
+                  <small>Struktur DPP Resmi</small>
+                </div>
               </div>
-              <div>
-                <strong>Mitra BNSP & KLHK</strong>
-                <small>Penyusun Regulasi Nasional</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                >
+                  <Landmark size={20} />
+                </div>
+                <div>
+                  <strong>BNSP & KLHK</strong>
+                  <small>Mitra Advokasi</small>
+                </div>
               </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <FileCheck2 size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                >
+                  <FileCheck2 size={20} />
+                </div>
+                <div>
+                  <strong>Standar SKKNI</strong>
+                  <small>Pedoman Uji Mutu</small>
+                </div>
               </div>
-              <div>
-                <strong>Standar SKKNI & K3</strong>
-                <small>Pedoman Uji Kompetensi</small>
-              </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Scale size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>Mediasi Konsumen</strong>
-                <small>Desk Pengaduan JENDELA</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                >
+                  <Scale size={20} />
+                </div>
+                <div>
+                  <strong>Mediasi Etik</strong>
+                  <small>Desk JENDELA</small>
+                </div>
               </div>
             </div>
           </div>

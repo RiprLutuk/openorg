@@ -130,44 +130,84 @@ export function JoinPageInteractive({ site }: JoinPageProps) {
 
   return (
     <div className="join-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
-      <header className="tech-hero join-hero-refined">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill">
-            <Sparkles size={15} color="#38bdf8" />
-            <span>PORTAL REGISTRASI MANDIRI & DIGITAL</span>
+      {/* 1. Flagship 2-Column Split Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
+              <Sparkles size={14} />
+              <span>PORTAL REGISTRASI MANDIRI & DIGITAL</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Syarat, Alur & Pendaftaran{" "}
+              <span className="text-gradient">Anggota Baru</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Daftarkan diri Anda atau workshop secara online, nikmati kemudahan
+              akses KTA digital resmi, kredit kompetensi SKP, dan jejaring
+              solidaritas ribuan teknisi di 38 provinsi bersama{" "}
+              <strong>{site.organization.name}</strong>.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Syarat, Alur & Pendaftaran{" "}
-            <span className="text-gradient">Anggota Baru</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Daftarkan diri Anda atau workshop secara online, nikmati kemudahan
-            akses KTA digital resmi, kredit kompetensi SKP, dan jejaring
-            solidaritas ribuan teknisi di 38 provinsi bersama{" "}
-            <strong>{site.organization.name}</strong>.
-          </p>
-
-          {/* Value Badges Bar */}
-          <div className="join-badges-row">
-            <span className="join-badge-item">
-              <CheckCircle2 size={14} color="#34d399" />
-              <span>Verifikasi Berkas Online</span>
-            </span>
-            <span className="join-badge-item">
-              <CheckCircle2 size={14} color="#34d399" />
-              <span>KTA Ber-QR Code Unik</span>
-            </span>
-            <span className="join-badge-item">
-              <CheckCircle2 size={14} color="#34d399" />
-              <span>Standarisasi BNSP & SKKNI</span>
-            </span>
-            <span className="join-badge-item">
-              <CheckCircle2 size={14} color="#34d399" />
-              <span>Akses Portal Mandiri</span>
-            </span>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Keanggotaan Mandiri</span>
+              <span className="stats-card-status">● 38 Provinsi</span>
+            </div>
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                >
+                  <FileCheck size={20} />
+                </div>
+                <div>
+                  <strong>100% Online</strong>
+                  <small>Verifikasi Cepat</small>
+                </div>
+              </div>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                >
+                  <CreditCard size={20} />
+                </div>
+                <div>
+                  <strong>KTA Digital</strong>
+                  <small>QR Anti-Palsu</small>
+                </div>
+              </div>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                >
+                  <Award size={20} />
+                </div>
+                <div>
+                  <strong>Standar BNSP</strong>
+                  <small>Kredit SKP/CPD</small>
+                </div>
+              </div>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                >
+                  <Users size={20} />
+                </div>
+                <div>
+                  <strong>Solidaritas</strong>
+                  <small>Paguyuban Korwil</small>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>

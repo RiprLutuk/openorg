@@ -311,61 +311,81 @@ export default function CalculatorPage() {
 
   return (
     <div className="calculator-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
-      <header className="tech-hero calc-hero-refined">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill">
-            <Calculator size={15} color="#38bdf8" />
-            <span>PORTAL PERALATAN TEKNIS & STANDAR BEBAN HVAC/R</span>
+      {/* 1. Flagship 2-Column Split Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
+              <Calculator size={14} />
+              <span>PORTAL PERALATAN TEKNIS & STANDAR BEBAN HVAC/R</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Kalkulator Beban AC &{" "}
+              <span className="text-gradient">Data Teknis Refrigeran</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Alat bantu teknisi profesional dan konsumen untuk menghitung
+              kapasitas PK AC yang presisi sesuai iklim tropis Indonesia, tabel
+              tekanan freon SNI, serta SOP keselamatan kerja K3.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Kalkulator Beban AC &{" "}
-            <span className="text-gradient">Data Teknis Refrigeran</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Alat bantu teknisi profesional dan konsumen untuk menghitung
-            kapasitas PK AC yang presisi sesuai iklim tropis Indonesia, tabel
-            tekanan freon SNI, serta SOP keselamatan kerja K3.
-          </p>
-
-          {/* Impact Metrics Bar */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Gauge size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>Standar Tropis SNI</strong>
-                <small>Beban Kalor Presisi</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Standar Kalkulasi SNI</span>
+              <span className="stats-card-status">● Presisi Tropis</span>
             </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Droplets size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                >
+                  <Gauge size={20} />
+                </div>
+                <div>
+                  <strong>Beban Kalor</strong>
+                  <small>Standar Tropis SNI</small>
+                </div>
               </div>
-              <div>
-                <strong>6 Jenis Freon Resmi</strong>
-                <small>Tekanan & K3 Klasifikasi</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                >
+                  <Droplets size={20} />
+                </div>
+                <div>
+                  <strong>6 Freon Resmi</strong>
+                  <small>Tabel Tekanan PSI</small>
+                </div>
               </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Wind size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                >
+                  <Wind size={20} />
+                </div>
+                <div>
+                  <strong>Vakum &lt;500µ</strong>
+                  <small>SOP Bebas Lembab</small>
+                </div>
               </div>
-              <div>
-                <strong>Target Vakum &lt;500µ</strong>
-                <small>SOP Bebas Udara & Lembab</small>
-              </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Zap size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>Estimasi Daya Hemat</strong>
-                <small>Kalkulasi Watt Inverter</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                >
+                  <Zap size={20} />
+                </div>
+                <div>
+                  <strong>Daya Watt</strong>
+                  <small>Inverter & Non-Inv</small>
+                </div>
               </div>
             </div>
           </div>

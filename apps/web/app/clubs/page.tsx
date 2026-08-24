@@ -222,61 +222,81 @@ function ClubsContent() {
 
   return (
     <div className="clubs-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
-      <header className="tech-hero clubs-hero-refined">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill">
-            <Flag size={15} color="#38bdf8" />
-            <span>REGISTRI RESMI TANDA KLUB TERDAFTAR (TKT)</span>
+      {/* 1. Flagship 2-Column Split Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
+              <Flag size={14} />
+              <span>REGISTRI RESMI TANDA KLUB TERDAFTAR (TKT)</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Direktori Komunitas & Klub{" "}
+              <span className="text-gradient">Terakreditasi</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Daftar resmi paguyuban bengkel, komunitas praktisi, dan klub profesi
+              pendingin yang memegang Tanda Klub Terdaftar (TKT) resmi di bawah
+              koordinasi Dewan Pimpinan Daerah (DPD).
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Direktori Komunitas & Klub{" "}
-            <span className="text-gradient">Terakreditasi</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Daftar resmi paguyuban bengkel, komunitas praktisi, dan klub profesi
-            pendingin yang memegang Tanda Klub Terdaftar (TKT) resmi di bawah
-            koordinasi Dewan Pimpinan Daerah (DPD).
-          </p>
-
-          {/* Impact Metrics Bar */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Flag size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>{clubs.length || 45}+ Klub Resmi</strong>
-                <small>TKT Terverifikasi</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Registri Komunitas TKT</span>
+              <span className="stats-card-status">● Terakreditasi DPD</span>
             </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Users size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                >
+                  <Flag size={20} />
+                </div>
+                <div>
+                  <strong>{clubs.length || 45}+ Klub</strong>
+                  <small>TKT Terverifikasi</small>
+                </div>
               </div>
-              <div>
-                <strong>{totalMembers}+ Anggota</strong>
-                <small>Jejaring Praktisi</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                >
+                  <Users size={20} />
+                </div>
+                <div>
+                  <strong>{totalMembers}+ Anggota</strong>
+                  <small>Jejaring Praktisi</small>
+                </div>
               </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Building2 size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                >
+                  <Building2 size={20} />
+                </div>
+                <div>
+                  <strong>{provinces.length || 38} DPD Wilayah</strong>
+                  <small>Seluruh Indonesia</small>
+                </div>
               </div>
-              <div>
-                <strong>{provinces.length || 38} DPD Pengampu</strong>
-                <small>Seluruh Indonesia</small>
-              </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <ShieldCheck size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>100% SK Sah</strong>
-                <small>Legalitas Organisasi</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <strong>100% Sah</strong>
+                  <small>Legalitas Organisasi</small>
+                </div>
               </div>
             </div>
           </div>

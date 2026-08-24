@@ -106,61 +106,81 @@ export default function StatisticsPage() {
 
   return (
     <div className="statistics-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
-      <header className="tech-hero stats-hero-master">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill">
-            <BarChart3 size={15} color="#38bdf8" />
-            <span>NATIONAL HVAC/R INDUSTRY DATA CENTER</span>
+      {/* 1. Flagship 2-Column Split Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
+              <BarChart3 size={14} />
+              <span>NATIONAL HVAC/R INDUSTRY DATA CENTER</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Statistik Industri &{" "}
+              <span className="text-gradient">Indikator Sektor Sektoral</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Pusat transparansi data pertumbuhan teknisi bersertifikat BNSP,
+              sebaran Dewan Pimpinan Daerah (DPD) 38 Provinsi, serta indikator
+              kepuasan publik terhadap mutu pengerjaan terverifikasi.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Statistik Industri &{" "}
-            <span className="text-gradient">Indikator Sektor Sektoral</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Pusat transparansi data pertumbuhan teknisi bersertifikat BNSP,
-            sebaran Dewan Pimpinan Daerah (DPD) 38 Provinsi, serta indikator
-            kepuasan publik terhadap mutu pengerjaan terverifikasi.
-          </p>
-
-          {/* Quick Stat Highlights */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Users size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>8.450+ Teknisi</strong>
-                <small>Tersertifikasi BNSP</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Data Nasional HVAC/R</span>
+              <span className="stats-card-status">● Live Data Real-time</span>
             </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Globe2 size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                >
+                  <Users size={20} />
+                </div>
+                <div>
+                  <strong>8.450+</strong>
+                  <small>Teknisi BNSP</small>
+                </div>
               </div>
-              <div>
-                <strong>38 DPD Provinsi</strong>
-                <small>100% Nasional</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                >
+                  <Globe2 size={20} />
+                </div>
+                <div>
+                  <strong>38 DPD</strong>
+                  <small>Provinsi Nasional</small>
+                </div>
               </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Wrench size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                >
+                  <Wrench size={20} />
+                </div>
+                <div>
+                  <strong>142.800/Bln</strong>
+                  <small>Unit Servis Sah</small>
+                </div>
               </div>
-              <div>
-                <strong>142.800 Unit/Bln</strong>
-                <small>Servis Terverifikasi</small>
-              </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <ShieldCheck size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>98.4% Indeks Kepuasan</strong>
-                <small>Garansi KTA Terjamin</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <strong>98.4%</strong>
+                  <small>Indeks Kepuasan</small>
+                </div>
               </div>
             </div>
           </div>

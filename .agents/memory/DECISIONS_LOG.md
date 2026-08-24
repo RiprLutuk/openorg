@@ -142,24 +142,46 @@ This log records major technical, architectural, and UI/UX design decisions made
 
 ---
 
-### [2026-08-25] Email Verification Security Gating & Member Workshop Showcase Directory
-- **Decision**: Implemented mandatory email verification gating across sensitive member privileges (KTA card issuance, training enrollment, credential submissions) and built a comprehensive workshop/store advertising benefit for members with public directory integration.
+---
+
+### [2026-08-25] Universal Design System Refactoring & Mobile-First Aesthetic Sweep (/goal Complete)
+- **Decision**: Refactored the entire web application to strictly follow a cohesive, mathematical design system inspired by **React SaaS**, **Meraki UI**, and **Flowbite** standards, ensuring exact uniformity across button heights, typography scales, card radii, gap ratios, and 2-column split hero layouts with zero rogue or ad-hoc per-page styles.
 - **Implementation**:
-  - **Email Verification Security Gating**:
-    - **Digital KTA Card**: When unverified (`!emailVerified`), card is frosted/blurred with a high-security lock overlay modal (`KTA Digital Dikunci Sementara`) directing user to `/member/verify-email`.
-    - **Learning & Academy Enrollment**: Gated backend `POST /learning/enroll` to verify `memberAccounts.emailVerifiedAt` before creating registration (returning `403 EMAIL_VERIFICATION_REQUIRED`), and disabled client enrollment buttons with lock icons and informative warning banners.
-    - **Credential Submissions**: Gated credential submission buttons until email is verified.
-  - **Member Workshop Promotion Showcase (`MemberWorkshopPromo`)**:
-    - Built comprehensive ad manager in the member portal allowing members to publish their workshop name, category, city/province, full address, WhatsApp number, specialty service tags, operating hours, and description.
-    - Added real-time live preview mockup showing the official APTI Verified Member badge.
-    - Persisted data via `PATCH /v1/member/profile` (`metadata.workshopAd`) and synchronized with local storage.
-  - **Public Directory Integration (`/technicians` & `/partners`)**:
-    - `/technicians`: Added interactive Tab switcher between **"Direktori Teknisi Berlisensi"** and **"Bursa Bengkel & Toko Resmi Anggota"** with category filter, province filter, verified KTA links, and direct WhatsApp booking.
-    - `/partners`: Added **"Ekosistem Bengkel Workshop & Toko Mitra Anggota"** spotlight box connecting visitors to the member workshop network.
-    - Refactored `/technicians` and `/partners` hero sections to 2-column split heroes with bento metrics.
+  - **Design Tokens & Global Proportions (`apps/web/app/globals.css`)**:
+    - **Color Architecture**: Deep dark canvas (`#090d16`), slate surface cards (`#0f172a`), refined borders (`rgba(255, 255, 255, 0.08)`), vibrant sky blue accents (`#0284c7` / `#38bdf8`), and verified emerald badges (`#10b981` / `#34d399`).
+    - **Button System Hierarchy**:
+      - Default / Standard: `height: 42px; min-height: 42px; padding: 0 18px; border-radius: 10px; font-size: 13.5px; font-weight: 600; gap: 8px;`
+      - Small: `height: 34px; min-height: 34px; padding: 0 12px; border-radius: 8px; font-size: 12px; gap: 6px;`
+      - Hero / Primary: `height: 48px; min-height: 48px; padding: 0 24px; border-radius: 12px; font-size: 14.5px; gap: 10px;`
+    - **Typography Scale**:
+      - `h1`: `clamp(26px, 3.8vw, 40px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.15;`
+      - `h2`: `clamp(22px, 2.8vw, 32px); font-weight: 750; letter-spacing: -0.02em; line-height: 1.25;`
+      - Eyebrows: `font-size: 11px; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase;`
+      - Body Lead: `clamp(13.5px, 1.4vw, 15px); line-height: 1.6; color: #94a3b8;`
+    - **Container & Card Grid Standards**:
+      - Container `.wrap`: `max-width: 1200px; width: min(100% - 32px, 1200px); margin-inline: auto;` (Mobile: `width: min(100% - 24px, 1200px);`)
+      - Section Spacing `.section-space`: `padding-block: clamp(48px, 5.5vw, 76px);`
+      - Card Grids: `display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: clamp(16px, 2vw, 24px);`
+      - Cards: `background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: clamp(18px, 2.5vw, 24px);`
+  - **Universal 2-Column Split Hero Layout**:
+    - Converted all subpage headers to the standardized 2-column split layout (`.hero-split-grid` / `.reg-hero-grid` / `.adart-hero-grid` / `.struct-hero-grid` / `.vm-hero-grid`) featuring left-column value copy + right-column 2x2 Bento Metrics Card (`.hero-stats-bento-card` with `.stats-card-grid`):
+      1. `/verify` (ComplyFlow Engine & Instant Audit)
+      2. `/join` (Membership Requirements & Digital Registration)
+      3. `/calculator` (SNI HVAC/R Load Calculator & Refrigerant Reference)
+      4. `/complaints` (JENDELA Ethics & Consumer Mediation Desk)
+      5. `/clubs` (Registered Clubs TKT Registry)
+      6. `/championships` (National Skills Contest Leaderboard)
+      7. `/working-groups` (Strategic Working Groups & Committees)
+      8. `/statistics` (National HVAC/R Industry Data Center)
+      9. `/technicians` & `/partners` (Verified Technician Directory & Principal Partner Showcase)
+      10. `/regulations`, `/ad-art`, `/structure`, `/organization-profile`, `/vision-mission`
+  - **Homepage & Bottom Banner Standardization**:
+    - Converted `Pelatihan & Sertifikasi` (`event-card-refined`) and `Publikasi & Berita` (`story-card-refined`) to the unified dark slate SaaS aesthetic.
+    - Standardized `DynamicBottomCta` (`tech-bottom-cta`) with responsive typography, dark gradient backdrop, and 42px button standards.
   - **Empirical Verification**:
-    - 100% Typecheck passed (`bun run typecheck`).
-    - 45/45 unit test suite passed (`bun test`).
-    - All 27 Next.js static and dynamic routes compiled cleanly (`bun run build`).
-    - Pushed changes to `dev`, `staging`, and `main` branches on GitHub.
+    - `bun run typecheck` passed with 0 errors across `@openorg/contracts`, `@openorg/web`, `@openorg/cms`, `@openorg/api`.
+    - `bun test` passed 45/45 tests across all packages.
+    - `bun run build` compiled all 27 Next.js static and dynamic pages cleanly with Turbopack.
+    - Pushed verified commits across `dev`, `staging`, and `main` branches on GitHub.
+
 

@@ -195,62 +195,82 @@ export default function ComplaintsPage() {
 
   return (
     <div className="complaints-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
-      <header className="tech-hero complaints-hero-master">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill warning">
-            <ShieldAlert size={15} color="#f59e0b" />
-            <span>PORTAL JENDELA · DESK KODE ETIK & PERLINDUNGAN KONSUMEN</span>
+      {/* 1. Flagship 2-Column Split Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill warning">
+              <ShieldAlert size={14} color="#f59e0b" />
+              <span>PORTAL JENDELA · DESK KODE ETIK & KONSUMEN</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Pengaduan Etik &{" "}
+              <span className="text-gradient">Mediasi Sengketa Teknisi</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Kanal resmi penegakan standar mutu dan perlindungan konsumen.
+              Sampaikan laporan kendala servis teknisi ber-KTA, klaim garansi
+              pengerjaan, atau dugaan pelanggaran kode etik secara transparan dan
+              terukur.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Pengaduan Etik &{" "}
-            <span className="text-gradient">Mediasi Sengketa Teknisi</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Kanal resmi penegakan standar mutu dan perlindungan konsumen.
-            Sampaikan laporan kendala servis teknisi ber-KTA, klaim garansi
-            pengerjaan, atau dugaan pelanggaran kode etik secara transparan dan
-            terukur.
-          </p>
-
-          {/* Trust Metrics Bar */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Clock size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>Respon &lt;24 Jam</strong>
-                <small>Verifikasi Laporan Awal</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Desk Mediasi JENDELA</span>
+              <span className="stats-card-status">● Bebas Biaya</span>
             </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Gavel size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                >
+                  <Clock size={20} />
+                </div>
+                <div>
+                  <strong>&lt; 24 Jam</strong>
+                  <small>Respon Cepat Awal</small>
+                </div>
               </div>
-              <div>
-                <strong>Dewan Etik Independen</strong>
-                <small>Pengawasan DPP & DPD</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                >
+                  <Gavel size={20} />
+                </div>
+                <div>
+                  <strong>Dewan Etik</strong>
+                  <small>Pengawasan DPP/DPD</small>
+                </div>
               </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <ShieldCheck size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <strong>Garansi 30 Hari</strong>
+                  <small>Mediasi Hak Konsumen</small>
+                </div>
               </div>
-              <div>
-                <strong>Garansi Min. 30 Hari</strong>
-                <small>Mediasi Hak Konsumen</small>
-              </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Lock size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>100% Gratis & Adil</strong>
-                <small>Bebas Biaya Advokasi</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                >
+                  <Lock size={20} />
+                </div>
+                <div>
+                  <strong>100% Adil</strong>
+                  <small>Kerahasiaan Terjaga</small>
+                </div>
               </div>
             </div>
           </div>
