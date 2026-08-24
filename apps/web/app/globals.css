@@ -14,6 +14,8 @@
 }
 html {
   scroll-behavior: smooth;
+  max-width: 100vw;
+  overflow-x: clip;
 }
 body {
   margin: 0;
@@ -21,6 +23,8 @@ body {
   background: #fff;
   font-family: var(--font-body), system-ui, sans-serif;
   text-rendering: optimizeLegibility;
+  max-width: 100vw;
+  overflow-x: clip;
 }
 body,
 button,
@@ -17088,9 +17092,21 @@ img {
 
 .stories-layout-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 32px;
   align-items: start;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.stories-feed-col {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.stories-sidebar-col {
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* Toolbar Card */
@@ -17105,7 +17121,9 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .stories-filter-pills {
@@ -17116,9 +17134,11 @@ img {
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
+  min-width: 0;
   max-width: 100%;
   padding-bottom: 2px;
   flex-wrap: nowrap;
+  flex: 1 1 0%;
 }
 
 .stories-filter-pills::-webkit-scrollbar {
@@ -17160,7 +17180,10 @@ img {
   border-radius: 8px;
   padding: 0 12px;
   height: 38px;
-  min-width: 240px;
+  min-width: 200px;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .stories-search-box:focus-within {
@@ -17186,8 +17209,10 @@ img {
 /* Stories Cards Flow */
 .stories-cards-flow {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .story-modern-card {
@@ -17198,6 +17223,9 @@ img {
   display: flex;
   flex-direction: column;
   transition: all 0.2s ease;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .story-modern-card:hover {
@@ -17877,11 +17905,11 @@ img {
   .featured-headline-card,
   .stories-layout-grid,
   .story-detail-two-col-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .stories-stats-bar {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -17893,7 +17921,7 @@ img {
 
   .stories-stats-bar,
   .stories-cards-flow {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .featured-headline-card {
@@ -17946,20 +17974,29 @@ img {
     align-items: stretch;
     padding: 12px 14px;
     gap: 12px;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .stories-filter-pills {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     overflow-x: auto;
     flex-wrap: nowrap;
     gap: 6px;
     padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
   }
 
   .stories-search-box {
     width: 100%;
     min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .stories-pagination-bar {
