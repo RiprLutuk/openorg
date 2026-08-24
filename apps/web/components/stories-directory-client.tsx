@@ -153,43 +153,31 @@ export function StoriesDirectoryClient({ items, site }: Props) {
   };
 
   return (
-    <div className="stories-master-suite">
-      {/* 1. Master Flagship Dark Hero Banner */}
-      <header className="stories-master-hero">
-        <div className="wrap">
-          {/* Breadcrumbs */}
-          <nav className="event-breadcrumbs" aria-label="Breadcrumb">
-            <Link href="/">Beranda</Link>
-            <span className="crumb-sep">/</span>
-            <span className="crumb-current">Warta & Publikasi</span>
-          </nav>
-
-          <div className="stories-hero-pill-row">
-            <div className="hero-trust-pill blue">
-              <Newspaper size={14} />
-              <span>PUSAT INFORMASI & SIARAN PERS RESMI</span>
-            </div>
-            <div className="hero-trust-pill emerald">
-              <Sparkles size={14} />
-              <span>UPDATE REAL-TIME 2026</span>
-            </div>
+    <div className="stories-page-suite">
+      {/* 1. Flagship Dark Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap tech-hero-inner">
+          <div className="tech-hero-pill">
+            <Newspaper size={15} color="#38bdf8" />
+            <span>PUSAT WARTA & PUBLIKASI RESMI</span>
           </div>
 
-          <h1 className="stories-hero-title">
-            Warta Organisasi, Riset Teknis & Kebijakan Industri
+          <h1 className="tech-hero-title">
+            Warta Organisasi, Riset Teknis &{" "}
+            <span className="text-gradient">Kebijakan Industri</span>
           </h1>
 
-          <p className="stories-hero-lead">
+          <p className="tech-hero-lead">
             Kanal resmi informasi Dewan Pengurus Pusat, pengumuman regulasi
             pemerintah, liputan kegiatan kepengurusan 38 provinsi, dan modul
             panduan praktis bagi teknisi tata udara di seluruh Indonesia.
           </p>
 
-          {/* 4-Column Metric Bar */}
-          <div className="stories-stats-bar">
-            <div className="stat-card-clean">
-              <div className="stat-clean-icon blue">
-                <FileText size={18} />
+          {/* 4-Column Hero Metrics Bar */}
+          <div className="tech-hero-metrics">
+            <div className="tech-metric-box">
+              <div className="tech-metric-icon">
+                <FileText size={22} color="#38bdf8" />
               </div>
               <div>
                 <strong>{items.length || 7}+ Publikasi</strong>
@@ -197,9 +185,9 @@ export function StoriesDirectoryClient({ items, site }: Props) {
               </div>
             </div>
 
-            <div className="stat-card-clean">
-              <div className="stat-clean-icon emerald">
-                <Globe size={18} />
+            <div className="tech-metric-box">
+              <div className="tech-metric-icon">
+                <Globe size={22} color="#34d399" />
               </div>
               <div>
                 <strong>38 DPD Provinsi</strong>
@@ -207,9 +195,9 @@ export function StoriesDirectoryClient({ items, site }: Props) {
               </div>
             </div>
 
-            <div className="stat-card-clean">
-              <div className="stat-clean-icon amber">
-                <Users size={18} />
+            <div className="tech-metric-box">
+              <div className="tech-metric-icon">
+                <Users size={22} color="#f59e0b" />
               </div>
               <div>
                 <strong>12.500+ Pembaca</strong>
@@ -217,13 +205,13 @@ export function StoriesDirectoryClient({ items, site }: Props) {
               </div>
             </div>
 
-            <div className="stat-card-clean">
-              <div className="stat-clean-icon purple">
-                <TrendingUp size={18} />
+            <div className="tech-metric-box">
+              <div className="tech-metric-icon">
+                <TrendingUp size={22} color="#818cf8" />
               </div>
               <div>
-                <strong>Riset & SOP</strong>
-                <small>Standar K3 & SKKNI BNSP</small>
+                <strong>Standar K3 & SKKNI</strong>
+                <small>Modul Riset BNSP</small>
               </div>
             </div>
           </div>
