@@ -157,10 +157,12 @@ function SocialShareSuite({
 
   return (
     <div className={`social-share-suite-wrap ${variant}`}>
-      <span className="share-suite-label">
-        <Share2 size={13} />
-        <span>Bagikan:</span>
-      </span>
+      {variant === "hero" && (
+        <span className="share-suite-label">
+          <Share2 size={12} />
+          <span>Bagikan:</span>
+        </span>
+      )}
 
       <div className="share-buttons-flow">
         {channels.map((ch) => (
