@@ -825,7 +825,8 @@ export function Footer({ site }: { site: PublicSite }) {
               Surat Edaran Organisasi
             </Link>
             <Link href="/statistics">Statistik Industri Sektor</Link>
-            <Link href="/whois">Lookup WHOIS & IIX</Link>
+            <Link href="/calculator">Kalkulator PK & Tekanan Freon</Link>
+            <Link href="/championships">Skill Contest & Kejuaraan</Link>
             <Link href="/complaints">Posko Pengaduan JENDELA</Link>
           </div>
         </div>
