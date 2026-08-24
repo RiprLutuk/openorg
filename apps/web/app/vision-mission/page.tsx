@@ -137,77 +137,105 @@ export default async function VisionMissionPage() {
     <div className="vision-mission-page">
       {/* 1. Flagship Hero */}
       <header className="vm-hero">
-        <div className="wrap vm-hero-inner">
-          <div className="vm-hero-pill">
-            <Compass size={15} color="#38bdf8" />
-            <span>ARAH STRATEGIS & ETIKA ORGANISASI</span>
+        <div className="wrap vm-hero-grid">
+          <div className="vm-hero-inner">
+            <div className="vm-hero-pill">
+              <Compass size={14} />
+              <span>ARAH STRATEGIS & ETIKA ORGANISASI</span>
+            </div>
+
+            <h1 className="vm-hero-title">
+              Visi, Misi & Komitmen Kehormatan{" "}
+              <span className="text-gradient">{site.organization.name}</span>
+            </h1>
+
+            <p className="vm-hero-lead">
+              Fondasi cita-cita jangka panjang, pedoman etika profesi pendingin,
+              dan cetak biru dedikasi organisasi dalam mewujudkan ekosistem tata
+              udara yang berdaya saing global, berintegritas tinggi, dan lestari.
+            </p>
+
+            <div className="vm-hero-actions">
+              <Link
+                href="/join"
+                className="btn-hero-primary"
+                style={{ width: "auto" }}
+              >
+                <Users size={16} />
+                <span>Bergabung Jadi Anggota</span>
+                <ArrowRight size={15} className="btn-arrow" />
+              </Link>
+              <Link
+                href="/regulations"
+                className="btn-hero-secondary"
+              >
+                <FileText size={15} />
+                <span>AD/ART & Etik</span>
+              </Link>
+              <Link
+                href="/structure"
+                className="btn-hero-ghost"
+              >
+                <Users size={15} />
+                <span>Struktur</span>
+              </Link>
+            </div>
           </div>
 
-          <h1 className="vm-hero-title">
-            Visi, Misi & Komitmen Kehormatan{" "}
-            <span className="text-gradient">{site.organization.name}</span>
-          </h1>
-
-          <p className="vm-hero-lead">
-            Fondasi cita-cita jangka panjang, pedoman etika profesi pendingin,
-            dan cetak biru dedikasi organisasi dalam mewujudkan ekosistem tata
-            udara yang berdaya saing global, berintegritas tinggi, dan lestari.
-          </p>
-
-          <div className="vm-hero-actions">
-            <Link
-              href="/join"
-              className="btn-hero-primary"
-              style={{ width: "auto" }}
-            >
-              <Users size={16} />
-              <span>Bergabung Jadi Anggota</span>
-              <ArrowRight size={15} className="btn-arrow" />
-            </Link>
-            <Link
-              href="/regulations"
-              className="btn-hero-secondary"
-            >
-              <FileText size={15} />
-              <span>Naskah AD/ART & Kode Etik</span>
-            </Link>
-            <Link
-              href="/structure"
-              className="btn-hero-ghost"
-            >
-              <Users size={15} />
-              <span>Struktur DPP & DPD</span>
-            </Link>
-          </div>
-
-          {/* Strategic Pillar Badges */}
-          <div className="vm-hero-badges-grid">
-            <div className="vm-badge-box">
-              <Target size={20} color="#38bdf8" />
-              <div>
-                <strong>Visi Global 2030</strong>
-                <small>Daya Saing Regional</small>
-              </div>
+          {/* Right Column: Strategic Pillar Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Pilar Dedikasi Catur Dharma</span>
+              <span className="stats-card-status">● Agenda 2030</span>
             </div>
-            <div className="vm-badge-box">
-              <ShieldCheck size={20} color="#34d399" />
-              <div>
-                <strong>100% Integritas</strong>
-                <small>Kode Etik Mengikat</small>
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                >
+                  <Target size={20} />
+                </div>
+                <div>
+                  <strong>Visi Global</strong>
+                  <small>Daya Saing Sektor</small>
+                </div>
               </div>
-            </div>
-            <div className="vm-badge-box">
-              <Leaf size={20} color="#818cf8" />
-              <div>
-                <strong>Eco-Refrigerant</strong>
-                <small>Protokol Hijau KLHK</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <strong>100% Integritas</strong>
+                  <small>Kode Etik Mengikat</small>
+                </div>
               </div>
-            </div>
-            <div className="vm-badge-box">
-              <Award size={20} color="#f59e0b" />
-              <div>
-                <strong>Standar BNSP</strong>
-                <small>Uji Kompetensi Nasional</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                >
+                  <Leaf size={20} />
+                </div>
+                <div>
+                  <strong>Eco-Freon</strong>
+                  <small>Protokol Hijau KLHK</small>
+                </div>
+              </div>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                >
+                  <Award size={20} />
+                </div>
+                <div>
+                  <strong>Standar BNSP</strong>
+                  <small>Uji Kompetensi</small>
+                </div>
               </div>
             </div>
           </div>

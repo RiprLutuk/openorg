@@ -172,64 +172,81 @@ export function StoriesDirectoryClient({ items, site }: Props) {
 
   return (
     <div className="stories-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
+      {/* 1. Flagship 2-Column Split Hero Header */}
       <header className="tech-hero">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill">
-            <Newspaper size={15} color="#38bdf8" />
-            <span>PUSAT WARTA & PUBLIKASI RESMI</span>
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
+              <Newspaper size={14} />
+              <span>PUSAT WARTA & PUBLIKASI RESMI</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Warta Organisasi, Riset Teknis &{" "}
+              <span className="text-gradient">Kebijakan Industri</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Kanal resmi informasi Dewan Pengurus Pusat, pengumuman regulasi
+              pemerintah, liputan kegiatan kepengurusan 38 provinsi, dan modul
+              panduan praktis bagi teknisi tata udara di seluruh Indonesia.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Warta Organisasi, Riset Teknis &{" "}
-            <span className="text-gradient">Kebijakan Industri</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Kanal resmi informasi Dewan Pengurus Pusat, pengumuman regulasi
-            pemerintah, liputan kegiatan kepengurusan 38 provinsi, dan modul
-            panduan praktis bagi teknisi tata udara di seluruh Indonesia.
-          </p>
-
-          {/* 4-Column Hero Metrics Bar */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <FileText size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>{items.length || 7}+ Publikasi</strong>
-                <small>Artikel & Siaran Pers</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Pusat Publikasi & Riset</span>
+              <span className="stats-card-status">● Realtime Update</span>
             </div>
-
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Globe size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                >
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <strong>{items.length || 7}+ Publikasi</strong>
+                  <small>Siaran Pers & Warta</small>
+                </div>
               </div>
-              <div>
-                <strong>38 DPD Provinsi</strong>
-                <small>Liputan Cabang Daerah</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                >
+                  <Globe size={20} />
+                </div>
+                <div>
+                  <strong>38 Provinsi</strong>
+                  <small>Kabar DPD Daerah</small>
+                </div>
               </div>
-            </div>
-
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Users size={22} color="#f59e0b" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                >
+                  <Users size={20} />
+                </div>
+                <div>
+                  <strong>12.500+ Pembaca</strong>
+                  <small>Praktisi & Industri</small>
+                </div>
               </div>
-              <div>
-                <strong>12.500+ Pembaca</strong>
-                <small>Teknisi & Industri HVAC</small>
-              </div>
-            </div>
-
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <TrendingUp size={22} color="#818cf8" />
-              </div>
-              <div>
-                <strong>Standar K3 & SKKNI</strong>
-                <small>Modul Riset BNSP</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                >
+                  <TrendingUp size={20} />
+                </div>
+                <div>
+                  <strong>Standar K3</strong>
+                  <small>Modul BNSP</small>
+                </div>
               </div>
             </div>
           </div>

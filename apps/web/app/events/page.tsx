@@ -359,63 +359,83 @@ export default function EventsPage() {
 
   return (
     <div className="events-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
+      {/* 1. Flagship 2-Column Split Hero Header */}
       <header className="tech-hero events-hero-master">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill">
-            <GraduationCap size={15} color="#38bdf8" />
-            <span>
-              AKADEMI VOKASI & PENGEMBANGAN PROFESI BERKELANJUTAN (CPD)
-            </span>
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
+              <GraduationCap size={14} />
+              <span>
+                AKADEMI VOKASI & PENGEMBANGAN PROFESI BERKELANJUTAN (CPD)
+              </span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Agenda Pelatihan, Workshop &{" "}
+              <span className="text-gradient">Sertifikasi BNSP 2026</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Tingkatkan keterampilan teknis melalui pelatihan intensif
+              bersertifikat nasional: teknologi inverter, tata udara sentral
+              VRV/VRF, keselamatan kerja freon R290, serta lisensi resmi BNSP.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Agenda Pelatihan, Workshop &{" "}
-            <span className="text-gradient">Sertifikasi BNSP 2026</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Tingkatkan keterampilan teknis melalui pelatihan intensif
-            bersertifikat nasional: teknologi inverter, tata udara sentral
-            VRV/VRF, keselamatan kerja freon R290, serta lisensi resmi BNSP.
-          </p>
-
-          {/* Impact Metrics Bar */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Award size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>Akreditasi BNSP</strong>
-                <small>Lisensi Standar SKKNI</small>
-              </div>
+          {/* Right Column: Key Academy Stats Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Pusat Sertifikasi & Diklat</span>
+              <span className="stats-card-status">● Terakreditasi BNSP</span>
             </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Zap size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                >
+                  <Award size={20} />
+                </div>
+                <div>
+                  <strong>Akreditasi BNSP</strong>
+                  <small>Standar SKKNI</small>
+                </div>
               </div>
-              <div>
-                <strong>Kredit Poin SKP / CPD</strong>
-                <small>+4 s.d +8 Poin Per Acara</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                >
+                  <Zap size={20} />
+                </div>
+                <div>
+                  <strong>Kredit SKP/CPD</strong>
+                  <small>+4 s.d +8 Poin</small>
+                </div>
               </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Wrench size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                >
+                  <Wrench size={20} />
+                </div>
+                <div>
+                  <strong>80% Hands-On</strong>
+                  <small>Manifold Digital</small>
+                </div>
               </div>
-              <div>
-                <strong>80% Praktik Hands-On</strong>
-                <small>Unit Asli & Manifold Digital</small>
-              </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Compass size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>38 DPD Se-Indonesia</strong>
-                <small>Pelatihan Rutin Daerah</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                >
+                  <Compass size={20} />
+                </div>
+                <div>
+                  <strong>38 DPD Daerah</strong>
+                  <small>Pelatihan Rutin</small>
+                </div>
               </div>
             </div>
           </div>

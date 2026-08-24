@@ -464,62 +464,82 @@ function AdArtContent() {
 
   return (
     <div className="adart-page-suite">
-      {/* 1. Flagship Clean Hero Header */}
+      {/* 1. Flagship Clean Split Hero Header */}
       <header className="adart-hero">
-        <div className="wrap adart-hero-inner">
-          <div className="org-hero-badge-pill">
-            <Scale size={14} />
-            <span>LANDASAN HUKUM & KONSTITUSI ORGANISASI</span>
+        <div className="wrap adart-hero-grid">
+          <div className="adart-hero-inner">
+            <div className="org-hero-badge-pill">
+              <Scale size={14} />
+              <span>LANDASAN HUKUM & KONSTITUSI ORGANISASI</span>
+            </div>
+
+            <h1 className="org-hero-title">
+              Anggaran Dasar, AD/ART &{" "}
+              <span className="text-gradient">Kode Etik Profesi</span>
+            </h1>
+
+            <p className="org-hero-lead">
+              Konstitusi pokok resmi yang disahkan melalui Musyawarah Nasional
+              (Munas) sebagai pedoman tata kelola keorganisasian, hak & kewajiban
+              anggota, wewenang kepengurusan DPP/DPD, serta 9 Butir Pakta
+              Integritas Profesi Pendingin Indonesia.
+            </p>
           </div>
 
-          <h1 className="org-hero-title">
-            Anggaran Dasar, AD/ART &{" "}
-            <span className="text-gradient">Kode Etik Profesi</span>
-          </h1>
-
-          <p className="org-hero-lead">
-            Konstitusi pokok resmi yang disahkan melalui Musyawarah Nasional
-            (Munas) sebagai pedoman tata kelola keorganisasian, hak & kewajiban
-            anggota, wewenang kepengurusan DPP/DPD, serta 9 Butir Pakta
-            Integritas Profesi Pendingin Indonesia.
-          </p>
-
-          {/* Hero Metrics Row */}
-          <div className="org-hero-metrics-bar">
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
-                <Landmark size={22} color="#0284c7" />
-              </div>
-              <div>
-                <strong>SK Kemenkumham Sah</strong>
-                <small>AHU-0012948.AH.01.07.2024</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Legalitas & Konstitusi Munas</span>
+              <span className="stats-card-status">● Berlaku Sah</span>
             </div>
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
-                <FileCheck2 size={22} color="#10b981" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                >
+                  <Landmark size={20} />
+                </div>
+                <div>
+                  <strong>SK Kemenkumham</strong>
+                  <small>AHU-0012948.AH</small>
+                </div>
               </div>
-              <div>
-                <strong>Naskah Munas 2024–2029</strong>
-                <small>Konstitusi Baku Berlaku</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                >
+                  <FileCheck2 size={20} />
+                </div>
+                <div>
+                  <strong>Munas 2024–2029</strong>
+                  <small>Konstitusi Baku</small>
+                </div>
               </div>
-            </div>
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
-                <ShieldCheck size={22} color="#6366f1" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <strong>9 Pakta Integritas</strong>
+                  <small>Kode Etik Mengikat</small>
+                </div>
               </div>
-              <div>
-                <strong>9 Butir Pakta Integritas</strong>
-                <small>Wajib Seluruh Anggota</small>
-              </div>
-            </div>
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
-                <Users size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>38 DPD Provinsi</strong>
-                <small>Struktur Musyawarah Sah</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                >
+                  <Users size={20} />
+                </div>
+                <div>
+                  <strong>38 DPD Provinsi</strong>
+                  <small>Struktur Musyawarah</small>
+                </div>
               </div>
             </div>
           </div>

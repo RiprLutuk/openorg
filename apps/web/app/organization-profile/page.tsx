@@ -150,85 +150,106 @@ export default async function OrganizationProfilePage() {
 
   return (
     <div className="org-profile-page">
-      {/* Flagship Hero Section */}
+      {/* Flagship 2-Column Split Hero */}
       <header className="org-profile-hero">
-        <div className="wrap org-profile-hero-inner">
-          <div className="org-hero-badge-pill">
-            <ShieldCheck size={14} />
-            <span>PROFIL RESMI ASOSIASI</span>
+        <div className="wrap org-profile-hero-grid">
+          {/* Left Column: Authoritative Copy & Actions */}
+          <div className="org-profile-hero-inner">
+            <div className="org-hero-badge-pill">
+              <ShieldCheck size={14} />
+              <span>PROFIL RESMI ASOSIASI</span>
+            </div>
+
+            <h1 className="org-hero-title">
+              Mengenal Perjalanan & Peran Strategis{" "}
+              <span className="text-gradient">{site.organization.name}</span>
+            </h1>
+
+            <p className="org-hero-lead">
+              Wadah persatuan pengusaha pendingin, bengkel workshop, dan praktisi
+              refrigerasi tata udara (HVAC/R) Indonesia. Berdedikasi menghadirkan
+              standarisasi kompetensi BNSP, kepatuhan kode etik, dan transparansi
+              layanan bagi masyarakat luas.
+            </p>
+
+            <div className="org-hero-cta-row">
+              <Link
+                href="/join"
+                className="btn-hero-primary"
+                style={{ width: "auto" }}
+              >
+                <Users size={16} />
+                <span>Gabung Keanggotaan</span>
+                <ArrowRight size={15} className="btn-arrow" />
+              </Link>
+              <Link
+                href="/structure"
+                className="btn-hero-secondary"
+              >
+                <Building2 size={16} />
+                <span>Struktur DPP & DPD</span>
+              </Link>
+              <Link href="/whois" className="btn-hero-ghost">
+                <QrCode size={15} />
+                <span>Cek KTA</span>
+              </Link>
+            </div>
           </div>
 
-          <h1 className="org-hero-title">
-            Mengenal Perjalanan & Peran Strategis{" "}
-            <span className="text-gradient">{site.organization.name}</span>
-          </h1>
-
-          <p className="org-hero-lead">
-            Wadah persatuan pengusaha pendingin, bengkel workshop, dan praktisi
-            refrigerasi tata udara (HVAC/R) Indonesia. Berdedikasi menghadirkan
-            standarisasi kompetensi BNSP, kepatuhan kode etik, dan transparansi
-            layanan bagi masyarakat luas.
-          </p>
-
-          <div className="org-hero-cta-row">
-            <Link
-              href="/join"
-              className="btn-hero-primary"
-              style={{ width: "auto" }}
-            >
-              <Users size={16} />
-              <span>Gabung Keanggotaan</span>
-              <ArrowRight size={15} className="btn-arrow" />
-            </Link>
-            <Link
-              href="/structure"
-              className="btn-hero-secondary"
-            >
-              <Building2 size={16} />
-              <span>Lihat Struktur DPP & DPD</span>
-            </Link>
-            <Link href="/whois" className="btn-hero-ghost">
-              <QrCode size={15} />
-              <span>Verifikasi KTA Anggota</span>
-            </Link>
-          </div>
-
-          {/* Key Impact Stats Bar */}
-          <div className="org-hero-metrics-bar">
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
-                <Building2 size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>38 Provinsi</strong>
-                <small>Dewan Pimpinan Daerah (DPD)</small>
-              </div>
+          {/* Right Column: Key Impact Stats Bento Card (2x2) */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Data Pokok Organisasi</span>
+              <span className="stats-card-status">● Terkini 2026</span>
             </div>
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
-                <Users size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                >
+                  <Building2 size={20} />
+                </div>
+                <div>
+                  <strong>38 Provinsi</strong>
+                  <small>Dewan Pimpinan Daerah</small>
+                </div>
               </div>
-              <div>
-                <strong>8.400+ Teknisi</strong>
-                <small>Anggota KTA Terakreditasi</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                >
+                  <Users size={20} />
+                </div>
+                <div>
+                  <strong>8.400+ Teknisi</strong>
+                  <small>Anggota Terakreditasi</small>
+                </div>
               </div>
-            </div>
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
-                <Award size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                >
+                  <Award size={20} />
+                </div>
+                <div>
+                  <strong>BNSP & K3</strong>
+                  <small>Standar Kompetensi</small>
+                </div>
               </div>
-              <div>
-                <strong>BNSP & K3</strong>
-                <small>Standar Kompetensi Resmi</small>
-              </div>
-            </div>
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
-                <ShieldCheck size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>100% Real-Time</strong>
-                <small>Audit Kredensial Terbuka</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <strong>100% Real-Time</strong>
+                  <small>Audit Terbuka</small>
+                </div>
               </div>
             </div>
           </div>

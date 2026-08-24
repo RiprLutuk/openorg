@@ -205,63 +205,83 @@ function RegulationsContent() {
 
   return (
     <div className="regulations-page-suite">
-      {/* 1. Flagship Hero Header */}
+      {/* 1. Flagship 2-Column Split Hero Header */}
       <header className="reg-hero">
-        <div className="wrap reg-hero-inner">
-          <div className="reg-hero-pill">
-            <BookOpen size={15} color="#38bdf8" />
-            <span>REPOSITORI REGULASI INDUSTRI & KEBIJAKAN SEKTOR</span>
+        <div className="wrap reg-hero-grid">
+          <div className="reg-hero-inner">
+            <div className="reg-hero-pill">
+              <BookOpen size={14} />
+              <span>REPOSITORI REGULASI INDUSTRI & KEBIJAKAN SEKTOR</span>
+            </div>
+
+            <h1 className="reg-hero-title">
+              Regulasi Pemerintah, Standar SNI &{" "}
+              <span className="text-gradient">Kebijakan Resmi</span>
+            </h1>
+
+            <p className="reg-hero-lead">
+              Pusat rujukan hukum dan kepatuhan standar refrigerasi: Peraturan
+              Menteri Lingkungan Hidup (KLHK), SKKNI & BNSP, Surat Edaran DPP,
+              serta naskah kebijakan transisi refrigeran ramah lingkungan.
+            </p>
           </div>
 
-          <h1 className="reg-hero-title">
-            Regulasi Pemerintah, Standar SNI &{" "}
-            <span className="text-gradient">Kebijakan Resmi</span>
-          </h1>
-
-          <p className="reg-hero-lead">
-            Pusat rujukan hukum dan kepatuhan standar refrigerasi: Peraturan
-            Menteri Lingkungan Hidup (KLHK), SKKNI & BNSP, Surat Edaran DPP,
-            serta naskah kebijakan transisi refrigeran ramah lingkungan.
-          </p>
-
-          {/* Key Metrics Row */}
-          <div className="reg-hero-metrics">
-            <div className="reg-metric-box">
-              <div className="reg-metric-icon">
-                <Scale size={22} color="#818cf8" />
-              </div>
-              <div>
-                <strong>Standar SNI & KLHK</strong>
-                <small>Regulasi Pemerintah Sah</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Pusat Regulasi & Kebijakan</span>
+              <span className="stats-card-status">● Arsip Terverifikasi</span>
             </div>
-            <div className="reg-metric-box">
-              <div className="reg-metric-icon">
-                <FileCheck2 size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                >
+                  <Scale size={20} />
+                </div>
+                <div>
+                  <strong>Standar SNI & KLHK</strong>
+                  <small>Regulasi Sah</small>
+                </div>
               </div>
-              <div>
-                <strong>{seCount || 4} Surat Edaran (SE)</strong>
-                <small>Instruksi Resmi DPP</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                >
+                  <FileCheck2 size={20} />
+                </div>
+                <div>
+                  <strong>{seCount || 4} Surat Edaran</strong>
+                  <small>Instruksi DPP</small>
+                </div>
               </div>
-            </div>
-            <div className="reg-metric-box">
-              <div className="reg-metric-icon">
-                <FileText size={22} color="#f59e0b" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                >
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <strong>Naskah Kebijakan</strong>
+                  <small>Advokasi Sektor</small>
+                </div>
               </div>
-              <div>
-                <strong>Naskah Kebijakan</strong>
-                <small>Advokasi & Posisi Sektor</small>
-              </div>
-            </div>
-            <div className="reg-metric-box">
-              <div className="reg-metric-icon">
-                <Download size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>
-                  {totalDownloads > 0 ? `${totalDownloads}+` : "2.400+"} Kali
-                </strong>
-                <small>Total Unduhan Publik</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                >
+                  <Download size={20} />
+                </div>
+                <div>
+                  <strong>
+                    {totalDownloads > 0 ? `${totalDownloads}+` : "2.400+"} Kali
+                  </strong>
+                  <small>Unduhan Publik</small>
+                </div>
               </div>
             </div>
           </div>

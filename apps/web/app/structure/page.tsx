@@ -34,74 +34,103 @@ export default async function StructurePage() {
     <div className="structure-page-suite">
       {/* 1. Flagship Hero */}
       <header className="struct-hero">
-        <div className="wrap struct-hero-inner">
-          <div className="struct-hero-pill">
-            <Network size={15} color="#38bdf8" />
-            <span>TATA KELOLA KEPENGURUSAN RESMI</span>
+        <div className="wrap struct-hero-grid">
+          <div className="struct-hero-inner">
+            <div className="struct-hero-pill">
+              <Network size={14} />
+              <span>TATA KELOLA KEPENGURUSAN RESMI</span>
+            </div>
+
+            <h1 className="struct-hero-title">
+              Struktur Kepengurusan DPP & DPD{" "}
+              <span className="text-gradient">{site.organization.name}</span>
+            </h1>
+
+            <p className="struct-hero-lead">
+              Bagan organisasi resmi kepemimpinan {site.organization.name} dari
+              tingkat Dewan Pimpinan Pusat (DPP), Dewan Pimpinan Daerah (DPD) di
+              38 provinsi, hingga Koordinator Wilayah (Korwil/DPC) di seluruh
+              Nusantara.
+            </p>
+
+            <div className="struct-hero-actions">
+              <Link
+                href="/join"
+                className="btn-hero-primary"
+                style={{ width: "auto" }}
+              >
+                <Users size={16} />
+                <span>Pendaftaran Anggota KTA</span>
+                <ArrowRight size={15} className="btn-arrow" />
+              </Link>
+              <Link
+                href="/regulations"
+                className="btn-hero-secondary"
+              >
+                <FileText size={15} />
+                <span>AD/ART Pengurus</span>
+              </Link>
+              <Link href="/whois" className="btn-hero-ghost">
+                <ShieldCheck size={15} />
+                <span>Verifikasi</span>
+              </Link>
+            </div>
           </div>
 
-          <h1 className="struct-hero-title">
-            Struktur Kepengurusan DPP & DPD{" "}
-            <span className="text-gradient">{site.organization.name}</span>
-          </h1>
-
-          <p className="struct-hero-lead">
-            Bagan organisasi resmi kepemimpinan {site.organization.name} dari
-            tingkat Dewan Pimpinan Pusat (DPP), Dewan Pimpinan Daerah (DPD) di
-            38 provinsi, hingga Koordinator Wilayah (Korwil/DPC) di seluruh
-            Nusantara.
-          </p>
-
-          <div className="struct-hero-actions">
-            <Link
-              href="/join"
-              className="btn-hero-primary"
-              style={{ width: "auto" }}
-            >
-              <Users size={16} />
-              <span>Pendaftaran Anggota KTA</span>
-              <ArrowRight size={15} className="btn-arrow" />
-            </Link>
-            <Link
-              href="/regulations"
-              className="btn-hero-secondary"
-            >
-              <FileText size={15} />
-              <span>Ketentuan AD/ART Pengurus</span>
-            </Link>
-            <Link href="/whois" className="btn-hero-ghost">
-              <ShieldCheck size={15} />
-              <span>Verifikasi Kredensial</span>
-            </Link>
-          </div>
-
-          {/* Impact Metrics Bar */}
-          <div className="struct-hero-metrics">
-            <div className="struct-metric-box">
-              <div className="struct-metric-icon">
-                <Building2 size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>{structure.units.length || 38} Unit Kerja</strong>
-                <small>DPP, DPD & Korwil</small>
-              </div>
+          {/* Right Column: Key Structure Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Data Jaringan Struktural</span>
+              <span className="stats-card-status">● SK DPP Aktif</span>
             </div>
-            <div className="struct-metric-box">
-              <div className="struct-metric-icon">
-                <Network size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                >
+                  <Building2 size={20} />
+                </div>
+                <div>
+                  <strong>{structure.units.length || 38} Unit Kerja</strong>
+                  <small>DPP, DPD & Korwil</small>
+                </div>
               </div>
-              <div>
-                <strong>{structure.positions.length || 85} Jabatan</strong>
-                <small>Pimpinan & Departemen</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                >
+                  <Network size={20} />
+                </div>
+                <div>
+                  <strong>{structure.positions.length || 85} Jabatan</strong>
+                  <small>Pimpinan & Bidang</small>
+                </div>
               </div>
-            </div>
-            <div className="struct-metric-box">
-              <div className="struct-metric-icon">
-                <UserRoundCheck size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                >
+                  <UserRoundCheck size={20} />
+                </div>
+                <div>
+                  <strong>{activeAppointments || 120} Pengurus</strong>
+                  <small>Terakreditasi SK</small>
+                </div>
               </div>
-              <div>
-                <strong>{activeAppointments || 120} Pengurus Aktif</strong>
-                <small>Terakreditasi SK DPP</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <strong>38 Provinsi</strong>
+                  <small>Cakupan Nasional</small>
+                </div>
               </div>
             </div>
           </div>
