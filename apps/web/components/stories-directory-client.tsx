@@ -38,7 +38,7 @@ interface Props {
   site: PublicSite;
 }
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 6;
 
 const CATEGORIES = [
   { id: "all", label: "Semua Warta" },
@@ -121,11 +121,28 @@ export function StoriesDirectoryClient({ items, site }: Props) {
     });
   }, [items, selectedCategory, searchQuery]);
 
-  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE) || 1;
+  // Determine whether the large featured banner is currently active at top
+  const isFeaturedBannerVisible =
+    !searchQuery.trim() &&
+    selectedCategory === "all" &&
+    currentPage === 1 &&
+    Boolean(featuredStory);
+
+  // Exclude the featured story from the catalog grid to prevent duplicate content
+  const catalogItems = useMemo(() => {
+    if (isFeaturedBannerVisible && featuredStory) {
+      return filteredItems.filter(
+        (i) => i.id !== featuredStory.id && i.slug !== featuredStory.slug,
+      );
+    }
+    return filteredItems;
+  }, [filteredItems, isFeaturedBannerVisible, featuredStory]);
+
+  const totalPages = Math.ceil(catalogItems.length / ITEMS_PER_PAGE) || 1;
   const safeCurrentPage = Math.min(currentPage, totalPages);
   const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredItems.length);
-  const paginatedItems = filteredItems.slice(startIndex, endIndex);
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, catalogItems.length);
+  const paginatedItems = catalogItems.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -256,8 +273,8 @@ export function StoriesDirectoryClient({ items, site }: Props) {
             </div>
           </div>
 
-          {featuredStory && !searchQuery && selectedCategory === "all" && (
-            <div className="featured-headline-card mb-8">
+          {isFeaturedBannerVisible && featuredStory && (
+            <div className="featured-headline-card">
               <div className="featured-cover-box">
                 <SmartImage
                   src={featuredStory.coverUrl}
@@ -389,14 +406,14 @@ export function StoriesDirectoryClient({ items, site }: Props) {
 
               {/* Numbered Pagination Toolbar */}
               {totalPages > 1 && (
-                <div className="stories-pagination-bar mt-8">
+                <div className="stories-pagination-bar">
                   <div className="pagination-info">
                     <span>
                       Menampilkan{" "}
                       <strong>
                         {startIndex + 1} - {endIndex}
                       </strong>{" "}
-                      dari <strong>{filteredItems.length}</strong> Warta Resmi
+                      dari <strong>{catalogItems.length}</strong> Warta Resmi
                     </span>
                   </div>
                   <div className="pagination-controls">

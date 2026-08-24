@@ -17679,6 +17679,7 @@ img {
   grid-template-columns: 1fr 1fr;
   align-items: stretch;
   transition: all 0.2s ease;
+  margin-bottom: 40px;
 }
 
 .featured-headline-card:hover {
@@ -17958,22 +17959,25 @@ img {
 .stories-catalog-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
+  column-gap: 24px;
+  row-gap: 32px;
   min-width: 0;
   max-width: 100%;
+  margin-bottom: 40px;
 }
 
 @media (max-width: 960px) {
   .stories-catalog-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    column-gap: 18px;
+    row-gap: 24px;
   }
 }
 
 @media (max-width: 640px) {
   .stories-catalog-grid {
     grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
+    row-gap: 20px;
   }
 }
 
@@ -18240,6 +18244,7 @@ img {
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  margin-top: 48px;
 }
 
 .popular-grid-3col {
@@ -18882,7 +18887,7 @@ img {
 
 /* Numbered Pagination Suite (Swiss Design) */
 .stories-pagination-bar {
-  margin-top: 28px;
+  margin: 36px 0;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
