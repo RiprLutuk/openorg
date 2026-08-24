@@ -24,8 +24,14 @@ function notify(member: LoggedInMember | null) {
   }
 }
 
+let inFlightAuthPromise: Promise<LoggedInMember | null> | null = null;
+
 export function checkMemberAuth() {
-  return memberApi<{ data: { member: LoggedInMember } }>("/v1/member/session")
+  if (inFlightAuthPromise) return inFlightAuthPromise;
+
+  inFlightAuthPromise = memberApi<{ data: { member: LoggedInMember } }>(
+    "/v1/member/session",
+  )
     .then((res) => {
       notify(res.data.member);
       return res.data.member;
@@ -33,7 +39,12 @@ export function checkMemberAuth() {
     .catch(() => {
       notify(null);
       return null;
+    })
+    .finally(() => {
+      inFlightAuthPromise = null;
     });
+
+  return inFlightAuthPromise;
 }
 
 export function useMemberAuth() {

@@ -162,18 +162,27 @@ export async function publicApi<T>(
   }
 }
 
-export const getSite = () => publicApi<PublicSite>("/site");
+import { cache } from "react";
+
+export const getSite = cache(() => publicApi<PublicSite>("/site"));
 export const getPublicSite = getSite;
-export const getHomepage = () => publicApi<PublicPage>("/pages/home");
-export const getPages = () => publicApi<PublicPageSummary[]>("/pages");
-export const getPage = (slug: string) =>
-  publicApi<PublicPage>(`/pages/${encodeURIComponent(slug)}`);
-export const getContents = (type = "post", limit = 6) =>
-  publicApi<ContentItem[]>(`/contents?type=${type}&limit=${limit}`);
-export const getContent = (slug: string) =>
-  publicApi<ContentItem>(`/contents/${encodeURIComponent(slug)}`);
-export const getEvents = (limit = 6, upcoming = true) =>
-  publicApi<EventItem[]>(`/events?limit=${limit}&upcoming=${upcoming}`);
-export const getEvent = (slug: string) =>
-  publicApi<EventItem>(`/events/${encodeURIComponent(slug)}`);
-export const getStructure = () => publicApi<PublicStructure>("/structure");
+export const getHomepage = cache(() => publicApi<PublicPage>("/pages/home"));
+export const getPages = cache(() => publicApi<PublicPageSummary[]>("/pages"));
+export const getPage = cache((slug: string) =>
+  publicApi<PublicPage>(`/pages/${encodeURIComponent(slug)}`),
+);
+export const getContents = cache((type = "post", limit = 6) =>
+  publicApi<ContentItem[]>(`/contents?type=${type}&limit=${limit}`),
+);
+export const getContent = cache((slug: string) =>
+  publicApi<ContentItem>(`/contents/${encodeURIComponent(slug)}`),
+);
+export const getEvents = cache((limit = 6, upcoming = true) =>
+  publicApi<EventItem[]>(`/events?limit=${limit}&upcoming=${upcoming}`),
+);
+export const getEvent = cache((slug: string) =>
+  publicApi<EventItem>(`/events/${encodeURIComponent(slug)}`),
+);
+export const getStructure = cache(() =>
+  publicApi<PublicStructure>("/structure"),
+);

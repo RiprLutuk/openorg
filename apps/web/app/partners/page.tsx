@@ -244,7 +244,7 @@ function LendersContent() {
     const fetchLenders = async () => {
       try {
         const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+          process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
         const res = await fetch(`${apiUrl}/v1/public/partners`);
         if (!res.ok) throw new Error("Failed to load partners");
         const json = await res.json();

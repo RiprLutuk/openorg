@@ -111,7 +111,7 @@ export default function ComplaintsPage() {
     };
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
       const res = await fetch(`${apiUrl}/v1/public/complaints`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -148,7 +148,7 @@ export default function ComplaintsPage() {
     setTrackResult(null);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
       const res = await fetch(
         `${apiUrl}/v1/public/complaints/verify/${encodeURIComponent(query)}`,
       );
