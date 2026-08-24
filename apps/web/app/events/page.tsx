@@ -10,6 +10,7 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
+  ChevronLeft,
   ChevronRight,
   Clock,
   Compass,
@@ -33,6 +34,8 @@ import {
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+
+const EVENTS_PER_PAGE = 4;
 
 interface EventItemData {
   id: string;
@@ -210,6 +213,7 @@ export default function EventsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   // Filtered Events
   const filteredEvents = useMemo(() => {
@@ -228,6 +232,38 @@ export default function EventsPage() {
       return matchCategory && matchCity && matchQuery;
     });
   }, [selectedCategory, selectedCity, searchQuery]);
+
+  const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE) || 1;
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * EVENTS_PER_PAGE;
+  const endIndex = Math.min(
+    startIndex + EVENTS_PER_PAGE,
+    filteredEvents.length,
+  );
+  const paginatedEvents = filteredEvents.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    const feedElement = document.getElementById("events-grid-anchor");
+    if (feedElement) {
+      feedElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleCategorySelect = (cat: string) => {
+    setSelectedCategory(cat);
+    setCurrentPage(1);
+  };
+
+  const handleCitySelect = (city: string) => {
+    setSelectedCity(city);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (q: string) => {
+    setSearchQuery(q);
+    setCurrentPage(1);
+  };
 
   const featuredEvent = EVENTS_DATABASE.find((e) => e.isFeatured);
 
@@ -425,6 +461,7 @@ export default function EventsPage() {
               )}
 
               {/* Filter Toolbar & Search Bar */}
+              <div id="events-grid-anchor" />
               <div className="events-filter-bar">
                 <div className="events-search-input">
                   <Search size={16} color="#64748b" />
@@ -432,7 +469,7 @@ export default function EventsPage() {
                     type="text"
                     placeholder="Cari judul pelatihan, kota, atau instruktur..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => handleSearchChange(e.target.value)}
                   />
                 </div>
 
@@ -440,136 +477,210 @@ export default function EventsPage() {
                   <button
                     type="button"
                     className={`filter-pill-btn ${selectedCategory === "all" ? "active" : ""}`}
-                    onClick={() => setSelectedCategory("all")}
+                    onClick={() => handleCategorySelect("all")}
                   >
                     Semua ({EVENTS_DATABASE.length})
                   </button>
                   <button
                     type="button"
                     className={`filter-pill-btn ${selectedCategory === "bnsp" ? "active" : ""}`}
-                    onClick={() => setSelectedCategory("bnsp")}
+                    onClick={() => handleCategorySelect("bnsp")}
                   >
                     Sertifikasi BNSP
                   </button>
                   <button
                     type="button"
                     className={`filter-pill-btn ${selectedCategory === "inverter" ? "active" : ""}`}
-                    onClick={() => setSelectedCategory("inverter")}
+                    onClick={() => handleCategorySelect("inverter")}
                   >
                     Inverter & VRV/VRF
                   </button>
                   <button
                     type="button"
                     className={`filter-pill-btn ${selectedCategory === "k3" ? "active" : ""}`}
-                    onClick={() => setSelectedCategory("k3")}
+                    onClick={() => handleCategorySelect("k3")}
                   >
                     Safety K3 & Freon
                   </button>
                   <button
                     type="button"
                     className={`filter-pill-btn ${selectedCategory === "munas" ? "active" : ""}`}
-                    onClick={() => setSelectedCategory("munas")}
+                    onClick={() => handleCategorySelect("munas")}
                   >
                     Munas & Rakernas
                   </button>
                 </div>
               </div>
 
-              {/* Events Cards Grid */}
-              <div className="events-cards-grid">
-                {filteredEvents.map((event) => {
-                  const startDate = new Date(event.startsAt);
-                  const isUpcoming = startDate.getTime() >= Date.now();
-                  const remainingQuota = event.capacity - event.enrolled;
+              {/* Events Cards Grid (Paginated) */}
+              {paginatedEvents.length > 0 ? (
+                <>
+                  <div className="events-cards-grid">
+                    {paginatedEvents.map((event) => {
+                      const startDate = new Date(event.startsAt);
+                      const isUpcoming = startDate.getTime() >= Date.now();
+                      const remainingQuota = event.capacity - event.enrolled;
 
-                  return (
-                    <article key={event.id} className="event-modern-card">
-                      <div>
-                        <div className="event-card-header-row">
-                          <div className="event-date-badge">
-                            <CalendarDays size={13} />
-                            <span>
-                              {startDate.toLocaleDateString("id-ID", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </span>
+                      return (
+                        <article key={event.id} className="event-modern-card">
+                          <div>
+                            <div className="event-card-header-row">
+                              <div className="event-date-badge">
+                                <CalendarDays size={13} />
+                                <span>
+                                  {startDate.toLocaleDateString("id-ID", {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  })}
+                                </span>
+                              </div>
+
+                              <span className="event-skp-pill">
+                                <Award size={13} />
+                                <span>+{event.skpPoints} SKP</span>
+                              </span>
+                            </div>
+
+                            <div className="event-cat-tag">
+                              <span>{event.categoryLabel}</span>
+                            </div>
+
+                            <h3 className="event-title">{event.title}</h3>
+
+                            <div className="event-location-row">
+                              <MapPin size={14} color="#0284c7" />
+                              <span>
+                                {event.locationName},{" "}
+                                <strong>{event.city}</strong>
+                              </span>
+                            </div>
+
+                            <p className="event-summary-text">
+                              {event.summary}
+                            </p>
                           </div>
 
-                          <span className="event-skp-pill">
-                            <Award size={13} />
-                            <span>+{event.skpPoints} SKP</span>
-                          </span>
-                        </div>
+                          <div>
+                            <div className="event-extra-meta">
+                              <div className="meta-inst">
+                                <small>Instruktur / Narasumber:</small>
+                                <strong>{event.instructor}</strong>
+                              </div>
+                              <div className="meta-quota">
+                                <small>Sisa Kuota:</small>
+                                <span
+                                  style={{
+                                    color:
+                                      remainingQuota < 20
+                                        ? "#dc2626"
+                                        : "#16a34a",
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  {remainingQuota} Kursi
+                                </span>
+                              </div>
+                            </div>
 
-                        <div className="event-cat-tag">
-                          <span>{event.categoryLabel}</span>
-                        </div>
+                            <div className="event-card-footer">
+                              <div className="event-quota-status">
+                                <span
+                                  className={`status-dot ${isUpcoming ? "active" : "closed"}`}
+                                />
+                                <span>
+                                  {isUpcoming
+                                    ? "Pendaftaran Terbuka"
+                                    : "Selesai"}
+                                </span>
+                              </div>
 
-                        <h3 className="event-title">{event.title}</h3>
+                              <Link
+                                href={`/events/${event.slug}`}
+                                className="calc-cta-btn btn-event-action"
+                              >
+                                <span>Rincian & Daftar</span>
+                                <ArrowRight size={13} />
+                              </Link>
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
 
-                        <div className="event-location-row">
-                          <MapPin size={14} color="#0284c7" />
-                          <span>
-                            {event.locationName}, <strong>{event.city}</strong>
-                          </span>
-                        </div>
-
-                        <p className="event-summary-text">{event.summary}</p>
+                  {/* Numbered Pagination Toolbar */}
+                  {totalPages > 1 && (
+                    <div className="stories-pagination-bar mt-6">
+                      <div className="pagination-info">
+                        <span>
+                          Menampilkan{" "}
+                          <strong>
+                            {startIndex + 1} - {endIndex}
+                          </strong>{" "}
+                          dari <strong>{filteredEvents.length}</strong> Agenda
+                          Pelatihan
+                        </span>
                       </div>
+                      <div className="pagination-controls">
+                        <button
+                          type="button"
+                          className="page-nav-btn"
+                          disabled={safeCurrentPage === 1}
+                          onClick={() => handlePageChange(safeCurrentPage - 1)}
+                        >
+                          <ChevronLeft size={14} />
+                          <span>Sebelumnya</span>
+                        </button>
 
-                      <div>
-                        <div className="event-extra-meta">
-                          <div className="meta-inst">
-                            <small>Instruktur / Narasumber:</small>
-                            <strong>{event.instructor}</strong>
-                          </div>
-                          <div className="meta-quota">
-                            <small>Sisa Kuota:</small>
-                            <span
-                              style={{
-                                color:
-                                  remainingQuota < 20 ? "#dc2626" : "#16a34a",
-                                fontWeight: 700,
-                              }}
+                        <div className="page-numbers-group">
+                          {Array.from(
+                            { length: totalPages },
+                            (_, idx) => idx + 1,
+                          ).map((pageNum) => (
+                            <button
+                              key={pageNum}
+                              type="button"
+                              className={`page-num-btn ${
+                                pageNum === safeCurrentPage ? "active" : ""
+                              }`}
+                              onClick={() => handlePageChange(pageNum)}
                             >
-                              {remainingQuota} Kursi
-                            </span>
-                          </div>
+                              {pageNum}
+                            </button>
+                          ))}
                         </div>
 
-                        <div className="event-card-footer">
-                          <div className="event-quota-status">
-                            <span
-                              className={`status-dot ${isUpcoming ? "active" : "closed"}`}
-                            />
-                            <span>
-                              {isUpcoming ? "Pendaftaran Terbuka" : "Selesai"}
-                            </span>
-                          </div>
-
-                          <Link
-                            href={`/events/${event.slug}`}
-                            className="calc-cta-btn btn-event-action"
-                          >
-                            <span>Rincian & Daftar</span>
-                            <ArrowRight size={13} />
-                          </Link>
-                        </div>
+                        <button
+                          type="button"
+                          className="page-nav-btn"
+                          disabled={safeCurrentPage === totalPages}
+                          onClick={() => handlePageChange(safeCurrentPage + 1)}
+                        >
+                          <span>Selanjutnya</span>
+                          <ChevronRight size={14} />
+                        </button>
                       </div>
-                    </article>
-                  );
-                })}
-              </div>
-
-              {filteredEvents.length === 0 && (
+                    </div>
+                  )}
+                </>
+              ) : (
                 <div className="empty-state">
                   <CalendarDays size={48} color="#94a3b8" />
                   <h3>Tidak Ada Agenda yang Sesuai</h3>
                   <p>
                     Coba ganti filter kategori atau kata kunci pencarian Anda.
                   </p>
+                  <button
+                    type="button"
+                    className="button secondary mt-4"
+                    onClick={() => {
+                      handleCategorySelect("all");
+                      handleSearchChange("");
+                    }}
+                  >
+                    Reset Filter
+                  </button>
                 </div>
               )}
             </div>

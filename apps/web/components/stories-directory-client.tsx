@@ -6,6 +6,7 @@ import {
   BookOpen,
   Calendar,
   CheckCircle2,
+  ChevronLeft,
   ChevronRight,
   Clock,
   Download,
@@ -34,6 +35,8 @@ interface Props {
   items: ContentItem[];
   site: PublicSite;
 }
+
+const ITEMS_PER_PAGE = 4;
 
 const CATEGORIES = [
   { id: "all", label: "Semua Warta" },
@@ -77,6 +80,7 @@ const POPULAR_STORIES = [
 export function StoriesDirectoryClient({ items, site }: Props) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
@@ -114,6 +118,30 @@ export function StoriesDirectoryClient({ items, site }: Props) {
       return true;
     });
   }, [items, selectedCategory, searchQuery]);
+
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE) || 1;
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredItems.length);
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    const feedElement = document.getElementById("stories-feed-anchor");
+    if (feedElement) {
+      feedElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleCategorySelect = (catId: string) => {
+    setSelectedCategory(catId);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+    setCurrentPage(1);
+  };
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -283,6 +311,8 @@ export function StoriesDirectoryClient({ items, site }: Props) {
         <div className="wrap stories-layout-grid">
           {/* Left Column: Toolbar Filter & Article Cards (68%) */}
           <div className="stories-feed-col">
+            <div id="stories-feed-anchor" />
+
             {/* Filter Toolbar (Swiss Design) */}
             <div className="stories-toolbar-card">
               <div className="stories-filter-pills">
@@ -291,7 +321,7 @@ export function StoriesDirectoryClient({ items, site }: Props) {
                     key={cat.id}
                     type="button"
                     className={`filter-pill-btn ${selectedCategory === cat.id ? "active" : ""}`}
-                    onClick={() => setSelectedCategory(cat.id)}
+                    onClick={() => handleCategorySelect(cat.id)}
                   >
                     {cat.label}
                   </button>
@@ -304,73 +334,131 @@ export function StoriesDirectoryClient({ items, site }: Props) {
                   type="text"
                   placeholder="Cari warta, topik K3, atau penulis..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                 />
               </div>
             </div>
 
-            {/* Articles Grid */}
-            {filteredItems.length > 0 ? (
-              <div className="stories-cards-flow">
-                {filteredItems.map((item) => (
-                  <article key={item.id} className="story-modern-card">
-                    <Link
-                      href={`/stories/${item.slug}`}
-                      className="story-card-cover-link"
-                    >
-                      <img
-                        src={
-                          item.coverUrl ??
-                          "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80"
-                        }
-                        alt={item.title}
-                        className="story-thumb-img"
-                      />
-                      <span className="story-thumb-badge">
-                        {item.type === "news"
-                          ? "Berita"
-                          : item.type === "post"
-                            ? "Artikel Teknis"
-                            : "Siaran Pers"}
+            {/* Articles Grid (Paginated) */}
+            {paginatedItems.length > 0 ? (
+              <>
+                <div className="stories-cards-flow">
+                  {paginatedItems.map((item) => (
+                    <article key={item.id} className="story-modern-card">
+                      <Link
+                        href={`/stories/${item.slug}`}
+                        className="story-card-cover-link"
+                      >
+                        <img
+                          src={
+                            item.coverUrl ??
+                            "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80"
+                          }
+                          alt={item.title}
+                          className="story-thumb-img"
+                        />
+                        <span className="story-thumb-badge">
+                          {item.type === "news"
+                            ? "Berita"
+                            : item.type === "post"
+                              ? "Artikel Teknis"
+                              : "Siaran Pers"}
+                        </span>
+                      </Link>
+
+                      <div className="story-card-content">
+                        <div className="story-card-meta">
+                          <span className="meta-date">
+                            {new Date(
+                              item.publishedAt ?? item.updatedAt,
+                            ).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                          <span className="meta-sep">•</span>
+                          <span className="meta-author">
+                            {item.authorName ?? "Redaksi APTI"}
+                          </span>
+                        </div>
+
+                        <h3 className="story-card-title">
+                          <Link href={`/stories/${item.slug}`}>
+                            {item.title}
+                          </Link>
+                        </h3>
+
+                        <p className="story-card-excerpt">{item.excerpt}</p>
+
+                        <div className="story-card-footer">
+                          <Link
+                            href={`/stories/${item.slug}`}
+                            className="story-inline-link"
+                          >
+                            <span>Baca Artikel</span>
+                            <ArrowRight size={14} />
+                          </Link>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+
+                {/* Numbered Pagination Toolbar */}
+                {totalPages > 1 && (
+                  <div className="stories-pagination-bar">
+                    <div className="pagination-info">
+                      <span>
+                        Menampilkan{" "}
+                        <strong>
+                          {startIndex + 1} - {endIndex}
+                        </strong>{" "}
+                        dari <strong>{filteredItems.length}</strong> Warta Resmi
                       </span>
-                    </Link>
-
-                    <div className="story-card-content">
-                      <div className="story-card-meta">
-                        <span className="meta-date">
-                          {new Date(
-                            item.publishedAt ?? item.updatedAt,
-                          ).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </span>
-                        <span className="meta-sep">•</span>
-                        <span className="meta-author">
-                          {item.authorName ?? "Redaksi APTI"}
-                        </span>
-                      </div>
-
-                      <h3 className="story-card-title">
-                        <Link href={`/stories/${item.slug}`}>{item.title}</Link>
-                      </h3>
-
-                      <p className="story-card-excerpt">{item.excerpt}</p>
-
-                      <div className="story-card-footer">
-                        <Link
-                          href={`/stories/${item.slug}`}
-                          className="story-inline-link"
-                        >
-                          <span>Baca Artikel</span>
-                          <ArrowRight size={14} />
-                        </Link>
-                      </div>
                     </div>
-                  </article>
-                ))}
-              </div>
+                    <div className="pagination-controls">
+                      <button
+                        type="button"
+                        className="page-nav-btn"
+                        disabled={safeCurrentPage === 1}
+                        onClick={() => handlePageChange(safeCurrentPage - 1)}
+                      >
+                        <ChevronLeft size={14} />
+                        <span>Sebelumnya</span>
+                      </button>
+
+                      <div className="page-numbers-group">
+                        {Array.from(
+                          { length: totalPages },
+                          (_, idx) => idx + 1,
+                        ).map((pageNum) => (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            className={`page-num-btn ${
+                              pageNum === safeCurrentPage ? "active" : ""
+                            }`}
+                            onClick={() => handlePageChange(pageNum)}
+                          >
+                            {pageNum}
+                          </button>
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        className="page-nav-btn"
+                        disabled={safeCurrentPage === totalPages}
+                        onClick={() => handlePageChange(safeCurrentPage + 1)}
+                      >
+                        <span>Selanjutnya</span>
+                        <ChevronRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="stories-empty-box">
                 <Newspaper size={44} color="#94a3b8" />
@@ -383,8 +471,8 @@ export function StoriesDirectoryClient({ items, site }: Props) {
                   type="button"
                   className="button secondary mt-4"
                   onClick={() => {
-                    setSelectedCategory("all");
-                    setSearchQuery("");
+                    handleCategorySelect("all");
+                    handleSearchChange("");
                   }}
                 >
                   Reset Filter
