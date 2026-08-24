@@ -681,13 +681,10 @@ export default function CalculatorPage() {
 
                 {/* Action CTA */}
                 <div className="calc-result-actions">
-                  <Link
-                    href="/technicians"
-                    className="button primary"
-                    style={{ width: "100%", justifyContent: "center" }}
-                  >
+                  <Link href="/technicians" className="calc-cta-btn">
                     <Users size={16} />
-                    <span>Cari Teknisi Terdekat untuk Pemasangan</span>
+                    <span>Cari Teknisi Terdekat</span>
+                    <ArrowRight size={15} />
                   </Link>
                 </div>
               </div>
