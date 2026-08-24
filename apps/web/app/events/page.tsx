@@ -604,86 +604,84 @@ export default function EventsPage() {
 
                       return (
                         <article key={event.id} className="event-modern-card">
-                          <div>
-                            <div className="event-card-header-row">
-                              <div className="event-date-badge">
-                                <CalendarDays size={13} />
-                                <span>
-                                  {startDate.toLocaleDateString("id-ID", {
-                                    day: "numeric",
-                                    month: "short",
-                                    year: "numeric",
-                                  })}
-                                </span>
-                              </div>
+                          {/* Card Top: Category Tag & SKP Badge */}
+                          <div className="event-card-top-bar">
+                            <span className="event-cat-tag">
+                              {event.categoryLabel}
+                            </span>
+                            <span className="event-skp-pill">
+                              <Award size={13} />
+                              <span>+{event.skpPoints} SKP</span>
+                            </span>
+                          </div>
 
-                              <span className="event-skp-pill">
-                                <Award size={13} />
-                                <span>+{event.skpPoints} SKP</span>
-                              </span>
-                            </div>
-
-                            <div className="event-cat-tag">
-                              <span>{event.categoryLabel}</span>
-                            </div>
-
-                            <h3 className="event-title">{event.title}</h3>
-
-                            <div className="event-location-row">
-                              <MapPin size={14} color="#0284c7" />
-                              <span>
-                                {event.locationName},{" "}
-                                <strong>{event.city}</strong>
-                              </span>
-                            </div>
-
+                          {/* Card Main: Title & Excerpt */}
+                          <div className="event-card-main">
+                            <h3 className="event-title">
+                              <Link href={`/events/${event.slug}`}>
+                                {event.title}
+                              </Link>
+                            </h3>
                             <p className="event-summary-text">
                               {event.summary}
                             </p>
                           </div>
 
-                          <div>
-                            <div className="event-extra-meta">
-                              <div className="meta-inst">
-                                <small>Instruktur / Narasumber:</small>
-                                <strong>{event.instructor}</strong>
-                              </div>
-                              <div className="meta-quota">
-                                <small>Sisa Kuota:</small>
-                                <span
-                                  style={{
-                                    color:
-                                      remainingQuota < 20
-                                        ? "#dc2626"
-                                        : "#16a34a",
-                                    fontWeight: 700,
-                                  }}
-                                >
-                                  {remainingQuota} Kursi
-                                </span>
-                              </div>
+                          {/* Clean Airy Metadata List */}
+                          <div className="event-card-meta-list">
+                            <div className="event-meta-line">
+                              <CalendarDays
+                                size={15}
+                                className="meta-icon text-sky"
+                              />
+                              <span>
+                                {startDate.toLocaleDateString("id-ID", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })}{" "}
+                                · {event.timeRange}
+                              </span>
                             </div>
 
-                            <div className="event-card-footer">
-                              <div className="event-quota-status">
-                                <span
-                                  className={`status-dot ${isUpcoming ? "active" : "closed"}`}
-                                />
-                                <span>
-                                  {isUpcoming
-                                    ? "Pendaftaran Terbuka"
-                                    : "Selesai"}
-                                </span>
-                              </div>
-
-                              <Link
-                                href={`/events/${event.slug}`}
-                                className="calc-cta-btn btn-event-action"
-                              >
-                                <span>Rincian & Daftar</span>
-                                <ArrowRight size={13} />
-                              </Link>
+                            <div className="event-meta-line">
+                              <MapPin
+                                size={15}
+                                className="meta-icon text-emerald"
+                              />
+                              <span>
+                                <strong>{event.city}</strong> ·{" "}
+                                {event.locationName}
+                              </span>
                             </div>
+
+                            <div className="event-meta-line">
+                              <Users
+                                size={15}
+                                className="meta-icon text-purple"
+                              />
+                              <span>{event.instructor}</span>
+                            </div>
+                          </div>
+
+                          {/* Card Footer: Fee & Action CTA */}
+                          <div className="event-card-footer">
+                            <div className="event-footer-info">
+                              <small>
+                                {remainingQuota < 20
+                                  ? `Sisa ${remainingQuota} Kursi`
+                                  : "Biaya Kontribusi"}
+                              </small>
+                              <strong>{event.fee}</strong>
+                            </div>
+
+                            <Link
+                              href={`/events/${event.slug}`}
+                              className="btn-event-action"
+                            >
+                              <span>Lihat Agenda</span>
+                              <ArrowRight size={14} />
+                            </Link>
                           </div>
                         </article>
                       );
