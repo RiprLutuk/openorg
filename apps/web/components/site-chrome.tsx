@@ -709,10 +709,25 @@ export function Footer({ site }: { site: PublicSite }) {
           href={site.quickContact.href}
           target="_blank"
           rel="noopener noreferrer"
+          title={`Hubungi ${site.quickContact.label}`}
+          aria-label={`Hubungi ${site.quickContact.label}`}
         >
-          <Phone size={18} />
+          <div className="quick-contact-icon-pill">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.8 14.13c-.24.67-1.39 1.28-1.92 1.36-.51.08-1.16.11-3.69-.93-2.9-1.2-4.78-4.14-4.93-4.33-.14-.2-1.18-1.57-1.18-2.99 0-1.42.75-2.12 1.01-2.41.27-.3.59-.37.79-.37.2 0 .4 0 .57.01.19.01.44-.07.69.52.26.62.88 2.14.96 2.3.08.16.13.35.03.56-.11.2-.16.33-.32.52-.16.19-.34.42-.49.56-.16.16-.33.34-.14.66.19.33.86 1.42 1.84 2.3 1.27 1.13 2.34 1.48 2.67 1.65.33.16.52.14.71-.08.2-.22.84-.98 1.07-1.32.22-.33.45-.28.76-.16.31.11 1.97.93 2.31 1.1.34.16.57.24.65.38.08.14.08.82-.16 1.49z" />
+            </svg>
+            <span className="online-beacon-dot" />
+          </div>
           <div className="quick-contact-text">
-            <small>Hotline Resmi</small>
+            <small>
+              <span className="beacon-text-dot" /> Hotline Resmi
+            </small>
             <span>{site.quickContact.label}</span>
           </div>
         </a>

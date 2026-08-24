@@ -9622,55 +9622,74 @@ img {
   }
 }
 
-/* Floating Quick Contact / Hotline WhatsApp Widget */
+/* Floating Quick Contact / Hotline WhatsApp Widget (Luxury Swiss & Mobile FAB) */
 .floating-quick-contact {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 990;
+  bottom: 26px;
+  right: 26px;
+  z-index: 999;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: #090d16;
-  border: 1px solid rgba(56, 189, 248, 0.35);
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: #ffffff;
-  padding: 10px 18px;
+  padding: 7px 16px 7px 8px;
   border-radius: 9999px;
   text-decoration: none;
   box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.35),
-    0 0 16px rgba(56, 189, 248, 0.2);
-  backdrop-filter: blur(12px);
+    0 12px 32px -4px rgba(0, 0, 0, 0.35),
+    0 4px 12px rgba(37, 211, 102, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
 }
 
 .floating-quick-contact:hover {
-  background: #0284c7;
-  border-color: #38bdf8;
-  color: #ffffff;
+  background: #0f172a;
+  border-color: rgba(37, 211, 102, 0.5);
   transform: translateY(-3px) scale(1.02);
   box-shadow:
-    0 14px 36px rgba(2, 132, 199, 0.45),
-    0 0 22px rgba(56, 189, 248, 0.4);
+    0 16px 40px -4px rgba(0, 0, 0, 0.45),
+    0 0 24px rgba(37, 211, 102, 0.35);
 }
 
-.floating-quick-contact svg {
-  color: #38bdf8;
-  flex-shrink: 0;
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.floating-quick-contact:hover svg {
+.quick-contact-icon-pill {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #25d366;
   color: #ffffff;
-  transform: rotate(-10deg) scale(1.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.floating-quick-contact:hover .quick-contact-icon-pill {
+  transform: scale(1.08) rotate(6deg);
+}
+
+.online-beacon-dot {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #4ade80;
+  border: 2px solid #0f172a;
+  box-shadow: 0 0 6px #22c55e;
 }
 
 .quick-contact-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.15;
+  line-height: 1.2;
   text-align: left;
 }
 
@@ -9679,29 +9698,65 @@ img {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #94a3b8;
+  color: #4ade80;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.floating-quick-contact:hover .quick-contact-text small {
-  color: #e0f2fe;
+.beacon-text-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4ade80;
+  display: inline-block;
 }
 
 .quick-contact-text span {
   font-size: 12.5px;
   font-weight: 700;
-  color: #ffffff;
+  color: #f8fafc;
   white-space: nowrap;
 }
 
 @media (max-width: 640px) {
   .floating-quick-contact {
-    bottom: 16px;
-    right: 16px;
-    padding: 8px 14px;
-    gap: 8px;
+    bottom: 20px;
+    right: 20px;
+    padding: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #25d366;
+    border: 2px solid #ffffff;
+    box-shadow:
+      0 8px 24px -2px rgba(37, 211, 102, 0.5),
+      0 4px 12px rgba(0, 0, 0, 0.15);
+    justify-content: center;
   }
-  .quick-contact-text span {
-    font-size: 11.5px;
+
+  .floating-quick-contact:hover {
+    background: #20ba5a;
+    transform: translateY(-2px) scale(1.05);
+  }
+
+  .quick-contact-icon-pill {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .online-beacon-dot {
+    top: 2px;
+    right: 2px;
+    border-color: #ffffff;
+    width: 10px;
+    height: 10px;
+  }
+
+  .quick-contact-text {
+    display: none;
   }
 }
 
