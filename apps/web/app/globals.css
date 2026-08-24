@@ -13122,6 +13122,302 @@ img {
   margin: 0 auto 16px;
 }
 
+/* Active Member Session Hub Split Card */
+.logged-in-split-card {
+  max-width: 980px;
+}
+
+.mini-kta-preview-card {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 18px;
+  padding: 20px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 20px 0 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.mini-kta-preview-card::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle,
+    rgba(56, 189, 248, 0.15) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.mini-kta-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mini-kta-chip {
+  width: 32px;
+  height: 24px;
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  border-radius: 4px;
+  border: 1px solid #fef3c7;
+}
+
+.mini-kta-badge {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.mini-kta-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mini-kta-org {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+}
+
+.mini-kta-name {
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.mini-kta-num {
+  font-size: 12.5px;
+  font-family: monospace;
+  color: #38bdf8;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.mini-kta-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #64748b;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 10px;
+}
+
+.mini-kta-qr-tag {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.login-session-security-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Right Side: Active Session */
+.login-active-session-side {
+  padding: clamp(32px, 5vw, 44px);
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.active-session-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.active-session-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+  flex-shrink: 0;
+}
+
+.active-welcome-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0284c7;
+  display: block;
+}
+
+.active-member-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 2px 0 4px;
+}
+
+.active-member-sub {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0;
+}
+
+.active-member-sub strong {
+  color: #0f172a;
+}
+
+/* Bento Quick Links */
+.active-bento-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.active-bento-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  text-decoration: none;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.active-bento-item:hover {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  transform: translateX(3px);
+}
+
+.active-bento-item.highlight {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+}
+
+.bento-icon-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bento-icon-circle.blue {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.bento-icon-circle.emerald {
+  background: #dcfce7;
+  color: #059669;
+}
+
+.bento-icon-circle.purple {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.bento-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.bento-text strong {
+  font-size: 13.5px;
+  font-weight: 750;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.bento-text small {
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.bento-arrow {
+  color: #94a3b8;
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.active-bento-item:hover .bento-arrow {
+  color: #0284c7;
+  transform: translateX(3px);
+}
+
+/* Footer Actions */
+.active-session-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btn-switch-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-switch-account:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.btn-goto-portal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px !important;
+  font-weight: 750 !important;
+  padding: 10px 18px !important;
+  border-radius: 10px !important;
+}
+
 /* Responsive Media Queries for All Suites */
 @media (max-width: 960px) {
   .tech-hero-metrics {
