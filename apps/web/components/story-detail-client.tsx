@@ -42,22 +42,50 @@ function SocialShareSuite({
 }) {
   const [copied, setCopied] = useState(false);
 
-  const getFullUrl = () => {
-    if (typeof window !== "undefined") {
-      return `${window.location.origin}/stories/${slug}`;
-    }
-    return `https://openorg.or.id/stories/${slug}`;
-  };
+  const handleShare = (channelId: string) => {
+    if (typeof window === "undefined") return;
 
-  const shareUrl = getFullUrl();
-  const encodedUrl = encodeURIComponent(shareUrl);
-  const encodedTitle = encodeURIComponent(title);
-  const shareText = encodeURIComponent(
-    `${title} — Baca warta resmi di: ${shareUrl}`,
-  );
+    const shareUrl = `${window.location.origin}/stories/${slug}`;
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedTitle = encodeURIComponent(title);
+    const shareText = encodeURIComponent(
+      `${title} — Baca warta resmi di: ${shareUrl}`,
+    );
+
+    let targetUrl = "";
+    switch (channelId) {
+      case "whatsapp":
+        targetUrl = `https://api.whatsapp.com/send?text=${shareText}`;
+        break;
+      case "threads":
+        targetUrl = `https://threads.net/intent/post?text=${shareText}`;
+        break;
+      case "twitter":
+        targetUrl = `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`;
+        break;
+      case "telegram":
+        targetUrl = `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`;
+        break;
+      case "linkedin":
+        targetUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+        break;
+      case "facebook":
+        targetUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        break;
+    }
+
+    if (targetUrl) {
+      window.open(
+        targetUrl,
+        "_blank",
+        "noopener,noreferrer,width=600,height=600",
+      );
+    }
+  };
 
   const handleCopy = () => {
     if (typeof window !== "undefined") {
+      const shareUrl = `${window.location.origin}/stories/${slug}`;
       navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2200);
@@ -68,7 +96,6 @@ function SocialShareSuite({
     {
       id: "whatsapp",
       name: "WhatsApp",
-      url: `https://api.whatsapp.com/send?text=${shareText}`,
       className: "share-btn-wa",
       icon: (
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -79,7 +106,6 @@ function SocialShareSuite({
     {
       id: "threads",
       name: "Threads",
-      url: `https://threads.net/intent/post?text=${shareText}`,
       className: "share-btn-threads",
       icon: (
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -90,7 +116,6 @@ function SocialShareSuite({
     {
       id: "twitter",
       name: "X (Twitter)",
-      url: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
       className: "share-btn-x",
       icon: (
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
@@ -101,7 +126,6 @@ function SocialShareSuite({
     {
       id: "telegram",
       name: "Telegram",
-      url: `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`,
       className: "share-btn-telegram",
       icon: (
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -112,7 +136,6 @@ function SocialShareSuite({
     {
       id: "linkedin",
       name: "LinkedIn",
-      url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
       className: "share-btn-linkedin",
       icon: (
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -123,7 +146,6 @@ function SocialShareSuite({
     {
       id: "facebook",
       name: "Facebook",
-      url: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
       className: "share-btn-fb",
       icon: (
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -142,17 +164,16 @@ function SocialShareSuite({
 
       <div className="share-buttons-flow">
         {channels.map((ch) => (
-          <a
+          <button
             key={ch.id}
-            href={ch.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            type="button"
+            onClick={() => handleShare(ch.id)}
             className={`share-icon-circle-btn ${ch.className}`}
             title={`Bagikan ke ${ch.name}`}
             aria-label={`Bagikan ke ${ch.name}`}
           >
             {ch.icon}
-          </a>
+          </button>
         ))}
 
         <button
