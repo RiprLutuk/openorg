@@ -1662,26 +1662,232 @@ img {
     text-align: center;
   }
 }
+/* ==========================================================================
+   ERROR & NOT FOUND RECOVERY SUITE (Swiss Modern Architecture)
+   ========================================================================== */
+
+.error-screen-suite {
+  min-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 0 72px;
+  background: var(--color-surface, #f8fafc);
+}
+
+.error-wrap-inner {
+  max-width: 960px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.error-main-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 48px 36px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.error-main-card.not-found-variant {
+  border-top: 4px solid #0284c7;
+}
+
+.error-main-card:not(.not-found-variant) {
+  border-top: 4px solid #e11d48;
+}
+
+.error-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-bottom: 18px;
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+}
+
+.error-pill-badge.blue {
+  background: #f0f9ff;
+  color: #0284c7;
+  border-color: #bae6fd;
+}
+
+.error-heading-title {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+  margin: 0 0 14px;
+  letter-spacing: -0.02em;
+}
+
+.error-lead-desc {
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto 28px;
+}
+
+.error-cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-error-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+.btn-error-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.btn-error-secondary:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.error-digest-strip {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.error-digest-strip code {
+  font-family: monospace;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #64748b;
+}
+
+/* Recovery Shortcuts Grid */
+.error-recovery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 860px) {
+  .error-recovery-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.recovery-nav-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.recovery-nav-card:hover {
+  border-color: #0284c7;
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.08);
+  transform: translateY(-2px);
+}
+
+.recovery-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.recovery-icon-box.blue {
+  background: #f0f9ff;
+  color: #0284c7;
+}
+
+.recovery-icon-box.emerald {
+  background: #ecfdf5;
+  color: #10b981;
+}
+
+.recovery-icon-box.violet {
+  background: #f5f3ff;
+  color: #8b5cf6;
+}
+
+.recovery-card-body h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px;
+  line-height: 1.35;
+}
+
+.recovery-card-body p {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+.recovery-link-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0284c7;
+  transition: gap 0.15s ease;
+}
+
+.recovery-nav-card:hover .recovery-link-label {
+  gap: 9px;
+}
+
 .not-found {
   min-height: 65vh;
   display: grid;
   place-content: center;
   justify-items: center;
   text-align: center;
-}
-.not-found > span {
-  color: var(--color-primary);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-.not-found h1 {
-  font-size: clamp(42px, 7vw, 78px);
-  margin: 16px 0 5px;
-}
-.not-found p {
-  color: #667085;
-  margin-bottom: 26px;
 }
 .archive-hero,
 .detail-hero {
