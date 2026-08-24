@@ -149,7 +149,8 @@ function HeaderContent({ site }: { site: PublicSite }) {
   const isChildActive = (childHref: string) => {
     if (childHref.includes("?")) {
       const [childPath, childQuery] = childHref.split("?");
-      if (pathname !== childPath) return false;
+      if (pathname !== childPath && !pathname.startsWith(`${childPath}/`))
+        return false;
       const targetParams = new URLSearchParams(childQuery);
       const targetCat = targetParams.get("kategori");
       const currentCat =
@@ -174,12 +175,20 @@ function HeaderContent({ site }: { site: PublicSite }) {
       return !cat || cat === "semua" || cat === "all";
     }
 
+    if (
+      childHref !== "/" &&
+      (pathname === childHref || pathname.startsWith(`${childHref}/`))
+    ) {
+      return true;
+    }
+
     return pathname === childHref;
   };
 
   const isItemActive = (href: string, children?: Array<{ href: string }>) => {
     if (pathname === href) return true;
-    if (href !== "/" && pathname.startsWith(href)) return true;
+    if (href !== "/" && (pathname === href || pathname.startsWith(`${href}/`)))
+      return true;
     if (children?.some((c) => isChildActive(c.href))) return true;
     return false;
   };
