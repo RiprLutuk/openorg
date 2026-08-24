@@ -463,101 +463,131 @@ export default function EventsPage() {
                 </div>
               </div>
 
-              {/* Clean Swiss Spotlight Featured Agenda */}
+              {/* Clean Swiss Spotlight Featured Agenda (Wide Expansive Layout) */}
               {isSpotlightVisible && featuredEvent && (
                 <div className="event-spotlight-card">
-                  <div className="spotlight-left">
-                    <div>
-                      <div className="spotlight-badge">
+                  {/* Top Bar: Badges */}
+                  <div className="spotlight-top-bar">
+                    <div className="spotlight-badge-group">
+                      <span className="spotlight-badge">
                         <Sparkles size={14} />
                         <span>AGENDA UTAMA BULAN INI</span>
+                      </span>
+                      <span className="spotlight-cat-tag">
+                        {featuredEvent.categoryLabel}
+                      </span>
+                    </div>
+                    <div className="reward-pill">
+                      <Award size={15} />
+                      <span>+{featuredEvent.skpPoints} SKP CPD RESMI</span>
+                    </div>
+                  </div>
+
+                  {/* Hero Heading & Summary */}
+                  <div className="spotlight-main-body">
+                    <h2 className="spotlight-hero-title">
+                      {featuredEvent.title}
+                    </h2>
+                    <p className="spotlight-hero-summary">
+                      {featuredEvent.summary}
+                    </p>
+                  </div>
+
+                  {/* 4-Column Horizontal Info Cards Grid */}
+                  <div className="spotlight-info-grid">
+                    <div className="spotlight-info-cell">
+                      <div className="info-cell-icon">
+                        <Calendar size={18} color="#0284c7" />
                       </div>
-                      <h2>{featuredEvent.title}</h2>
-                      <p className="spotlight-summary">{featuredEvent.summary}</p>
+                      <div className="info-cell-text">
+                        <small>Jadwal Pelaksanaan</small>
+                        <strong>
+                          {new Date(featuredEvent.startsAt).toLocaleDateString(
+                            "id-ID",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            },
+                          )}
+                        </strong>
+                        <span>{featuredEvent.timeRange}</span>
+                      </div>
                     </div>
 
-                    <div>
-                      <div className="spotlight-meta-row">
-                        <div className="spotlight-meta-item">
-                          <Calendar size={15} color="#0284c7" />
-                          <span>
-                            {new Date(featuredEvent.startsAt).toLocaleDateString(
-                              "id-ID",
-                              {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              },
-                            )}{" "}
-                            ({featuredEvent.timeRange})
-                          </span>
-                        </div>
-                        <div className="spotlight-meta-item">
-                          <MapPin size={15} color="#16a34a" />
-                          <span>
-                            {featuredEvent.locationName}, {featuredEvent.city}
-                          </span>
-                        </div>
+                    <div className="spotlight-info-cell">
+                      <div className="info-cell-icon">
+                        <MapPin size={18} color="#16a34a" />
                       </div>
+                      <div className="info-cell-text">
+                        <small>Lokasi & Kota</small>
+                        <strong>{featuredEvent.city}</strong>
+                        <span>{featuredEvent.locationName}</span>
+                      </div>
+                    </div>
 
-                      <div className="spotlight-quota-block">
-                        <div className="quota-labels">
-                          <small>
-                            Kuota Pendaftaran: {featuredEvent.enrolled} /{" "}
-                            {featuredEvent.capacity} Terisi
-                          </small>
-                          <span className="quota-percent">
-                            {Math.round(
-                              (featuredEvent.enrolled / featuredEvent.capacity) *
-                                100,
-                            )}
-                            %
-                          </span>
-                        </div>
-                        <div className="quota-track">
-                          <div
-                            className="quota-fill"
-                            style={{
-                              width: `${(featuredEvent.enrolled / featuredEvent.capacity) * 100}%`,
-                            }}
-                          />
-                        </div>
+                    <div className="spotlight-info-cell">
+                      <div className="info-cell-icon">
+                        <Users size={18} color="#8b5cf6" />
+                      </div>
+                      <div className="info-cell-text">
+                        <small>Penguji / Asesor</small>
+                        <strong>{featuredEvent.instructor}</strong>
+                        <span>LSP Standar BNSP</span>
+                      </div>
+                    </div>
+
+                    <div className="spotlight-info-cell spotlight-fee-cell">
+                      <div className="info-cell-icon">
+                        <Zap size={18} color="#f59e0b" />
+                      </div>
+                      <div className="info-cell-text">
+                        <small>Biaya Kontribusi</small>
+                        <strong className="fee-highlight">
+                          {featuredEvent.fee}
+                        </strong>
+                        <span>Subsidi Asosiasi</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="spotlight-right">
-                    <div className="spotlight-reward-box">
-                      <div className="spotlight-reward-header">
-                        <div className="reward-pill">
-                          <Award size={16} />
-                          <span>+{featuredEvent.skpPoints} SKP CPD RESMI</span>
-                        </div>
+                  {/* Footer Row: Quota Progress + Action CTA */}
+                  <div className="spotlight-footer-row">
+                    <div className="spotlight-quota-wrap">
+                      <div className="quota-labels">
+                        <span>
+                          Kuota Pendaftaran:{" "}
+                          <strong>{featuredEvent.enrolled}</strong> /{" "}
+                          <strong>{featuredEvent.capacity}</strong> Kursi Terisi
+                        </span>
+                        <span className="quota-percent">
+                          {Math.round(
+                            (featuredEvent.enrolled /
+                              featuredEvent.capacity) *
+                              100,
+                          )}
+                          %
+                        </span>
                       </div>
-
-                      <div className="spotlight-reward-content">
-                        <div className="spotlight-info-card">
-                          <small>Biaya Kontribusi:</small>
-                          <strong>{featuredEvent.fee}</strong>
-                        </div>
-
-                        <div className="spotlight-info-card">
-                          <small>Penguji / Asesor:</small>
-                          <span>{featuredEvent.instructor}</span>
-                        </div>
+                      <div className="quota-track">
+                        <div
+                          className="quota-fill"
+                          style={{
+                            width: `${(featuredEvent.enrolled / featuredEvent.capacity) * 100}%`,
+                          }}
+                        />
                       </div>
+                    </div>
 
-                      <div className="spotlight-actions">
-                        <Link
-                          href={`/events/${featuredEvent.slug}`}
-                          className="calc-cta-btn"
-                          style={{ width: "100%", justifyContent: "center" }}
-                        >
-                          <UserCheck size={16} />
-                          <span>Daftar Sekarang</span>
-                          <ArrowRight size={15} />
-                        </Link>
-                      </div>
+                    <div className="spotlight-cta-wrap">
+                      <Link
+                        href={`/events/${featuredEvent.slug}`}
+                        className="button primary btn-spotlight-cta"
+                      >
+                        <UserCheck size={17} />
+                        <span>Daftar Sekarang</span>
+                        <ArrowRight size={16} />
+                      </Link>
                     </div>
                   </div>
                 </div>
