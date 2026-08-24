@@ -29,13 +29,14 @@ import {
   UserCheck,
   Users,
   Wrench,
+  X,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
-const EVENTS_PER_PAGE = 4;
+const EVENTS_PER_PAGE = 6;
 
 interface EventItemData {
   id: string;
@@ -169,6 +170,43 @@ const EVENTS_DATABASE: EventItemData[] = [
     summary:
       "Asesmen kompetensi teknisi pendingin komersial hotel, villa, dan gedung bertingkat wilayah Bali, NTB, dan NTT bersertifikat Garuda Emas BNSP.",
   },
+  {
+    id: "cassette-ducted-jogja",
+    title:
+      "Workshop Instalasi & Pemeliharaan AC Cassette, Ceiling Suspended & Ducted",
+    slug: "workshop-ac-cassette-ducted-yogyakarta",
+    category: "inverter",
+    categoryLabel: "Workshop Inverter",
+    skpPoints: 6,
+    startsAt: "2026-11-18",
+    timeRange: "08:30 - 16:00 WIB",
+    locationName: "Balai Latihan Pendidikan Teknik (BLPT)",
+    city: "Yogyakarta",
+    capacity: 70,
+    enrolled: 44,
+    instructor: "Agus Prasetyo, S.T. (Konsultan Tata Udara)",
+    fee: "Rp 300.000",
+    summary:
+      "Praktik pemasangan drainase gravitasi/pompa drain, pembuatan saluran udara ducting PU, serta penyesuaian static pressure pada unit komersial ringan.",
+  },
+  {
+    id: "bnsp-makassar-sulsel",
+    title: "Sertifikasi BNSP Teknisi Utama Sistem Sentral (Sulawesi & IBT)",
+    slug: "sertifikasi-bnsp-level3-makassar",
+    category: "bnsp",
+    categoryLabel: "Sertifikasi BNSP",
+    skpPoints: 8,
+    startsAt: "2026-12-02",
+    timeRange: "08:00 - 17:00 WITA",
+    locationName: "Politeknik Ujung Pandang (Lab Pendingin)",
+    city: "Makassar",
+    capacity: 60,
+    enrolled: 31,
+    instructor: "Master Asesor LSP TPTU Indonesia",
+    fee: "Rp 650.000",
+    summary:
+      "Uji sertifikasi keahlian tingkat lanjut untuk teknisi kawasan timur Indonesia, meliputi chiller sentral, VRV commissioning, dan manajemen K3 refrigerasi.",
+  },
 ];
 
 const SKKNI_LEVELS = [
@@ -206,41 +244,64 @@ const SKKNI_LEVELS = [
   },
 ];
 
+const CATEGORIES = [
+  { id: "all", label: "Semua Agenda" },
+  { id: "bnsp", label: "Sertifikasi BNSP" },
+  { id: "inverter", label: "Inverter & VRV/VRF" },
+  { id: "k3", label: "Safety K3 & Freon" },
+  { id: "munas", label: "Munas & Rakernas" },
+];
+
 export default function EventsPage() {
   const [activeSuiteTab, setActiveSuiteTab] = useState<
     "agenda" | "skkni" | "tuk"
   >("agenda");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedCity, setSelectedCity] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const featuredEvent = useMemo(() => {
+    return EVENTS_DATABASE.find((e) => e.isFeatured) ?? EVENTS_DATABASE[0];
+  }, []);
 
   // Filtered Events
   const filteredEvents = useMemo(() => {
     return EVENTS_DATABASE.filter((item) => {
       const matchCategory =
         selectedCategory === "all" || item.category === selectedCategory;
-      const matchCity =
-        selectedCity === "all" ||
-        item.city.toLowerCase().includes(selectedCity.toLowerCase());
       const matchQuery =
         searchQuery === "" ||
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.locationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.instructor.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchCategory && matchCity && matchQuery;
+      return matchCategory && matchQuery;
     });
-  }, [selectedCategory, selectedCity, searchQuery]);
+  }, [selectedCategory, searchQuery]);
 
-  const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE) || 1;
+  // Is the spotlight featured banner visible?
+  const isSpotlightVisible =
+    !searchQuery.trim() &&
+    selectedCategory === "all" &&
+    currentPage === 1 &&
+    Boolean(featuredEvent);
+
+  // Exclude featured item from catalog grid to eliminate duplicate content
+  const catalogEvents = useMemo(() => {
+    if (isSpotlightVisible && featuredEvent) {
+      return filteredEvents.filter((e) => e.id !== featuredEvent.id);
+    }
+    return filteredEvents;
+  }, [filteredEvents, isSpotlightVisible, featuredEvent]);
+
+  const totalPages = Math.ceil(catalogEvents.length / EVENTS_PER_PAGE) || 1;
   const safeCurrentPage = Math.min(currentPage, totalPages);
   const startIndex = (safeCurrentPage - 1) * EVENTS_PER_PAGE;
   const endIndex = Math.min(
     startIndex + EVENTS_PER_PAGE,
-    filteredEvents.length,
+    catalogEvents.length,
   );
-  const paginatedEvents = filteredEvents.slice(startIndex, endIndex);
+  const paginatedEvents = catalogEvents.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -255,17 +316,10 @@ export default function EventsPage() {
     setCurrentPage(1);
   };
 
-  const handleCitySelect = (city: string) => {
-    setSelectedCity(city);
-    setCurrentPage(1);
-  };
-
   const handleSearchChange = (q: string) => {
     setSearchQuery(q);
     setCurrentPage(1);
   };
-
-  const featuredEvent = EVENTS_DATABASE.find((e) => e.isFeatured);
 
   return (
     <div className="events-page-suite">
@@ -335,120 +389,160 @@ export default function EventsPage() {
       {/* 2. Main Interactive Workspace Section */}
       <section className="tech-body section-space">
         <div className="wrap">
-          {/* Suite Tab Toolbar */}
-          <div className="directory-controls-row">
-            <div className="directory-cat-pills">
-              <button
-                type="button"
-                className={`dir-cat-btn ${activeSuiteTab === "agenda" ? "active" : ""}`}
-                onClick={() => setActiveSuiteTab("agenda")}
-              >
-                <CalendarDays size={15} />
-                <span>Jadwal Agenda Pelatihan</span>
-              </button>
+          {/* Suite Tab Switcher */}
+          <div className="events-suite-tabs-nav">
+            <button
+              type="button"
+              className={`suite-tab-btn ${activeSuiteTab === "agenda" ? "active" : ""}`}
+              onClick={() => setActiveSuiteTab("agenda")}
+            >
+              <CalendarDays size={16} />
+              <span>Jadwal Agenda Pelatihan</span>
+            </button>
 
-              <button
-                type="button"
-                className={`dir-cat-btn ${activeSuiteTab === "skkni" ? "active" : ""}`}
-                onClick={() => setActiveSuiteTab("skkni")}
-              >
-                <Award size={15} />
-                <span>Skema Sertifikasi BNSP</span>
-              </button>
+            <button
+              type="button"
+              className={`suite-tab-btn ${activeSuiteTab === "skkni" ? "active" : ""}`}
+              onClick={() => setActiveSuiteTab("skkni")}
+            >
+              <Award size={16} />
+              <span>Skema Sertifikasi BNSP</span>
+            </button>
 
-              <button
-                type="button"
-                className={`dir-cat-btn ${activeSuiteTab === "tuk" ? "active" : ""}`}
-                onClick={() => setActiveSuiteTab("tuk")}
-              >
-                <Building2 size={15} />
-                <span>Pengajuan TUK & Workshop DPD</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              className={`suite-tab-btn ${activeSuiteTab === "tuk" ? "active" : ""}`}
+              onClick={() => setActiveSuiteTab("tuk")}
+            >
+              <Building2 size={16} />
+              <span>Pengajuan TUK & Workshop DPD</span>
+            </button>
           </div>
 
           {/* TAB 1: JADWAL AGENDA */}
           {activeSuiteTab === "agenda" && (
             <div className="events-main-flow slide-in-up">
-              {/* Spotlight Featured Agenda */}
-              {featuredEvent && (
+              {/* Unified Swiss Directory Controls Toolbar */}
+              <div id="events-grid-anchor" className="directory-controls-row">
+                <div className="directory-cat-pills">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      className={`dir-cat-btn ${selectedCategory === cat.id ? "active" : ""}`}
+                      onClick={() => handleCategorySelect(cat.id)}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="dir-search-wrap">
+                  <Search size={16} />
+                  <input
+                    type="text"
+                    placeholder="Cari pelatihan, kota, instruktur..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      className="search-clear-btn"
+                      onClick={() => handleSearchChange("")}
+                      aria-label="Bersihkan pencarian"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Clean Swiss Spotlight Featured Agenda */}
+              {isSpotlightVisible && featuredEvent && (
                 <div className="event-spotlight-card">
                   <div className="spotlight-left">
-                    <div className="spotlight-badge">
-                      <Sparkles size={14} />
-                      <span>AGENDA UTAMA BULAN INI</span>
-                    </div>
-                    <h2>{featuredEvent.title}</h2>
-                    <p className="spotlight-summary">{featuredEvent.summary}</p>
-
-                    <div className="spotlight-meta-row">
-                      <div className="spotlight-meta-item">
-                        <Calendar size={15} color="#0284c7" />
-                        <span>
-                          {new Date(featuredEvent.startsAt).toLocaleDateString(
-                            "id-ID",
-                            {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                            },
-                          )}{" "}
-                          ({featuredEvent.timeRange})
-                        </span>
+                    <div>
+                      <div className="spotlight-badge">
+                        <Sparkles size={14} />
+                        <span>AGENDA UTAMA BULAN INI</span>
                       </div>
-                      <div className="spotlight-meta-item">
-                        <MapPin size={15} color="#16a34a" />
-                        <span>
-                          {featuredEvent.locationName}, {featuredEvent.city}
-                        </span>
-                      </div>
+                      <h2>{featuredEvent.title}</h2>
+                      <p className="spotlight-summary">{featuredEvent.summary}</p>
                     </div>
 
-                    <div className="spotlight-quota-block">
-                      <div className="quota-labels">
-                        <small>
-                          Kuota Pendaftaran: {featuredEvent.enrolled} /{" "}
-                          {featuredEvent.capacity} Terisi
-                        </small>
-                        <span className="quota-percent">
-                          {Math.round(
-                            (featuredEvent.enrolled / featuredEvent.capacity) *
-                              100,
-                          )}
-                          %
-                        </span>
+                    <div>
+                      <div className="spotlight-meta-row">
+                        <div className="spotlight-meta-item">
+                          <Calendar size={15} color="#0284c7" />
+                          <span>
+                            {new Date(featuredEvent.startsAt).toLocaleDateString(
+                              "id-ID",
+                              {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              },
+                            )}{" "}
+                            ({featuredEvent.timeRange})
+                          </span>
+                        </div>
+                        <div className="spotlight-meta-item">
+                          <MapPin size={15} color="#16a34a" />
+                          <span>
+                            {featuredEvent.locationName}, {featuredEvent.city}
+                          </span>
+                        </div>
                       </div>
-                      <div className="quota-track">
-                        <div
-                          className="quota-fill"
-                          style={{
-                            width: `${(featuredEvent.enrolled / featuredEvent.capacity) * 100}%`,
-                          }}
-                        />
+
+                      <div className="spotlight-quota-block">
+                        <div className="quota-labels">
+                          <small>
+                            Kuota Pendaftaran: {featuredEvent.enrolled} /{" "}
+                            {featuredEvent.capacity} Terisi
+                          </small>
+                          <span className="quota-percent">
+                            {Math.round(
+                              (featuredEvent.enrolled / featuredEvent.capacity) *
+                                100,
+                            )}
+                            %
+                          </span>
+                        </div>
+                        <div className="quota-track">
+                          <div
+                            className="quota-fill"
+                            style={{
+                              width: `${(featuredEvent.enrolled / featuredEvent.capacity) * 100}%`,
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="spotlight-right">
                     <div className="spotlight-reward-box">
-                      <div className="reward-pill">
-                        <Award size={16} />
-                        <span>+{featuredEvent.skpPoints} SKP CPD RESMI</span>
-                      </div>
-                      <div className="spotlight-fee-row">
-                        <small>Biaya Kontribusi:</small>
-                        <strong>{featuredEvent.fee}</strong>
-                      </div>
-                      <div className="spotlight-speaker-row">
-                        <small>Penguji / Asesor:</small>
-                        <span>{featuredEvent.instructor}</span>
+                      <div>
+                        <div className="reward-pill">
+                          <Award size={16} />
+                          <span>+{featuredEvent.skpPoints} SKP CPD RESMI</span>
+                        </div>
+                        <div className="spotlight-fee-row">
+                          <small>Biaya Kontribusi:</small>
+                          <strong>{featuredEvent.fee}</strong>
+                        </div>
+                        <div className="spotlight-speaker-row">
+                          <small>Penguji / Asesor:</small>
+                          <span>{featuredEvent.instructor}</span>
+                        </div>
                       </div>
 
                       <div className="spotlight-actions">
                         <Link
                           href={`/events/${featuredEvent.slug}`}
                           className="calc-cta-btn"
-                          style={{ width: "100%" }}
+                          style={{ width: "100%", justifyContent: "center" }}
                         >
                           <UserCheck size={16} />
                           <span>Daftar Sekarang</span>
@@ -459,58 +553,6 @@ export default function EventsPage() {
                   </div>
                 </div>
               )}
-
-              {/* Filter Toolbar & Search Bar */}
-              <div id="events-grid-anchor" />
-              <div className="events-filter-bar">
-                <div className="events-search-input">
-                  <Search size={16} color="#64748b" />
-                  <input
-                    type="text"
-                    placeholder="Cari judul pelatihan, kota, atau instruktur..."
-                    value={searchQuery}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                  />
-                </div>
-
-                <div className="events-pills-row">
-                  <button
-                    type="button"
-                    className={`filter-pill-btn ${selectedCategory === "all" ? "active" : ""}`}
-                    onClick={() => handleCategorySelect("all")}
-                  >
-                    Semua ({EVENTS_DATABASE.length})
-                  </button>
-                  <button
-                    type="button"
-                    className={`filter-pill-btn ${selectedCategory === "bnsp" ? "active" : ""}`}
-                    onClick={() => handleCategorySelect("bnsp")}
-                  >
-                    Sertifikasi BNSP
-                  </button>
-                  <button
-                    type="button"
-                    className={`filter-pill-btn ${selectedCategory === "inverter" ? "active" : ""}`}
-                    onClick={() => handleCategorySelect("inverter")}
-                  >
-                    Inverter & VRV/VRF
-                  </button>
-                  <button
-                    type="button"
-                    className={`filter-pill-btn ${selectedCategory === "k3" ? "active" : ""}`}
-                    onClick={() => handleCategorySelect("k3")}
-                  >
-                    Safety K3 & Freon
-                  </button>
-                  <button
-                    type="button"
-                    className={`filter-pill-btn ${selectedCategory === "munas" ? "active" : ""}`}
-                    onClick={() => handleCategorySelect("munas")}
-                  >
-                    Munas & Rakernas
-                  </button>
-                </div>
-              </div>
 
               {/* Events Cards Grid (Paginated) */}
               {paginatedEvents.length > 0 ? (
@@ -611,14 +653,14 @@ export default function EventsPage() {
 
                   {/* Numbered Pagination Toolbar */}
                   {totalPages > 1 && (
-                    <div className="stories-pagination-bar mt-6">
+                    <div className="stories-pagination-bar">
                       <div className="pagination-info">
                         <span>
                           Menampilkan{" "}
                           <strong>
                             {startIndex + 1} - {endIndex}
                           </strong>{" "}
-                          dari <strong>{filteredEvents.length}</strong> Agenda
+                          dari <strong>{catalogEvents.length}</strong> Agenda
                           Pelatihan
                         </span>
                       </div>
