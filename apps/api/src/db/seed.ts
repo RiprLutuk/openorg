@@ -6,6 +6,10 @@ import {
   contents,
   events,
   industryStatistics,
+  learningActivities,
+  learningCreditLedger,
+  learningCreditSchemes,
+  learningEnrollments,
   lenderRegistries,
   memberAccounts,
   members,
@@ -55,6 +59,10 @@ async function seed() {
     await tx.delete(positionAssignments);
     await tx.delete(positions);
     await tx.delete(membershipCards);
+    await tx.delete(learningCreditLedger);
+    await tx.delete(learningEnrollments);
+    await tx.delete(learningActivities);
+    await tx.delete(learningCreditSchemes);
     await tx.delete(members);
     await tx.delete(organizationUnits);
     await tx.delete(events);
@@ -358,6 +366,7 @@ async function seed() {
         },
       ])
       .returning();
+    let demoMember: typeof members.$inferSelect | undefined;
 
     if (dppUnit && dpdJabar && dpdJatim && dpdDki && dpcBdg) {
       await tx
@@ -385,7 +394,7 @@ async function seed() {
             unitId: dppUnit.id,
             title: "Ketua Umum DPP APTI",
             description:
-              "Memimpin kebijakan strategis asosiasi tingkat nasional",
+              "Memimpin arah strategis organisasi dan hubungan kelembagaan nasional",
             sortOrder: 1,
           },
           {
@@ -528,7 +537,7 @@ async function seed() {
         }
 
         // Demo Member Account for instant live testing
-        const [demoMember] = await tx
+        const [demoMemberRow] = await tx
           .insert(members)
           .values({
             unitId: dppUnit.id,
@@ -545,6 +554,8 @@ async function seed() {
             },
           })
           .returning();
+
+        demoMember = demoMemberRow;
 
         if (demoMember) {
           await tx.insert(memberAccounts).values({
@@ -565,45 +576,134 @@ async function seed() {
     }
 
     // 4. Agenda & Sertifikasi APTI
-    await tx.insert(events).values([
-      {
-        title: "Uji Kompetensi & Sertifikasi Teknisi Pendingin BNSP 2026",
-        slug: "uji-kompetensi-sertifikasi-bnsp-2026",
-        description:
-          "Sertifikasi kompetensi resmi LSP-HVAC dan BNSP untuk teknisi AC Split, VRV/VRF, dan Cold Storage. Peserta yang lulus berhak mendapatkan sertifikat BNSP dan KTA Digital APTI.",
-        locationName: "Gedung Balai Latihan Kerja (BLK) Jakarta Pusat",
-        startsAt: new Date(now.getTime() + 86_400_000 * 12),
-        endsAt: new Date(now.getTime() + 86_400_000 * 12 + 28_800_000),
-        status: "published",
-        publishedAt: now,
-        capacity: 100,
-      },
-      {
-        title:
-          "Workshop Penanganan Flammable Refrigerant (R290 & R32) dan K3 Kerja",
-        slug: "workshop-flammable-refrigerant-r290-r32",
-        description:
-          "Bimbingan teknis penggunaan freon ramah lingkungan R32 dan Hydrocarbon R290 dengan standar keselamatan K3 tinggi untuk mencegah risiko kecelakaan kerja.",
-        locationName: "Hotel Santika Premier Surabaya & Daring via Zoom",
-        startsAt: new Date(now.getTime() + 86_400_000 * 20),
-        endsAt: new Date(now.getTime() + 86_400_000 * 20 + 18_000_000),
-        status: "published",
-        publishedAt: now,
-        capacity: 250,
-      },
-      {
-        title: "Musyawarah Nasional (MUNAS) & Rakernas APTI Indonesia 2026",
-        slug: "munas-rakernas-apti-indonesia-2026",
-        description:
-          "Pertemuan akbar seluruh Pengurus DPP, DPD 38 Provinsi, dan Korwil Cabang APTI Indonesia untuk menyusun arah kebijakan dan kemitraan dengan produsen AC terkemuka.",
-        locationName: "Grand Ballroom Hotel Patra Semarang",
-        startsAt: new Date(now.getTime() + 86_400_000 * 45),
-        endsAt: new Date(now.getTime() + 86_400_000 * 47),
-        status: "published",
-        publishedAt: now,
-        capacity: 500,
-      },
-    ]);
+    const seededEvents = await tx
+      .insert(events)
+      .values([
+        {
+          title: "Uji Kompetensi & Sertifikasi Teknisi Pendingin BNSP 2026",
+          slug: "uji-kompetensi-sertifikasi-bnsp-2026",
+          description:
+            "Sertifikasi kompetensi resmi LSP-HVAC dan BNSP untuk teknisi AC Split, VRV/VRF, dan Cold Storage. Peserta yang lulus berhak mendapatkan sertifikat BNSP dan KTA Digital APTI.",
+          locationName: "Gedung Balai Latihan Kerja (BLK) Jakarta Pusat",
+          startsAt: new Date(now.getTime() + 86_400_000 * 12),
+          endsAt: new Date(now.getTime() + 86_400_000 * 12 + 28_800_000),
+          status: "published",
+          publishedAt: now,
+          capacity: 100,
+        },
+        {
+          title:
+            "Workshop Penanganan Flammable Refrigerant (R290 & R32) dan K3 Kerja",
+          slug: "workshop-flammable-refrigerant-r290-r32",
+          description:
+            "Bimbingan teknis penggunaan freon ramah lingkungan R32 dan Hydrocarbon R290 dengan standar keselamatan K3 tinggi untuk mencegah risiko kecelakaan kerja.",
+          locationName: "Hotel Santika Premier Surabaya & Daring via Zoom",
+          startsAt: new Date(now.getTime() + 86_400_000 * 20),
+          endsAt: new Date(now.getTime() + 86_400_000 * 20 + 18_000_000),
+          status: "published",
+          publishedAt: now,
+          capacity: 250,
+        },
+        {
+          title: "Musyawarah Nasional (MUNAS) & Rakernas APTI Indonesia 2026",
+          slug: "munas-rakernas-apti-indonesia-2026",
+          description:
+            "Pertemuan akbar seluruh Pengurus DPP, DPD 38 Provinsi, dan Korwil Cabang APTI Indonesia untuk menyusun arah kebijakan dan kemitraan dengan produsen AC terkemuka.",
+          locationName: "Grand Ballroom Hotel Patra Semarang",
+          startsAt: new Date(now.getTime() + 86_400_000 * 45),
+          endsAt: new Date(now.getTime() + 86_400_000 * 47),
+          status: "published",
+          publishedAt: now,
+          capacity: 500,
+        },
+      ])
+      .returning();
+
+    // 4.1. Learning Credit Schemes & Activities (SKP CPD BNSP)
+    const [schemeBnsp, schemeEco] = await tx
+      .insert(learningCreditSchemes)
+      .values([
+        {
+          code: "SKP_CPD_BNSP",
+          name: "Satuan Kredit Profesi (SKP) BNSP / LSP TPTU",
+          unitName: "SKP",
+          description:
+            "Kredit pengembangan keprofesian berkelanjutan resmi BNSP & LSP TPTU Indonesia.",
+        },
+        {
+          code: "SKP_ECO_FREON",
+          name: "Sertifikasi K3 & Flammable Refrigerant R290",
+          unitName: "SKP",
+          description:
+            "Kredit kompetensi penanganan freon ramah lingkungan dan standar keselamatan kerja.",
+        },
+      ])
+      .returning();
+
+    if (seededEvents.length > 0 && schemeBnsp) {
+      const seededActivities = await tx
+        .insert(learningActivities)
+        .values([
+          {
+            eventId: seededEvents[0]?.id,
+            creditSchemeId: schemeBnsp.id,
+            title: "Uji Kompetensi & Sertifikasi Teknisi Pendingin BNSP 2026",
+            code: "BNSP-2026-001",
+            deliveryMode: "onsite",
+            creditAmountHundredths: 400,
+            capacity: 100,
+            status: "open",
+            startsAt: new Date(now.getTime() + 86_400_000 * 12),
+            endsAt: new Date(now.getTime() + 86_400_000 * 12 + 28_800_000),
+          },
+          {
+            eventId: seededEvents[1]?.id,
+            creditSchemeId: schemeEco?.id ?? schemeBnsp.id,
+            title:
+              "Workshop Penanganan Flammable Refrigerant (R290 & R32) dan K3 Kerja",
+            code: "WS-R290-2026",
+            deliveryMode: "hybrid",
+            creditAmountHundredths: 600,
+            capacity: 250,
+            status: "open",
+            startsAt: new Date(now.getTime() + 86_400_000 * 20),
+            endsAt: new Date(now.getTime() + 86_400_000 * 20 + 18_000_000),
+          },
+          {
+            eventId: seededEvents[2]?.id,
+            creditSchemeId: schemeBnsp.id,
+            title: "Musyawarah Nasional (MUNAS) & Rakernas APTI Indonesia 2026",
+            code: "MUNAS-2026",
+            deliveryMode: "onsite",
+            creditAmountHundredths: 200,
+            capacity: 500,
+            status: "open",
+            startsAt: new Date(now.getTime() + 86_400_000 * 45),
+            endsAt: new Date(now.getTime() + 86_400_000 * 47),
+          },
+        ])
+        .returning();
+
+      // Seed sample enrollment for demo member
+      if (demoMember && seededActivities.length > 0) {
+        await tx.insert(learningEnrollments).values({
+          activityId: seededActivities[0]!.id,
+          memberId: demoMember.id,
+          status: "registered",
+        });
+
+        // Seed initial ledger points (+8 SKP)
+        await tx.insert(learningCreditLedger).values({
+          memberId: demoMember.id,
+          schemeId: schemeBnsp.id,
+          activityId: seededActivities[0]!.id,
+          entryType: "earned",
+          creditAmountHundredths: 800,
+          notes:
+            "Kredit awal lulus Sertifikasi Teknisi Junior AC Split SKKNI Level 1",
+        });
+      }
+    }
 
     // 5. Berita & Artikel Teknis HVAC/R
     await tx.insert(contents).values([
