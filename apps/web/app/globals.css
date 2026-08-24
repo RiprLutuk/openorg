@@ -7511,62 +7511,301 @@ img {
     max-width: 400px;
   }
 
-  /* Digital KTA Card on Mobile */
+  /* Digital KTA Card & Verification Simulator on Mobile */
   .interactive-card-wrapper {
     width: 100%;
     max-width: 100%;
   }
+
   .card-floating-tabs {
     width: 100%;
+    gap: 6px;
+    padding: 5px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    margin-bottom: 12px;
   }
+
   .card-tab-btn {
     flex: 1;
     justify-content: center;
     font-size: 12px;
-    padding: 8px 10px;
+    padding: 9px 8px;
+    border-radius: 8px;
   }
+
   .digital-kta-card {
     padding: 16px;
     border-radius: 16px;
+    gap: 14px;
+    background: #0b1528;
   }
+
+  .kta-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .kta-org-brand {
     gap: 8px;
+    display: flex;
+    align-items: center;
+    text-align: left;
   }
+
   .kta-org-logo,
   .kta-org-logo-placeholder {
     width: 28px;
     height: 28px;
     font-size: 11px;
+    border-radius: 6px;
   }
+
   .kta-org-name {
-    font-size: 12px;
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #f8fafc;
+    line-height: 1.2;
+    display: block;
   }
+
   .kta-card-type {
-    font-size: 7.5px;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    color: #7dd3fc;
   }
+
+  .kta-security-chip {
+    width: 32px;
+    height: 24px;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+
+  .kta-card-body {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+  }
+
   .kta-member-photo-frame {
-    width: 52px;
-    height: 52px;
+    width: 54px;
+    height: 54px;
+    flex-shrink: 0;
   }
+
+  .kta-photo-inner {
+    border-radius: 10px;
+    font-size: 15px;
+  }
+
+  .kta-member-details {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .kta-member-name {
-    font-size: 14px;
+    font-size: 13.5px;
+    font-weight: 750;
+    color: #ffffff;
+    line-height: 1.25;
+    margin: 0;
+    text-align: left;
   }
+
   .kta-member-title {
     font-size: 10.5px;
+    color: #94a3b8;
+    margin: 2px 0 6px;
+    text-align: left;
   }
+
   .kta-member-meta-grid {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    text-align: left;
+  }
+
+  .kta-member-meta-grid small {
+    font-size: 8px;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.04em;
+    display: block;
+    margin-bottom: 1px;
+    text-align: left;
+  }
+
+  .kta-member-meta-grid strong {
+    font-size: 11px;
+    font-weight: 800;
+    color: #38bdf8;
+    text-align: left;
+    display: block;
+  }
+
+  .kta-status-pill {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #4ade80;
+    text-align: left;
+    display: block;
+  }
+
+  .kta-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .kta-qr-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .kta-qr-code {
+    padding: 3px;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #0f172a;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .kta-qr-code svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .kta-qr-text {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .kta-qr-text small {
+    font-size: 7.5px;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .kta-qr-text strong {
+    font-size: 9px;
+    color: #cbd5e1;
+    word-break: break-all;
+  }
+
+  .kta-official-seal {
+    color: #38bdf8;
+    flex-shrink: 0;
+  }
+
+  /* Verification Simulator Card on Mobile */
+  .verification-simulator-card {
+    padding: 16px;
+    border-radius: 16px;
+    gap: 12px;
+  }
+
+  .sim-header h3 {
+    font-size: 15px;
+    margin: 0 0 2px;
+  }
+
+  .sim-header p {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
+  .sim-input-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sim-input-wrap {
+    width: 100%;
+    height: 42px;
+    box-sizing: border-box;
+  }
+
+  .sim-input-wrap input {
+    font-size: 13px;
+  }
+
+  .btn-sim-verify {
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sim-sample-chips {
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .sim-sample-chips small {
+    font-size: 10.5px;
+    width: 100%;
+    margin-bottom: 2px;
+  }
+
+  .sample-chip {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .sim-result-box {
+    padding: 12px;
+    border-radius: 10px;
+    gap: 8px;
+  }
+
+  .sim-result-body h4 {
+    font-size: 13.5px;
+    margin: 0 0 2px;
+  }
+
+  .sim-result-body p {
+    font-size: 11.5px;
+    margin: 0 0 6px;
+  }
+
+  .sim-result-tags {
+    display: flex;
+    flex-direction: column;
     gap: 4px;
   }
-  .kta-qr-code {
-    padding: 2px;
+
+  .sim-result-tags span {
+    font-size: 10.5px;
   }
-  .kta-qr-code svg {
-    width: 30px;
-    height: 30px;
-  }
-  .kta-qr-text strong {
-    font-size: 9.5px;
+
+  .card-footnote {
+    font-size: 11px;
+    text-align: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
   }
 
   /* Bento Grid Mobile */
