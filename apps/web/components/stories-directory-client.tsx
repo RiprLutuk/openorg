@@ -38,7 +38,7 @@ interface Props {
   site: PublicSite;
 }
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 3;
 
 const CATEGORIES = [
   { id: "all", label: "Semua Warta" },
@@ -405,7 +405,7 @@ export function StoriesDirectoryClient({ items, site }: Props) {
               </div>
 
               {/* Numbered Pagination Toolbar */}
-              {totalPages > 1 && (
+              {catalogItems.length > 0 && (
                 <div className="stories-pagination-bar">
                   <div className="pagination-info">
                     <span>
