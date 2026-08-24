@@ -140,9 +140,10 @@ export function MemberLogin({
 
         {error && <p className="form-error">{error}</p>}
 
-        <label className="login-field-label">
+        <label htmlFor="login-email" className="login-field-label">
           <span>Alamat Email</span>
           <input
+            id="login-email"
             name="email"
             type="email"
             required
@@ -154,9 +155,10 @@ export function MemberLogin({
           />
         </label>
 
-        <label className="login-field-label">
+        <label htmlFor="login-password" className="login-field-label">
           <span>Kata Sandi</span>
           <input
+            id="login-password"
             name="password"
             type="password"
             required

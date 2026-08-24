@@ -591,10 +591,13 @@ function AdArtContent() {
           <div className="adart-search-field-full">
             <Search size={17} color="#0284c7" />
             <input
+              id="adart-search-query"
+              name="adartSearchQuery"
               type="text"
               placeholder="Cari pasal, kata kunci (misal: KTA, iuran, K3)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Cari pasal, bab, atau kata kunci AD/ART"
             />
             {searchQuery && (
               <button

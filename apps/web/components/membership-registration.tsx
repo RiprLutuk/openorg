@@ -195,8 +195,8 @@ export function MembershipRegistration({
         </div>
       )}
 
-      {/* Field: Full Name */}
-      <label>
+      {/* Field: Name */}
+      <label htmlFor="reg-name">
         <span
           style={{
             display: "flex",
@@ -208,6 +208,7 @@ export function MembershipRegistration({
           <User size={13} color="#0284c7" /> Nama Lengkap (Sesuai KTP) *
         </span>
         <input
+          id="reg-name"
           name="name"
           placeholder="Contoh: Budi Santoso, S.T."
           required
@@ -217,7 +218,7 @@ export function MembershipRegistration({
       </label>
 
       {/* Field: Email */}
-      <label>
+      <label htmlFor="reg-email">
         <span
           style={{
             display: "flex",
@@ -229,6 +230,7 @@ export function MembershipRegistration({
           <Mail size={13} color="#0284c7" /> Alamat Email Aktif *
         </span>
         <input
+          id="reg-email"
           name="email"
           type="email"
           placeholder="email.aktif@domain.com"
@@ -238,7 +240,7 @@ export function MembershipRegistration({
       </label>
 
       {/* Field: Phone */}
-      <label>
+      <label htmlFor="reg-phone">
         <span
           style={{
             display: "flex",
@@ -250,6 +252,7 @@ export function MembershipRegistration({
           <Phone size={13} color="#0284c7" /> No. WhatsApp / HP Aktif *
         </span>
         <input
+          id="reg-phone"
           name="phone"
           placeholder="081234567890"
           required
@@ -259,15 +262,15 @@ export function MembershipRegistration({
       </label>
 
       {/* Field: Date of Birth */}
-      <label>
+      <label htmlFor="reg-dob">
         <span style={{ marginBottom: "4px", display: "block" }}>
           Tanggal Lahir
         </span>
-        <input name="dateOfBirth" type="date" />
+        <input id="reg-dob" name="dateOfBirth" type="date" />
       </label>
 
       {/* Field: DPD / Unit Selection */}
-      <label>
+      <label htmlFor="reg-unit">
         <span
           style={{
             display: "flex",
@@ -278,7 +281,7 @@ export function MembershipRegistration({
         >
           <MapPin size={13} color="#0284c7" /> Pengurus Daerah (DPD Pengampu)
         </span>
-        <select name="unitId" defaultValue="">
+        <select id="reg-unit" name="unitId" defaultValue="">
           <option value="">Pilih Pengurus Daerah Terdekat...</option>
           {units.map((unit) => (
             <option key={unit.id} value={unit.id}>
@@ -289,11 +292,12 @@ export function MembershipRegistration({
       </label>
 
       {/* Field: Workshop / Company Name */}
-      <label>
+      <label htmlFor="reg-company">
         <span style={{ marginBottom: "4px", display: "block" }}>
           Nama Bengkel / Workshop / Instansi (Opsional)
         </span>
         <input
+          id="reg-company"
           name="companyName"
           placeholder="Contoh: Berkah Teknik AC"
           autoComplete="organization"
@@ -301,11 +305,12 @@ export function MembershipRegistration({
       </label>
 
       {/* Field: Full Address */}
-      <label className="full">
+      <label htmlFor="reg-address" className="full">
         <span style={{ marginBottom: "4px", display: "block" }}>
           Alamat Lengkap Domisili / Bengkel
         </span>
         <textarea
+          id="reg-address"
           name="address"
           rows={3}
           placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kota/Kabupaten..."
@@ -314,7 +319,7 @@ export function MembershipRegistration({
       </label>
 
       {/* Field: Password */}
-      <label className="full">
+      <label htmlFor="reg-password" className="full">
         <span
           style={{
             display: "flex",
@@ -326,6 +331,7 @@ export function MembershipRegistration({
           <Lock size={13} color="#0284c7" /> Buat Kata Sandi Akun Portal *
         </span>
         <input
+          id="reg-password"
           name="password"
           type="password"
           placeholder="Minimal 8 karakter (kombinasi huruf & angka)"
@@ -336,8 +342,8 @@ export function MembershipRegistration({
       </label>
 
       {/* Consent Checkbox */}
-      <label className="member-consent full">
-        <input name="consent" type="checkbox" required />
+      <label htmlFor="reg-consent" className="member-consent full">
+        <input id="reg-consent" name="consent" type="checkbox" required />
         <span>
           Saya menyatakan bahwa seluruh data yang saya isikan adalah benar dan
           sah. Saya bersedia mematuhi <strong>AD/ART</strong> serta{" "}

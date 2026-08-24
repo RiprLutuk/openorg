@@ -34,39 +34,49 @@ export function PublicContactForm() {
 
   return (
     <form action={formAction}>
-      <label>
+      <label htmlFor="contact-name">
         Nama Lengkap
         <input
+          id="contact-name"
           name="name"
           required
           minLength={2}
           maxLength={160}
+          autoComplete="name"
           aria-invalid={Boolean(state.errors?.name)}
         />
         {state.errors?.name && (
           <small className="field-error">{state.errors.name}</small>
         )}
       </label>
-      <label>
+      <label htmlFor="contact-email">
         Alamat Email
         <input
+          id="contact-email"
           name="email"
           type="email"
           required
           maxLength={320}
+          autoComplete="email"
           aria-invalid={Boolean(state.errors?.email)}
         />
         {state.errors?.email && (
           <small className="field-error">{state.errors.email}</small>
         )}
       </label>
-      <label className="honeypot" aria-hidden="true">
+      <label htmlFor="contact-website" className="honeypot" aria-hidden="true">
         Website
-        <input name="website" tabIndex={-1} autoComplete="off" />
+        <input
+          id="contact-website"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+        />
       </label>
-      <label className="full">
+      <label htmlFor="contact-message" className="full">
         Pesan / Pertanyaan Anda
         <textarea
+          id="contact-message"
           name="message"
           rows={5}
           required

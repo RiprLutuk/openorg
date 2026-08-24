@@ -856,24 +856,25 @@ function MemberCredentials({
             </div>
           </div>
           {error && <p className="form-error full">{error}</p>}
-          <label>
+          <label htmlFor="portal-cred-number">
             Credential number
-            <input name="credentialNumber" />
+            <input id="portal-cred-number" name="credentialNumber" />
           </label>
-          <label>
+          <label htmlFor="portal-cred-issuer">
             Issuer
             <input
+              id="portal-cred-issuer"
               name="issuerName"
               defaultValue={selectedScheme.issuerName ?? ""}
             />
           </label>
-          <label>
+          <label htmlFor="portal-cred-issued-at">
             Issued date
-            <input name="issuedAt" type="date" />
+            <input id="portal-cred-issued-at" name="issuedAt" type="date" />
           </label>
-          <label>
+          <label htmlFor="portal-cred-expires-at">
             Expiry date
-            <input name="expiresAt" type="date" />
+            <input id="portal-cred-expires-at" name="expiresAt" type="date" />
           </label>
           {selectedScheme.fields.map((field) => (
             <label key={field.key} htmlFor={`credential-field-${field.key}`}>
@@ -902,20 +903,31 @@ function MemberCredentials({
               )}
             </label>
           ))}
-          <label className="full">
+          <label htmlFor="portal-cred-source-url" className="full">
             Official registry / source URL
-            <input name="sourceUrl" type="url" placeholder="https://" />
+            <input
+              id="portal-cred-source-url"
+              name="sourceUrl"
+              type="url"
+              placeholder="https://"
+            />
           </label>
-          <label>
+          <label htmlFor="portal-cred-evidence-label">
             Evidence label
             <input
+              id="portal-cred-evidence-label"
               name="evidenceLabel"
               placeholder="Certificate or registry record"
             />
           </label>
-          <label>
+          <label htmlFor="portal-cred-evidence-url">
             Evidence URL
-            <input name="evidenceUrl" type="url" placeholder="https://" />
+            <input
+              id="portal-cred-evidence-url"
+              name="evidenceUrl"
+              type="url"
+              placeholder="https://"
+            />
           </label>
           <div className="member-form-actions full">
             <button

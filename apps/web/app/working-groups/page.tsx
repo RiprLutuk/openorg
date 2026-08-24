@@ -232,10 +232,13 @@ export default function WorkingGroupsPage() {
             <div className="dir-search-wrap">
               <Search size={16} />
               <input
+                id="working-groups-search-input"
+                name="workingGroupsSearch"
                 type="text"
                 placeholder="Cari nama pokja, ketua, atau topik..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                aria-label="Cari nama kelompok kerja, ketua, atau topik"
               />
               {search && (
                 <button

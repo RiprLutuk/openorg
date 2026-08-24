@@ -381,33 +381,39 @@ export default function ComplaintsPage() {
                       </div>
 
                       <div className="form-field full-width">
-                        <label>Nama Lengkap Pelapor *</label>
+                        <label htmlFor="complaint-name">Nama Lengkap Pelapor *</label>
                         <input
+                          id="complaint-name"
                           type="text"
                           name="complainantName"
                           required
                           placeholder="Nama lengkap sesuai KTP..."
+                          autoComplete="name"
                         />
                       </div>
 
                       <div className="form-two-col-grid">
                         <div className="form-field">
-                          <label>Alamat Email Aktif *</label>
+                          <label htmlFor="complaint-email">Alamat Email Aktif *</label>
                           <input
+                            id="complaint-email"
                             type="email"
                             name="complainantEmail"
                             required
                             placeholder="nama@email.com..."
+                            autoComplete="email"
                           />
                         </div>
 
                         <div className="form-field">
-                          <label>Nomor WhatsApp / HP *</label>
+                          <label htmlFor="complaint-phone">Nomor WhatsApp / HP *</label>
                           <input
+                            id="complaint-phone"
                             type="tel"
                             name="complainantPhone"
                             required
                             placeholder="0812xxxxxxx..."
+                            autoComplete="tel"
                           />
                         </div>
                       </div>
@@ -422,8 +428,9 @@ export default function ComplaintsPage() {
 
                       <div className="form-two-col-grid">
                         <div className="form-field">
-                          <label>Jenis Pihak Terlapor *</label>
+                          <label htmlFor="complaint-target-type">Jenis Pihak Terlapor *</label>
                           <select
+                            id="complaint-target-type"
                             name="targetType"
                             required
                             className="form-select"
@@ -441,8 +448,9 @@ export default function ComplaintsPage() {
                         </div>
 
                         <div className="form-field">
-                          <label>Nomor KTA / Nama Terlapor *</label>
+                          <label htmlFor="complaint-target-id">Nomor KTA / Nama Terlapor *</label>
                           <input
+                            id="complaint-target-id"
                             type="text"
                             name="targetIdentifier"
                             required
@@ -452,8 +460,9 @@ export default function ComplaintsPage() {
                       </div>
 
                       <div className="form-field full-width">
-                        <label>Kategori Masalah Pengaduan *</label>
+                        <label htmlFor="complaint-category">Kategori Masalah Pengaduan *</label>
                         <select
+                          id="complaint-category"
                           name="category"
                           required
                           className="form-select"
@@ -487,8 +496,9 @@ export default function ComplaintsPage() {
                       </div>
 
                       <div className="form-field full-width">
-                        <label>Uraian Lengkap Kejadian *</label>
+                        <label htmlFor="complaint-description">Uraian Lengkap Kejadian *</label>
                         <textarea
+                          id="complaint-description"
                           name="description"
                           required
                           rows={4}
@@ -596,11 +606,14 @@ export default function ComplaintsPage() {
                   <div className="search-input-wrap flex-1">
                     <Search size={18} />
                     <input
+                      id="complaint-track-ticket"
+                      name="complaintTrackTicket"
                       type="text"
                       placeholder="Masukkan nomor tiket pengaduan (misal: COMP-2026-0001)..."
                       value={trackTicket}
                       onChange={(e) => setTrackTicket(e.target.value)}
                       className="track-input"
+                      aria-label="Nomor tiket pengaduan"
                     />
                   </div>
                   <button

@@ -912,21 +912,26 @@ export function EventDetailClient({ event, site }: Props) {
               <div className="modal-body-content">
                 <div className="form-two-col-grid">
                   <div className="form-field">
-                    <label>Nama Lengkap (Sesuai KTP & Sertifikat) *</label>
+                    <label htmlFor="modal-event-name">Nama Lengkap (Sesuai KTP & Sertifikat) *</label>
                     <input
+                      id="modal-event-name"
+                      name="eventAttendeeName"
                       type="text"
                       value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
                       placeholder="Masukkan nama lengkap dengan gelar..."
+                      autoComplete="name"
                       required
                     />
                   </div>
 
                   <div className="form-field">
-                    <label>Nomor Induk Kependudukan (NIK) *</label>
+                    <label htmlFor="modal-event-nik">Nomor Induk Kependudukan (NIK) *</label>
                     <input
+                      id="modal-event-nik"
+                      name="eventAttendeeNik"
                       type="text"
                       value={formData.nik}
                       onChange={(e) =>
@@ -940,27 +945,33 @@ export function EventDetailClient({ event, site }: Props) {
 
                 <div className="form-two-col-grid mt-4">
                   <div className="form-field">
-                    <label>Nomor WhatsApp Aktif (Notifikasi Tiket) *</label>
+                    <label htmlFor="modal-event-phone">Nomor WhatsApp Aktif (Notifikasi Tiket) *</label>
                     <input
+                      id="modal-event-phone"
+                      name="eventAttendeePhone"
                       type="tel"
                       value={formData.phone}
                       onChange={(e) =>
                         setFormData({ ...formData, phone: e.target.value })
                       }
                       placeholder="Contoh: 08123456789"
+                      autoComplete="tel"
                       required
                     />
                   </div>
 
                   <div className="form-field">
-                    <label>Alamat Email Aktif *</label>
+                    <label htmlFor="modal-event-email">Alamat Email Aktif *</label>
                     <input
+                      id="modal-event-email"
+                      name="eventAttendeeEmail"
                       type="email"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
                       }
                       placeholder="nama@email.com"
+                      autoComplete="email"
                       required
                     />
                   </div>
@@ -968,8 +979,10 @@ export function EventDetailClient({ event, site }: Props) {
 
                 <div className="form-two-col-grid mt-4">
                   <div className="form-field">
-                    <label>Pilihan Jenjang Skema SKKNI *</label>
+                    <label htmlFor="modal-event-level">Pilihan Jenjang Skema SKKNI *</label>
                     <select
+                      id="modal-event-level"
+                      name="eventAttendeeLevel"
                       value={formData.level}
                       onChange={(e) =>
                         setFormData({ ...formData, level: e.target.value })
@@ -988,8 +1001,10 @@ export function EventDetailClient({ event, site }: Props) {
                   </div>
 
                   <div className="form-field">
-                    <label>Pilihan Tempat Uji Kompetensi (TUK) *</label>
+                    <label htmlFor="modal-event-tuk">Pilihan Tempat Uji Kompetensi (TUK) *</label>
                     <select
+                      id="modal-event-tuk"
+                      name="eventAttendeeTukCity"
                       value={formData.tukCity}
                       onChange={(e) =>
                         setFormData({ ...formData, tukCity: e.target.value })
@@ -1012,14 +1027,17 @@ export function EventDetailClient({ event, site }: Props) {
                 </div>
 
                 <div className="form-field mt-4">
-                  <label>Nama Workshop / Bengkel Servis</label>
+                  <label htmlFor="modal-event-workshop">Nama Workshop / Bengkel Servis</label>
                   <input
+                    id="modal-event-workshop"
+                    name="eventAttendeeWorkshop"
                     type="text"
                     value={formData.workshop}
                     onChange={(e) =>
                       setFormData({ ...formData, workshop: e.target.value })
                     }
                     placeholder="Contoh: CV Mandiri Aircon Service"
+                    autoComplete="organization"
                   />
                 </div>
 

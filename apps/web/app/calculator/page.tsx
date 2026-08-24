@@ -469,9 +469,11 @@ export default function CalculatorPage() {
 
                     <div className="calc-inputs-row-3">
                       <div className="form-field">
-                        <label>Panjang (P)</label>
+                        <label htmlFor="calc-length">Panjang (P)</label>
                         <div className="calc-number-input">
                           <input
+                            id="calc-length"
+                            name="calcLength"
                             type="number"
                             min="1"
                             max="30"
@@ -480,15 +482,18 @@ export default function CalculatorPage() {
                             onChange={(e) =>
                               setLength(Number(e.target.value) || 1)
                             }
+                            aria-label="Panjang ruangan dalam meter"
                           />
                           <span>meter</span>
                         </div>
                       </div>
 
                       <div className="form-field">
-                        <label>Lebar (L)</label>
+                        <label htmlFor="calc-width">Lebar (L)</label>
                         <div className="calc-number-input">
                           <input
+                            id="calc-width"
+                            name="calcWidth"
                             type="number"
                             min="1"
                             max="30"
@@ -497,15 +502,18 @@ export default function CalculatorPage() {
                             onChange={(e) =>
                               setWidth(Number(e.target.value) || 1)
                             }
+                            aria-label="Lebar ruangan dalam meter"
                           />
                           <span>meter</span>
                         </div>
                       </div>
 
                       <div className="form-field">
-                        <label>Tinggi Plafon (T)</label>
+                        <label htmlFor="calc-height">Tinggi Plafon (T)</label>
                         <div className="calc-number-input">
                           <input
+                            id="calc-height"
+                            name="calcHeight"
                             type="number"
                             min="2"
                             max="8"
@@ -514,6 +522,7 @@ export default function CalculatorPage() {
                             onChange={(e) =>
                               setHeight(Number(e.target.value) || 2)
                             }
+                            aria-label="Tinggi plafon ruangan dalam meter"
                           />
                           <span>meter</span>
                         </div>
@@ -530,8 +539,10 @@ export default function CalculatorPage() {
 
                     <div className="form-two-col-grid">
                       <div className="form-field">
-                        <label>Fungsi / Jenis Ruangan</label>
+                        <label htmlFor="calc-room-type">Fungsi / Jenis Ruangan</label>
                         <select
+                          id="calc-room-type"
+                          name="calcRoomType"
                           value={roomType}
                           onChange={(e) => setRoomType(e.target.value as any)}
                           className="form-select"
@@ -552,8 +563,10 @@ export default function CalculatorPage() {
                       </div>
 
                       <div className="form-field">
-                        <label>Paparan Sinar Matahari</label>
+                        <label htmlFor="calc-sun-exposure">Paparan Sinar Matahari</label>
                         <select
+                          id="calc-sun-exposure"
+                          name="calcSunExposure"
                           value={sunExposure}
                           onChange={(e) =>
                             setSunExposure(e.target.value as any)
@@ -583,9 +596,11 @@ export default function CalculatorPage() {
 
                     <div className="form-two-col-grid">
                       <div className="form-field">
-                        <label>Jumlah Penghuni Rutin</label>
+                        <label htmlFor="calc-occupants">Jumlah Penghuni Rutin</label>
                         <div className="calc-number-input">
                           <input
+                            id="calc-occupants"
+                            name="calcOccupants"
                             type="number"
                             min="1"
                             max="50"
@@ -593,15 +608,18 @@ export default function CalculatorPage() {
                             onChange={(e) =>
                               setOccupants(Number(e.target.value) || 1)
                             }
+                            aria-label="Jumlah penghuni rutin ruangan"
                           />
                           <span>orang</span>
                         </div>
                       </div>
 
                       <div className="form-field">
-                        <label>Perangkat Elektronik Aktif (PC/TV)</label>
+                        <label htmlFor="calc-electronics">Perangkat Elektronik Aktif (PC/TV)</label>
                         <div className="calc-number-input">
                           <input
+                            id="calc-electronics"
+                            name="calcElectronics"
                             type="number"
                             min="0"
                             max="30"
@@ -609,6 +627,7 @@ export default function CalculatorPage() {
                             onChange={(e) =>
                               setElectronics(Number(e.target.value) || 0)
                             }
+                            aria-label="Jumlah perangkat elektronik aktif"
                           />
                           <span>unit</span>
                         </div>

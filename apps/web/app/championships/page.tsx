@@ -169,10 +169,13 @@ export default function ChampionshipsPage() {
             <div className="dir-search-wrap">
               <Search size={16} />
               <input
+                id="championships-search-input"
+                name="championshipsSearch"
                 type="text"
                 placeholder="Cari kontestan, kontingen DPD, atau bengkel..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                aria-label="Cari kontestan, kontingen DPD, atau bengkel"
               />
               {search && (
                 <button

@@ -348,6 +348,8 @@ export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
         <div className="verifier-input-container">
           <Search size={18} className="verifier-search-icon" />
           <input
+            id="verifier-search-query"
+            name="verifierSearchQuery"
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -362,6 +364,7 @@ export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
                       ? "Masukkan No. SK (misal: SK-MITRA-DPP-001)..."
                       : "Masukkan Nomor KTA, BNSP, TKT, atau SK Kemitraan..."
             }
+            aria-label="Cari nomor KTA, BNSP, TKT, atau SK Kemitraan"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSearch();
             }}

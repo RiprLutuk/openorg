@@ -107,10 +107,13 @@ export function InteractiveStructurePreview({ structure }: Props) {
           <div className="leader-quick-search">
             <Search size={16} className="search-icon" />
             <input
+              id="structure-search-query"
+              name="structureSearchQuery"
               type="text"
               placeholder="Cari nama, jabatan, KTA..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Cari nama, jabatan, atau nomor KTA pengurus"
             />
             {searchQuery && (
               <button

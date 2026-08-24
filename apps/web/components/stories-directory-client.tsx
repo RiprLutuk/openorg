@@ -255,10 +255,13 @@ export function StoriesDirectoryClient({ items, site }: Props) {
             <div className="dir-search-wrap">
               <Search size={16} />
               <input
+                id="stories-search-query"
+                name="storiesSearchQuery"
                 type="text"
                 placeholder="Cari warta, topik K3, atau penulis..."
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
+                aria-label="Cari warta dan publikasi"
               />
               {searchQuery && (
                 <button

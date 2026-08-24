@@ -188,10 +188,13 @@ export default function StatisticsPage() {
             <div className="dir-search-wrap">
               <Search size={16} />
               <input
+                id="statistics-search-input"
+                name="statisticsSearch"
                 type="text"
                 placeholder="Cari indikator statistik..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                aria-label="Cari indikator statistik"
               />
               {search && (
                 <button

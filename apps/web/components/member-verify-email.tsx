@@ -136,11 +136,14 @@ export function MemberVerifyEmail() {
           </p>
 
           <form className="resend-verification-form" onSubmit={handleResend}>
-            <label>
+            <label htmlFor="resend-verification-email">
               Kirim Ulang Tautan Verifikasi
               <input
+                id="resend-verification-email"
+                name="resendVerificationEmail"
                 type="email"
                 required
+                autoComplete="email"
                 placeholder="Masukkan alamat email Anda"
                 value={resendEmail}
                 onChange={(e) => setResendEmail(e.target.value)}

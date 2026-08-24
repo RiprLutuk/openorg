@@ -292,6 +292,8 @@ function ClubsContent() {
             <div className="tech-search-box">
               <Search size={17} className="search-icon" />
               <input
+                id="clubs-search-input"
+                name="clubsSearch"
                 type="text"
                 placeholder="Cari nama klub, kode TKT, atau nama ketua..."
                 value={search}
@@ -299,6 +301,7 @@ function ClubsContent() {
                   setSearch(e.target.value);
                   updateUrl(e.target.value, selectedProvince, selectedCategory);
                 }}
+                aria-label="Cari nama klub, kode TKT, atau nama ketua"
               />
               {search && (
                 <button
@@ -320,12 +323,15 @@ function ClubsContent() {
               {/* Province Select */}
               {provinces.length > 0 && (
                 <select
+                  id="clubs-province-select"
+                  name="clubsProvince"
                   value={selectedProvince}
                   onChange={(e) => {
                     setSelectedProvince(e.target.value);
                     updateUrl(search, e.target.value, selectedCategory);
                   }}
                   className="tech-select-input"
+                  aria-label="Filter berdasarkan provinsi klub"
                 >
                   <option value="all">
                     Semua Provinsi ({provinces.length})
@@ -341,12 +347,15 @@ function ClubsContent() {
               {/* Category Select */}
               {categories.length > 0 && (
                 <select
+                  id="clubs-category-select"
+                  name="clubsCategory"
                   value={selectedCategory}
                   onChange={(e) => {
                     setSelectedCategory(e.target.value);
                     updateUrl(search, selectedProvince, e.target.value);
                   }}
                   className="tech-select-input"
+                  aria-label="Filter berdasarkan kategori paguyuban"
                 >
                   <option value="all">
                     Semua Kategori ({categories.length})

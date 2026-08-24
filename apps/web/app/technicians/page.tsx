@@ -299,6 +299,8 @@ function TechniciansContent() {
             <div className="tech-search-box">
               <Search size={17} className="search-icon" />
               <input
+                id="technicians-search-input"
+                name="techniciansSearch"
                 type="text"
                 placeholder="Cari nama teknisi, nomor KTA, kota, atau nama bengkel..."
                 value={search}
@@ -311,6 +313,7 @@ function TechniciansContent() {
                     onlyBnsp,
                   );
                 }}
+                aria-label="Cari nama teknisi, nomor KTA, kota, atau nama bengkel"
               />
               {search && (
                 <button
@@ -332,12 +335,15 @@ function TechniciansContent() {
               {/* Province Select */}
               {provinces.length > 0 && (
                 <select
+                  id="technicians-province-select"
+                  name="techniciansProvince"
                   value={selectedProvince}
                   onChange={(e) => {
                     setSelectedProvince(e.target.value);
                     updateUrl(search, e.target.value, selectedSkill, onlyBnsp);
                   }}
                   className="tech-select-input"
+                  aria-label="Filter berdasarkan provinsi teknisi"
                 >
                   <option value="all">
                     Semua Provinsi ({provinces.length})
@@ -353,6 +359,8 @@ function TechniciansContent() {
               {/* Skill Level Select */}
               {skillLevels.length > 0 && (
                 <select
+                  id="technicians-skill-select"
+                  name="techniciansSkill"
                   value={selectedSkill}
                   onChange={(e) => {
                     setSelectedSkill(e.target.value);
@@ -364,6 +372,7 @@ function TechniciansContent() {
                     );
                   }}
                   className="tech-select-input"
+                  aria-label="Filter berdasarkan tingkat keahlian SKKNI"
                 >
                   <option value="all">Semua Jenjang Keahlian</option>
                   {skillLevels.map((s) => (

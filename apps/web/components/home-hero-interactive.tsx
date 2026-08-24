@@ -292,10 +292,13 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
                   <div className="sim-input-wrap">
                     <Search size={16} className="sim-search-icon" />
                     <input
+                      id="hero-verify-input"
+                      name="heroVerifyInput"
                       type="text"
                       value={verifyInput}
                       onChange={(e) => setVerifyInput(e.target.value)}
                       placeholder="Contoh: KTA-2026-08892"
+                      aria-label="Contoh nomor KTA untuk simulasi verifikasi"
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleSimulateVerify();
                       }}

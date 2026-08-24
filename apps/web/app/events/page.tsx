@@ -442,10 +442,13 @@ export default function EventsPage() {
                 <div className="dir-search-wrap">
                   <Search size={16} />
                   <input
+                    id="events-search-query"
+                    name="eventsSearchQuery"
                     type="text"
                     placeholder="Cari pelatihan, kota, instruktur..."
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
+                    aria-label="Cari agenda pelatihan"
                   />
                   {searchQuery && (
                     <button

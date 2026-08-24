@@ -329,10 +329,13 @@ function RegulationsContent() {
             <div className="reg-search-box">
               <Search size={17} className="search-icon" />
               <input
+                id="regulations-search-input"
+                name="regulationsSearch"
                 type="text"
                 placeholder="Cari judul regulasi, nomor surat, kata kunci..."
                 value={search}
                 onChange={(e) => handleSearchChange(e.target.value)}
+                aria-label="Cari judul regulasi, nomor surat, kata kunci"
               />
               {search && (
                 <button

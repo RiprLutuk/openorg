@@ -369,6 +369,8 @@ function LendersContent() {
             <div className="tech-search-box">
               <Search size={17} className="search-icon" />
               <input
+                id="partners-search-input"
+                name="partnersSearch"
                 type="text"
                 placeholder="Cari nama mitra, nama perusahaan, atau no. SK kemitraan..."
                 value={search}
@@ -376,6 +378,7 @@ function LendersContent() {
                   setSearch(e.target.value);
                   updateUrl(e.target.value, selectedSector);
                 }}
+                aria-label="Cari nama mitra, nama perusahaan, atau no. SK kemitraan"
               />
               {search && (
                 <button
@@ -396,12 +399,15 @@ function LendersContent() {
             {sectors.length > 0 && (
               <div className="tech-filters-group">
                 <select
+                  id="partners-sector-select"
+                  name="partnersSector"
                   value={selectedSector}
                   onChange={(e) => {
                     setSelectedSector(e.target.value);
                     updateUrl(search, e.target.value);
                   }}
                   className="tech-select-input"
+                  aria-label="Filter berdasarkan sektor kemitraan"
                 >
                   <option value="all">Semua Kategori Kemitraan</option>
                   {sectors.map((s) => (
