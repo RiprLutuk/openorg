@@ -298,62 +298,82 @@ function LendersContent() {
 
   return (
     <div className="lenders-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
+      {/* 1. Balanced 2-Column Hero Header */}
       <header className="tech-hero lenders-hero-refined">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill">
-            <Sparkles size={15} color="#38bdf8" />
-            <span>PORTAL EKOSISTEM SUPPLY CHAIN & REKANAN RESMI</span>
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
+              <Sparkles size={14} />
+              <span>PORTAL EKOSISTEM SUPPLY CHAIN & REKANAN RESMI</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Direktori Mitra Prinsipal &{" "}
+              <span className="text-gradient">Distributor Resmi</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Daftar resmi pabrikan AC, distributor suku cadang, penyedia alat
+              ukur refrigerasi, dan mitra pembiayaan pengadaan alat kerja bengkel
+              yang terakreditasi oleh asosiasi demi menjamin keaslian komponen dan
+              standar keselamatan kerja K3.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Direktori Mitra Prinsipal &{" "}
-            <span className="text-gradient">Distributor Resmi</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Daftar resmi pabrikan AC, distributor suku cadang, penyedia alat
-            ukur refrigerasi, dan mitra pembiayaan pengadaan alat kerja bengkel
-            yang terakreditasi oleh asosiasi demi menjamin keaslian komponen dan
-            standar keselamatan kerja K3.
-          </p>
-
-          {/* Impact Metrics Bar */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <ShieldCheck size={22} color="#34d399" />
-              </div>
-              <div>
-                <strong>100% Rekanan Sah</strong>
-                <small>Akreditasi DPP Asosiasi</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Data Jaringan Rekanan</span>
+              <span className="stats-card-status">● Terakreditasi DPP</span>
             </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Building2 size={22} color="#38bdf8" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                >
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <strong>100% Rekanan Sah</strong>
+                  <small>Akreditasi DPP Asosiasi</small>
+                </div>
               </div>
-              <div>
-                <strong>{lenders.length || 5}+ Mitra Terdaftar</strong>
-                <small>Pabrikan & Distributor</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                >
+                  <Building2 size={20} />
+                </div>
+                <div>
+                  <strong>{lenders.length || 8}+ Mitra Terdaftar</strong>
+                  <small>Pabrikan & Distributor</small>
+                </div>
               </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <PackageCheck size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                >
+                  <PackageCheck size={20} />
+                </div>
+                <div>
+                  <strong>Suku Cadang Asli</strong>
+                  <small>Garansi Resmi Pabrikan</small>
+                </div>
               </div>
-              <div>
-                <strong>Suku Cadang Asli</strong>
-                <small>Garansi Resmi Pabrikan</small>
-              </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Handshake size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>Dukungan Advokasi</strong>
-                <small>Proteksi Anggota</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                >
+                  <Handshake size={20} />
+                </div>
+                <div>
+                  <strong>Proteksi Anggota</strong>
+                  <small>Dukungan Advokasi</small>
+                </div>
               </div>
             </div>
           </div>
@@ -552,6 +572,34 @@ function LendersContent() {
               )}
             </div>
           )}
+
+          {/* Member Workshop Network Spotlight Box */}
+          <div className="partner-workshop-spotlight-card">
+            <div className="spotlight-left">
+              <div className="benefit-badge-pill">
+                <Sparkles size={14} color="#0284c7" />
+                <span>JARINGAN BENGKEL & TOKO ANGGOTA</span>
+              </div>
+              <h3>Ekosistem Bengkel Workshop & Toko Mitra Anggota</h3>
+              <p>
+                Selain bermitra dengan prinsipal manufaktur dan distributor
+                nasional, asosiasi juga menaungi ratusan bengkel AC mandiri,
+                jasa perbaikan PCB inverter, dan toko sparepart resmi milik para
+                anggota berlisensi KTA di seluruh Indonesia.
+              </p>
+            </div>
+            <div className="spotlight-actions">
+              <Link
+                href="/technicians?tab=workshops"
+                className="button primary"
+              >
+                Buka Bursa Bengkel Anggota
+              </Link>
+              <Link href="/member" className="button secondary">
+                Pasang Iklan Bengkel Anda
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

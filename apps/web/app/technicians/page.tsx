@@ -4,11 +4,14 @@ import {
   ArrowRight,
   Award,
   BadgeCheck,
+  Building2,
   Check,
   CheckCircle2,
+  Clock,
   Copy,
   Crown,
   ExternalLink,
+  Filter,
   Loader2,
   MapPin,
   MessageSquare,
@@ -18,6 +21,8 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
+  Store,
+  Tag,
   Users,
   Wrench,
   X,
@@ -41,6 +46,133 @@ interface Technician {
   certifiedBnsp: boolean;
   isAvailable: boolean;
 }
+
+export interface MemberWorkshop {
+  id: string;
+  workshopName: string;
+  tagline: string;
+  category: string;
+  city: string;
+  province: string;
+  address: string;
+  whatsapp: string;
+  phone: string;
+  operatingHours: string;
+  description: string;
+  services: string[];
+  ownerName: string;
+  memberNumber: string;
+  isPublished: boolean;
+  rating?: number;
+  completedJobs?: number;
+}
+
+const SEED_MEMBER_WORKSHOPS: MemberWorkshop[] = [
+  {
+    id: "ws-1",
+    workshopName: "CV Surya Mandiri Teknik",
+    tagline: "Spesialis Servis AC Inverter & VRV Komersial Bergaransi",
+    category: "Bengkel Spesialis AC Komersial (VRV/VRF/Chiller)",
+    city: "Jakarta Selatan",
+    province: "DKI Jakarta",
+    address: "Jl. Fatmawati Raya No. 45, Cilandak",
+    whatsapp: "081289123456",
+    phone: "02175901234",
+    operatingHours: "Senin - Sabtu: 08.00 - 18.00 | Siap 24 Jam",
+    description:
+      "Bengkel resmi rekanan APTI spesialis tata udara komersial perkantoran, multi-inverter VRV/VRF, dan cold storage industri. Dilengkapi teknisi BNSP Level IV.",
+    services: [
+      "Cuci AC Inverter Bebas Bau",
+      "Vakum Standar SKKNI (Dua Tahap)",
+      "Recovery Freon R32 / R410A",
+      "Servis Chiller & VRV Komersial",
+      "Instalasi AC Cassette / Standing",
+    ],
+    ownerName: "Bambang Sudiro",
+    memberNumber: "APTI-2024-0012",
+    isPublished: true,
+    rating: 4.95,
+    completedJobs: 420,
+  },
+  {
+    id: "ws-2",
+    workshopName: "Toko Suku Cadang & Freon Berkah Refrigerasi",
+    tagline:
+      "Distributor Resmi Sparepart AC, Pipa Tembaga & Freon Ramah Lingkungan",
+    category: "Toko Sparepart & Freon Ramah Lingkungan",
+    city: "Surabaya",
+    province: "Jawa Timur",
+    address: "Jl. Ngagel Jaya Selatan No. 88, Gubeng",
+    whatsapp: "081334567890",
+    phone: "0315021234",
+    operatingHours: "Senin - Sabtu: 08.00 - 17.00",
+    description:
+      "Menyediakan suku cadang asli segala merk: kompresor inverter, sensor thermistor, kapasitor original, pipa ASTM B280, manifold digital, dan freon ramah lingkungan R32 / R290.",
+    services: [
+      "Penyedia Sparepart & Freon Asli",
+      "Rental Alat Ukur & Manifold Digital",
+      "Uji Tekanan Nitrogen K3",
+      "Pengadaan Pipa Tembaga Standar",
+    ],
+    ownerName: "H. Ridwan Santoso",
+    memberNumber: "APTI-2024-0038",
+    isPublished: true,
+    rating: 4.9,
+    completedJobs: 860,
+  },
+  {
+    id: "ws-3",
+    workshopName: "Nusantara Cold & HVAC Clinic",
+    tagline:
+      "Pusat Perbaikan Modul PCB Inverter & Instalasi Residensial Terpercaya",
+    category: "Bengkel Servis AC Residensial & Rumah Tangga",
+    city: "Bandung",
+    province: "Jawa Barat",
+    address: "Jl. Soekarno-Hatta No. 312, Buahbatu",
+    whatsapp: "081223456781",
+    phone: "0227311234",
+    operatingHours: "Setiap Hari: 07.30 - 19.00",
+    description:
+      "Layanan servis cepat pendingin rumah tangga dan apartemen. Mengutamakan SOP vakum wajib dan SOP recovery freon tanpa buang emisi ke udara bebas.",
+    services: [
+      "Cuci AC Inverter Bebas Bau",
+      "Bongkar Pasang AC Split",
+      "Perbaikan Modul PCB Inverter",
+      "Uji Tekanan Nitrogen K3",
+    ],
+    ownerName: "Asep Sunandar",
+    memberNumber: "APTI-2024-0084",
+    isPublished: true,
+    rating: 4.88,
+    completedJobs: 310,
+  },
+  {
+    id: "ws-4",
+    workshopName: "Sentral Instrument & Tools Refrigerasi",
+    tagline:
+      "Rental & Kalibrasi Pompa Vakum Dua Tahap & Manifold Digital",
+    category: "Rental Alat Ukur & Manifold Digital",
+    city: "Medan",
+    province: "Sumatera Utara",
+    address: "Jl. Gatot Subroto KM 6.5 No. 19",
+    whatsapp: "08116543210",
+    phone: "0618451234",
+    operatingHours: "Senin - Sabtu: 08.00 - 17.30",
+    description:
+      "Mitra penyedia rental peralatan instalasi berstandar SKKNI: manifold digital Testo/Fieldpiece, recovery machine Promax, flaring kit hidrolik, dan tabung recovery bersertifikat.",
+    services: [
+      "Rental Alat Ukur & Manifold Digital",
+      "Vakum Standar SKKNI (Dua Tahap)",
+      "Recovery Freon R32 / R410A",
+      "Penyedia Sparepart & Freon Asli",
+    ],
+    ownerName: "Tengku Iskandar",
+    memberNumber: "APTI-2024-0105",
+    isPublished: true,
+    rating: 4.92,
+    completedJobs: 240,
+  },
+];
 
 interface SkillTierInfo {
   levelNumber: number;
@@ -131,7 +263,11 @@ function parseSkillLevel(rawLevel: string): SkillTierInfo {
 
 function TechniciansContent() {
   const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<"technicians" | "workshops">(
+    (searchParams.get("tab") as "technicians" | "workshops") || "technicians",
+  );
   const [technicians, setTechnicians] = useState<Technician[]>([]);
+  const [workshops, setWorkshops] = useState<MemberWorkshop[]>(SEED_MEMBER_WORKSHOPS);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get("q") || "");
   const [selectedProvince, setSelectedProvince] = useState(
@@ -140,6 +276,7 @@ function TechniciansContent() {
   const [selectedSkill, setSelectedSkill] = useState(
     searchParams.get("keahlian") || "all",
   );
+  const [selectedWorkshopCat, setSelectedWorkshopCat] = useState<string>("all");
   const [onlyBnsp, setOnlyBnsp] = useState(
     searchParams.get("bnsp") === "1" || searchParams.get("bnsp") === "true",
   );
@@ -153,9 +290,13 @@ function TechniciansContent() {
     newProvince: string,
     newSkill: string,
     newBnsp: boolean,
+    newTab: "technicians" | "workshops" = activeTab,
   ) => {
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
+      if (newTab !== "technicians") url.searchParams.set("tab", newTab);
+      else url.searchParams.delete("tab");
+
       if (newSearch.trim()) url.searchParams.set("q", newSearch.trim());
       else url.searchParams.delete("q");
 
@@ -192,13 +333,39 @@ function TechniciansContent() {
       }
     };
     void fetchTechs();
+
+    try {
+      const stored = localStorage.getItem("openorg_member_workshops_list");
+      if (stored) {
+        const parsed: MemberWorkshop[] = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setWorkshops((prev) => {
+            const memberNums = new Set(parsed.map((p) => p.memberNumber));
+            const baseWithoutDuplicates = prev.filter(
+              (w) => !memberNums.has(w.memberNumber),
+            );
+            return [...parsed, ...baseWithoutDuplicates];
+          });
+        }
+      }
+    } catch {
+    }
   }, []);
 
   const provinces = Array.from(
-    new Set(technicians.map((t) => t.province).filter(Boolean)),
+    new Set(
+      activeTab === "technicians"
+        ? technicians.map((t) => t.province).filter(Boolean)
+        : workshops.map((w) => w.province).filter(Boolean),
+    ),
   );
+
   const skillLevels = Array.from(
     new Set(technicians.map((t) => t.skillLevel).filter(Boolean)),
+  );
+
+  const workshopCategories = Array.from(
+    new Set(workshops.map((w) => w.category).filter(Boolean)),
   );
 
   const handleCopyKta = (e: React.MouseEvent, kta: string) => {
@@ -208,7 +375,7 @@ function TechniciansContent() {
     setTimeout(() => setCopiedKta(null), 2000);
   };
 
-  const filtered = technicians.filter((t) => {
+  const filteredTechs = technicians.filter((t) => {
     const matchSearch =
       !search ||
       t.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -227,63 +394,102 @@ function TechniciansContent() {
     return matchSearch && matchProvince && matchSkill && matchBnsp;
   });
 
+  const filteredWorkshops = workshops.filter((w) => {
+    const matchSearch =
+      !search ||
+      w.workshopName.toLowerCase().includes(search.toLowerCase()) ||
+      w.tagline.toLowerCase().includes(search.toLowerCase()) ||
+      w.city.toLowerCase().includes(search.toLowerCase()) ||
+      w.ownerName.toLowerCase().includes(search.toLowerCase()) ||
+      w.memberNumber.toLowerCase().includes(search.toLowerCase()) ||
+      w.services.some((s) => s.toLowerCase().includes(search.toLowerCase()));
+
+    const matchProvince =
+      selectedProvince === "all" || w.province === selectedProvince;
+
+    const matchCat =
+      selectedWorkshopCat === "all" || w.category === selectedWorkshopCat;
+
+    return matchSearch && matchProvince && matchCat;
+  });
+
   return (
     <div className="technicians-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
+      {/* 1. Balanced 2-Column Hero Header */}
       <header className="tech-hero">
-        <div className="wrap tech-hero-inner">
-          <div className="tech-hero-pill">
-            <Wrench size={15} color="#38bdf8" />
-            <span>DIREKTORI NASIONAL RESMI</span>
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
+              <Wrench size={14} />
+              <span>DIREKTORI NASIONAL RESMI</span>
+            </div>
+
+            <h1 className="tech-hero-title">
+              Direktori Teknisi & Bengkel Pendingin{" "}
+              <span className="text-gradient">Terverifikasi</span>
+            </h1>
+
+            <p className="tech-hero-lead">
+              Temukan teknisi tata udara (HVAC/R) dan bursa bengkel/toko
+              berlisensi KTA resmi dengan sertifikasi BNSP, jaminan standar K3,
+              dan reputasi terpercaya di seluruh Indonesia.
+            </p>
           </div>
 
-          <h1 className="tech-hero-title">
-            Direktori Teknisi & Bengkel Pendingin{" "}
-            <span className="text-gradient">Terverifikasi</span>
-          </h1>
-
-          <p className="tech-hero-lead">
-            Temukan teknisi tata udara (HVAC/R) dan workshop berlisensi KTA
-            resmi dengan sertifikasi kompetensi BNSP, jaminan standar K3, dan
-            reputasi terpercaya di seluruh Indonesia.
-          </p>
-
-          {/* Impact Metrics Bar */}
-          <div className="tech-hero-metrics">
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Users size={22} color="#38bdf8" />
-              </div>
-              <div>
-                <strong>{technicians.length || 120}+ Teknisi</strong>
-                <small>38 DPD Provinsi</small>
-              </div>
+          {/* Right Column: Hero Metrics Bento Card */}
+          <div className="hero-stats-bento-card">
+            <div className="stats-card-header">
+              <span className="stats-card-badge">Data Jaringan Terakreditasi</span>
+              <span className="stats-card-status">● Live Audit QR</span>
             </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <ShieldCheck size={22} color="#34d399" />
+            <div className="stats-card-grid">
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                >
+                  <Users size={20} />
+                </div>
+                <div>
+                  <strong>{technicians.length || 120}+ Teknisi</strong>
+                  <small>38 DPD Provinsi</small>
+                </div>
               </div>
-              <div>
-                <strong>100% KTA Terakreditasi</strong>
-                <small>Audit QR Real-Time</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                >
+                  <Store size={20} />
+                </div>
+                <div>
+                  <strong>{workshops.length}+ Bengkel Resmi</strong>
+                  <small>Mitra & Toko Suku Cadang</small>
+                </div>
               </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Award size={22} color="#818cf8" />
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                >
+                  <Award size={20} />
+                </div>
+                <div>
+                  <strong>Standar BNSP</strong>
+                  <small>Uji SKKNI Resmi</small>
+                </div>
               </div>
-              <div>
-                <strong>Standar SKKNI & BNSP</strong>
-                <small>Uji Kompetensi Nasional</small>
-              </div>
-            </div>
-            <div className="tech-metric-box">
-              <div className="tech-metric-icon">
-                <Star size={22} color="#f59e0b" />
-              </div>
-              <div>
-                <strong>4.92 / 5.0 Rating</strong>
-                <small>Kepuasan Pelanggan</small>
+              <div className="stat-item">
+                <div
+                  className="stat-icon-wrap"
+                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                >
+                  <Star size={20} />
+                </div>
+                <div>
+                  <strong>4.92 / 5.0</strong>
+                  <small>Rating Kepuasan</small>
+                </div>
               </div>
             </div>
           </div>
@@ -293,6 +499,32 @@ function TechniciansContent() {
       {/* 2. Main Directory Body & Interactive Search Controls */}
       <section className="tech-body section-space">
         <div className="wrap">
+          {/* Main Directory Tab Switcher */}
+          <div className="directory-main-tabs">
+            <button
+              type="button"
+              className={`dir-tab-btn ${activeTab === "technicians" ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab("technicians");
+                updateUrl(search, selectedProvince, selectedSkill, onlyBnsp, "technicians");
+              }}
+            >
+              <Users size={17} />
+              <span>Direktori Teknisi Berlisensi ({technicians.length || 120})</span>
+            </button>
+            <button
+              type="button"
+              className={`dir-tab-btn ${activeTab === "workshops" ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab("workshops");
+                updateUrl(search, selectedProvince, selectedSkill, onlyBnsp, "workshops");
+              }}
+            >
+              <Store size={17} />
+              <span>Bursa Bengkel & Toko Resmi Anggota ({workshops.length})</span>
+            </button>
+          </div>
+
           {/* Controls Bar */}
           <div className="tech-controls-bar">
             {/* Search Input */}
@@ -302,7 +534,11 @@ function TechniciansContent() {
                 id="technicians-search-input"
                 name="techniciansSearch"
                 type="text"
-                placeholder="Cari nama teknisi, nomor KTA, kota, atau nama bengkel..."
+                placeholder={
+                  activeTab === "technicians"
+                    ? "Cari nama teknisi, nomor KTA, kota, atau nama bengkel..."
+                    : "Cari nama bengkel/toko, keahlian, kota, atau nomor KTA pemilik..."
+                }
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -311,9 +547,10 @@ function TechniciansContent() {
                     selectedProvince,
                     selectedSkill,
                     onlyBnsp,
+                    activeTab,
                   );
                 }}
-                aria-label="Cari nama teknisi, nomor KTA, kota, atau nama bengkel"
+                aria-label="Pencarian direktori"
               />
               {search && (
                 <button
@@ -321,7 +558,7 @@ function TechniciansContent() {
                   className="search-clear-btn"
                   onClick={() => {
                     setSearch("");
-                    updateUrl("", selectedProvince, selectedSkill, onlyBnsp);
+                    updateUrl("", selectedProvince, selectedSkill, onlyBnsp, activeTab);
                   }}
                   aria-label="Bersihkan pencarian"
                 >
@@ -340,10 +577,10 @@ function TechniciansContent() {
                   value={selectedProvince}
                   onChange={(e) => {
                     setSelectedProvince(e.target.value);
-                    updateUrl(search, e.target.value, selectedSkill, onlyBnsp);
+                    updateUrl(search, e.target.value, selectedSkill, onlyBnsp, activeTab);
                   }}
                   className="tech-select-input"
-                  aria-label="Filter berdasarkan provinsi teknisi"
+                  aria-label="Filter berdasarkan provinsi"
                 >
                   <option value="all">
                     Semua Provinsi ({provinces.length})
@@ -356,166 +593,325 @@ function TechniciansContent() {
                 </select>
               )}
 
-              {/* Skill Level Select */}
-              {skillLevels.length > 0 && (
+              {/* Tab-Specific Filters */}
+              {activeTab === "technicians" ? (
+                <>
+                  {skillLevels.length > 0 && (
+                    <select
+                      id="technicians-skill-select"
+                      name="techniciansSkill"
+                      value={selectedSkill}
+                      onChange={(e) => {
+                        setSelectedSkill(e.target.value);
+                        updateUrl(
+                          search,
+                          selectedProvince,
+                          e.target.value,
+                          onlyBnsp,
+                          activeTab,
+                        );
+                      }}
+                      className="tech-select-input"
+                      aria-label="Filter berdasarkan tingkat keahlian SKKNI"
+                    >
+                      <option value="all">Semua Jenjang Keahlian</option>
+                      {skillLevels.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
+                  {/* BNSP Toggle */}
+                  <button
+                    type="button"
+                    className={`tech-toggle-btn ${onlyBnsp ? "active" : ""}`}
+                    onClick={() => {
+                      const nextBnsp = !onlyBnsp;
+                      setOnlyBnsp(nextBnsp);
+                      updateUrl(search, selectedProvince, selectedSkill, nextBnsp, activeTab);
+                    }}
+                  >
+                    <Award size={14} />
+                    <span>Hanya BNSP Certified</span>
+                  </button>
+                </>
+              ) : (
                 <select
-                  id="technicians-skill-select"
-                  name="techniciansSkill"
-                  value={selectedSkill}
-                  onChange={(e) => {
-                    setSelectedSkill(e.target.value);
-                    updateUrl(
-                      search,
-                      selectedProvince,
-                      e.target.value,
-                      onlyBnsp,
-                    );
-                  }}
+                  value={selectedWorkshopCat}
+                  onChange={(e) => setSelectedWorkshopCat(e.target.value)}
                   className="tech-select-input"
-                  aria-label="Filter berdasarkan tingkat keahlian SKKNI"
+                  aria-label="Filter berdasarkan kategori bengkel/toko"
                 >
-                  <option value="all">Semua Jenjang Keahlian</option>
-                  {skillLevels.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
+                  <option value="all">Semua Kategori Usaha ({workshopCategories.length})</option>
+                  {workshopCategories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
                     </option>
                   ))}
                 </select>
               )}
-
-              {/* BNSP Toggle */}
-              <button
-                type="button"
-                className={`tech-toggle-btn ${onlyBnsp ? "active" : ""}`}
-                onClick={() => {
-                  const nextBnsp = !onlyBnsp;
-                  setOnlyBnsp(nextBnsp);
-                  updateUrl(search, selectedProvince, selectedSkill, nextBnsp);
-                }}
-              >
-                <Award size={14} />
-                <span>Hanya BNSP Certified</span>
-              </button>
             </div>
           </div>
 
-          {/* Results Grid */}
-          {isLoading ? (
-            <div className="tech-loading-state">
-              <Loader2 size={36} className="animate-spin text-primary" />
-              <p>Memuat direktori teknisi resmi...</p>
+          {/* Callout Banner when on Workshops Tab */}
+          {activeTab === "workshops" && (
+            <div className="workshop-member-cta-banner">
+              <div className="banner-left">
+                <Sparkles size={24} color="#0284c7" />
+                <div>
+                  <strong>Punya Bengkel AC, Toko Sparepart, atau Jasa Pendingin?</strong>
+                  <p>
+                    Pasang profil usaha Anda secara gratis di bursa direktori resmi
+                    APTI untuk meningkatkan kredibilitas dan jangkauan order pelanggan.
+                  </p>
+                </div>
+              </div>
+              <div className="banner-right">
+                <Link href="/join" className="button primary">
+                  Daftar Anggota & Pasang Iklan
+                </Link>
+              </div>
             </div>
-          ) : (
-            <div className="tech-cards-grid">
-              {filtered.length > 0 ? (
-                filtered.map((tech) => (
-                  <article className="tech-card-modern" key={tech.id}>
-                    {/* Top Bar: Compact Skill Level Badge & BNSP/Rating */}
-                    <div className="tech-card-top">
-                      {(() => {
-                        const tier = parseSkillLevel(tech.skillLevel);
-                        const TierIcon = tier.icon;
-                        return (
-                          <span
-                            className={`tech-level-badge-compact ${tier.bgClass}`}
-                            title={`Jenjang: ${tier.fullName}`}
-                          >
-                            <TierIcon size={12} />
-                            <span>{tier.shortBadge}</span>
-                          </span>
-                        );
-                      })()}
+          )}
 
-                      {tech.certifiedBnsp && (
-                        <span className="tech-bnsp-badge">
-                          <Award size={11} />
-                          <span>BNSP</span>
-                        </span>
-                      )}
+          {/* Results Grid: Tab 1 (Technicians) */}
+          {activeTab === "technicians" && (
+            <>
+              {isLoading ? (
+                <div className="tech-loading-state">
+                  <Loader2 size={36} className="animate-spin text-primary" />
+                  <p>Memuat direktori teknisi resmi...</p>
+                </div>
+              ) : (
+                <div className="tech-cards-grid">
+                  {filteredTechs.length > 0 ? (
+                    filteredTechs.map((tech) => (
+                      <article className="tech-card-modern" key={tech.id}>
+                        {/* Top Bar: Compact Skill Level Badge & BNSP/Rating */}
+                        <div className="tech-card-top">
+                          {(() => {
+                            const tier = parseSkillLevel(tech.skillLevel);
+                            const TierIcon = tier.icon;
+                            return (
+                              <span
+                                className={`tech-level-badge-compact ${tier.bgClass}`}
+                                title={`Jenjang: ${tier.fullName}`}
+                              >
+                                <TierIcon size={12} />
+                                <span>{tier.shortBadge}</span>
+                              </span>
+                            );
+                          })()}
 
-                      {tech.rating && (
-                        <span className="tech-rating-chip">
-                          <Star size={11} color="#f59e0b" fill="#f59e0b" />
-                          <span>{tech.rating}</span>
-                        </span>
-                      )}
-                    </div>
+                          {tech.certifiedBnsp && (
+                            <span className="tech-bnsp-badge">
+                              <Award size={11} />
+                              <span>BNSP</span>
+                            </span>
+                          )}
 
-                    {/* Profile Header Button */}
-                    <button
-                      type="button"
-                      className="tech-profile-btn"
-                      onClick={() => setActiveTechModal(tech)}
-                    >
-                      <div className="tech-avatar-frame">
-                        <span className="tech-avatar-fallback">
-                          {tech.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .filter(Boolean)
-                            .slice(0, 2)
-                            .join("")
-                            .toUpperCase() || "TK"}
-                        </span>
-                      </div>
+                          {tech.rating && (
+                            <span className="tech-rating-chip">
+                              <Star size={11} color="#f59e0b" fill="#f59e0b" />
+                              <span>{tech.rating}</span>
+                            </span>
+                          )}
+                        </div>
 
-                      <div className="tech-profile-copy">
-                        <h4>{tech.name}</h4>
-                        {tech.workshopName && (
-                          <p className="tech-workshop-text">
-                            {tech.workshopName}
-                          </p>
-                        )}
-                      </div>
-                    </button>
-
-                    {/* Location Pin */}
-                    <div className="tech-location-row">
-                      <MapPin size={13} color="#64748b" />
-                      <span>
-                        {tech.city}, {tech.province}
-                      </span>
-                    </div>
-
-                    {/* Footer Row: KTA Number + Actions */}
-                    <div className="tech-card-footer">
-                      <span className="tech-kta-chip">
-                        <QrCode size={12} color="#0284c7" />
-                        <span>{tech.ktaNumber}</span>
-                      </span>
-
-                      <div className="tech-actions-quick">
-                        {tech.phone && (
-                          <a
-                            href={`https://wa.me/${tech.phone.replace(/[^0-9]/g, "")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn-quick-wa"
-                            title="Hubungi via WhatsApp"
-                          >
-                            <Phone size={13} />
-                            <span>Kontak</span>
-                          </a>
-                        )}
+                        {/* Profile Header Button */}
                         <button
                           type="button"
-                          className="tech-detail-btn"
+                          className="tech-profile-btn"
                           onClick={() => setActiveTechModal(tech)}
                         >
-                          <span>Detail</span>
-                          <ArrowRight size={12} />
+                          <div className="tech-avatar-frame">
+                            <span>
+                              {tech.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .filter(Boolean)
+                                .slice(0, 2)
+                                .join("")
+                                .toUpperCase() || "TK"}
+                            </span>
+                          </div>
+
+                          <div className="tech-profile-info">
+                            <h3 className="tech-name">{tech.name}</h3>
+                            <div className="tech-location-row">
+                              <MapPin size={13} color="#64748b" />
+                              <span>
+                                {tech.city}, {tech.province}
+                              </span>
+                            </div>
+                          </div>
                         </button>
+
+                        {/* Workshop Name if present */}
+                        {tech.workshopName && (
+                          <div className="tech-workshop-box">
+                            <Wrench size={13} color="#0284c7" />
+                            <span className="truncate">{tech.workshopName}</span>
+                          </div>
+                        )}
+
+                        {/* SKKNI Scope Description */}
+                        {(() => {
+                          const tier = parseSkillLevel(tech.skillLevel);
+                          return (
+                            <p className="tech-scope-summary">
+                              {tier.scopeDescription}
+                            </p>
+                          );
+                        })()}
+
+                        {/* Footer Row: KTA Number + Actions */}
+                        <div className="tech-card-footer">
+                          <span className="tech-kta-chip">
+                            <QrCode size={12} color="#0284c7" />
+                            <span>{tech.ktaNumber}</span>
+                          </span>
+
+                          <div className="tech-actions-quick">
+                            {tech.phone && (
+                              <a
+                                href={`https://wa.me/${tech.phone.replace(/[^0-9]/g, "")}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-quick-wa"
+                                title="Hubungi via WhatsApp"
+                              >
+                                <Phone size={13} />
+                                <span>Kontak</span>
+                              </a>
+                            )}
+                            <button
+                              type="button"
+                              className="tech-detail-btn"
+                              onClick={() => setActiveTechModal(tech)}
+                            >
+                              <span>Detail</span>
+                              <ArrowRight size={12} />
+                            </button>
+                          </div>
+                        </div>
+                      </article>
+                    ))
+                  ) : (
+                    <div className="tech-empty-state">
+                      <Wrench size={44} color="#94a3b8" />
+                      <h3>Tidak Ada Teknisi yang Sesuai</h3>
+                      <p>
+                        Coba sesuaikan kata kunci nama, nomor KTA, atau ubah filter
+                        wilayah dan jenjang keahlian.
+                      </p>
+                      <button
+                        type="button"
+                        className="button secondary btn-reset-tech"
+                        onClick={() => {
+                          setSearch("");
+                          setSelectedProvince("all");
+                          setSelectedSkill("all");
+                          setOnlyBnsp(false);
+                          updateUrl("", "all", "all", false, "technicians");
+                        }}
+                      >
+                        Reset Filter Pencarian
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Results Grid: Tab 2 (Member Workshops & Stores) */}
+          {activeTab === "workshops" && (
+            <div className="workshop-cards-grid">
+              {filteredWorkshops.length > 0 ? (
+                filteredWorkshops.map((ws) => (
+                  <article className="workshop-card-item" key={ws.id}>
+                    <div className="workshop-card-top-bar">
+                      <span className="workshop-cat-badge">
+                        <Store size={13} />
+                        <span>{ws.category}</span>
+                      </span>
+                      <span className="verified-member-live-badge">
+                        <ShieldCheck size={13} color="#10b981" />
+                        <span>Mitra Resmi APTI</span>
+                      </span>
+                    </div>
+
+                    <div className="workshop-main-info">
+                      <h3 className="workshop-item-title">{ws.workshopName}</h3>
+                      <p className="workshop-item-tagline">{ws.tagline}</p>
+                    </div>
+
+                    <div className="workshop-meta-row">
+                      <div className="meta-line">
+                        <MapPin size={13} color="#0284c7" />
+                        <span>{ws.address}, {ws.city}, {ws.province}</span>
+                      </div>
+                      <div className="meta-line">
+                        <Clock size={13} color="#64748b" />
+                        <span>{ws.operatingHours}</span>
+                      </div>
+                    </div>
+
+                    <p className="workshop-item-desc">{ws.description}</p>
+
+                    <div className="workshop-services-cloud">
+                      {ws.services.map((srv) => (
+                        <span key={srv} className="workshop-srv-tag">
+                          <Wrench size={11} color="#0284c7" />
+                          <span>{srv}</span>
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="workshop-card-bottom-actions">
+                      <div className="owner-kta-info">
+                        <small>Penanggung Jawab:</small>
+                        <Link
+                          href={`/verify?code=${encodeURIComponent(ws.memberNumber)}`}
+                          className="owner-kta-link"
+                          title="Verifikasi KTA Pemilik"
+                        >
+                          <strong>{ws.ownerName}</strong> ({ws.memberNumber})
+                        </Link>
+                      </div>
+
+                      <div className="workshop-action-buttons">
+                        <Link
+                          href={`/verify?code=${encodeURIComponent(ws.memberNumber)}`}
+                          className="btn-kta-check"
+                          title="Cek Kredensial KTA Resmi"
+                        >
+                          <QrCode size={14} />
+                          <span>Kredensial KTA</span>
+                        </Link>
+                        <a
+                          href={`https://wa.me/${ws.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Halo ${ws.workshopName}, saya menemukan profil workshop Anda di Direktori Resmi APTI Indonesia.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-order-wa"
+                        >
+                          <MessageSquare size={14} />
+                          <span>Hubungi WhatsApp</span>
+                        </a>
                       </div>
                     </div>
                   </article>
                 ))
               ) : (
                 <div className="tech-empty-state">
-                  <Wrench size={44} color="#94a3b8" />
-                  <h3>Tidak Ada Teknisi yang Sesuai</h3>
+                  <Store size={44} color="#94a3b8" />
+                  <h3>Tidak Ada Bengkel / Toko yang Sesuai</h3>
                   <p>
-                    Coba sesuaikan kata kunci nama, nomor KTA, atau ubah filter
-                    wilayah dan jenjang keahlian.
+                    Coba sesuaikan kata kunci pencarian atau ubah filter kategori
+                    dan provinsi.
                   </p>
                   <button
                     type="button"
@@ -523,12 +919,10 @@ function TechniciansContent() {
                     onClick={() => {
                       setSearch("");
                       setSelectedProvince("all");
-                      setSelectedSkill("all");
-                      setOnlyBnsp(false);
-                      updateUrl("", "all", "all", false);
+                      setSelectedWorkshopCat("all");
                     }}
                   >
-                    Reset Filter Pencarian
+                    Reset Filter Bengkel
                   </button>
                 </div>
               )}

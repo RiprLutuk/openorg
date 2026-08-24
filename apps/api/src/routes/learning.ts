@@ -10,6 +10,7 @@ import {
   learningCreditLedger,
   learningCreditSchemes,
   learningEnrollments,
+  memberAccounts,
   members,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
@@ -386,6 +387,20 @@ export const memberLearningRoutes: FastifyPluginAsync = async (app) => {
       const member = request.currentMember;
       if (!member)
         throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
+
+      const [account] = await db
+        .select({ emailVerifiedAt: memberAccounts.emailVerifiedAt })
+        .from(memberAccounts)
+        .where(eq(memberAccounts.memberId, member.id))
+        .limit(1);
+
+      if (!account?.emailVerifiedAt) {
+        throw new AppError(
+          403,
+          "EMAIL_VERIFICATION_REQUIRED",
+          "Alamat email belum diverifikasi. Silakan verifikasi email akun Anda terlebih dahulu untuk mendaftar pelatihan.",
+        );
+      }
 
       const [created] = await db
         .insert(learningEnrollments)
