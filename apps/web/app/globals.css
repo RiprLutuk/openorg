@@ -17058,10 +17058,15 @@ img {
 }
 
 .btn-read-featured {
-  padding: 8px 16px;
+  padding: 9px 18px;
   font-size: 13px;
   font-weight: 700;
   border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* ==========================================================================
@@ -17864,6 +17869,51 @@ img {
   .stories-stats-bar,
   .stories-cards-flow {
     grid-template-columns: 1fr;
+  }
+
+  .featured-headline-card {
+    border-radius: 16px;
+  }
+
+  .featured-cover-box {
+    min-height: 200px;
+    aspect-ratio: 16 / 10;
+  }
+
+  .featured-details-box {
+    padding: 20px 16px;
+  }
+
+  .featured-title {
+    font-size: 1.2rem;
+    line-height: 1.35;
+    margin-bottom: 10px;
+  }
+
+  .featured-excerpt {
+    font-size: 13px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+    -webkit-line-clamp: 2;
+  }
+
+  .featured-footer-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-top: 14px;
+  }
+
+  .featured-author-info {
+    justify-content: flex-start;
+  }
+
+  .btn-read-featured {
+    width: 100%;
+    justify-content: center;
+    padding: 11px 16px;
+    font-size: 13.5px;
+    border-radius: 10px;
   }
 
   .stories-toolbar-card {
