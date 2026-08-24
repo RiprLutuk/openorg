@@ -17851,9 +17851,12 @@ img {
   gap: 12px;
   align-items: center;
   text-decoration: none;
-  padding: 6px;
+  padding: 8px;
   border-radius: 10px;
   transition: all 0.15s ease;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .related-story-mini-card:hover {
@@ -17863,9 +17866,20 @@ img {
 .rel-mini-thumb {
   width: 64px;
   height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  max-width: 64px;
+  max-height: 64px;
   border-radius: 8px;
   object-fit: cover;
   flex-shrink: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.rel-mini-info {
+  min-width: 0;
+  flex: 1 1 0%;
 }
 
 .rel-mini-date {
@@ -18252,6 +18266,42 @@ img {
   color: #94a3b8;
   letter-spacing: 1px;
   text-transform: uppercase;
+}
+
+/* Compact Fallback (for Thumbnails, Avatars, Mini Cards) */
+.smart-fallback-container.compact-fallback,
+.smart-fallback-container.rel-mini-thumb {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  max-width: 64px;
+  max-height: 64px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+}
+
+.smart-fallback-container.compact-fallback .fallback-content,
+.smart-fallback-container.rel-mini-thumb .fallback-content {
+  padding: 0;
+  gap: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.smart-fallback-container.compact-fallback .fallback-icon-pill,
+.smart-fallback-container.rel-mini-thumb .fallback-icon-pill {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 /* ==========================================================================
