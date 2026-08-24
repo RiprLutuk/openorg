@@ -245,7 +245,7 @@ export default async function OrganizationProfilePage() {
             {strategicPillars.map((pillar) => {
               const IconComp = pillar.icon;
               return (
-                <article className="pillar-card" key={pillar.title}>
+                <div className="pillar-card" key={pillar.title}>
                   <div className="pillar-card-head">
                     <div
                       className="pillar-icon-box"
@@ -280,7 +280,7 @@ export default async function OrganizationProfilePage() {
                       </li>
                     ))}
                   </ul>
-                </article>
+                </div>
               );
             })}
           </div>
@@ -310,7 +310,7 @@ export default async function OrganizationProfilePage() {
                   <div className="timeline-year-label">{ms.year}</div>
                 </div>
 
-                <article className="timeline-card">
+                <div className="timeline-card">
                   <div className="timeline-card-meta">
                     <span className="timeline-phase">{ms.phase}</span>
                     <span className="timeline-highlight-badge">
@@ -327,7 +327,7 @@ export default async function OrganizationProfilePage() {
                       </span>
                     ))}
                   </div>
-                </article>
+                </div>
               </div>
             ))}
           </div>
@@ -392,7 +392,7 @@ export default async function OrganizationProfilePage() {
           </div>
 
           <div className="docs-download-grid">
-            <article className="doc-card">
+            <div className="doc-card">
               <div className="doc-card-icon">
                 <FileText size={28} color="#38bdf8" />
               </div>
@@ -410,9 +410,9 @@ export default async function OrganizationProfilePage() {
                   <span>Buka Naskah AD/ART</span>
                 </Link>
               </div>
-            </article>
+            </div>
 
-            <article className="doc-card">
+            <div className="doc-card">
               <div className="doc-card-icon">
                 <BadgeCheck size={28} color="#34d399" />
               </div>
@@ -433,9 +433,9 @@ export default async function OrganizationProfilePage() {
                   <span>Lihat Dokumen</span>
                 </Link>
               </div>
-            </article>
+            </div>
 
-            <article className="doc-card">
+            <div className="doc-card">
               <div className="doc-card-icon">
                 <Network size={28} color="#818cf8" />
               </div>
@@ -453,7 +453,7 @@ export default async function OrganizationProfilePage() {
                   <span>Lihat Direktori</span>
                 </Link>
               </div>
-            </article>
+            </div>
           </div>
         </div>
       </section>
