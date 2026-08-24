@@ -53,19 +53,24 @@ export default async function StructurePage() {
           </p>
 
           <div className="struct-hero-actions">
-            <Link href="/join" className="button primary btn-hero-lg">
+            <Link
+              href="/join"
+              className="btn-hero-primary"
+              style={{ width: "auto" }}
+            >
+              <Users size={16} />
               <span>Pendaftaran Anggota KTA</span>
-              <ArrowRight size={17} />
+              <ArrowRight size={15} className="btn-arrow" />
             </Link>
             <Link
               href="/regulations"
-              className="button outline btn-hero-outline"
+              className="btn-hero-secondary"
             >
-              <FileText size={16} />
+              <FileText size={15} />
               <span>Ketentuan AD/ART Pengurus</span>
             </Link>
-            <Link href="/whois" className="button secondary btn-hero-outline">
-              <ShieldCheck size={16} />
+            <Link href="/whois" className="btn-hero-ghost">
+              <ShieldCheck size={15} />
               <span>Verifikasi Kredensial</span>
             </Link>
           </div>

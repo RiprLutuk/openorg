@@ -155,22 +155,27 @@ export default async function VisionMissionPage() {
           </p>
 
           <div className="vm-hero-actions">
-            <Link href="/join" className="button primary btn-hero-lg">
+            <Link
+              href="/join"
+              className="btn-hero-primary"
+              style={{ width: "auto" }}
+            >
+              <Users size={16} />
               <span>Bergabung Jadi Anggota</span>
-              <ArrowRight size={17} />
+              <ArrowRight size={15} className="btn-arrow" />
             </Link>
             <Link
               href="/regulations"
-              className="button outline btn-hero-outline"
+              className="btn-hero-secondary"
             >
-              <FileText size={16} />
+              <FileText size={15} />
               <span>Naskah AD/ART & Kode Etik</span>
             </Link>
             <Link
               href="/structure"
-              className="button secondary btn-hero-outline"
+              className="btn-hero-ghost"
             >
-              <Users size={16} />
+              <Users size={15} />
               <span>Struktur DPP & DPD</span>
             </Link>
           </div>

@@ -154,7 +154,7 @@ export default async function OrganizationProfilePage() {
       <header className="org-profile-hero">
         <div className="wrap org-profile-hero-inner">
           <div className="org-hero-badge-pill">
-            <ShieldCheck size={15} color="#38bdf8" />
+            <ShieldCheck size={14} />
             <span>PROFIL RESMI ASOSIASI</span>
           </div>
 
@@ -171,18 +171,24 @@ export default async function OrganizationProfilePage() {
           </p>
 
           <div className="org-hero-cta-row">
-            <Link href="/join" className="button primary btn-hero-lg">
+            <Link
+              href="/join"
+              className="btn-hero-primary"
+              style={{ width: "auto" }}
+            >
+              <Users size={16} />
               <span>Gabung Keanggotaan</span>
-              <ArrowRight size={17} />
+              <ArrowRight size={15} className="btn-arrow" />
             </Link>
             <Link
               href="/structure"
-              className="button secondary btn-hero-outline"
+              className="btn-hero-secondary"
             >
+              <Building2 size={16} />
               <span>Lihat Struktur DPP & DPD</span>
             </Link>
-            <Link href="/whois" className="button outline btn-hero-outline">
-              <QrCode size={16} />
+            <Link href="/whois" className="btn-hero-ghost">
+              <QrCode size={15} />
               <span>Verifikasi KTA Anggota</span>
             </Link>
           </div>

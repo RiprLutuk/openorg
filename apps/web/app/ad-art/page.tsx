@@ -464,11 +464,11 @@ function AdArtContent() {
 
   return (
     <div className="adart-page-suite">
-      {/* 1. Flagship Dark Hero Header */}
+      {/* 1. Flagship Clean Hero Header */}
       <header className="adart-hero">
         <div className="wrap adart-hero-inner">
-          <div className="org-hero-pill">
-            <Scale size={15} color="#38bdf8" />
+          <div className="org-hero-badge-pill">
+            <Scale size={14} />
             <span>LANDASAN HUKUM & KONSTITUSI ORGANISASI</span>
           </div>
 
@@ -488,39 +488,29 @@ function AdArtContent() {
           <div className="org-hero-metrics-bar">
             <div className="metric-box">
               <div className="metric-icon-wrap">
-                <Landmark size={22} color="#38bdf8" />
+                <Landmark size={22} color="#0284c7" />
               </div>
               <div>
-                <strong style={{ fontSize: "14px" }}>SK Kemenkumham Sah</strong>
-                <small style={{ color: "#94a3b8" }}>
-                  AHU-0012948.AH.01.07.2024
-                </small>
+                <strong>SK Kemenkumham Sah</strong>
+                <small>AHU-0012948.AH.01.07.2024</small>
               </div>
             </div>
             <div className="metric-box">
               <div className="metric-icon-wrap">
-                <FileCheck2 size={22} color="#34d399" />
+                <FileCheck2 size={22} color="#10b981" />
               </div>
               <div>
-                <strong style={{ fontSize: "14px" }}>
-                  Naskah Munas 2024–2029
-                </strong>
-                <small style={{ color: "#94a3b8" }}>
-                  Konstitusi Baku Berlaku
-                </small>
+                <strong>Naskah Munas 2024–2029</strong>
+                <small>Konstitusi Baku Berlaku</small>
               </div>
             </div>
             <div className="metric-box">
               <div className="metric-icon-wrap">
-                <ShieldCheck size={22} color="#818cf8" />
+                <ShieldCheck size={22} color="#6366f1" />
               </div>
               <div>
-                <strong style={{ fontSize: "14px" }}>
-                  9 Butir Pakta Integritas
-                </strong>
-                <small style={{ color: "#94a3b8" }}>
-                  Wajib Seluruh Anggota
-                </small>
+                <strong>9 Butir Pakta Integritas</strong>
+                <small>Wajib Seluruh Anggota</small>
               </div>
             </div>
             <div className="metric-box">
@@ -528,10 +518,8 @@ function AdArtContent() {
                 <Users size={22} color="#f59e0b" />
               </div>
               <div>
-                <strong style={{ fontSize: "14px" }}>38 DPD Provinsi</strong>
-                <small style={{ color: "#94a3b8" }}>
-                  Struktur Musyawarah Sah
-                </small>
+                <strong>38 DPD Provinsi</strong>
+                <small>Struktur Musyawarah Sah</small>
               </div>
             </div>
           </div>
