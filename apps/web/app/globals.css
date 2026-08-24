@@ -18078,3 +18078,250 @@ img {
   letter-spacing: 1px;
   text-transform: uppercase;
 }
+
+/* ==========================================================================
+   SOCIAL SHARE SUITE (WHATSAPP, THREADS, X, TELEGRAM, LINKEDIN, FB, COPY)
+   ========================================================================== */
+
+.social-share-suite-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.social-share-suite-wrap.hero .share-suite-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.share-buttons-flow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.share-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.share-pill-btn:hover {
+  transform: translateY(-1px);
+}
+
+.share-btn-text {
+  line-height: 1;
+}
+
+/* Individual Brand Styling */
+.share-btn-wa {
+  background: rgba(37, 211, 102, 0.15);
+  border-color: rgba(37, 211, 102, 0.35);
+  color: #4ade80;
+}
+.share-btn-wa:hover {
+  background: #25d366;
+  border-color: #25d366;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.35);
+}
+
+.share-btn-threads {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f1f5f9;
+}
+.share-btn-threads:hover {
+  background: #000000;
+  border-color: #334155;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.share-btn-x {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f1f5f9;
+}
+.share-btn-x:hover {
+  background: #0f172a;
+  border-color: #334155;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.share-btn-telegram {
+  background: rgba(0, 136, 204, 0.15);
+  border-color: rgba(0, 136, 204, 0.35);
+  color: #38bdf8;
+}
+.share-btn-telegram:hover {
+  background: #0088cc;
+  border-color: #0088cc;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 136, 204, 0.35);
+}
+
+.share-btn-linkedin {
+  background: rgba(10, 102, 194, 0.15);
+  border-color: rgba(10, 102, 194, 0.35);
+  color: #60a5fa;
+}
+.share-btn-linkedin:hover {
+  background: #0a66c2;
+  border-color: #0a66c2;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(10, 102, 194, 0.35);
+}
+
+.share-btn-fb {
+  background: rgba(24, 119, 242, 0.15);
+  border-color: rgba(24, 119, 242, 0.35);
+  color: #93c5fd;
+}
+.share-btn-fb:hover {
+  background: #1877f2;
+  border-color: #1877f2;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(24, 119, 242, 0.35);
+}
+
+.share-btn-copy {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+.share-btn-copy:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.share-btn-copy.copied {
+  background: rgba(22, 163, 74, 0.25);
+  border-color: rgba(34, 197, 94, 0.5);
+  color: #4ade80;
+}
+
+/* Article Footer Social Share Card */
+.story-bottom-share-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.bottom-share-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.story-bottom-share-box p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.social-share-suite-wrap.article-footer .share-pill-btn {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  padding: 7px 13px;
+}
+
+.social-share-suite-wrap.article-footer .share-btn-wa {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+.social-share-suite-wrap.article-footer .share-btn-wa:hover {
+  background: #25d366;
+  color: #ffffff;
+}
+
+.social-share-suite-wrap.article-footer .share-btn-threads {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+.social-share-suite-wrap.article-footer .share-btn-threads:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+.social-share-suite-wrap.article-footer .share-btn-x {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+.social-share-suite-wrap.article-footer .share-btn-x:hover {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.social-share-suite-wrap.article-footer .share-btn-telegram {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+  color: #0369a1;
+}
+.social-share-suite-wrap.article-footer .share-btn-telegram:hover {
+  background: #0088cc;
+  color: #ffffff;
+}
+
+.social-share-suite-wrap.article-footer .share-btn-linkedin {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+.social-share-suite-wrap.article-footer .share-btn-linkedin:hover {
+  background: #0a66c2;
+  color: #ffffff;
+}
+
+.social-share-suite-wrap.article-footer .share-btn-fb {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+.social-share-suite-wrap.article-footer .share-btn-fb:hover {
+  background: #1877f2;
+  color: #ffffff;
+}
+
+.social-share-suite-wrap.article-footer .share-btn-copy {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+.social-share-suite-wrap.article-footer .share-btn-copy:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+.social-share-suite-wrap.article-footer .share-btn-copy.copied {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
