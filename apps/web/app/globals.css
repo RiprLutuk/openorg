@@ -12953,13 +12953,15 @@ img {
 .calc-number-input {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
-  padding: 0 12px;
+  padding: 0 12px 0 14px;
   height: 44px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   transition: all 0.15s ease;
+  box-sizing: border-box;
 }
 
 .calc-number-input:focus-within {
@@ -12967,11 +12969,16 @@ img {
   box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
 }
 
-.calc-number-input input {
+.calc-number-input input,
+.form-field .calc-number-input input {
   flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 14.5px;
+  height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: 15px;
   font-weight: 700;
   color: #0f172a;
   outline: none;
@@ -12980,10 +12987,16 @@ img {
 
 .calc-number-input span {
   font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-  margin-left: 6px;
+  font-weight: 700;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-left: 8px;
   white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
 }
 
 /* Result Recommendation Card */
