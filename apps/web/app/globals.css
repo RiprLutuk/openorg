@@ -3718,12 +3718,13 @@ img {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  padding: 12px 14px;
-  background: #f8fafc;
+  padding: 14px 12px;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
+  border-radius: 16px;
   width: 100%;
   max-width: 520px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 }
 
 @media (min-width: 900px) {
@@ -3735,7 +3736,8 @@ img {
     max-width: none;
     background: #ffffff;
     border-color: #eaecf0;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+    padding: 12px 18px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
   }
 }
 
@@ -3744,7 +3746,7 @@ img {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 3px;
+  gap: 6px;
 }
 
 @media (min-width: 900px) {
@@ -3756,15 +3758,22 @@ img {
 }
 
 .metric-icon-wrap {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #eaecf0;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
   color: #0284c7;
   display: grid;
   place-items: center;
   flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.metric-box:hover .metric-icon-wrap {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
 }
 
 .metric-copy {
@@ -3773,17 +3782,19 @@ img {
 }
 
 .metric-copy strong {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   color: #0f172a;
-  line-height: 1.1;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
 }
 
 .metric-copy span {
   font-size: 10.5px;
   font-weight: 600;
-  color: #64748b;
+  color: #475569;
   margin-top: 1px;
+  line-height: 1.25;
 }
 
 .metric-separator {
@@ -6207,13 +6218,16 @@ img {
 
 @media (max-width: 640px) {
   .hero-metrics-row {
-    flex-direction: column;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 12px 8px;
     width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
   }
   .metric-separator {
-    width: 40px;
-    height: 1px;
+    display: none;
   }
   .verifier-search-bar {
     flex-direction: column;
