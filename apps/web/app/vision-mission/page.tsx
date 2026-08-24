@@ -261,7 +261,7 @@ export default async function VisionMissionPage() {
       {/* 3. Five Strategic Missions Bento */}
       <section className="vm-missions-section section-space">
         <div className="wrap">
-          <div className="section-heading text-center">
+          <div className="section-heading">
             <span className="eyebrow">AGENDA AKSI & MISI</span>
             <h2>Lima Misi Strategis Pembangunan Berkelanjutan</h2>
             <p>
@@ -314,7 +314,7 @@ export default async function VisionMissionPage() {
       {/* 4. Core Values & Code of Honor Matrix */}
       <section className="vm-values-section section-space">
         <div className="wrap">
-          <div className="section-heading text-center">
+          <div className="section-heading">
             <span className="eyebrow">NILAI KEHORMATAN</span>
             <h2>Empat Nilai Utama Penuntun Sikap & Kerja</h2>
             <p>

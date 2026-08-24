@@ -19,7 +19,7 @@ export function InteractiveBentoServices() {
   return (
     <section className="section-space home-bento-section">
       <div className="wrap">
-        <div className="section-heading text-center">
+        <div className="section-heading">
           <span className="eyebrow">Layanan Utama</span>
           <h2>Ekosistem Terintegrasi Organisasi</h2>
           <p>

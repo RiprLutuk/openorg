@@ -627,7 +627,7 @@ function AdArtContent() {
               style={{ display: "flex", flexDirection: "column", gap: "40px" }}
             >
               {/* Executive Overview Bento */}
-              <div className="section-heading text-center">
+              <div className="section-heading">
                 <span className="eyebrow">RINGKASAN KONSTITUSI</span>
                 <h2>Fondasi Hukum, Demokrasi & Etika Organisasi</h2>
                 <p>
@@ -745,10 +745,7 @@ function AdArtContent() {
           {/* TAB 2: ANGGARAN DASAR (AD) */}
           {activeTab === "ad" && (
             <div>
-              <div
-                className="section-heading text-center"
-                style={{ marginBottom: "32px" }}
-              >
+              <div className="section-heading" style={{ marginBottom: "32px" }}>
                 <span className="eyebrow">ANGGARAN DASAR (AD)</span>
                 <h2>Batang Tubuh Anggaran Dasar Perkumpulan</h2>
                 <p>
@@ -885,10 +882,7 @@ function AdArtContent() {
           {/* TAB 3: ANGGARAN RUMAH TANGGA (ART) */}
           {activeTab === "art" && (
             <div>
-              <div
-                className="section-heading text-center"
-                style={{ marginBottom: "32px" }}
-              >
+              <div className="section-heading" style={{ marginBottom: "32px" }}>
                 <span className="eyebrow">ANGGARAN RUMAH TANGGA (ART)</span>
                 <h2>Ketentuan Pelaksanaan & Tata Tertib Keorganisasian</h2>
                 <p>
@@ -994,10 +988,7 @@ function AdArtContent() {
           {/* TAB 4: 9 BUTIR PAKTA INTEGRITAS */}
           {activeTab === "etik" && (
             <div>
-              <div
-                className="section-heading text-center"
-                style={{ marginBottom: "32px" }}
-              >
+              <div className="section-heading" style={{ marginBottom: "32px" }}>
                 <span className="eyebrow">KODE ETIK & INTEGRITAS PROFESI</span>
                 <h2>9 Butir Ikrar Kehormatan Teknisi & Workshop</h2>
                 <p>
@@ -1148,10 +1139,7 @@ function AdArtContent() {
           {/* TAB 5: UNDUHAN DOKUMEN OTENTIK */}
           {activeTab === "unduhan" && (
             <div>
-              <div
-                className="section-heading text-center"
-                style={{ marginBottom: "32px" }}
-              >
+              <div className="section-heading" style={{ marginBottom: "32px" }}>
                 <span className="eyebrow">REPOSITORI NASKAH RESMI</span>
                 <h2>Unduhan Salinan Otentik & Format Legalitas</h2>
                 <p>

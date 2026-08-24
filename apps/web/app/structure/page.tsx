@@ -111,7 +111,7 @@ export default async function StructurePage() {
       {/* 3. Comprehensive Unit Directory */}
       <section className="structure-directory section-space">
         <div className="wrap">
-          <div className="section-heading text-center">
+          <div className="section-heading">
             <span className="eyebrow">DIREKTORI UNIT KEPENGURUSAN</span>
             <h2>Pengurus Pusat & Wilayah Terintegrasi</h2>
             <p>

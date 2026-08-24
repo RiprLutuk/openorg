@@ -232,7 +232,7 @@ export default async function OrganizationProfilePage() {
       {/* 3. Strategic Pillars Bento Grid */}
       <section className="org-pillars-section section-space">
         <div className="wrap">
-          <div className="section-heading text-center">
+          <div className="section-heading">
             <span className="eyebrow">PILAR STRATEGIS</span>
             <h2>Empat Pilar Dedikasi Memajukan Ekosistem Nasional</h2>
             <p>
@@ -290,7 +290,7 @@ export default async function OrganizationProfilePage() {
       {/* 4. Interactive Milestones Timeline */}
       <section className="org-timeline-section section-space">
         <div className="wrap">
-          <div className="section-heading text-center">
+          <div className="section-heading">
             <span className="eyebrow">REKAM JEJAK & SEJARAH</span>
             <h2>Perjalanan Transformasi Menuju Tata Kelola Modern</h2>
             <p>
@@ -382,7 +382,7 @@ export default async function OrganizationProfilePage() {
       {/* 6. Document Repository & Public Resources */}
       <section className="org-docs-section section-space">
         <div className="wrap">
-          <div className="section-heading text-center">
+          <div className="section-heading">
             <span className="eyebrow">DOKUMEN & BERKAS RESMI</span>
             <h2>Unduh Naskah Publik & Pedoman Anggota</h2>
             <p>
