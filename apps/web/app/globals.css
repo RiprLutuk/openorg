@@ -1047,7 +1047,7 @@ img {
 .section-heading .eyebrow {
   margin-bottom: 8px;
   text-align: left;
-  color: #38bdf8;
+  color: #0284c7;
 }
 .section-heading h2 {
   margin: 0 0 12px;
@@ -1057,12 +1057,12 @@ img {
   max-width: none;
   letter-spacing: -0.025em;
   text-align: left;
-  color: #ffffff;
+  color: #0f172a;
 }
 .section-heading p {
   width: 100%;
   max-width: none;
-  color: #94a3b8;
+  color: #475569;
   font-size: 16px;
   line-height: 1.6;
   margin: 0;
@@ -1424,13 +1424,14 @@ img {
   grid-template-columns: 1fr 1fr;
   gap: 18px;
   border-radius: var(--radius);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #0f172a;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
 }
 .contact-grid label {
   display: grid;
   gap: 8px;
-  color: #cbd5e1;
+  color: #334155;
   font-size: 13px;
   font-weight: 650;
 }
@@ -1440,18 +1441,19 @@ img {
 .contact-grid input,
 .contact-grid textarea {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid #cbd5e1;
   border-radius: 10px;
   padding: 12px;
   outline: none;
   resize: vertical;
-  background: #0b1120;
-  color: #ffffff;
+  background: #f8fafc;
+  color: #0f172a;
 }
 .contact-grid input:focus,
 .contact-grid textarea:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  background: #ffffff;
 }
 .contact-grid form .button {
   width: fit-content;
@@ -1469,15 +1471,15 @@ img {
 }
 .field-error,
 .form-error {
-  color: #f87171;
+  color: #dc2626;
   font-size: 12px;
 }
 .form-error {
   margin: 0;
   padding: 10px 12px;
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  border: 1px solid #fca5a5;
   border-radius: 10px;
-  background: rgba(239, 68, 68, 0.15);
+  background: #fef2f2;
 }
 .contact-grid input[aria-invalid="true"],
 .contact-grid textarea[aria-invalid="true"] {
@@ -1490,9 +1492,10 @@ img {
   justify-items: center;
   padding: 35px;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid #e2e8f0;
   border-radius: var(--radius);
-  background: #0f172a;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
 }
 .form-success > span {
   width: 54px;
@@ -1506,12 +1509,12 @@ img {
 .form-success h3 {
   margin: 18px 0 7px;
   font-size: 25px;
-  color: #ffffff;
+  color: #0f172a;
 }
 .form-success p {
   max-width: 360px;
   margin: 0;
-  color: #94a3b8;
+  color: #475569;
   line-height: 1.6;
 }
 .site-footer {
