@@ -35,6 +35,7 @@ import {
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { SmartImage } from "@/components/smart-image";
 
 const EVENTS_PER_PAGE = 6;
 
@@ -52,8 +53,11 @@ interface EventItemData {
   capacity: number;
   enrolled: number;
   instructor: string;
+  instructorRole?: string;
   fee: string;
   summary: string;
+  coverImage?: string;
+  format?: string;
   isFeatured?: boolean;
 }
 
@@ -72,7 +76,11 @@ const EVENTS_DATABASE: EventItemData[] = [
     capacity: 100,
     enrolled: 82,
     instructor: "Tim Asesor LSP-HVAC & BNSP RI",
+    instructorRole: "LSP Sektor Tata Udara & BNSP",
     fee: "Rp 650.000 (Subsidi Asosiasi)",
+    coverImage:
+      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
+    format: "🏢 Uji Teori & Praktik TUK",
     summary:
       "Sertifikasi kompetensi resmi LSP-HVAC dan BNSP untuk teknisi AC Split, VRV/VRF, dan Cold Storage. Peserta yang lulus berhak mendapatkan sertifikat BNSP dan KTA Digital APTI.",
     isFeatured: true,
@@ -92,7 +100,11 @@ const EVENTS_DATABASE: EventItemData[] = [
     capacity: 250,
     enrolled: 194,
     instructor: "Ir. Hendro Wijaya (Instruktur K3 KLHK)",
+    instructorRole: "Master Trainer K3 & Refrigeran Ramah Lingkungan",
     fee: "Gratis (Anggota Aktif KTA)",
+    coverImage:
+      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80",
+    format: "🌐 Hybrid Zoom & Tatap Muka",
     summary:
       "Bimbingan teknis penggunaan freon ramah lingkungan R32 dan Hydrocarbon R290 dengan standar keselamatan K3 tinggi untuk mencegah risiko kecelakaan kerja.",
   },
@@ -111,7 +123,11 @@ const EVENTS_DATABASE: EventItemData[] = [
     capacity: 60,
     enrolled: 48,
     instructor: "Budi Santoso, S.T. (Senior HVAC Specialist)",
+    instructorRole: "Praktisi & Konsultan VRV/VRF Multi-Split",
     fee: "Rp 350.000",
+    coverImage:
+      "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80",
+    format: "⚡ Praktikum Lab PCB Intensif",
     summary:
       "Pelatihan komprehensif pembacaan kode error, penggantian IPM/IGBT modul outdoor inverter, kalkulasi pipa cabang refnet VRV, dan teknik commissioning digital.",
   },
@@ -129,7 +145,11 @@ const EVENTS_DATABASE: EventItemData[] = [
     capacity: 500,
     enrolled: 412,
     instructor: "Dewan Pengurus Pusat & Tamu Kehormatan",
+    instructorRole: "Pimpinan Nasional & Asosiasi Industri",
     fee: "Delegasi DPD & Undangan Khusus",
+    coverImage:
+      "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80",
+    format: "🏛️ Musyawarah Nasional 3 Hari",
     summary:
       "Pertemuan akbar seluruh Pengurus DPP, DPD 38 Provinsi, dan Korwil Cabang APTI Indonesia untuk menyusun arah kebijakan dan kemitraan dengan produsen AC terkemuka.",
   },
@@ -148,7 +168,11 @@ const EVENTS_DATABASE: EventItemData[] = [
     capacity: 80,
     enrolled: 53,
     instructor: "Drs. M. Ridwan, M.Eng (Praktisi Cold Chain)",
+    instructorRole: "Spesialis Refrigerasi Industri & Cold Chain",
     fee: "Rp 400.000",
+    coverImage:
+      "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80",
+    format: "🏢 Lab Refrigerasi Industri",
     summary:
       "Teknik instalasi evaporator blast freezer, setting ekspansi thermostatic/electronic (TXV/EEV), serta penanganan oli kompresor semi-hermetic.",
   },
@@ -166,7 +190,11 @@ const EVENTS_DATABASE: EventItemData[] = [
     capacity: 75,
     enrolled: 39,
     instructor: "Asesor LSP Sektor Pendingin & Tata Udara",
+    instructorRole: "Tim Asesor Uji Kompetensi Wilayah Timur",
     fee: "Rp 650.000",
+    coverImage:
+      "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=80",
+    format: "🏢 Sertifikasi Standar BNSP RI",
     summary:
       "Asesmen kompetensi teknisi pendingin komersial hotel, villa, dan gedung bertingkat wilayah Bali, NTB, dan NTT bersertifikat Garuda Emas BNSP.",
   },
@@ -185,7 +213,11 @@ const EVENTS_DATABASE: EventItemData[] = [
     capacity: 70,
     enrolled: 44,
     instructor: "Agus Prasetyo, S.T. (Konsultan Tata Udara)",
+    instructorRole: "Instruktur Ducting & Tata Udara Gedung",
     fee: "Rp 300.000",
+    coverImage:
+      "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80",
+    format: "⚡ Praktikum Lapangan Langsung",
     summary:
       "Praktik pemasangan drainase gravitasi/pompa drain, pembuatan saluran udara ducting PU, serta penyesuaian static pressure pada unit komersial ringan.",
   },
@@ -203,7 +235,11 @@ const EVENTS_DATABASE: EventItemData[] = [
     capacity: 60,
     enrolled: 31,
     instructor: "Master Asesor LSP TPTU Indonesia",
+    instructorRole: "LSP Tata Udara & Lingkungan Hidup",
     fee: "Rp 650.000",
+    coverImage:
+      "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80",
+    format: "🏢 Uji Kompetensi Sentral",
     summary:
       "Uji sertifikasi keahlian tingkat lanjut untuk teknisi kawasan timur Indonesia, meliputi chiller sentral, VRV commissioning, dan manajemen K3 refrigerasi.",
   },
@@ -599,98 +635,135 @@ export default function EventsPage() {
                   <div className="events-cards-grid">
                     {paginatedEvents.map((event) => {
                       const startDate = new Date(event.startsAt);
-                      const isUpcoming = startDate.getTime() >= Date.now();
                       const remainingQuota = event.capacity - event.enrolled;
 
                       return (
-                        <article key={event.id} className="event-modern-card">
-                          {/* Card Top: Category Tag & SKP Badge */}
-                          <div className="event-card-top-bar">
-                            <span className="event-cat-tag">
-                              {event.categoryLabel}
-                            </span>
-                            <span className="event-skp-pill">
-                              <Award size={13} />
-                              <span>+{event.skpPoints} SKP CPD</span>
-                            </span>
+                        <article key={event.id} className="bootcamp-event-card">
+                          {/* Visual Card Cover Thumbnail */}
+                          <div className="bootcamp-card-cover">
+                            <Link
+                              href={`/events/${event.slug}`}
+                              className="bootcamp-cover-link"
+                            >
+                              <SmartImage
+                                src={event.coverImage ?? null}
+                                alt={event.title}
+                                className="bootcamp-cover-img"
+                                fallbackType="event"
+                              />
+                              <div className="bootcamp-cover-overlay" />
+                            </Link>
+
+                            <div className="bootcamp-cover-top">
+                              <span className="bootcamp-cat-pill">
+                                {event.categoryLabel}
+                              </span>
+                              <span className="bootcamp-skp-pill">
+                                <Award size={12} />
+                                <span>+{event.skpPoints} SKP CPD</span>
+                              </span>
+                            </div>
+
+                            <div className="bootcamp-cover-bottom">
+                              <span className="bootcamp-mode-tag">
+                                {event.format || "🏢 Workshop Tatap Muka"}
+                              </span>
+                            </div>
                           </div>
 
-                          {/* Card Main: Title & Excerpt */}
-                          <div className="event-card-main">
-                            <h3 className="event-title">
+                          {/* Card Body */}
+                          <div className="bootcamp-card-body">
+                            {/* Date & Location Pill Row */}
+                            <div className="bootcamp-quick-meta">
+                              <span className="meta-chip">
+                                <CalendarDays size={13} className="text-sky" />
+                                <span>
+                                  {startDate.toLocaleDateString("id-ID", {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  })}
+                                </span>
+                              </span>
+                              <span className="meta-chip">
+                                <MapPin size={13} className="text-emerald" />
+                                <span>{event.city}</span>
+                              </span>
+                            </div>
+
+                            {/* Course Title */}
+                            <h3 className="bootcamp-card-title">
                               <Link href={`/events/${event.slug}`}>
                                 {event.title}
                               </Link>
                             </h3>
-                            <p className="event-summary-text">
+
+                            {/* Short Excerpt */}
+                            <p className="bootcamp-card-summary">
                               {event.summary}
                             </p>
-                          </div>
 
-                          {/* Clean Borderless Metadata List */}
-                          <div className="event-card-meta-list">
-                            <div className="event-meta-line">
-                              <CalendarDays
-                                size={15}
-                                className="meta-icon text-sky"
-                              />
-                              <span className="meta-line-text">
-                                {startDate.toLocaleDateString("id-ID", {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                })}{" "}
-                                · {event.timeRange}
-                              </span>
-                            </div>
-
-                            <div className="event-meta-line">
-                              <MapPin
-                                size={15}
-                                className="meta-icon text-emerald"
-                              />
-                              <span className="meta-line-text">
-                                <strong>{event.city}</strong> ·{" "}
-                                {event.locationName}
-                              </span>
-                            </div>
-
-                            <div className="event-meta-line">
-                              <Users
-                                size={15}
-                                className="meta-icon text-purple"
-                              />
-                              <span className="meta-line-text">
-                                {event.instructor}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Card Footer: Fee & Full Width CTA */}
-                          <div className="event-card-footer">
-                            <div className="event-footer-info-row">
-                              <div className="event-footer-fee">
-                                <small>Biaya Kontribusi</small>
-                                <strong>{event.fee}</strong>
+                            {/* Mentor / Instructor Row */}
+                            <div className="bootcamp-instructor-row">
+                              <div className="bootcamp-avatar-circle">
+                                {event.instructor
+                                  .replace(
+                                    /^(Ir\.|Drs\.|Tim\s+|Master\s+)/i,
+                                    "",
+                                  )
+                                  .trim()
+                                  .charAt(0) || "A"}
                               </div>
-                              <div className="event-footer-quota">
+                              <div className="bootcamp-instructor-text">
+                                <strong>{event.instructor}</strong>
+                                <small>
+                                  {event.instructorRole ||
+                                    "Instruktur & Asesor Resmi"}
+                                </small>
+                              </div>
+                            </div>
+
+                            {/* Quota Progress Bar */}
+                            <div className="bootcamp-quota-box">
+                              <div className="bootcamp-quota-labels">
+                                <span>
+                                  Kuota: <strong>{event.enrolled}</strong> /{" "}
+                                  {event.capacity} Terdaftar
+                                </span>
                                 <span
-                                  className={`quota-chip ${remainingQuota < 20 ? "urgent" : ""}`}
+                                  className={`bootcamp-quota-pct ${remainingQuota < 20 ? "urgent" : ""}`}
                                 >
-                                  {remainingQuota < 20
-                                    ? `Sisa ${remainingQuota} Kursi`
-                                    : `${remainingQuota} Kursi Tersedia`}
+                                  {Math.round(
+                                    (event.enrolled / event.capacity) * 100,
+                                  )}
+                                  %
                                 </span>
                               </div>
+                              <div className="bootcamp-quota-track">
+                                <div
+                                  className={`bootcamp-quota-bar ${remainingQuota < 20 ? "urgent" : ""}`}
+                                  style={{
+                                    width: `${Math.min(100, Math.round((event.enrolled / event.capacity) * 100))}%`,
+                                  }}
+                                />
+                              </div>
                             </div>
 
-                            <Link
-                              href={`/events/${event.slug}`}
-                              className="btn-event-action-full"
-                            >
-                              <span>Lihat Detail Agenda</span>
-                              <ArrowRight size={14} />
-                            </Link>
+                            {/* Card Footer: Price & CTA */}
+                            <div className="bootcamp-card-footer">
+                              <div className="bootcamp-price-block">
+                                <small>Biaya Investasi:</small>
+                                <strong>{event.fee}</strong>
+                              </div>
+
+                              <Link
+                                href={`/events/${event.slug}`}
+                                className="bootcamp-cta-btn"
+                              >
+                                <span>Daftar Kelas</span>
+                                <ArrowRight size={14} />
+                              </Link>
+                            </div>
                           </div>
                         </article>
                       );

@@ -5,7 +5,7 @@ import { useState } from "react";
 
 interface SmartImageProps
   extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src"> {
-  src?: string | null;
+  src?: string | null | undefined;
   fallbackType?: "news" | "event" | "doc" | "tech";
   aspectRatio?: "16/9" | "4/3" | "1/1" | "auto";
   compact?: boolean;
