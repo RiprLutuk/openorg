@@ -3,34 +3,23 @@
 import {
   ArrowRight,
   Award,
-  BadgeCheck,
-  Boxes,
   Building2,
   Check,
   CheckCircle2,
-  Clock,
   Compass,
   Copy,
-  ExternalLink,
   Factory,
-  FileCheck2,
-  Lock,
-  MapPin,
-  MessageSquare,
   Phone,
   Printer,
-  QrCode,
   Search,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
-  Star,
   Users,
-  Wrench,
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export type CredentialType = "all" | "kta" | "bnsp" | "club" | "partner";
 
@@ -262,342 +251,326 @@ export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
   };
 
   return (
-    <section className="section-space home-verifier-section">
-      <div className="wrap">
-        <div className="verifier-box-card">
-          {/* Header */}
-          <div className="verifier-header">
-            <div className="verifier-badge">
-              <ShieldCheck size={16} />
-              <span>COMPLYFLOW · ZERO-TRUST PUBLIC REGISTRY</span>
-            </div>
-            <h2>Pusat Verifikasi Kredensial & KTA Digital</h2>
-            <p>
-              Audit instan keaslian nomor KTA teknisi AC, sertifikat kompetensi
-              BNSP, kode TKT klub bengkel, serta nomor SK kemitraan resmi{" "}
-              {orgName}.
-            </p>
-          </div>
-
-          {/* Category Filter Pills */}
-          <div className="verifier-category-tabs">
-            <button
-              type="button"
-              className={`verifier-tab-btn ${activeType === "all" ? "active" : ""}`}
-              onClick={() => setActiveType("all")}
-            >
-              <Sparkles size={14} />
-              <span>Semua Kredensial</span>
-            </button>
-            <button
-              type="button"
-              className={`verifier-tab-btn ${activeType === "kta" ? "active" : ""}`}
-              onClick={() => setActiveType("kta")}
-            >
-              <Users size={14} />
-              <span>KTA Teknisi AC</span>
-            </button>
-            <button
-              type="button"
-              className={`verifier-tab-btn ${activeType === "bnsp" ? "active" : ""}`}
-              onClick={() => setActiveType("bnsp")}
-            >
-              <Award size={14} />
-              <span>Sertifikat BNSP / LSP</span>
-            </button>
-            <button
-              type="button"
-              className={`verifier-tab-btn ${activeType === "club" ? "active" : ""}`}
-              onClick={() => setActiveType("club")}
-            >
-              <Compass size={14} />
-              <span>Klub & Komunitas (TKT)</span>
-            </button>
-            <button
-              type="button"
-              className={`verifier-tab-btn ${activeType === "partner" ? "active" : ""}`}
-              onClick={() => setActiveType("partner")}
-            >
-              <Building2 size={14} />
-              <span>Mitra & Distributor (SK)</span>
-            </button>
-          </div>
-
-          {/* Search Bar */}
-          <div className="verifier-search-bar">
-            <div className="verifier-input-container">
-              <Search size={18} className="verifier-search-icon" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={
-                  activeType === "kta"
-                    ? "Masukkan No. KTA (misal: APTI-2026-0004)..."
-                    : activeType === "bnsp"
-                      ? "Masukkan No. Sertifikat (misal: BNSP-HVAC-9081)..."
-                      : activeType === "club"
-                        ? "Masukkan Kode TKT (misal: TKT-DPD-DKI-001)..."
-                        : activeType === "partner"
-                          ? "Masukkan No. SK (misal: SK-MITRA-DPP-001)..."
-                          : "Masukkan Nomor KTA, BNSP, TKT, atau SK Kemitraan..."
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSearch();
-                }}
-              />
-              {query && (
-                <button
-                  type="button"
-                  className="search-clear-btn"
-                  onClick={() => {
-                    setQuery("");
-                    setResult({ status: "idle" });
-                  }}
-                  aria-label="Bersihkan pencarian"
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-            <button
-              type="button"
-              className="btn-verifier-submit"
-              onClick={() => handleSearch()}
-              disabled={result.status === "loading"}
-            >
-              {result.status === "loading"
-                ? "Memeriksa…"
-                : "Verifikasi Sekarang"}
-            </button>
-          </div>
-
-          {/* Quick Sample Badges */}
-          <div className="verifier-quick-samples">
-            <small>Coba kode sampel:</small>
-            <button
-              type="button"
-              className="quick-sample-chip"
-              onClick={() => {
-                setQuery("APTI-2026-0004");
-                handleSearch("APTI-2026-0004");
-              }}
-            >
-              APTI-2026-0004 (Teknisi VRV)
-            </button>
-            <button
-              type="button"
-              className="quick-sample-chip"
-              onClick={() => {
-                setQuery("APTI-2026-0005");
-                handleSearch("APTI-2026-0005");
-              }}
-            >
-              APTI-2026-0005 (Teknisi Split)
-            </button>
-            <button
-              type="button"
-              className="quick-sample-chip"
-              onClick={() => {
-                setQuery("BNSP-HVAC-9081");
-                handleSearch("BNSP-HVAC-9081");
-              }}
-            >
-              BNSP-HVAC-9081 (Sertifikat)
-            </button>
-            <button
-              type="button"
-              className="quick-sample-chip"
-              onClick={() => {
-                setQuery("TKT-DPD-DKI-001");
-                handleSearch("TKT-DPD-DKI-001");
-              }}
-            >
-              TKT-DPD-DKI-001 (Klub TKT)
-            </button>
-            <button
-              type="button"
-              className="quick-sample-chip"
-              onClick={() => {
-                setQuery("SK-MITRA-DPP-001");
-                handleSearch("SK-MITRA-DPP-001");
-              }}
-            >
-              SK-MITRA-DPP-001 (Prinsipal)
-            </button>
-          </div>
-
-          {/* Result Area: Verified Official Dossier */}
-          {result.status === "found" && result.data && (
-            <div className="verifier-dossier-card slide-in-up">
-              {/* Header */}
-              <div className="verifier-dossier-header">
-                <div className="verifier-profile-wrap">
-                  <div className="verifier-profile-avatar">
-                    {result.data.type === "kta" ? (
-                      <Users size={26} />
-                    ) : result.data.type === "bnsp" ? (
-                      <Award size={26} />
-                    ) : result.data.type === "club" ? (
-                      <Compass size={26} />
-                    ) : (
-                      <Factory size={26} />
-                    )}
-                  </div>
-                  <div className="verifier-profile-copy">
-                    <h3>{result.data.name}</h3>
-                    {result.data.entityName && <p>{result.data.entityName}</p>}
-                    <p style={{ color: "#0284c7", fontWeight: 700 }}>
-                      {result.data.schemeOrCategory}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="verifier-stamp-seal">
-                  <CheckCircle2 size={15} color="#16a34a" />
-                  <span>{result.data.status}</span>
-                </div>
-              </div>
-
-              {/* Data Grid */}
-              <div className="verifier-dossier-grid">
-                <div className="verifier-dossier-item">
-                  <small>Nomor Kredensial Resmi</small>
-                  <strong className="code-text">{result.data.code}</strong>
-                </div>
-
-                <div className="verifier-dossier-item">
-                  <small>Wilayah / Afiliasi</small>
-                  <strong>{result.data.region}</strong>
-                </div>
-
-                {result.data.workshopOrOrg && (
-                  <div className="verifier-dossier-item">
-                    <small>Bengkel / Lembaga Induk</small>
-                    <strong>{result.data.workshopOrOrg}</strong>
-                  </div>
-                )}
-
-                <div className="verifier-dossier-item">
-                  <small>Lembaga Penerbit (Issuer)</small>
-                  <strong>{result.data.issuer}</strong>
-                </div>
-
-                <div className="verifier-dossier-item">
-                  <small>Standar Kualifikasi</small>
-                  <strong style={{ color: "#16a34a" }}>
-                    {result.data.trustLevel}
-                  </strong>
-                </div>
-
-                <div className="verifier-dossier-item">
-                  <small>Masa Berlaku Kredensial</small>
-                  <strong>s.d. {result.data.expiryDate}</strong>
-                </div>
-              </div>
-
-              {/* Action Bar */}
-              <div className="verifier-dossier-actions">
-                <div className="verifier-action-group">
-                  <button
-                    type="button"
-                    className="verifier-action-btn secondary"
-                    onClick={() => handleCopy(result.data!.code)}
-                    title="Salin nomor kredensial"
-                  >
-                    {copiedCode === result.data.code ? (
-                      <Check size={14} color="#16a34a" />
-                    ) : (
-                      <Copy size={14} />
-                    )}
-                    <span>
-                      {copiedCode === result.data.code
-                        ? "Nomor Tersalin!"
-                        : "Salin No. KTA"}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="verifier-action-btn secondary"
-                    onClick={handlePrint}
-                    title="Cetak lembar verifikasi sah"
-                  >
-                    <Printer size={14} />
-                    <span>Cetak Bukti</span>
-                  </button>
-                </div>
-
-                <div className="verifier-action-group">
-                  {result.data.phone && (
-                    <a
-                      href={`https://wa.me/${result.data.phone}?text=${encodeURIComponent(
-                        `Halo ${result.data.name}, saya melihat profil kredensial terverifikasi Anda (${result.data.code}) di portal resmi ${orgName}.`,
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="verifier-action-btn wa"
-                    >
-                      <Phone size={14} />
-                      <span>Hubungi WhatsApp</span>
-                    </a>
-                  )}
-
-                  {result.data.directoryHref && (
-                    <Link
-                      href={result.data.directoryHref}
-                      className="verifier-action-btn primary"
-                    >
-                      <span>Lihat di Direktori</span>
-                      <ArrowRight size={14} />
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Result Area: Not Found */}
-          {result.status === "not_found" && (
-            <div className="verifier-not-found slide-in-up">
-              <ShieldAlert
-                size={36}
-                color="#ef4444"
-                style={{ margin: "0 auto 8px" }}
-              />
-              <h4>Nomor Kredensial Tidak Ditemukan</h4>
-              <p>
-                Nomor KTA atau sertifikat yang Anda masukkan tidak tercatat
-                dalam buku besar aktif {orgName}. Mohon periksa kembali ejaan
-                format nomor atau laporkan indikasi penyalahgunaan jika
-                diperlukan.
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: "10px",
-                }}
-              >
-                <Link
-                  href="/complaints"
-                  className="button secondary"
-                  style={{ fontSize: "12px", height: "34px" }}
-                >
-                  Lapor Pelanggaran Etik
-                </Link>
-                <Link
-                  href="/join"
-                  className="button primary"
-                  style={{ fontSize: "12px", height: "34px" }}
-                >
-                  Daftar KTA Resmi
-                </Link>
-              </div>
-            </div>
-          )}
+    <div className="verifier-console-card">
+      {/* Category Filter Pills (Horizontal swipe on mobile, segmented pills on desktop) */}
+      <div className="verifier-category-tabs-wrap">
+        <div className="verifier-category-tabs">
+          <button
+            type="button"
+            className={`verifier-tab-btn ${activeType === "all" ? "active" : ""}`}
+            onClick={() => setActiveType("all")}
+          >
+            <Sparkles size={14} />
+            <span>Semua Kredensial</span>
+          </button>
+          <button
+            type="button"
+            className={`verifier-tab-btn ${activeType === "kta" ? "active" : ""}`}
+            onClick={() => setActiveType("kta")}
+          >
+            <Users size={14} />
+            <span>KTA Teknisi AC</span>
+          </button>
+          <button
+            type="button"
+            className={`verifier-tab-btn ${activeType === "bnsp" ? "active" : ""}`}
+            onClick={() => setActiveType("bnsp")}
+          >
+            <Award size={14} />
+            <span>Sertifikat BNSP / LSP</span>
+          </button>
+          <button
+            type="button"
+            className={`verifier-tab-btn ${activeType === "club" ? "active" : ""}`}
+            onClick={() => setActiveType("club")}
+          >
+            <Compass size={14} />
+            <span>Klub & Komunitas (TKT)</span>
+          </button>
+          <button
+            type="button"
+            className={`verifier-tab-btn ${activeType === "partner" ? "active" : ""}`}
+            onClick={() => setActiveType("partner")}
+          >
+            <Building2 size={14} />
+            <span>Mitra & Distributor (SK)</span>
+          </button>
         </div>
       </div>
-    </section>
+
+      {/* Search Bar */}
+      <div className="verifier-search-bar">
+        <div className="verifier-input-container">
+          <Search size={18} className="verifier-search-icon" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={
+              activeType === "kta"
+                ? "Masukkan No. KTA (misal: APTI-2026-0004)..."
+                : activeType === "bnsp"
+                  ? "Masukkan No. Sertifikat (misal: BNSP-HVAC-9081)..."
+                  : activeType === "club"
+                    ? "Masukkan Kode TKT (misal: TKT-DPD-DKI-001)..."
+                    : activeType === "partner"
+                      ? "Masukkan No. SK (misal: SK-MITRA-DPP-001)..."
+                      : "Masukkan Nomor KTA, BNSP, TKT, atau SK Kemitraan..."
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
+          />
+          {query && (
+            <button
+              type="button"
+              className="search-clear-btn"
+              onClick={() => {
+                setQuery("");
+                setResult({ status: "idle" });
+              }}
+              aria-label="Bersihkan pencarian"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+        <button
+          type="button"
+          className="btn-verifier-submit"
+          onClick={() => handleSearch()}
+          disabled={result.status === "loading"}
+        >
+          {result.status === "loading" ? "Memeriksa…" : "Verifikasi Sekarang"}
+        </button>
+      </div>
+
+      {/* Quick Sample Badges */}
+      <div className="verifier-quick-samples">
+        <small className="sample-label">Coba nomor sampel:</small>
+        <div className="verifier-sample-pills">
+          <button
+            type="button"
+            className="quick-sample-chip"
+            onClick={() => {
+              setQuery("APTI-2026-0004");
+              handleSearch("APTI-2026-0004");
+            }}
+          >
+            APTI-2026-0004 (Teknisi VRV)
+          </button>
+          <button
+            type="button"
+            className="quick-sample-chip"
+            onClick={() => {
+              setQuery("APTI-2026-0005");
+              handleSearch("APTI-2026-0005");
+            }}
+          >
+            APTI-2026-0005 (Teknisi Split)
+          </button>
+          <button
+            type="button"
+            className="quick-sample-chip"
+            onClick={() => {
+              setQuery("BNSP-HVAC-9081");
+              handleSearch("BNSP-HVAC-9081");
+            }}
+          >
+            BNSP-HVAC-9081 (Sertifikat)
+          </button>
+          <button
+            type="button"
+            className="quick-sample-chip"
+            onClick={() => {
+              setQuery("TKT-DPD-DKI-001");
+              handleSearch("TKT-DPD-DKI-001");
+            }}
+          >
+            TKT-DPD-DKI-001 (Klub TKT)
+          </button>
+          <button
+            type="button"
+            className="quick-sample-chip"
+            onClick={() => {
+              setQuery("SK-MITRA-DPP-001");
+              handleSearch("SK-MITRA-DPP-001");
+            }}
+          >
+            SK-MITRA-DPP-001 (Prinsipal)
+          </button>
+        </div>
+      </div>
+
+      {/* Result Area: Verified Official Dossier */}
+      {result.status === "found" && result.data && (
+        <div className="verifier-dossier-card slide-in-up">
+          {/* Header */}
+          <div className="verifier-dossier-header">
+            <div className="verifier-profile-wrap">
+              <div className="verifier-profile-avatar">
+                {result.data.type === "kta" ? (
+                  <Users size={26} />
+                ) : result.data.type === "bnsp" ? (
+                  <Award size={26} />
+                ) : result.data.type === "club" ? (
+                  <Compass size={26} />
+                ) : (
+                  <Factory size={26} />
+                )}
+              </div>
+              <div className="verifier-profile-copy">
+                <h3>{result.data.name}</h3>
+                {result.data.entityName && <p>{result.data.entityName}</p>}
+                <p className="scheme-highlight">
+                  {result.data.schemeOrCategory}
+                </p>
+              </div>
+            </div>
+
+            <div className="verifier-stamp-seal">
+              <CheckCircle2 size={15} color="#16a34a" />
+              <span>{result.data.status}</span>
+            </div>
+          </div>
+
+          {/* Data Grid */}
+          <div className="verifier-dossier-grid">
+            <div className="verifier-dossier-item">
+              <small>Nomor Kredensial Resmi</small>
+              <strong className="code-text">{result.data.code}</strong>
+            </div>
+
+            <div className="verifier-dossier-item">
+              <small>Wilayah / Afiliasi</small>
+              <strong>{result.data.region}</strong>
+            </div>
+
+            {result.data.workshopOrOrg && (
+              <div className="verifier-dossier-item">
+                <small>Bengkel / Lembaga Induk</small>
+                <strong>{result.data.workshopOrOrg}</strong>
+              </div>
+            )}
+
+            <div className="verifier-dossier-item">
+              <small>Lembaga Penerbit (Issuer)</small>
+              <strong>{result.data.issuer}</strong>
+            </div>
+
+            <div className="verifier-dossier-item">
+              <small>Standar Kualifikasi</small>
+              <strong className="trust-highlight">
+                {result.data.trustLevel}
+              </strong>
+            </div>
+
+            <div className="verifier-dossier-item">
+              <small>Masa Berlaku Kredensial</small>
+              <strong>s.d. {result.data.expiryDate}</strong>
+            </div>
+          </div>
+
+          {/* Action Bar */}
+          <div className="verifier-dossier-actions">
+            <div className="verifier-action-group">
+              <button
+                type="button"
+                className="verifier-action-btn secondary"
+                onClick={() => handleCopy(result.data!.code)}
+                title="Salin nomor kredensial"
+              >
+                {copiedCode === result.data.code ? (
+                  <Check size={14} color="#16a34a" />
+                ) : (
+                  <Copy size={14} />
+                )}
+                <span>
+                  {copiedCode === result.data.code
+                    ? "Nomor Tersalin!"
+                    : "Salin No. KTA"}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className="verifier-action-btn secondary"
+                onClick={handlePrint}
+                title="Cetak lembar verifikasi sah"
+              >
+                <Printer size={14} />
+                <span>Cetak Bukti</span>
+              </button>
+            </div>
+
+            <div className="verifier-action-group">
+              {result.data.phone && (
+                <a
+                  href={`https://wa.me/${result.data.phone}?text=${encodeURIComponent(
+                    `Halo ${result.data.name}, saya melihat profil kredensial terverifikasi Anda (${result.data.code}) di portal resmi ${orgName}.`,
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="verifier-action-btn wa"
+                >
+                  <Phone size={14} />
+                  <span>Hubungi WhatsApp</span>
+                </a>
+              )}
+
+              {result.data.directoryHref && (
+                <Link
+                  href={result.data.directoryHref}
+                  className="verifier-action-btn primary"
+                >
+                  <span>Lihat di Direktori</span>
+                  <ArrowRight size={14} />
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Result Area: Not Found */}
+      {result.status === "not_found" && (
+        <div className="verifier-not-found slide-in-up">
+          <ShieldAlert
+            size={36}
+            color="#ef4444"
+            style={{ margin: "0 auto 8px" }}
+          />
+          <h4>Nomor Kredensial Tidak Ditemukan</h4>
+          <p>
+            Nomor KTA atau sertifikat yang Anda masukkan tidak tercatat dalam
+            buku besar aktif {orgName}. Mohon periksa kembali ejaan format nomor
+            atau laporkan indikasi penyalahgunaan jika diperlukan.
+          </p>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "10px",
+              flexWrap: "wrap",
+            }}
+          >
+            <Link
+              href="/complaints"
+              className="button secondary"
+              style={{ fontSize: "12px", height: "36px" }}
+            >
+              Lapor Pelanggaran Etik
+            </Link>
+            <Link
+              href="/join"
+              className="button primary"
+              style={{ fontSize: "12px", height: "36px" }}
+            >
+              Daftar KTA Resmi
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
