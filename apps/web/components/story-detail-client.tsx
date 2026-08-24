@@ -137,7 +137,7 @@ function SocialShareSuite({
     <div className={`social-share-suite-wrap ${variant}`}>
       <span className="share-suite-label">
         <Share2 size={13} />
-        <span>Bagikan Warta:</span>
+        <span>Bagikan:</span>
       </span>
 
       <div className="share-buttons-flow">
@@ -147,25 +147,25 @@ function SocialShareSuite({
             href={ch.url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`share-pill-btn ${ch.className}`}
+            className={`share-icon-circle-btn ${ch.className}`}
             title={`Bagikan ke ${ch.name}`}
             aria-label={`Bagikan ke ${ch.name}`}
           >
             {ch.icon}
-            <span className="share-btn-text">{ch.name}</span>
           </a>
         ))}
 
         <button
           type="button"
           onClick={handleCopy}
-          className={`share-pill-btn share-btn-copy ${copied ? "copied" : ""}`}
-          title="Salin Tautan Artikel"
+          className={`share-icon-circle-btn share-btn-copy ${copied ? "copied" : ""}`}
+          title={copied ? "Tautan Berhasil Disalin!" : "Salin Tautan Artikel"}
           aria-label="Salin Tautan Artikel"
         >
           {copied ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
-          <span>{copied ? "Tersalin!" : "Salin Link"}</span>
         </button>
+
+        {copied && <span className="copy-toast-inline">Tautan tersalin!</span>}
       </div>
     </div>
   );

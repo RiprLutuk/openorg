@@ -18102,18 +18102,17 @@ img {
 .share-buttons-flow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   flex-wrap: wrap;
 }
 
-.share-pill-btn {
+.share-icon-circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 11px;
-  border-radius: 8px;
-  font-size: 11.5px;
-  font-weight: 700;
+  justify-content: center;
   text-decoration: none;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -18123,15 +18122,21 @@ img {
   user-select: none;
 }
 
-.share-pill-btn:hover {
-  transform: translateY(-1px);
+.share-icon-circle-btn:hover {
+  transform: translateY(-2px);
 }
 
-.share-btn-text {
-  line-height: 1;
+.copy-toast-inline {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4ade80;
+  background: rgba(22, 163, 74, 0.2);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  padding: 4px 9px;
+  border-radius: 6px;
 }
 
-/* Individual Brand Styling */
+/* Individual Brand Styling (Hero Dark Background) */
 .share-btn-wa {
   background: rgba(37, 211, 102, 0.15);
   border-color: rgba(37, 211, 102, 0.35);
@@ -18141,7 +18146,7 @@ img {
   background: #25d366;
   border-color: #25d366;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.35);
+  box-shadow: 0 3px 10px rgba(37, 211, 102, 0.4);
 }
 
 .share-btn-threads {
@@ -18153,7 +18158,7 @@ img {
   background: #000000;
   border-color: #334155;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
 }
 
 .share-btn-x {
@@ -18165,7 +18170,7 @@ img {
   background: #0f172a;
   border-color: #334155;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
 .share-btn-telegram {
@@ -18177,7 +18182,7 @@ img {
   background: #0088cc;
   border-color: #0088cc;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 136, 204, 0.35);
+  box-shadow: 0 3px 10px rgba(0, 136, 204, 0.4);
 }
 
 .share-btn-linkedin {
@@ -18189,7 +18194,7 @@ img {
   background: #0a66c2;
   border-color: #0a66c2;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(10, 102, 194, 0.35);
+  box-shadow: 0 3px 10px rgba(10, 102, 194, 0.4);
 }
 
 .share-btn-fb {
@@ -18201,7 +18206,7 @@ img {
   background: #1877f2;
   border-color: #1877f2;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(24, 119, 242, 0.35);
+  box-shadow: 0 3px 10px rgba(24, 119, 242, 0.4);
 }
 
 .share-btn-copy {
@@ -18210,7 +18215,7 @@ img {
   color: #ffffff;
 }
 .share-btn-copy:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.18);
 }
 .share-btn-copy.copied {
   background: rgba(22, 163, 74, 0.25);
@@ -18218,7 +18223,7 @@ img {
   color: #4ade80;
 }
 
-/* Article Footer Social Share Card */
+/* Article Footer Social Share Card (Light Background) */
 .story-bottom-share-box {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -18243,21 +18248,21 @@ img {
   line-height: 1.5;
 }
 
-.social-share-suite-wrap.article-footer .share-pill-btn {
-  border-color: #cbd5e1;
+.social-share-suite-wrap.article-footer .share-icon-circle-btn {
+  border-color: #e2e8f0;
   background: #f8fafc;
-  color: #334155;
-  font-size: 12px;
-  padding: 7px 13px;
+  color: #475569;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .social-share-suite-wrap.article-footer .share-btn-wa {
   background: #f0fdf4;
   border-color: #86efac;
-  color: #15803d;
+  color: #16a34a;
 }
 .social-share-suite-wrap.article-footer .share-btn-wa:hover {
   background: #25d366;
+  border-color: #25d366;
   color: #ffffff;
 }
 
@@ -18268,6 +18273,7 @@ img {
 }
 .social-share-suite-wrap.article-footer .share-btn-threads:hover {
   background: #000000;
+  border-color: #000000;
   color: #ffffff;
 }
 
@@ -18278,16 +18284,18 @@ img {
 }
 .social-share-suite-wrap.article-footer .share-btn-x:hover {
   background: #0f172a;
+  border-color: #0f172a;
   color: #ffffff;
 }
 
 .social-share-suite-wrap.article-footer .share-btn-telegram {
   background: #f0f9ff;
   border-color: #7dd3fc;
-  color: #0369a1;
+  color: #0284c7;
 }
 .social-share-suite-wrap.article-footer .share-btn-telegram:hover {
   background: #0088cc;
+  border-color: #0088cc;
   color: #ffffff;
 }
 
@@ -18298,6 +18306,7 @@ img {
 }
 .social-share-suite-wrap.article-footer .share-btn-linkedin:hover {
   background: #0a66c2;
+  border-color: #0a66c2;
   color: #ffffff;
 }
 
@@ -18308,20 +18317,28 @@ img {
 }
 .social-share-suite-wrap.article-footer .share-btn-fb:hover {
   background: #1877f2;
+  border-color: #1877f2;
   color: #ffffff;
 }
 
 .social-share-suite-wrap.article-footer .share-btn-copy {
   background: #f8fafc;
   border-color: #cbd5e1;
-  color: #334155;
+  color: #475569;
 }
 .social-share-suite-wrap.article-footer .share-btn-copy:hover {
   background: #f1f5f9;
   border-color: #94a3b8;
+  color: #0f172a;
 }
 .social-share-suite-wrap.article-footer .share-btn-copy.copied {
   background: #f0fdf4;
   border-color: #86efac;
   color: #15803d;
+}
+
+.social-share-suite-wrap.article-footer .copy-toast-inline {
+  color: #15803d;
+  background: #f0fdf4;
+  border-color: #86efac;
 }
