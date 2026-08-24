@@ -17975,3 +17975,106 @@ img {
   border-color: #0284c7;
   box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
 }
+
+/* Smart Image Fallback Suite */
+.smart-fallback-container {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.fallback-news {
+  background: radial-gradient(
+    circle at 70% 30%,
+    #e0f2fe 0%,
+    #f0f9ff 50%,
+    #f8fafc 100%
+  );
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.fallback-event {
+  background: radial-gradient(
+    circle at 70% 30%,
+    #ecfdf5 0%,
+    #f0fdf4 50%,
+    #f8fafc 100%
+  );
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.fallback-tech {
+  background: radial-gradient(
+    circle at 70% 30%,
+    #ede9fe 0%,
+    #f5f3ff 50%,
+    #f8fafc 100%
+  );
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.fallback-doc {
+  background: radial-gradient(
+    circle at 70% 30%,
+    #fef3c7 0%,
+    #fffbeb 50%,
+    #f8fafc 100%
+  );
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.fallback-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 16px;
+  text-align: center;
+  z-index: 2;
+}
+
+.fallback-icon-pill {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.fallback-news .fallback-icon-pill {
+  color: #0284c7;
+}
+.fallback-event .fallback-icon-pill {
+  color: #16a34a;
+}
+.fallback-tech .fallback-icon-pill {
+  color: #7c3aed;
+}
+.fallback-doc .fallback-icon-pill {
+  color: #d97706;
+}
+
+.fallback-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+  letter-spacing: -0.01em;
+}
+
+.fallback-sub {
+  font-size: 10px;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}

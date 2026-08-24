@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { PublicContactForm } from "@/components/public-form";
+import { SmartImage } from "@/components/smart-image";
 import { getContents, getEvents } from "@/lib/api";
 
 export function SectionRenderer({
@@ -347,11 +348,11 @@ async function ContentFeed({
         <div className="story-grid">
           {items.map((item) => (
             <article className="story-card" key={item.id}>
-              {item.coverUrl ? (
-                <img src={item.coverUrl} alt="" />
-              ) : (
-                <div className="story-fallback" />
-              )}
+              <SmartImage
+                src={item.coverUrl}
+                alt={item.title}
+                fallbackType={item.type === "post" ? "tech" : "news"}
+              />
               <div>
                 <span className="card-meta">
                   {item.type} ·{" "}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { HomeCtaBanner } from "@/components/home-cta-banner";
 import { HomeHeroInteractive } from "@/components/home-hero-interactive";
 import { InteractiveBentoServices } from "@/components/interactive-bento-services";
+import { SmartImage } from "@/components/smart-image";
 import { getContents, getEvents, getSite, getStructure } from "@/lib/api";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -117,13 +118,13 @@ export default async function HomePage() {
             <div className="story-grid-refined">
               {stories.map((story) => (
                 <article className="story-card-refined" key={story.id}>
-                  {story.coverUrl ? (
-                    <div className="story-cover-wrap">
-                      <img src={story.coverUrl} alt="" />
-                    </div>
-                  ) : (
-                    <div className="story-cover-fallback" />
-                  )}
+                  <div className="story-cover-wrap">
+                    <SmartImage
+                      src={story.coverUrl}
+                      alt={story.title}
+                      fallbackType="news"
+                    />
+                  </div>
                   <div className="story-card-body">
                     <span className="story-date-chip">
                       {new Date(

@@ -29,6 +29,7 @@ import {
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { SmartImage } from "@/components/smart-image";
 import type { ContentItem } from "@/lib/api";
 
 interface Props {
@@ -235,13 +236,11 @@ export function StoriesDirectoryClient({ items, site }: Props) {
           <div className="wrap">
             <div className="featured-headline-card">
               <div className="featured-cover-box">
-                <img
-                  src={
-                    featuredStory.coverUrl ??
-                    "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80"
-                  }
+                <SmartImage
+                  src={featuredStory.coverUrl}
                   alt={featuredStory.title}
                   className="featured-img"
+                  fallbackType={featuredStory.type === "post" ? "tech" : "news"}
                 />
                 <div className="featured-overlay-badge">
                   <Flame size={14} color="#f59e0b" />
@@ -349,13 +348,11 @@ export function StoriesDirectoryClient({ items, site }: Props) {
                         href={`/stories/${item.slug}`}
                         className="story-card-cover-link"
                       >
-                        <img
-                          src={
-                            item.coverUrl ??
-                            "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80"
-                          }
+                        <SmartImage
+                          src={item.coverUrl}
                           alt={item.title}
                           className="story-thumb-img"
+                          fallbackType={item.type === "post" ? "tech" : "news"}
                         />
                         <span className="story-thumb-badge">
                           {item.type === "news"

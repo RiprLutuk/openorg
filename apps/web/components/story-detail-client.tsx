@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { SmartImage } from "@/components/smart-image";
 import type { ContentItem } from "@/lib/api";
 
 interface Props {
@@ -142,20 +143,19 @@ export function StoryDetailClient({ item, relatedItems, site }: Props) {
           {/* Main Prose Column (70%) */}
           <div className="story-main-article-col">
             {/* Featured Image Cover */}
-            {item.coverUrl && (
-              <div className="story-featured-cover-wrap">
-                <img
-                  src={item.coverUrl}
-                  alt={item.title}
-                  className="story-main-cover-img"
-                />
-                <div className="cover-caption-strip">
-                  <span>
-                    Dokumentasi Resmi Publikasi Media & Humas APTI Indonesia
-                  </span>
-                </div>
+            <div className="story-featured-cover-wrap">
+              <SmartImage
+                src={item.coverUrl}
+                alt={item.title}
+                className="story-main-cover-img"
+                fallbackType={item.type === "post" ? "tech" : "news"}
+              />
+              <div className="cover-caption-strip">
+                <span>
+                  Dokumentasi Resmi Publikasi Media & Humas APTI Indonesia
+                </span>
               </div>
-            )}
+            </div>
 
             {/* Key Takeaways Callout Box */}
             <div className="story-takeaways-box">
@@ -238,13 +238,13 @@ export function StoryDetailClient({ item, relatedItems, site }: Props) {
                     href={`/stories/${rel.slug}`}
                     className="related-story-mini-card"
                   >
-                    {rel.coverUrl && (
-                      <img
-                        src={rel.coverUrl}
-                        alt={rel.title}
-                        className="rel-mini-thumb"
-                      />
-                    )}
+                    <SmartImage
+                      src={rel.coverUrl}
+                      alt={rel.title}
+                      className="rel-mini-thumb"
+                      fallbackType={rel.type === "post" ? "tech" : "news"}
+                      aspectRatio="1/1"
+                    />
                     <div className="rel-mini-info">
                       <span className="rel-mini-date">
                         {new Date(
