@@ -34,8 +34,8 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { useMemberAuth } from "@/lib/use-member-auth";
 
 function getNavIcon(href: string) {
@@ -43,37 +43,31 @@ function getNavIcon(href: string) {
   if (href.includes("organization") || href.includes("profile"))
     return Building2;
   if (href.includes("vision")) return Sparkles;
-  if (href.includes("regulation") || href.includes("ad-art")) return FileText;
-  if (href.includes("technician")) return Users;
-  if (
-    href.includes("partner") ||
-    href.includes("lender") ||
-    href.includes("mitra") ||
-    href.includes("distributor")
-  )
-    return Handshake;
-  if (href.includes("club")) return Compass;
+  if (href.includes("ad-art")) return BookOpen;
+  if (href.includes("technicians")) return Users;
+  if (href.includes("clubs")) return Compass;
   if (href.includes("verify")) return ShieldCheck;
+  if (href.includes("partners") || href.includes("lenders")) return Handshake;
+  if (href.includes("working-groups")) return Briefcase;
+  if (href.includes("surat-edaran") || href.includes("se_organisasi"))
+    return FileText;
+  if (
+    href.includes("regulations") ||
+    href.includes("regulasi") ||
+    href.includes("policy")
+  )
+    return Landmark;
+  if (href.includes("statistics")) return BarChart3;
+  if (href.includes("calculator")) return Calculator;
+  if (href.includes("complaints")) return ShieldAlert;
+  if (href.includes("events")) return CalendarDays;
+  if (href.includes("championships")) return Trophy;
   if (href.includes("join")) return UserPlus;
   if (href.includes("member")) return LogIn;
-  if (href.includes("working-groups") || href.includes("pokja"))
-    return Briefcase;
-  if (href.includes("stat")) return BarChart3;
-  if (
-    href.includes("calc") ||
-    href.includes("calculator") ||
-    href.includes("whois")
-  )
-    return Calculator;
-  if (href.includes("whois")) return Globe;
-  if (href.includes("complaint")) return ShieldAlert;
-  if (href.includes("event")) return CalendarDays;
-  if (href.includes("champion") || href.includes("contest")) return Trophy;
-  if (href.includes("storie") || href.includes("berita")) return BookOpen;
-  return ArrowRight;
+  return Globe;
 }
 
-function InstagramIcon({ size = 13 }: { size?: number }) {
+function InstagramIcon({ size = 16 }: { size?: number }) {
   return (
     <svg
       width={size}
@@ -84,9 +78,7 @@ function InstagramIcon({ size = 13 }: { size?: number }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      aria-label="Instagram"
     >
-      <title>Instagram</title>
       <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
       <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
@@ -94,7 +86,7 @@ function InstagramIcon({ size = 13 }: { size?: number }) {
   );
 }
 
-function FacebookIcon({ size = 13 }: { size?: number }) {
+function FacebookIcon({ size = 16 }: { size?: number }) {
   return (
     <svg
       width={size}
@@ -105,15 +97,13 @@ function FacebookIcon({ size = 13 }: { size?: number }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      aria-label="Facebook"
     >
-      <title>Facebook</title>
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
     </svg>
   );
 }
 
-function LinkedinIcon({ size = 13 }: { size?: number }) {
+function LinkedinIcon({ size = 16 }: { size?: number }) {
   return (
     <svg
       width={size}
@@ -124,9 +114,7 @@ function LinkedinIcon({ size = 13 }: { size?: number }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      aria-label="LinkedIn"
     >
-      <title>LinkedIn</title>
       <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
       <rect width="4" height="12" x="2" y="9" />
       <circle cx="4" cy="4" r="2" />
@@ -135,21 +123,64 @@ function LinkedinIcon({ size = 13 }: { size?: number }) {
 }
 
 export function Header({ site }: { site: PublicSite }) {
+  return (
+    <Suspense
+      fallback={
+        <header className="site-header">
+          <div className="wrap header-inner">
+            <Link className="site-brand" href="/">
+              <strong>{site.organization.name}</strong>
+            </Link>
+          </div>
+        </header>
+      }
+    >
+      <HeaderContent site={site} />
+    </Suspense>
+  );
+}
+
+function HeaderContent({ site }: { site: PublicSite }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isLoggedIn, member } = useMemberAuth();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const isChildActive = (childHref: string) => {
+    if (childHref.includes("?")) {
+      const [childPath, childQuery] = childHref.split("?");
+      if (pathname !== childPath) return false;
+      const targetParams = new URLSearchParams(childQuery);
+      const targetCat = targetParams.get("kategori");
+      const currentCat =
+        searchParams.get("kategori") ||
+        searchParams.get("cat") ||
+        searchParams.get("category");
+      if (targetCat) {
+        return currentCat === targetCat;
+      }
+      for (const [key, val] of targetParams.entries()) {
+        if (searchParams.get(key) !== val) return false;
+      }
+      return true;
+    }
+
+    if (childHref === "/regulations") {
+      if (pathname !== "/regulations") return false;
+      const cat =
+        searchParams.get("kategori") ||
+        searchParams.get("cat") ||
+        searchParams.get("category");
+      return !cat || cat === "semua" || cat === "all";
+    }
+
+    return pathname === childHref;
+  };
 
   const isItemActive = (href: string, children?: Array<{ href: string }>) => {
     if (pathname === href) return true;
     if (href !== "/" && pathname.startsWith(href)) return true;
-    if (
-      children?.some(
-        (c) =>
-          pathname === c.href ||
-          (c.href !== "/" && pathname.startsWith(c.href)),
-      )
-    )
-      return true;
+    if (children?.some((c) => isChildActive(c.href))) return true;
     return false;
   };
 
@@ -290,7 +321,7 @@ export function Header({ site }: { site: PublicSite }) {
         (label.toLowerCase().includes("regulasi") &&
           (href === "/regulations" || href.includes("regulasi_pemerintah")))
       ) {
-        href = "/regulations";
+        href = "/regulations?kategori=regulasi-pemerintah";
         label = "Regulasi Pemerintah & Standar SNI";
       } else if (
         item.id === "se-list" ||
@@ -325,7 +356,7 @@ export function Header({ site }: { site: PublicSite }) {
                 (childHref === "/regulations" ||
                   childHref.includes("regulasi_pemerintah")))
             ) {
-              childHref = "/regulations";
+              childHref = "/regulations?kategori=regulasi-pemerintah";
               childLabel = "Regulasi Pemerintah & Standar SNI";
             } else if (
               childId === "se-list" ||
@@ -518,7 +549,7 @@ export function Header({ site }: { site: PublicSite }) {
                             key={child.id}
                             href={child.href}
                             className={`nav-dropdown-card-item ${
-                              pathname === child.href ? "active" : ""
+                              isChildActive(child.href) ? "active" : ""
                             }`}
                           >
                             <div className="nav-item-icon-box">
@@ -584,7 +615,9 @@ export function Header({ site }: { site: PublicSite }) {
                           key={child.id}
                           href={child.href}
                           onClick={() => setMenuOpen(false)}
-                          className="mobile-nav-child-link"
+                          className={`mobile-nav-child-link ${
+                            isChildActive(child.href) ? "active" : ""
+                          }`}
                         >
                           <IconComponent size={14} />
                           <span>{child.label}</span>
@@ -598,6 +631,7 @@ export function Header({ site }: { site: PublicSite }) {
                   key={item.id}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
+                  className={isItemActive(item.href) ? "active" : ""}
                 >
                   {item.label}
                 </Link>
