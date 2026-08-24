@@ -32,7 +32,7 @@ const slugParams = z.object({
     .regex(/^[a-z0-9-]+$/),
 });
 const contentQuery = paginationSchema.extend({
-  type: z.enum(["post", "news", "campaign"]).default("post"),
+  type: z.string().optional(),
 });
 
 export const publicRoutes: FastifyPluginAsync = async (app) => {
@@ -181,10 +181,10 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
 
   app.get("/contents", async (request) => {
     const query = contentQuery.parse(request.query);
-    const conditions = [
-      eq(contents.type, query.type),
-      eq(contents.status, "published"),
-    ];
+    const conditions = [eq(contents.status, "published")];
+    if (query.type && query.type !== "all") {
+      conditions.push(eq(contents.type, query.type));
+    }
     if (query.search) {
       const searchCondition = or(
         ilike(contents.title, `%${query.search}%`),

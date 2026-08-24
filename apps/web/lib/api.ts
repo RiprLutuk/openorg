@@ -171,8 +171,12 @@ export const getPages = cache(() => publicApi<PublicPageSummary[]>("/pages"));
 export const getPage = cache((slug: string) =>
   publicApi<PublicPage>(`/pages/${encodeURIComponent(slug)}`),
 );
-export const getContents = cache((type = "post", limit = 6) =>
-  publicApi<ContentItem[]>(`/contents?type=${type}&limit=${limit}`),
+export const getContents = cache((type?: string, limit = 50) =>
+  publicApi<ContentItem[]>(
+    type
+      ? `/contents?type=${encodeURIComponent(type)}&limit=${limit}`
+      : `/contents?limit=${limit}`,
+  ),
 );
 export const getContent = cache((slug: string) =>
   publicApi<ContentItem>(`/contents/${encodeURIComponent(slug)}`),

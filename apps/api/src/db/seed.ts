@@ -709,26 +709,140 @@ async function seed() {
     await tx.insert(contents).values([
       {
         title:
-          "APTI Indonesia Resmikan Program Target 10.000 Teknisi AC Bersertifikat BNSP",
+          "APTI Indonesia Resmikan Program Akselerasi 10.000 Teknisi AC Tersertifikasi BNSP 2026",
         slug: "apti-indonesia-target-10000-teknisi-bnsp",
-        type: "post",
+        type: "news",
+        authorName: "Sekretariat Jenderal DPP APTI",
         excerpt:
-          "APTI Indonesia memperkuat sinergi dengan LSP dan Kementerian Ketenagakerjaan untuk mensertifikasi 10.000 teknisi pendingin di seluruh Indonesia.",
-        body: `<p>Asosiasi Pengusaha & Teknisi Pendingin Indonesia (APTI) secara resmi meluncurkan program akselerasi sertifikasi kompetensi teknisi AC nasional. Program ini bertujuan meningkatkan taraf hidup dan profesionalisme teknisi Indonesia agar mampu bersaing di era pasar global.</p><p>Ketua Umum DPP APTI menegaskan bahwa setiap anggota APTI kini dilengkapi KTA Digital terverifikasi QR Code yang terhubung dengan data sertifikasi BNSP resmi.</p>`,
+          "Program kolaborasi nasional DPP APTI dengan LSP TPTU dan Kemenaker guna mencetak teknisi pendingin berstandar kompetensi kerja nasional Indonesia (SKKNI).",
+        body: `<p><strong>JAKARTA</strong> — Dewan Pengurus Pusat Asosiasi Pengusaha & Teknisi Pendingin Indonesia (DPP APTI) secara resmi mencanangkan program <em>Akselerasi 10.000 Teknisi Tersertifikasi BNSP</em> hingga akhir tahun 2026. Langkah ini diambil sebagai respons konkret terhadap tingginya kebutuhan industri refrigerasi komersial dan residensial akan tenaga kerja yang memiliki legitimasi keahlian berstandar negara.</p>
+<h3>Sinergi Tripartit Ketenagakerjaan</h3>
+<p>Dalam acara peresmian yang dihadiri perwakilan Kementerian Ketenagakerjaan, Badan Nasional Sertifikasi Profesi (BNSP), serta para pimpinan prinsipal pendingin terkemuka di Jakarta, Ketua Umum DPP APTI menegaskan bahwa sertifikasi bukan sekadar selembar kertas pengakuan, melainkan bukti kompetensi teknis, pemahaman K3, serta etika profesional teknisi.</p>
+<blockquote><p>"Melalui sertifikasi BNSP berlogo Garuda Emas dan kepemilikan KTA Digital APTI, konsumen akan merasa aman karena unit pendinginnya ditangani oleh teknisi yang menguasai standar vakum &lt;500 mikron, brazing bebas oksidasi, dan penanganan refrigeran yang aman."</p></blockquote>
+<h3>Fasilitasi Uji Kompetensi di Seluruh DPD</h3>
+<p>Program ini mencakup penyelenggaraan uji kompetensi bersubsidi di 38 provinsi melalui Tempat Uji Kompetensi (TUK) Balai Latihan Kerja dan SMK Pusat Keunggulan yang telah terverifikasi. Anggota aktif APTI berhak memperoleh subsidi biaya asesmen hingga 40% dari kas pemberdayaan asosiasi.</p>`,
+        coverUrl:
+          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
         status: "published",
-        publishedAt: now,
+        publishedAt: new Date("2026-08-24T08:30:00.000Z"),
         authorId: owner.id,
       },
       {
         title:
-          "Standard Operating Procedure (SOP) Vacuuming & Recovery Freon R32 yang Aman",
+          "Standard Operating Procedure (SOP) Vakum & Recovery Freon R32 / R410A Bebas Emisi",
         slug: "sop-vacuuming-recovery-freon-r32",
         type: "post",
+        authorName: "Pokja Standardisasi & K3 DPP APTI",
         excerpt:
-          "Panduan praktis teknisi APTI dalam melakukan proses vakum dan recovery bahan pendingin R32 tanpa merusak lapisan ozon.",
-        body: `<p>Penggunaan refrigerant R32 memerlukan prosedur khusus vakum minimal 15 menit menggunakan pompa vakum dua tahap (two-stage vacuum pump). Hal ini penting untuk memastikan tidak ada uap air maupun udara terjebak di dalam sistem perpipaan tembaga.</p>`,
+          "Panduan teknis langkah demi langkah pemvakuman presisi di bawah 500 mikron untuk menjaga kestabilan oli sintetis POE dan efisiensi sistem AC inverter.",
+        body: `<p>Proses pemvakuman (<em>evacuation</em>) adalah salah satu tahapan paling kritis dalam instalasi dan perbaikan sistem tata udara refrigerasi modern yang menggunakan kompresor inverter dan oli sintetis Polyolester (POE).</p>
+<h3>Mengapa Pemvakuman di Bawah 500 Micron Wajib?</h3>
+<p>Udara atmosfer mengandung gas nitrogen, oksigen, dan uap air (kelembapan). Jika uap air tertinggal di dalam pipa tembaga saat freon diisi, uap air akan bereaksi secara kimiawi dengan oli sintetis POE membentuk asam hidroklorat atau asam fluorat (<em>hydrofluoric acid</em>). Asam ini merusak isolasi lilitan email tembaga kompresor hingga menyebabkan kompresor short-body atau macet mekanis (<em>acid sludge</em>).</p>
+<h3>Langkah-Langkah SOP Vakum APTI:</h3>
+<ol>
+  <li><strong>Gunakan Pompa Vakum 2-Stage:</strong> Pastikan oli pompa vakum dalam kondisi jernih dan mampu mencapai tingkat kevakuman minimal 50 mikron pada kondisi blank-off.</li>
+  <li><strong>Pasang Digital Micron Gauge:</strong> Hindari mengandalkan jarum manifold analog jarum untuk mengukur vakum; gunakan sensor digital micron gauge pada titik terjauh dari pompa.</li>
+  <li><strong>Target Kestabilan 500 Micron:</strong> Lakukan penarikan vakum hingga mikron gauge menunjukkan angka di bawah 500 micron, lalu tutup katup manifold dan lakukan <em>Vacuum Decay Test</em> selama 10 menit. Jika angka tidak naik di atas 1.000 micron, sistem terbebas dari kebocoran dan kelembapan.</li>
+  <li><strong>Purging dengan Nitrogen Kering:</strong> Untuk sistem yang pernah mengalami kompresor jebol atau kemasukan air, lakukan proses nitrogen purging berulang (<em>triple evacuation</em>).</li>
+</ol>`,
+        coverUrl:
+          "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1200&q=80",
         status: "published",
-        publishedAt: now,
+        publishedAt: new Date("2026-08-22T14:15:00.000Z"),
+        authorId: owner.id,
+      },
+      {
+        title:
+          "Mengenal Refrigeran Alami R290 (Propana): Karakteristik Termodinamika & Standar Keselamatan K3",
+        slug: "mengenal-refrigeran-ramah-lingkungan-r290-propana",
+        type: "post",
+        authorName: "Tim Riset Efisiensi Energi APTI",
+        excerpt:
+          "Analisis mendalam mengenai karakteristik termodinamika freon R290 dengan GWP mendekati nol, serta panduan pencegahan risiko mudah terbakar (flammability).",
+        body: `<p>Seiring berlakunya Protokol Montreal Amandemen Kigali dan regulasi Kementerian Lingkungan Hidup dan Kehutanan (KLHK) tentang penghapusan Bahan Perusak Ozon (BPO) serta pembatasan HFC ber-GWP tinggi, industri refrigerasi dunia bergerak cepat menuju pemanfaatan <strong>Hydrocarbon R290 (Propane)</strong>.</p>
+<h3>Keunggulan Termodinamika R290</h3>
+<p>R290 memiliki <em>Global Warming Potential (GWP)</em> sebesar 3 dan <em>Ozone Depletion Potential (ODP)</em> nol. Selain ramah lingkungan, massa jenis refrigeran R290 lebih ringan sekitar 40-50% dibanding R22 atau R410A untuk kapasitas pendinginan yang sama. Hal ini membuat kompresor bekerja lebih enteng dan menghasilkan efisiensi energi (EER) hingga 15% lebih hemat listrik.</p>
+<h3>Protokol K3 Wajib untuk Teknisi:</h3>
+<ul>
+  <li>Dilarang keras menyalakan api torch las atau merokok dalam radius 5 meter saat proses pelepasan sisa freon.</li>
+  <li>Wajib menggunakan blower ventilasi anti-percikan (<em>explosion-proof fan</em>) di area ruang tertutup.</li>
+  <li>Gunakan koneksi <em>flare</em> mekanis berstandar tinggi atau alat <em>lokring ring-lock</em> tanpa api saat penyambungan pipa R290.</li>
+</ul>`,
+        coverUrl:
+          "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80",
+        status: "published",
+        publishedAt: new Date("2026-08-20T10:00:00.000Z"),
+        authorId: owner.id,
+      },
+      {
+        title:
+          "Kunjungan Kerja DPP APTI ke Balai Latihan Vokasi: Siapkan Lab Uji VRV & Chiller Canggih",
+        slug: "kunjungan-kerja-dpp-apti-ke-balai-vokasi-vrv",
+        type: "news",
+        authorName: "Biro Humas & Publikasi APTI",
+        excerpt:
+          "DPP APTI bersama pengelola Balai Latihan Vokasi Kemenaker meresmikan fasilitas Tempat Uji Kompetensi (TUK) Mandiri berstandar industri komersial di Jawa Timur dan Jawa Barat.",
+        body: `<p><strong>SURABAYA</strong> — Jajaran Pengurus DPP APTI bersama pimpinan DPD Jawa Timur melakukan peninjauan kesiapan fasilitas workshop Balai Latihan Kerja Vokasi sebagai pusat Tempat Uji Kompetensi (TUK) Mandiri untuk skema teknisi komersial kelas industri berat.</p>
+<p>Fasilitas lab baru ini dilengkapi simulator sistem <em>Variable Refrigerant Volume (VRV/VRF)</em> multi-indoor, unit <em>water-cooled chiller</em>, serta stasiun pengelasan pipa tembaga berdiameter 1-1/8 inch dengan kontrol gas nitrogen terintegrasi.</p>
+<p>Kerjasama ini memastikan bahwa teknisi daerah yang hendak mengambil sertifikasi Level 3 (Teknisi Utama Komersial) tidak perlu lagi melakukan perjalanan jauh ke Jakarta untuk mengikuti asesmen praktik langsung.</p>`,
+        coverUrl:
+          "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1200&q=80",
+        status: "published",
+        publishedAt: new Date("2026-08-18T16:00:00.000Z"),
+        authorId: owner.id,
+      },
+      {
+        title:
+          "DPD APTI Jawa Barat Gelar Musda & Workshop Troubleshooting Modul Inverter PCB di Bandung",
+        slug: "dpd-apti-jabar-musda-workshop-inverter-bandung",
+        type: "news",
+        authorName: "DPD APTI Jawa Barat",
+        excerpt:
+          "Lebih dari 180 teknisi se-Bandung Raya antusias mengikuti bedah skema kelistrikan IPM, IGBT modul, dan teknik bypass proteksi kompresor inverter.",
+        body: `<p><strong>BANDUNG</strong> — DPD APTI Jawa Barat sukses menyelenggarakan Musyawarah Daerah (MUSDA) sekaligus Masterclass Teknis Perbaikan Modul Elektronika Inverter AC di Grand Ballroom Hotel Savoy Homann, Bandung.</p>
+<p>Pelatihan yang dipandu langsung oleh instruktur senior bidang mikrokontroler HVAC mengupas tuntas teknik pengukuran resistansi 3-phase kompresor inverter, penanganan error komunikasi DC bus voltage, serta metode penggantian komponen <em>Intelligent Power Module (IPM)</em> tanpa harus mengganti seluruh papan PCB outdoor yang berharga mahal.</p>
+<p>Ketua DPD Jabar menegaskan bahwa penguasaan modul inverter adalah pembeda utama antara teknisi profesional dengan tukang servis konvensional di era AC hemat listrik saat ini.</p>`,
+        coverUrl:
+          "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80",
+        status: "published",
+        publishedAt: new Date("2026-08-15T09:30:00.000Z"),
+        authorId: owner.id,
+      },
+      {
+        title:
+          "Waspada Kebiasaan Fatal: Mengapa Uji Tekanan Sistem AC Dilarang Keras Memakai Gas Oksigen",
+        slug: "larangan-uji-tekanan-sistem-ac-menggunakan-oksigen",
+        type: "post",
+        authorName: "Dewan Etik & Advokasi K3 Teknisi",
+        excerpt:
+          "Penjelasan reaksi eksplosif antara oli kompresor mineral/POE bertekanan tinggi dengan oksigen murni, dan mengapa Nitrogen Kering (OFND) adalah kewajiban mutlak.",
+        body: `<p>Masih ditemukan kasus kecelakaan kerja fatal di lapangan di mana teknisi menggunakan tabung gas oksigen (O2) las karbit untuk melakukan pengetesan tekanan (<em>pressure test</em>) kebocoran instalasi pipa AC. DPP APTI mengeluarkan peringatan keras mengenai bahaya maut dari tindakan malpraktik ini.</p>
+<h3>Reaksi Kimia Ledakan Spontan (Diesel Effect)</h3>
+<p>Oli pelumas kompresor pendingin (baik Mineral Oil, Alkylbenzene, maupun POE) adalah senyawa hidrokarbon yang sangat mudah terbakar ketika berada di bawah tekanan tinggi dalam atmosfer kaya oksigen murni.</p>
+<p>Ketika gas oksigen bertekanan tinggi dimasukkan ke dalam pipa yang mengandung residu oli, kontak langsung tersebut dapat memicu <strong>pembakaran spontan (auto-ignition)</strong> tanpa perlu adanya percikan api luar. Tekanan ledakan yang dihasilkan dapat menghancurkan casing evaporator dan pipa tembaga seketika, mengancam keselamatan jiwa teknisi.</p>
+<h3>Standar Uji Tekanan Resmi:</h3>
+<p>Wajib menggunakan <strong>Gas Nitrogen Kering (Oxygen-Free Nitrogen / OFND)</strong> dengan regulator tekanan tinggi bersertifikat uji 600 PSI. Nitrogen adalah gas inert (tidak reaktif) yang menyerap kelembapan dan 100% aman dari risiko ledakan.</p>`,
+        coverUrl:
+          "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1200&q=80",
+        status: "published",
+        publishedAt: new Date("2026-08-12T11:00:00.000Z"),
+        authorId: owner.id,
+      },
+      {
+        title:
+          "Siaran Pers: Pembentukan Pokja JENDELA untuk Perlindungan Konsumen & Standardisasi Jasa Servis",
+        slug: "siaran-pers-pembentukan-pokja-jendela-konsumen",
+        type: "news",
+        authorName: "Dewan Pertimbangan Organisasi APTI",
+        excerpt:
+          "Langkah strategis asosiasi dalam membasmi praktik oknum servis abal-abal melalui integrasi KTA Digital dan verifikasi barcode pada unit servis.",
+        body: `<p><strong>JAKARTA</strong> — Menyikapi maraknya keluhan masyarakat mengenai oknum penyedia jasa servis AC yang melakukan vonis ganti kompresor fiktif atau pengisian freon tanpa indikasi kebocoran, APTI Indonesia resmi meluncurkan satuan tugas <strong>JENDELA (Jaringan Edukasi & Pengawasan Pelayanan Etik Anggota)</strong>.</p>
+<p>Melalui kanal pengaduan publik yang terintegrasi di website resmi OpenOrg/APTI, konsumen kini dapat melaporkan nomor KTA teknisi atau scan barcode servis untuk memeriksa keaslian tarif dan garansi pekerjaan.</p>
+<p>Teknisi yang terbukti melanggar kode etik akan dikenakan sanksi pencabutan KTA Digital dan penonaktifan akses kredensial verifikasi publik.</p>`,
+        coverUrl:
+          "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1200&q=80",
+        status: "published",
+        publishedAt: new Date("2026-08-08T13:45:00.000Z"),
         authorId: owner.id,
       },
     ]);
