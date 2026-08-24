@@ -15183,40 +15183,59 @@ img {
    5. EVENTS & CPD ACADEMY SUITE (Clean Swiss Modern Architecture)
    ========================================================================== */
 
-.events-suite-tabs-nav {
+.events-suite-tabs-row {
   display: flex;
+  justify-content: flex-start;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.events-suite-tabs-nav {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 16px;
+  gap: 6px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 6px;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.events-suite-tabs-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .suite-tab-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-size: 13.5px;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 700;
   border: 1px solid transparent;
   background: transparent;
   color: #64748b;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .suite-tab-btn:hover {
-  background: #f1f5f9;
   color: #0f172a;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .suite-tab-btn.active {
-  background: #0284c7;
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.2);
+  background: #ffffff;
+  color: #0284c7;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* Swiss Modern Spotlight Feature Card */

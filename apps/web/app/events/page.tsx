@@ -390,33 +390,35 @@ export default function EventsPage() {
       <section className="tech-body section-space">
         <div className="wrap">
           {/* Suite Tab Switcher */}
-          <div className="events-suite-tabs-nav">
-            <button
-              type="button"
-              className={`suite-tab-btn ${activeSuiteTab === "agenda" ? "active" : ""}`}
-              onClick={() => setActiveSuiteTab("agenda")}
-            >
-              <CalendarDays size={16} />
-              <span>Jadwal Agenda Pelatihan</span>
-            </button>
+          <div className="events-suite-tabs-row">
+            <div className="events-suite-tabs-nav">
+              <button
+                type="button"
+                className={`suite-tab-btn ${activeSuiteTab === "agenda" ? "active" : ""}`}
+                onClick={() => setActiveSuiteTab("agenda")}
+              >
+                <CalendarDays size={16} />
+                <span>Jadwal Agenda Pelatihan</span>
+              </button>
 
-            <button
-              type="button"
-              className={`suite-tab-btn ${activeSuiteTab === "skkni" ? "active" : ""}`}
-              onClick={() => setActiveSuiteTab("skkni")}
-            >
-              <Award size={16} />
-              <span>Skema Sertifikasi BNSP</span>
-            </button>
+              <button
+                type="button"
+                className={`suite-tab-btn ${activeSuiteTab === "skkni" ? "active" : ""}`}
+                onClick={() => setActiveSuiteTab("skkni")}
+              >
+                <Award size={16} />
+                <span>Skema Sertifikasi BNSP</span>
+              </button>
 
-            <button
-              type="button"
-              className={`suite-tab-btn ${activeSuiteTab === "tuk" ? "active" : ""}`}
-              onClick={() => setActiveSuiteTab("tuk")}
-            >
-              <Building2 size={16} />
-              <span>Pengajuan TUK & Workshop DPD</span>
-            </button>
+              <button
+                type="button"
+                className={`suite-tab-btn ${activeSuiteTab === "tuk" ? "active" : ""}`}
+                onClick={() => setActiveSuiteTab("tuk")}
+              >
+                <Building2 size={16} />
+                <span>Pengajuan TUK & Workshop DPD</span>
+              </button>
+            </div>
           </div>
 
           {/* TAB 1: JADWAL AGENDA */}
