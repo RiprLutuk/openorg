@@ -25,6 +25,7 @@ import {
   TrendingUp,
   User,
   Users,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -218,11 +219,45 @@ export function StoriesDirectoryClient({ items, site }: Props) {
         </div>
       </header>
 
-      {/* 2. Featured Headline Banner (Pilihan Redaksi) */}
-      {featuredStory && (
-        <section className="featured-story-section section-space-sm">
-          <div className="wrap">
-            <div className="featured-headline-card">
+      <section className="tech-body section-space">
+        <div className="wrap">
+          <div id="stories-feed-anchor" className="directory-controls-row">
+            <div className="directory-cat-pills">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  className={`dir-cat-btn ${selectedCategory === cat.id ? "active" : ""}`}
+                  onClick={() => handleCategorySelect(cat.id)}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="dir-search-wrap">
+              <Search size={16} />
+              <input
+                type="text"
+                placeholder="Cari warta, topik K3, atau penulis..."
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  className="search-clear-btn"
+                  onClick={() => handleSearchChange("")}
+                  aria-label="Bersihkan pencarian"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {featuredStory && !searchQuery && selectedCategory === "all" && (
+            <div className="featured-headline-card mb-8">
               <div className="featured-cover-box">
                 <SmartImage
                   src={featuredStory.coverUrl}
@@ -289,284 +324,173 @@ export function StoriesDirectoryClient({ items, site }: Props) {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      )}
+          )}
 
-      {/* 3. Main Body & Two-Column Grid */}
-      <section className="stories-main-feed section-space">
-        <div className="wrap stories-layout-grid">
-          {/* Left Column: Toolbar Filter & Article Cards (68%) */}
-          <div className="stories-feed-col">
-            <div id="stories-feed-anchor" />
-
-            {/* Filter Toolbar (Swiss Design) */}
-            <div className="stories-toolbar-card">
-              <div className="stories-filter-pills">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    className={`filter-pill-btn ${selectedCategory === cat.id ? "active" : ""}`}
-                    onClick={() => handleCategorySelect(cat.id)}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="stories-search-box">
-                <Search size={15} />
-                <input
-                  type="text"
-                  placeholder="Cari warta, topik K3, atau penulis..."
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Articles Grid (Paginated) */}
-            {paginatedItems.length > 0 ? (
-              <>
-                <div className="stories-cards-flow">
-                  {paginatedItems.map((item) => (
-                    <article key={item.id} className="story-modern-card">
-                      <Link
-                        href={`/stories/${item.slug}`}
-                        className="story-card-cover-link"
-                      >
-                        <SmartImage
-                          src={item.coverUrl}
-                          alt={item.title}
-                          className="story-thumb-img"
-                          fallbackType={item.type === "post" ? "tech" : "news"}
-                        />
-                        <span className="story-thumb-badge">
-                          {item.type === "news"
-                            ? "Berita"
-                            : item.type === "post"
-                              ? "Artikel Teknis"
-                              : "Siaran Pers"}
-                        </span>
-                      </Link>
-
-                      <div className="story-card-content">
-                        <div className="story-card-meta">
-                          <span className="meta-date">
-                            {new Date(
-                              item.publishedAt ?? item.updatedAt,
-                            ).toLocaleDateString("id-ID", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}
-                          </span>
-                          <span className="meta-sep">•</span>
-                          <span className="meta-author">
-                            {item.authorName ?? "Redaksi APTI"}
-                          </span>
-                        </div>
-
-                        <h3 className="story-card-title">
-                          <Link href={`/stories/${item.slug}`}>
-                            {item.title}
-                          </Link>
-                        </h3>
-
-                        <p className="story-card-excerpt">{item.excerpt}</p>
-
-                        <div className="story-card-footer">
-                          <Link
-                            href={`/stories/${item.slug}`}
-                            className="story-inline-link"
-                          >
-                            <span>Baca Artikel</span>
-                            <ArrowRight size={14} />
-                          </Link>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-
-                {/* Numbered Pagination Toolbar */}
-                {totalPages > 1 && (
-                  <div className="stories-pagination-bar">
-                    <div className="pagination-info">
-                      <span>
-                        Menampilkan{" "}
-                        <strong>
-                          {startIndex + 1} - {endIndex}
-                        </strong>{" "}
-                        dari <strong>{filteredItems.length}</strong> Warta Resmi
+          {paginatedItems.length > 0 ? (
+            <>
+              <div className="stories-catalog-grid">
+                {paginatedItems.map((item) => (
+                  <article key={item.id} className="story-modern-card">
+                    <Link
+                      href={`/stories/${item.slug}`}
+                      className="story-card-cover-link"
+                    >
+                      <SmartImage
+                        src={item.coverUrl}
+                        alt={item.title}
+                        className="story-thumb-img"
+                        fallbackType={item.type === "post" ? "tech" : "news"}
+                      />
+                      <span className="story-thumb-badge">
+                        {item.type === "news"
+                          ? "Berita"
+                          : item.type === "post"
+                            ? "Artikel Teknis"
+                            : "Siaran Pers"}
                       </span>
-                    </div>
-                    <div className="pagination-controls">
-                      <button
-                        type="button"
-                        className="page-nav-btn"
-                        disabled={safeCurrentPage === 1}
-                        onClick={() => handlePageChange(safeCurrentPage - 1)}
-                      >
-                        <ChevronLeft size={14} />
-                        <span>Sebelumnya</span>
-                      </button>
+                    </Link>
 
-                      <div className="page-numbers-group">
-                        {Array.from(
-                          { length: totalPages },
-                          (_, idx) => idx + 1,
-                        ).map((pageNum) => (
-                          <button
-                            key={pageNum}
-                            type="button"
-                            className={`page-num-btn ${
-                              pageNum === safeCurrentPage ? "active" : ""
-                            }`}
-                            onClick={() => handlePageChange(pageNum)}
-                          >
-                            {pageNum}
-                          </button>
-                        ))}
+                    <div className="story-card-content">
+                      <div className="story-card-meta">
+                        <span className="meta-date">
+                          {new Date(
+                            item.publishedAt ?? item.updatedAt,
+                          ).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                        <span className="meta-sep">•</span>
+                        <span className="meta-author">
+                          {item.authorName ?? "Redaksi APTI"}
+                        </span>
                       </div>
 
-                      <button
-                        type="button"
-                        className="page-nav-btn"
-                        disabled={safeCurrentPage === totalPages}
-                        onClick={() => handlePageChange(safeCurrentPage + 1)}
-                      >
-                        <span>Selanjutnya</span>
-                        <ChevronRight size={14} />
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="stories-empty-box">
-                <Newspaper size={44} color="#94a3b8" />
-                <h3>Tidak ada artikel yang cocok</h3>
-                <p>
-                  Coba gunakan kata kunci pencarian lain atau pilih kategori
-                  Semua Warta.
-                </p>
-                <button
-                  type="button"
-                  className="button secondary mt-4"
-                  onClick={() => {
-                    handleCategorySelect("all");
-                    handleSearchChange("");
-                  }}
-                >
-                  Reset Filter
-                </button>
-              </div>
-            )}
-          </div>
+                      <h3 className="story-card-title">
+                        <Link href={`/stories/${item.slug}`}>{item.title}</Link>
+                      </h3>
 
-          {/* Right Column: Sidebar Rail (32%) */}
-          <aside className="stories-sidebar-col">
-            {/* 1. Trending Articles Card */}
-            <div className="sidebar-widget-card">
-              <div className="widget-header-row">
-                <TrendingUp size={16} color="#0284c7" />
-                <h3>Topik Hangat & Populer</h3>
-              </div>
-              <div className="popular-list">
-                {POPULAR_STORIES.map((pop, idx) => (
-                  <Link
-                    key={pop.slug}
-                    href={`/stories/${pop.slug}`}
-                    className="popular-item-link"
-                  >
-                    <span className="pop-rank-num">0{idx + 1}</span>
-                    <div className="pop-body">
-                      <span className="pop-category">{pop.category}</span>
-                      <h4>{pop.title}</h4>
-                      <small>
-                        <Eye size={11} /> {pop.reads} pembaca
-                      </small>
+                      <p className="story-card-excerpt">{item.excerpt}</p>
+
+                      <div className="story-card-footer">
+                        <Link
+                          href={`/stories/${item.slug}`}
+                          className="story-inline-link"
+                        >
+                          <span>Baca Artikel</span>
+                          <ArrowRight size={14} />
+                        </Link>
+                      </div>
                     </div>
-                  </Link>
+                  </article>
                 ))}
               </div>
-            </div>
 
-            {/* 2. Newsletter Subscription Card */}
-            <div className="sidebar-widget-card newsletter-gradient-card">
-              <div className="widget-header-row">
-                <Mail size={16} color="#0284c7" />
-                <h3>Buletin Warta Mingguan</h3>
-              </div>
-              <p className="widget-desc">
-                Dapatkan rangkuman regulasi freon, info uji kompetensi BNSP, dan
-                tips servis AC langsung ke email Anda setiap hari Senin.
-              </p>
+              {/* Numbered Pagination Toolbar */}
+              {totalPages > 1 && (
+                <div className="stories-pagination-bar mt-8">
+                  <div className="pagination-info">
+                    <span>
+                      Menampilkan{" "}
+                      <strong>
+                        {startIndex + 1} - {endIndex}
+                      </strong>{" "}
+                      dari <strong>{filteredItems.length}</strong> Warta Resmi
+                    </span>
+                  </div>
+                  <div className="pagination-controls">
+                    <button
+                      type="button"
+                      className="page-nav-btn"
+                      disabled={safeCurrentPage === 1}
+                      onClick={() => handlePageChange(safeCurrentPage - 1)}
+                    >
+                      <ChevronLeft size={14} />
+                      <span>Sebelumnya</span>
+                    </button>
 
-              {subscribed ? (
-                <div className="newsletter-success-alert">
-                  <CheckCircle2 size={16} color="#16a34a" />
-                  <span>
-                    Terima kasih! Anda telah terdaftar di buletin warta.
-                  </span>
+                    <div className="page-numbers-group">
+                      {Array.from(
+                        { length: totalPages },
+                        (_, idx) => idx + 1,
+                      ).map((pageNum) => (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          className={`page-num-btn ${
+                            pageNum === safeCurrentPage ? "active" : ""
+                          }`}
+                          onClick={() => handlePageChange(pageNum)}
+                        >
+                          {pageNum}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="page-nav-btn"
+                      disabled={safeCurrentPage === totalPages}
+                      onClick={() => handlePageChange(safeCurrentPage + 1)}
+                    >
+                      <span>Selanjutnya</span>
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
                 </div>
-              ) : (
-                <form onSubmit={handleSubscribe} className="newsletter-form">
-                  <input
-                    type="email"
-                    placeholder="Masukkan alamat email Anda..."
-                    value={newsletterEmail}
-                    onChange={(e) => setNewsletterEmail(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="button primary btn-subscribe"
-                  >
-                    <Send size={14} />
-                    <span>Langganan Gratis</span>
-                  </button>
-                </form>
               )}
-            </div>
-
-            {/* 3. Media Center & Press Kit */}
-            <div className="sidebar-widget-card">
-              <div className="widget-header-row">
-                <BookOpen size={16} color="#16a34a" />
-                <h3>Kontak Redaksi & Media Kit</h3>
-              </div>
-              <p className="widget-desc">
-                Informasi bagi jurnalis, prinsipal mitra, dan perwakilan DPD
-                yang ingin mengirimkan rilis warta atau undangan liputan.
+            </>
+          ) : (
+            <div className="stories-empty-box">
+              <Newspaper size={44} color="#94a3b8" />
+              <h3>Tidak ada artikel yang cocok</h3>
+              <p>
+                Coba gunakan kata kunci pencarian lain atau pilih kategori Semua
+                Warta.
               </p>
-              <div className="press-links-stack">
-                <a
-                  href="mailto:redaksi@apti.or.id"
-                  className="press-action-link"
-                >
-                  <Mail size={14} />
-                  <span>Kirim Siaran Pers (redaksi@apti.or.id)</span>
-                </a>
-                <button
-                  type="button"
-                  className="press-action-link"
-                  onClick={() =>
-                    alert("Mengunduh Paket Brand Guidelines & Logo Resmi...")
-                  }
-                >
-                  <Download size={14} />
-                  <span>Unduh Media Kit & Logo Resmi (ZIP)</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                className="button secondary mt-4"
+                onClick={() => {
+                  handleCategorySelect("all");
+                  handleSearchChange("");
+                }}
+              >
+                Reset Filter
+              </button>
             </div>
-          </aside>
+          )}
+
+          {/* Popular Topics Bottom Panel */}
+          <div className="stories-popular-panel mt-12">
+            <div className="widget-header-row mb-4">
+              <TrendingUp size={16} color="#0284c7" />
+              <h3>Topik Hangat & Riset Populer</h3>
+            </div>
+            <div className="popular-grid-3col">
+              {POPULAR_STORIES.map((pop, idx) => (
+                <Link
+                  key={pop.slug}
+                  href={`/stories/${pop.slug}`}
+                  className="popular-grid-item"
+                >
+                  <span className="pop-rank-num">0{idx + 1}</span>
+                  <div className="pop-body">
+                    <span className="pop-category">{pop.category}</span>
+                    <h4>{pop.title}</h4>
+                    <small>
+                      <Eye size={11} /> {pop.reads} pembaca
+                    </small>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 4. Bottom Dynamic CTA */}
+      {/* Dynamic CTA */}
       <DynamicBottomCta
         organizationName={site.organization.name}
         guestTitle="Ingin Publikasi Kegiatan DPD / Klub AC Anda?"

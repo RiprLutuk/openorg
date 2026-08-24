@@ -1,5 +1,6 @@
 "use client";
 
+import type { PublicSite } from "@openorg/contracts";
 import {
   ArrowRight,
   Award,
@@ -24,7 +25,6 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { PublicSite } from "@openorg/contracts";
 import { MembershipRegistration } from "@/components/membership-registration";
 
 interface JoinPageProps {

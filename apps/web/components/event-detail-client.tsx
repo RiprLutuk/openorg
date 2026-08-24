@@ -1,5 +1,6 @@
 "use client";
 
+import type { PublicSite } from "@openorg/contracts";
 import {
   AlertCircle,
   ArrowLeft,
@@ -37,7 +38,6 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import type { PublicSite } from "@openorg/contracts";
 import Link from "next/link";
 import { useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";

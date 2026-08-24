@@ -17748,7 +17748,30 @@ img {
   outline: none;
 }
 
-/* Stories Cards Flow */
+/* Stories 3-Column Catalog Grid (Standardized Across All Pages) */
+.stories-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 960px) {
+  .stories-catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .stories-catalog-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Stories Cards Flow Legacy */
 .stories-cards-flow {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -18002,6 +18025,40 @@ img {
   gap: 4px;
   font-size: 11px;
   color: #94a3b8;
+}
+
+/* Popular Panel Full Width Grid */
+.stories-popular-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.popular-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.popular-grid-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.popular-grid-item:hover {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
 }
 
 /* Newsletter Card */
