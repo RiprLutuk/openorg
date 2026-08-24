@@ -4692,12 +4692,12 @@ img {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 24px;
-  padding: clamp(20px, 4vw, 36px);
+  padding: clamp(24px, 4.5vw, 40px);
   box-shadow:
     0 12px 36px -4px rgba(15, 23, 42, 0.06),
     0 2px 8px rgba(15, 23, 42, 0.02);
   width: 100%;
-  max-width: 860px;
+  max-width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -4707,7 +4707,7 @@ img {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -4722,7 +4722,7 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px;
+  padding: 6px;
   background: #f1f5f9;
   border-radius: 14px;
   flex-wrap: nowrap;
@@ -4733,11 +4733,11 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 8px 16px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 10px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 650;
   color: #64748b;
   cursor: pointer;
@@ -4763,10 +4763,10 @@ img {
 /* Search Bar (Integrated Swiss Bar) */
 .verifier-search-bar {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  max-width: 720px;
-  margin: 0 auto 16px;
+  max-width: 940px;
+  margin: 0 auto 20px;
   box-sizing: border-box;
 }
 
@@ -4863,13 +4863,15 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
 .verifier-quick-samples .sample-label {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   color: #64748b;
   white-space: nowrap;
@@ -4880,7 +4882,7 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
