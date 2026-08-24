@@ -4829,19 +4829,20 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 10px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .verifier-quick-samples .sample-label {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #64748b;
-  margin-right: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.verifier-sample-pills {
+.verifier-sample-scroll {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4850,23 +4851,51 @@ img {
 }
 
 .quick-sample-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 5px 10px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  font-size: 11.5px;
-  font-weight: 650;
-  color: #334155;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.14s ease;
   user-select: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .quick-sample-chip:hover {
   background: #f0f9ff;
   border-color: #bae6fd;
-  color: #0284c7;
   transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.12);
+}
+
+.sample-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #e0f2fe;
+  color: #0284c7;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.sample-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.sample-desc {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
 }
 
 /* Verified Dossier Certificate Card */
@@ -5122,24 +5151,43 @@ img {
 
   .verifier-quick-samples {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
+    width: 100%;
+    margin-top: 4px;
   }
 
   .verifier-quick-samples .sample-label {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    padding-left: 2px;
+    text-align: left;
+    margin-bottom: 0;
   }
 
-  .verifier-sample-pills {
+  .verifier-sample-scroll {
     width: 100%;
+    overflow-x: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     gap: 6px;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+
+  .verifier-sample-scroll::-webkit-scrollbar {
+    display: none;
   }
 
   .quick-sample-chip {
-    font-size: 11px;
-    padding: 4px 8px;
+    padding: 6px 10px;
+    font-size: 11.5px;
   }
 
   .verifier-dossier-card {

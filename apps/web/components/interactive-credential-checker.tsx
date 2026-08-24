@@ -140,6 +140,46 @@ const SAMPLE_DATABASE: Record<string, CredentialDossier> = {
   },
 };
 
+interface SampleChip {
+  type: CredentialType;
+  tag: string;
+  code: string;
+  desc: string;
+}
+
+const SAMPLE_CHIPS: SampleChip[] = [
+  {
+    type: "kta",
+    tag: "KTA",
+    code: "APTI-2026-0004",
+    desc: "Teknisi VRV",
+  },
+  {
+    type: "kta",
+    tag: "KTA",
+    code: "APTI-2026-0005",
+    desc: "Teknisi Split",
+  },
+  {
+    type: "bnsp",
+    tag: "BNSP",
+    code: "BNSP-HVAC-9081",
+    desc: "Sertifikat SKKNI",
+  },
+  {
+    type: "club",
+    tag: "TKT",
+    code: "TKT-DPD-DKI-001",
+    desc: "Klub Jakarta",
+  },
+  {
+    type: "partner",
+    tag: "SK",
+    code: "SK-MITRA-DPP-001",
+    desc: "Prinsipal Daikin",
+  },
+];
+
 export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
   const [activeType, setActiveType] = useState<CredentialType>("all");
   const [query, setQuery] = useState("");
@@ -148,6 +188,11 @@ export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
     status: "idle" | "loading" | "found" | "not_found";
     data?: CredentialDossier;
   }>({ status: "idle" });
+
+  const visibleSamples =
+    activeType === "all"
+      ? SAMPLE_CHIPS
+      : SAMPLE_CHIPS.filter((s) => s.type === activeType);
 
   const handleSearch = (codeToTest?: string) => {
     const raw = (codeToTest ?? query).trim();
@@ -347,58 +392,24 @@ export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
 
       {/* Quick Sample Badges */}
       <div className="verifier-quick-samples">
-        <small className="sample-label">Coba nomor sampel:</small>
-        <div className="verifier-sample-pills">
-          <button
-            type="button"
-            className="quick-sample-chip"
-            onClick={() => {
-              setQuery("APTI-2026-0004");
-              handleSearch("APTI-2026-0004");
-            }}
-          >
-            APTI-2026-0004 (Teknisi VRV)
-          </button>
-          <button
-            type="button"
-            className="quick-sample-chip"
-            onClick={() => {
-              setQuery("APTI-2026-0005");
-              handleSearch("APTI-2026-0005");
-            }}
-          >
-            APTI-2026-0005 (Teknisi Split)
-          </button>
-          <button
-            type="button"
-            className="quick-sample-chip"
-            onClick={() => {
-              setQuery("BNSP-HVAC-9081");
-              handleSearch("BNSP-HVAC-9081");
-            }}
-          >
-            BNSP-HVAC-9081 (Sertifikat)
-          </button>
-          <button
-            type="button"
-            className="quick-sample-chip"
-            onClick={() => {
-              setQuery("TKT-DPD-DKI-001");
-              handleSearch("TKT-DPD-DKI-001");
-            }}
-          >
-            TKT-DPD-DKI-001 (Klub TKT)
-          </button>
-          <button
-            type="button"
-            className="quick-sample-chip"
-            onClick={() => {
-              setQuery("SK-MITRA-DPP-001");
-              handleSearch("SK-MITRA-DPP-001");
-            }}
-          >
-            SK-MITRA-DPP-001 (Prinsipal)
-          </button>
+        <span className="sample-label">Contoh Cepat:</span>
+        <div className="verifier-sample-scroll">
+          {visibleSamples.map((sample) => (
+            <button
+              key={sample.code}
+              type="button"
+              className="quick-sample-chip"
+              onClick={() => {
+                setQuery(sample.code);
+                handleSearch(sample.code);
+              }}
+              title={`Klik untuk uji ${sample.code}`}
+            >
+              <span className="sample-tag">{sample.tag}</span>
+              <span className="sample-code">{sample.code}</span>
+              <span className="sample-desc">· {sample.desc}</span>
+            </button>
+          ))}
         </div>
       </div>
 
