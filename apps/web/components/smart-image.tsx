@@ -25,7 +25,7 @@ export function SmartImage({
   const isCompact =
     compact ??
     (aspectRatio === "1/1" ||
-      Boolean(className && /thumb|mini|avatar|icon/i.test(className)));
+      Boolean(className && /mini-thumb|avatar-sm|icon-box/i.test(className)));
 
   if (hasError || !src) {
     return (

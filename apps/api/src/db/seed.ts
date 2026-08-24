@@ -786,7 +786,7 @@ async function seed() {
 <p>Fasilitas lab baru ini dilengkapi simulator sistem <em>Variable Refrigerant Volume (VRV/VRF)</em> multi-indoor, unit <em>water-cooled chiller</em>, serta stasiun pengelasan pipa tembaga berdiameter 1-1/8 inch dengan kontrol gas nitrogen terintegrasi.</p>
 <p>Kerjasama ini memastikan bahwa teknisi daerah yang hendak mengambil sertifikasi Level 3 (Teknisi Utama Komersial) tidak perlu lagi melakukan perjalanan jauh ke Jakarta untuk mengikuti asesmen praktik langsung.</p>`,
         coverUrl:
-          "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1200&q=80",
+          "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1200&q=80",
         status: "published",
         publishedAt: new Date("2026-08-18T16:00:00.000Z"),
         authorId: owner.id,
@@ -843,6 +843,60 @@ async function seed() {
           "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1200&q=80",
         status: "published",
         publishedAt: new Date("2026-08-08T13:45:00.000Z"),
+        authorId: owner.id,
+      },
+      {
+        title:
+          "Panduan Keselamatan K3: Bekerja pada Ketinggian (Working at Height) saat Instalasi Outdoor AC",
+        slug: "panduan-keselamatan-k3-bekerja-pada-ketinggian-outdoor-ac",
+        type: "post",
+        authorName: "Tim Keselamatan Kerja & Standardisasi K3",
+        excerpt:
+          "Kewajiban penggunaan Full Body Harness double lanyard dan anchor point tersertifikasi saat pemasangan bracket outdoor di gedung bertingkat.",
+        body: `<p>Pemasangan unit outdoor AC di apartemen dan gedung komersial menuntut disiplin K3 tinggi. Sesuai Permenaker No. 9 Tahun 2016, teknisi pendingin yang bekerja pada ketinggian lebih dari 1,8 meter wajib mengantongi kompetensi Tenaga Kerja Bangunan Tinggi (TKBT).</p>
+<h3>Perlengkapan APD Wajib:</h3>
+<ul>
+  <li>Full body harness dengan shock absorber dan double hook lanyard.</li>
+  <li>Helm pelindung kepala (safety helmet) dengan tali dagu 4 titik.</li>
+  <li>Sepatu safety beralas karet anti-slip dengan pelindung jari kaki (steel toe).</li>
+  <li>Safety glasses dan sarung tangan kerja anti-abrasi.</li>
+</ul>`,
+        coverUrl:
+          "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80",
+        status: "published",
+        publishedAt: new Date("2026-08-05T08:15:00.000Z"),
+        authorId: owner.id,
+      },
+      {
+        title:
+          "DPD APTI Jawa Timur Luncurkan Program Bantuan Alat Kerja Digital Manifold & Vakum Komunitas",
+        slug: "dpd-apti-jatim-luncurkan-program-bantuan-alat-kerja-vakum",
+        type: "news",
+        authorName: "DPD APTI Jawa Timur",
+        excerpt:
+          "Penyaluran 50 set peralatan servis modern bersubsidi bagi anggota muda dan koperasi teknisi perintis di wilayah Jawa Timur.",
+        body: `<p><strong>SURABAYA</strong> — Sebagai komitmen nyata dalam memajukan taraf hidup dan profesionalisme teknisi daerah, DPD APTI Jawa Timur menyalurkan 50 paket alat kerja standar presisi tinggi kepada komunitas teknisi muda di 12 kabupaten/kota.</p>
+<p>Bantuan mencakup digital manifold gauge, pompa vakum 2-stage bersertifikasi CE, flaring tool eccentric, dan recovery machine portable.</p>`,
+        coverUrl:
+          "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
+        status: "published",
+        publishedAt: new Date("2026-08-01T10:20:00.000Z"),
+        authorId: owner.id,
+      },
+      {
+        title:
+          "Rekomendasi Ketebalan Pipa Tembaga ASTM B280 untuk Instalasi Freon Tekanan Tinggi R32 / R410A",
+        slug: "rekomendasi-standar-pipa-tembaga-astm-b280-inverter-r32",
+        type: "post",
+        authorName: "Divisi Riset Material & Komponen APTI",
+        excerpt:
+          "Mengapa penggunaan pipa di bawah 0.61mm sangat berisiko pecah akibat tekanan kerja freon R32 yang mencapai 450 PSI pada kondisi ekstrem.",
+        body: `<p>Freon R32 dan R410A beroperasi pada tekanan kerja sekitar 1,6 kali lipat lebih tinggi dibandingkan freon R22 generasi lama. Menggunakan pipa tembaga tipis (ketebalan 0.5mm atau kurang) adalah penyebab utama kebocoran mikroskopis dan ledakan pipa saat beban puncak musim kemarau.</p>
+<p>APTI mewajibkan penggunaan pipa tembaga berkode ASTM B280 dengan ketebalan minimal 0.61mm (grade H atau setara) demi menjamin keamanan dan masa pakai unit di atas 10 tahun.</p>`,
+        coverUrl:
+          "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1200&q=80",
+        status: "published",
+        publishedAt: new Date("2026-07-28T14:00:00.000Z"),
         authorId: owner.id,
       },
     ]);
