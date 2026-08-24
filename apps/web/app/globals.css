@@ -7814,8 +7814,19 @@ img {
 
 .category-pills {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  padding-bottom: 2px;
+  flex-wrap: nowrap;
+}
+
+.category-pills::-webkit-scrollbar {
+  display: none;
 }
 
 .pill-btn {
@@ -7828,6 +7839,8 @@ img {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .pill-btn:hover {
@@ -17099,11 +17112,21 @@ img {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  padding-bottom: 2px;
+  flex-wrap: nowrap;
+}
+
+.stories-filter-pills::-webkit-scrollbar {
+  display: none;
 }
 
 .filter-pill-btn {
-  padding: 6px 12px;
+  padding: 6px 13px;
   border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
@@ -17112,6 +17135,8 @@ img {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .filter-pill-btn:hover {
@@ -17919,6 +17944,17 @@ img {
   .stories-toolbar-card {
     flex-direction: column;
     align-items: stretch;
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .stories-filter-pills {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .stories-search-box {
