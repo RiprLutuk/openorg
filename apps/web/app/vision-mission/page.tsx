@@ -210,13 +210,13 @@ export default async function VisionMissionPage() {
       </header>
 
       {/* 2. Grand Vision Card (Heroic Statement) */}
-      <section className="vm-grand-vision-section section-space">
+      <section className="vm-grand-vision-section">
         <div className="wrap">
           <div className="grand-vision-card">
             <div className="grand-vision-glow" />
             <div className="grand-vision-head">
               <div className="vision-pill-tag">
-                <Lightbulb size={16} />
+                <Compass size={15} />
                 <span>VISI UTAMA ASOSIASI</span>
               </div>
             </div>
@@ -230,23 +230,31 @@ export default async function VisionMissionPage() {
             </blockquote>
 
             <div className="vision-tenets-row">
-              <div className="vision-tenet">
-                <div className="tenet-dot" />
-                <div>
+              <div className="vision-tenet-card">
+                <div className="tenet-icon-badge blue">
+                  <Award size={18} />
+                </div>
+                <div className="tenet-info">
                   <strong>Kompetensi Berkelanjutan</strong>
                   <p>Harmonisasi standar keahlian teknisi berlisensi BNSP.</p>
                 </div>
               </div>
-              <div className="vision-tenet">
-                <div className="tenet-dot" />
-                <div>
+
+              <div className="vision-tenet-card">
+                <div className="tenet-icon-badge emerald">
+                  <ShieldCheck size={18} />
+                </div>
+                <div className="tenet-info">
                   <strong>Perlindungan Konsumen</strong>
                   <p>Kepastian garansi dan transparansi kode etik profesi.</p>
                 </div>
               </div>
-              <div className="vision-tenet">
-                <div className="tenet-dot" />
-                <div>
+
+              <div className="vision-tenet-card">
+                <div className="tenet-icon-badge indigo">
+                  <Leaf size={18} />
+                </div>
+                <div className="tenet-info">
                   <strong>Kelestarian Lingkungan</strong>
                   <p>
                     Implementasi refrigeran ramah iklim dan efisiensi energi.
@@ -259,7 +267,7 @@ export default async function VisionMissionPage() {
       </section>
 
       {/* 3. Five Strategic Missions Bento */}
-      <section className="vm-missions-section section-space">
+      <section className="vm-missions-section">
         <div className="wrap">
           <div className="section-heading">
             <span className="eyebrow">AGENDA AKSI & MISI</span>
