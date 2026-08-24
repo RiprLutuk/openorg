@@ -9475,13 +9475,13 @@ img {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 20px;
-  padding: 22px 24px;
+  padding: 20px 22px;
   box-shadow:
     0 10px 30px rgba(15, 23, 42, 0.05),
     0 1px 3px rgba(15, 23, 42, 0.03);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   position: relative;
 }
 
@@ -9489,8 +9489,8 @@ img {
   content: "";
   position: absolute;
   top: 0;
-  left: 24px;
-  right: 24px;
+  left: 20px;
+  right: 20px;
   height: 2px;
   background: linear-gradient(90deg, #0284c7 0%, #38bdf8 50%, #6366f1 100%);
   border-radius: 2px;
@@ -9500,7 +9500,7 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -9521,23 +9521,17 @@ img {
 .stats-card-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-@media (max-width: 480px) {
-  .stats-card-grid {
-    grid-template-columns: 1fr;
-  }
+  gap: 10px;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 10px;
+  padding: 10px 12px;
   background: #f8fafc;
   border: 1px solid #f1f5f9;
-  border-radius: 14px;
+  border-radius: 12px;
   transition: all 0.15s ease;
 }
 
@@ -9549,8 +9543,8 @@ img {
 }
 
 .stat-icon-wrap {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -9560,7 +9554,7 @@ img {
 
 .stat-item strong {
   display: block;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 800;
   color: #0f172a;
   line-height: 1.25;
@@ -9568,9 +9562,140 @@ img {
 
 .stat-item small {
   display: block;
-  font-size: 11px;
+  font-size: 10.5px;
   color: #64748b;
   margin-top: 1px;
+}
+
+/* Mobile Hero Perfection (<640px) */
+@media (max-width: 640px) {
+  .org-profile-hero,
+  .tech-hero,
+  .vm-hero,
+  .struct-hero,
+  .reg-hero,
+  .adart-hero {
+    padding: 24px 0 20px !important;
+  }
+
+  .org-profile-hero-grid,
+  .hero-split-grid,
+  .vm-hero-grid,
+  .struct-hero-grid,
+  .reg-hero-grid,
+  .adart-hero-grid {
+    gap: 16px !important;
+  }
+
+  .org-hero-badge-pill,
+  .tech-hero-pill,
+  .vm-hero-pill,
+  .struct-hero-pill,
+  .reg-hero-pill {
+    display: inline-flex !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    font-size: 10px !important;
+    letter-spacing: 0.4px !important;
+    padding: 4px 10px !important;
+    margin-bottom: 10px !important;
+    line-height: 1.35 !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+  }
+
+  .org-hero-title,
+  .tech-hero-title,
+  .vm-hero-title,
+  .struct-hero-title,
+  .reg-hero-title {
+    font-size: clamp(22px, 6vw, 26px) !important;
+    line-height: 1.22 !important;
+    margin-bottom: 8px !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .org-hero-lead,
+  .tech-hero-lead,
+  .vm-hero-lead,
+  .struct-hero-lead,
+  .reg-hero-lead {
+    font-size: 13.5px !important;
+    line-height: 1.5 !important;
+    margin-bottom: 14px !important;
+  }
+
+  .org-hero-cta-row,
+  .vm-hero-actions,
+  .struct-hero-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .btn-hero-primary,
+  .btn-hero-secondary,
+  .btn-hero-ghost {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 40px !important;
+    font-size: 13px !important;
+    padding: 9px 14px !important;
+  }
+
+  .hero-stats-bento-card {
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+    gap: 10px !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
+  }
+
+  .stats-card-header {
+    padding-bottom: 8px !important;
+  }
+
+  .stats-card-badge {
+    font-size: 10px !important;
+  }
+
+  .stats-card-status {
+    font-size: 10px !important;
+  }
+
+  .stats-card-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .stat-item {
+    padding: 8px 10px !important;
+    gap: 8px !important;
+    border-radius: 10px !important;
+  }
+
+  .stat-icon-wrap {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
+  }
+
+  .stat-icon-wrap svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .stat-item strong {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+
+  .stat-item small {
+    font-size: 9.5px !important;
+    line-height: 1.15 !important;
+  }
 }
 
 /* 3. Strategic Pillars Bento */
@@ -13681,8 +13806,8 @@ img {
     border-radius: 12px;
     gap: 8px;
     align-items: center;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
   }
 
   .tech-metric-icon {
@@ -13700,13 +13825,13 @@ img {
   .tech-metric-box strong {
     font-size: 11.5px;
     font-weight: 750;
-    color: #ffffff;
+    color: #0f172a;
     line-height: 1.2;
   }
 
   .tech-metric-box small {
     font-size: 9.5px;
-    color: #94a3b8;
+    color: #64748b;
     line-height: 1.15;
     margin-top: 1px;
   }
@@ -15733,6 +15858,23 @@ img {
   color: #0284c7;
   border-color: #cbd5e1;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 640px) {
+  .events-suite-tabs-row {
+    margin-bottom: 16px;
+  }
+  .events-suite-tabs-nav {
+    padding: 4px;
+    border-radius: 12px;
+    gap: 4px;
+    width: 100%;
+  }
+  .suite-tab-btn {
+    padding: 7px 12px;
+    font-size: 12px;
+    gap: 6px;
+  }
 }
 
 /* Swiss Modern Spotlight Feature Card (Wide Expansive Layout) */

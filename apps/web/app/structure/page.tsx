@@ -38,7 +38,7 @@ export default async function StructurePage() {
           <div className="struct-hero-inner">
             <div className="struct-hero-pill">
               <Network size={14} />
-              <span>TATA KELOLA KEPENGURUSAN RESMI</span>
+              <span>STRUKTUR DPP & DPD</span>
             </div>
 
             <h1 className="struct-hero-title">

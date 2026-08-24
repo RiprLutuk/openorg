@@ -141,7 +141,7 @@ export default async function VisionMissionPage() {
           <div className="vm-hero-inner">
             <div className="vm-hero-pill">
               <Compass size={14} />
-              <span>ARAH STRATEGIS & ETIKA ORGANISASI</span>
+              <span>VISI & MISI STRATEGIS</span>
             </div>
 
             <h1 className="vm-hero-title">

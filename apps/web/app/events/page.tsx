@@ -365,9 +365,7 @@ export default function EventsPage() {
           <div className="tech-hero-inner">
             <div className="tech-hero-pill">
               <GraduationCap size={14} />
-              <span>
-                AKADEMI VOKASI & PENGEMBANGAN PROFESI BERKELANJUTAN (CPD)
-              </span>
+              <span>AKADEMI VOKASI & KREDIT SKP (CPD)</span>
             </div>
 
             <h1 className="tech-hero-title">

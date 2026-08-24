@@ -470,7 +470,7 @@ function AdArtContent() {
           <div className="adart-hero-inner">
             <div className="org-hero-badge-pill">
               <Scale size={14} />
-              <span>LANDASAN HUKUM & KONSTITUSI ORGANISASI</span>
+              <span>KONSTITUSI & KODE ETIK</span>
             </div>
 
             <h1 className="org-hero-title">

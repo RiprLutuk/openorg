@@ -211,7 +211,7 @@ function RegulationsContent() {
           <div className="reg-hero-inner">
             <div className="reg-hero-pill">
               <BookOpen size={14} />
-              <span>REPOSITORI REGULASI INDUSTRI & KEBIJAKAN SEKTOR</span>
+              <span>REGULASI & KEBIJAKAN RESMI</span>
             </div>
 
             <h1 className="reg-hero-title">
