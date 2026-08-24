@@ -27,6 +27,9 @@
 - [x] Fix and harden all CMS Studio routes & manager screens (`#governance`, `#credentials`, `#learning`, `#revenue`, `#applications`, `#inbox`, `#regulations`, `#complaints`, `#technicians`, `#clubs`, `#championships`, `#working-groups`, `#lenders`, `#statistics`).
 - [x] 100% empirical verification: monorepo builds, typecheck, Biome linting, 45/45 tests passing.
 - [x] Synchronized and pushed `dev`, `staging`, and `main` branches to remote.
+- [x] Universal Design System Refactor across all 15+ subpages (React SaaS / Meraki UI / Flowbite standards).
+- [x] Member Portal email verification security gating & workshop promotion showcase.
+- [x] Full-spectrum high-contrast Dark SaaS color sweep (eliminated all remaining low-contrast dark font instances).
 
 ---
 
