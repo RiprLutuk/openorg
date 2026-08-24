@@ -139,3 +139,27 @@ This log records major technical, architectural, and UI/UX design decisions made
   - **Empirical Verification & Git Multi-Branch Push**:
     - Verified 100% typecheck (`bun run typecheck`), Biome linting (`bun run lint`), 45/45 test suite (`bun test`), and Next.js / Vite production builds (`bun run build`).
     - Committed changes to `dev`, pushed to `origin/dev`, merged into `staging` and `main`, and pushed to all remote branches on GitHub.
+
+---
+
+### [2026-08-25] Email Verification Security Gating & Member Workshop Showcase Directory
+- **Decision**: Implemented mandatory email verification gating across sensitive member privileges (KTA card issuance, training enrollment, credential submissions) and built a comprehensive workshop/store advertising benefit for members with public directory integration.
+- **Implementation**:
+  - **Email Verification Security Gating**:
+    - **Digital KTA Card**: When unverified (`!emailVerified`), card is frosted/blurred with a high-security lock overlay modal (`KTA Digital Dikunci Sementara`) directing user to `/member/verify-email`.
+    - **Learning & Academy Enrollment**: Gated backend `POST /learning/enroll` to verify `memberAccounts.emailVerifiedAt` before creating registration (returning `403 EMAIL_VERIFICATION_REQUIRED`), and disabled client enrollment buttons with lock icons and informative warning banners.
+    - **Credential Submissions**: Gated credential submission buttons until email is verified.
+  - **Member Workshop Promotion Showcase (`MemberWorkshopPromo`)**:
+    - Built comprehensive ad manager in the member portal allowing members to publish their workshop name, category, city/province, full address, WhatsApp number, specialty service tags, operating hours, and description.
+    - Added real-time live preview mockup showing the official APTI Verified Member badge.
+    - Persisted data via `PATCH /v1/member/profile` (`metadata.workshopAd`) and synchronized with local storage.
+  - **Public Directory Integration (`/technicians` & `/partners`)**:
+    - `/technicians`: Added interactive Tab switcher between **"Direktori Teknisi Berlisensi"** and **"Bursa Bengkel & Toko Resmi Anggota"** with category filter, province filter, verified KTA links, and direct WhatsApp booking.
+    - `/partners`: Added **"Ekosistem Bengkel Workshop & Toko Mitra Anggota"** spotlight box connecting visitors to the member workshop network.
+    - Refactored `/technicians` and `/partners` hero sections to 2-column split heroes with bento metrics.
+  - **Empirical Verification**:
+    - 100% Typecheck passed (`bun run typecheck`).
+    - 45/45 unit test suite passed (`bun test`).
+    - All 27 Next.js static and dynamic routes compiled cleanly (`bun run build`).
+    - Pushed changes to `dev`, `staging`, and `main` branches on GitHub.
+
