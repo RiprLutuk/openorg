@@ -69,7 +69,10 @@ export default async function RootLayout({
     "--radius-lg": isNone ? "0px" : isPill ? "9999px" : "16px",
   } as CSSProperties;
   return (
-    <html lang={site.organization.locale.split("-")[0]}>
+    <html
+      lang={site.organization.locale.split("-")[0]}
+      data-scroll-behavior="smooth"
+    >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
