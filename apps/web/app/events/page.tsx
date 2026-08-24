@@ -611,7 +611,7 @@ export default function EventsPage() {
                             </span>
                             <span className="event-skp-pill">
                               <Award size={13} />
-                              <span>+{event.skpPoints} SKP</span>
+                              <span>+{event.skpPoints} SKP CPD</span>
                             </span>
                           </div>
 
@@ -627,14 +627,14 @@ export default function EventsPage() {
                             </p>
                           </div>
 
-                          {/* Clean Airy Metadata List */}
+                          {/* Clean Borderless Metadata List */}
                           <div className="event-card-meta-list">
                             <div className="event-meta-line">
                               <CalendarDays
                                 size={15}
                                 className="meta-icon text-sky"
                               />
-                              <span>
+                              <span className="meta-line-text">
                                 {startDate.toLocaleDateString("id-ID", {
                                   day: "numeric",
                                   month: "short",
@@ -649,7 +649,7 @@ export default function EventsPage() {
                                 size={15}
                                 className="meta-icon text-emerald"
                               />
-                              <span>
+                              <span className="meta-line-text">
                                 <strong>{event.city}</strong> ·{" "}
                                 {event.locationName}
                               </span>
@@ -660,26 +660,35 @@ export default function EventsPage() {
                                 size={15}
                                 className="meta-icon text-purple"
                               />
-                              <span>{event.instructor}</span>
+                              <span className="meta-line-text">
+                                {event.instructor}
+                              </span>
                             </div>
                           </div>
 
-                          {/* Card Footer: Fee & Action CTA */}
+                          {/* Card Footer: Fee & Full Width CTA */}
                           <div className="event-card-footer">
-                            <div className="event-footer-info">
-                              <small>
-                                {remainingQuota < 20
-                                  ? `Sisa ${remainingQuota} Kursi`
-                                  : "Biaya Kontribusi"}
-                              </small>
-                              <strong>{event.fee}</strong>
+                            <div className="event-footer-info-row">
+                              <div className="event-footer-fee">
+                                <small>Biaya Kontribusi</small>
+                                <strong>{event.fee}</strong>
+                              </div>
+                              <div className="event-footer-quota">
+                                <span
+                                  className={`quota-chip ${remainingQuota < 20 ? "urgent" : ""}`}
+                                >
+                                  {remainingQuota < 20
+                                    ? `Sisa ${remainingQuota} Kursi`
+                                    : `${remainingQuota} Kursi Tersedia`}
+                                </span>
+                              </div>
                             </div>
 
                             <Link
                               href={`/events/${event.slug}`}
-                              className="btn-event-action"
+                              className="btn-event-action-full"
                             >
-                              <span>Lihat Agenda</span>
+                              <span>Lihat Detail Agenda</span>
                               <ArrowRight size={14} />
                             </Link>
                           </div>
