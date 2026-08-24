@@ -24,19 +24,49 @@ function notify(member: LoggedInMember | null) {
   }
 }
 
+export function isMemberLoginHintPresent(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    if (localStorage.getItem("openorg_member_logged_in") === "1") return true;
+    if (document.cookie.includes("openorg_member_active=1")) return true;
+    if (window.location.pathname.startsWith("/member")) return true;
+  } catch {
+    // Storage access blocked or SSR
+  }
+  return false;
+}
+
 let inFlightAuthPromise: Promise<LoggedInMember | null> | null = null;
 
-export function checkMemberAuth() {
+export function checkMemberAuth(force = false) {
   if (inFlightAuthPromise) return inFlightAuthPromise;
+
+  // Skip network call for public guests who have not logged in
+  if (!force && !isMemberLoginHintPresent()) {
+    notify(null);
+    return Promise.resolve(null);
+  }
 
   inFlightAuthPromise = memberApi<{ data: { member: LoggedInMember } }>(
     "/v1/member/session",
   )
     .then((res) => {
+      try {
+        localStorage.setItem("openorg_member_logged_in", "1");
+      } catch {
+        // Storage access blocked
+      }
       notify(res.data.member);
       return res.data.member;
     })
     .catch(() => {
+      try {
+        localStorage.removeItem("openorg_member_logged_in");
+        document.cookie =
+          "openorg_member_active=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      } catch {
+        // Storage access blocked
+      }
       notify(null);
       return null;
     })

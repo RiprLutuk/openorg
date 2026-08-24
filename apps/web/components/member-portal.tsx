@@ -230,6 +230,11 @@ export function MemberPortal() {
   useEffect(() => loadPortal(), [loadPortal]);
 
   const logout = async () => {
+    try {
+      localStorage.removeItem("openorg_member_logged_in");
+    } catch {
+      // storage blocked
+    }
     await memberApi("/v1/member/logout", { method: "POST" });
     window.location.assign("/member/login");
   };

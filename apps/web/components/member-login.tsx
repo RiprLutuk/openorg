@@ -61,6 +61,11 @@ export function MemberLogin({
           password,
         }),
       });
+      try {
+        localStorage.setItem("openorg_member_logged_in", "1");
+      } catch {
+        // storage blocked
+      }
       window.location.assign("/member");
     } catch (reason) {
       setError(

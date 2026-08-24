@@ -528,16 +528,20 @@ export default function EventsPage() {
 
                   <div className="spotlight-right">
                     <div className="spotlight-reward-box">
-                      <div>
+                      <div className="spotlight-reward-header">
                         <div className="reward-pill">
                           <Award size={16} />
                           <span>+{featuredEvent.skpPoints} SKP CPD RESMI</span>
                         </div>
-                        <div className="spotlight-fee-row">
+                      </div>
+
+                      <div className="spotlight-reward-content">
+                        <div className="spotlight-info-card">
                           <small>Biaya Kontribusi:</small>
                           <strong>{featuredEvent.fee}</strong>
                         </div>
-                        <div className="spotlight-speaker-row">
+
+                        <div className="spotlight-info-card">
                           <small>Penguji / Asesor:</small>
                           <span>{featuredEvent.instructor}</span>
                         </div>
