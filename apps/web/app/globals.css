@@ -12851,8 +12851,69 @@ img {
 }
 
 @media (max-width: 640px) {
+  .tech-hero {
+    padding: 36px 0 28px;
+  }
+
+  .tech-hero-pill {
+    padding: 4px 10px;
+    font-size: 10px;
+    margin-bottom: 14px;
+    gap: 6px;
+  }
+
+  .tech-hero-title {
+    font-size: 24px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .tech-hero-lead {
+    font-size: 13.5px;
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+
   .tech-hero-metrics {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  .tech-metric-box {
+    padding: 10px 10px;
+    border-radius: 12px;
+    gap: 8px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .tech-metric-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .tech-metric-icon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .tech-metric-box strong {
+    font-size: 11.5px;
+    font-weight: 750;
+    color: #ffffff;
+    line-height: 1.2;
+  }
+
+  .tech-metric-box small {
+    font-size: 9.5px;
+    color: #94a3b8;
+    line-height: 1.15;
+    margin-top: 1px;
   }
 
   .tech-cards-grid {
