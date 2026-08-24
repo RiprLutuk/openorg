@@ -299,8 +299,8 @@ export default function StatisticsPage() {
                   alert("Mengunduh Laporan Statistik Tahunan HVAC/R 2026...")
                 }
               >
-                <Download size={15} />
-                <span>Unduh Lembar Fakta (PDF)</span>
+                <Download size={14} />
+                <span>Unduh Laporan (PDF)</span>
               </button>
             </div>
           </div>

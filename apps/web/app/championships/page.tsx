@@ -3,12 +3,14 @@
 import {
   Award,
   Calendar,
+  CheckCircle2,
   Compass,
   Crown,
   Flag,
   Flame,
   Gauge,
   Loader2,
+  MapPin,
   Medal,
   Search,
   ShieldCheck,
@@ -274,29 +276,39 @@ export default function ChampionshipsPage() {
                             </span>
                           </td>
                           <td className="contestant-td">
-                            <strong>{row.participantName}</strong>
-                            {row.unitName && (
-                              <span className="workshop-chip">
-                                {row.unitName}
-                              </span>
-                            )}
+                            <div className="contestant-info">
+                              <strong className="contestant-name">
+                                {row.participantName}
+                              </strong>
+                              {row.unitName && (
+                                <span className="workshop-chip">
+                                  {row.unitName}
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="team-td">
-                            <span className="team-pill">
-                              {row.teamName ?? "Mandiri"}
-                            </span>
+                            <div className="team-cell">
+                              <MapPin size={13} color="#64748b" />
+                              <span>{row.teamName ?? "Mandiri"}</span>
+                            </div>
                           </td>
                           <td className="points-td">
                             <div className="points-wrap">
-                              <Star size={13} color="#f59e0b" />
+                              <Star size={13} color="#f59e0b" fill="#f59e0b" />
                               <strong>{row.points} Pts</strong>
                             </div>
                           </td>
                           <td className="achievement-td">
                             {row.achievements ? (
-                              <span className="achievement-badge">
-                                {row.achievements}
-                              </span>
+                              <div className="achievement-clean-badge">
+                                <CheckCircle2
+                                  size={13}
+                                  color="#16a34a"
+                                  style={{ flexShrink: 0 }}
+                                />
+                                <span>{row.achievements}</span>
+                              </div>
                             ) : (
                               <span className="text-muted">-</span>
                             )}
