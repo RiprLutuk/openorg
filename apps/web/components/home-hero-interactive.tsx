@@ -121,37 +121,41 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
 
           {/* Key Metrics / Live Counters */}
           <div className="hero-metrics-row">
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
+            <div className="hero-metric-item">
+              <div className="hero-metric-icon">
                 <Building2 size={18} />
               </div>
-              <div className="metric-copy">
-                <strong>{unitCount || "14+"}</strong>
-                <span>Pengurus Wilayah</span>
+              <div className="hero-metric-data">
+                <strong className="hero-metric-num">
+                  {unitCount || "14+"}
+                </strong>
+                <span className="hero-metric-lbl">Pengurus Wilayah</span>
               </div>
             </div>
 
             <div className="metric-separator" />
 
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
+            <div className="hero-metric-item">
+              <div className="hero-metric-icon">
                 <GraduationCap size={18} />
               </div>
-              <div className="metric-copy">
-                <strong>{eventCount || "8+"}</strong>
-                <span>Agenda & SKP</span>
+              <div className="hero-metric-data">
+                <strong className="hero-metric-num">
+                  {eventCount || "8+"}
+                </strong>
+                <span className="hero-metric-lbl">Agenda & SKP</span>
               </div>
             </div>
 
             <div className="metric-separator" />
 
-            <div className="metric-box">
-              <div className="metric-icon-wrap">
+            <div className="hero-metric-item">
+              <div className="hero-metric-icon">
                 <ShieldCheck size={18} />
               </div>
-              <div className="metric-copy">
-                <strong>100%</strong>
-                <span>Terverifikasi</span>
+              <div className="hero-metric-data">
+                <strong className="hero-metric-num">100%</strong>
+                <span className="hero-metric-lbl">Terverifikasi</span>
               </div>
             </div>
           </div>

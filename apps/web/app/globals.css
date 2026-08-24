@@ -3717,31 +3717,31 @@ img {
 .hero-metrics-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding: 14px 12px;
+  gap: 10px;
+  padding: 14px 16px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   width: 100%;
   max-width: 520px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
 }
 
 @media (min-width: 900px) {
   .hero-metrics-row {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 20px;
     width: fit-content;
     max-width: none;
     background: #ffffff;
     border-color: #eaecf0;
-    padding: 12px 18px;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    padding: 12px 20px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   }
 }
 
-.metric-box {
+.hero-metric-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3750,17 +3750,17 @@ img {
 }
 
 @media (min-width: 900px) {
-  .metric-box {
+  .hero-metric-item {
     flex-direction: row;
     text-align: left;
-    gap: 10px;
+    gap: 12px;
   }
 }
 
-.metric-icon-wrap {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+.hero-metric-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background: #f0f9ff;
   border: 1px solid #bae6fd;
   color: #0284c7;
@@ -3770,31 +3770,34 @@ img {
   transition: all 0.15s ease;
 }
 
-.metric-box:hover .metric-icon-wrap {
+.hero-metric-item:hover .hero-metric-icon {
   background: #0284c7;
   color: #ffffff;
   border-color: #0284c7;
 }
 
-.metric-copy {
+.hero-metric-data {
   display: flex;
   flex-direction: column;
 }
 
-.metric-copy strong {
-  font-size: 16px;
+.hero-metric-num {
+  font-size: 17px;
   font-weight: 800;
-  color: #0f172a;
+  color: #0f172a !important;
   line-height: 1.15;
   letter-spacing: -0.01em;
+  display: block;
 }
 
-.metric-copy span {
-  font-size: 10.5px;
+.hero-metric-lbl {
+  font-size: 11px;
   font-weight: 600;
-  color: #475569;
+  color: #475569 !important;
   margin-top: 1px;
   line-height: 1.25;
+  display: block;
+  white-space: nowrap;
 }
 
 .metric-separator {
@@ -3805,7 +3808,7 @@ img {
   .metric-separator {
     display: block;
     width: 1px;
-    height: 24px;
+    height: 26px;
     background: #eaecf0;
   }
 }
@@ -9065,7 +9068,7 @@ img {
   width: 100%;
 }
 
-.metric-box {
+.org-hero-metrics-bar .metric-box {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 16px;
@@ -9078,13 +9081,13 @@ img {
   transition: all 0.2s ease;
 }
 
-.metric-box:hover {
+.org-hero-metrics-bar .metric-box:hover {
   background: rgba(255, 255, 255, 0.07);
   border-color: rgba(255, 255, 255, 0.16);
   transform: translateY(-2px);
 }
 
-.metric-icon-wrap {
+.org-hero-metrics-bar .metric-icon-wrap {
   width: 44px;
   height: 44px;
   border-radius: 12px;
@@ -9095,7 +9098,7 @@ img {
   flex-shrink: 0;
 }
 
-.metric-box strong {
+.org-hero-metrics-bar .metric-box strong {
   display: block;
   font-size: 16px;
   font-weight: 800;
@@ -9103,7 +9106,7 @@ img {
   line-height: 1.2;
 }
 
-.metric-box small {
+.org-hero-metrics-bar .metric-box small {
   display: block;
   font-size: 11px;
   color: #94a3b8;
