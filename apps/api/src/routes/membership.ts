@@ -891,7 +891,11 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
         });
         await db
           .update(members)
-          .set({ memberNumber, status: "active" })
+          .set({
+            memberNumber,
+            status: "active",
+            joinedAt: member.member.joinedAt ?? new Date(),
+          })
           .where(eq(members.id, id));
       }
 
@@ -919,6 +923,7 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
           member: {
             ...member.member,
             memberNumber,
+            joinedAt: member.member.joinedAt ?? new Date(),
             unitName: member.unit?.name ?? null,
           },
           card,
@@ -973,7 +978,11 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
         });
         await db
           .update(members)
-          .set({ memberNumber, status: "active" })
+          .set({
+            memberNumber,
+            status: "active",
+            joinedAt: member.member.joinedAt ?? new Date(),
+          })
           .where(eq(members.id, id));
       }
 
