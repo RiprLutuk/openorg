@@ -12,6 +12,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   CircleHelp,
   Copy,
@@ -336,6 +337,102 @@ function SearchableSelect({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export function TablePagination({
+  currentPage,
+  totalItems,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+  pageSizeOptions = [10, 25, 50, 100],
+}: {
+  currentPage: number;
+  totalItems: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange?: (size: number) => void;
+  pageSizeOptions?: number[];
+}) {
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(totalItems, currentPage * pageSize);
+
+  if (totalItems <= 0) return null;
+
+  return (
+    <div className="table-pagination">
+      <div className="pagination-info">
+        <span>
+          Menampilkan <strong>{startItem}</strong> - <strong>{endItem}</strong> dari{" "}
+          <strong>{totalItems}</strong> data
+        </span>
+        {onPageSizeChange && (
+          <div className="page-size-selector">
+            <span>Per halaman:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                onPageSizeChange(Number(e.target.value));
+                onPageChange(1);
+              }}
+            >
+              {pageSizeOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      <div className="pagination-nav">
+        <button
+          type="button"
+          className="pagination-btn"
+          disabled={currentPage <= 1}
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          title="Halaman Sebelumnya"
+        >
+          <ChevronLeft size={15} />
+          <span>Sebelumnya</span>
+        </button>
+
+        <div className="pagination-pages">
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+            .map((p, idx, arr) => {
+              const prev = arr[idx - 1];
+              const showEllipsis = prev && p - prev > 1;
+              return (
+                <span key={p} className="page-number-wrap">
+                  {showEllipsis && <span className="pagination-ellipsis">…</span>}
+                  <button
+                    type="button"
+                    className={`pagination-number ${currentPage === p ? "active" : ""}`}
+                    onClick={() => onPageChange(p)}
+                  >
+                    {p}
+                  </button>
+                </span>
+              );
+            })}
+        </div>
+
+        <button
+          type="button"
+          className="pagination-btn"
+          disabled={currentPage >= totalPages}
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          title="Halaman Berikutnya"
+        >
+          <span>Berikutnya</span>
+          <ChevronRight size={15} />
+        </button>
+      </div>
     </div>
   );
 }
@@ -1299,6 +1396,9 @@ function Pages() {
   const [editor, setEditor] = useState<CmsPage | "new" | null>(null);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const query = useQuery({
     queryKey: ["pages", search],
     queryFn: () =>
@@ -1310,6 +1410,11 @@ function Pages() {
     status === "all"
       ? (query.data?.data ?? [])
       : (query.data?.data ?? []).filter((page) => page.status === status);
+  const paginatedPages = visiblePages.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   const remove = useMutation({
     mutationFn: (id: string) =>
       api(`/v1/admin/pages/${id}`, { method: "DELETE" }),
@@ -1340,7 +1445,10 @@ function Pages() {
             <Search size={18} />
             <input
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Search pages…"
             />
           </label>
@@ -1348,7 +1456,10 @@ function Pages() {
             <span>Status</span>
             <select
               value={status}
-              onChange={(event) => setStatus(event.target.value)}
+              onChange={(event) => {
+                setStatus(event.target.value);
+                setCurrentPage(1);
+              }}
             >
               <option value="all">All statuses</option>
               <option value="draft">Draft</option>
@@ -1365,7 +1476,7 @@ function Pages() {
             <span>Last updated</span>
             <span />
           </div>
-          {visiblePages.map((page) => (
+          {paginatedPages.map((page) => (
             <div className="table-row" key={page.id}>
               <span className="primary-cell">
                 <span className="doc-icon">
@@ -1411,6 +1522,13 @@ function Pages() {
         {!query.data?.data.length && (
           <Empty message="Create your first page and bring your public site to life." />
         )}
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={visiblePages.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
     </>
   );
@@ -2675,6 +2793,9 @@ function EventsManager() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
   const [editor, setEditor] = useState<CmsEvent | "new" | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const query = useQuery({
     queryKey: ["events", search],
     queryFn: () =>
@@ -2682,6 +2803,12 @@ function EventsManager() {
         `/v1/admin/events?limit=100&search=${encodeURIComponent(search)}`,
       ),
   });
+  const items = query.data?.data ?? [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   const remove = useMutation({
     mutationFn: (id: string) =>
       api(`/v1/admin/events/${id}`, { method: "DELETE" }),
@@ -2715,12 +2842,15 @@ function EventsManager() {
             <Search size={18} />
             <input
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Search events…"
             />
           </label>
           <span className="result-count">
-            {query.data?.data.length ?? 0} events
+            {items.length} events
           </span>
         </div>
         <div className="data-table">
@@ -2730,7 +2860,7 @@ function EventsManager() {
             <span>Status</span>
             <span />
           </div>
-          {query.data?.data.map((item) => (
+          {paginatedItems.map((item) => (
             <div className="table-row events-row" key={item.id}>
               <span className="primary-cell">
                 <span className="doc-icon">
@@ -2776,9 +2906,16 @@ function EventsManager() {
             </div>
           ))}
         </div>
-        {!query.isLoading && !query.data?.data.length && (
+        {!query.isLoading && !items.length && (
           <Empty message="No events match this view." />
         )}
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
     </>
   );
@@ -4799,6 +4936,8 @@ function ApplicationsManager() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("pending");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [selected, setSelected] = useState<CmsMembershipApplication | null>(
     null,
   );
@@ -4873,6 +5012,10 @@ function ApplicationsManager() {
     });
   };
   const items = query.data?.data ?? [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
   return (
     <>
       <PageHeading
@@ -4887,7 +5030,10 @@ function ApplicationsManager() {
               <Search size={18} />
               <input
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setCurrentPage(1);
+                }}
                 placeholder="Search applicants…"
               />
             </label>
@@ -4896,6 +5042,7 @@ function ApplicationsManager() {
               onChange={(event) => {
                 setStatus(event.target.value);
                 setSelected(null);
+                setCurrentPage(1);
               }}
             >
               <option value="">All status</option>
@@ -4906,7 +5053,7 @@ function ApplicationsManager() {
             </select>
           </div>
           <div className="submission-list application-list">
-            {items.map((item) => {
+            {paginatedItems.map((item) => {
               const memberName =
                 item.member?.name ?? (item as any).fullName ?? "Pemohon";
               const memberEmail =
@@ -4942,6 +5089,13 @@ function ApplicationsManager() {
           {!query.isLoading && !items.length && (
             <Empty message="No membership applications match this view." />
           )}
+          <TablePagination
+            currentPage={currentPage}
+            totalItems={items.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+          />
         </section>
         <section className="panel submission-detail application-detail">
           {selected ? (
@@ -6136,6 +6290,8 @@ function MembersManager() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
   const [editor, setEditor] = useState<CmsMember | "new" | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedCardMember, setSelectedCardMember] =
     useState<CmsMember | null>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -6147,6 +6303,12 @@ function MembersManager() {
         `/v1/admin/members?limit=100&search=${encodeURIComponent(search)}`,
       ),
   });
+  const items = query.data?.data ?? [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   const remove = useMutation({
     mutationFn: (id: string) =>
       api(`/v1/admin/members/${id}`, { method: "DELETE" }),
@@ -6202,12 +6364,15 @@ function MembersManager() {
             <Search size={18} />
             <input
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Search name or KTA number…"
             />
           </label>
           <span className="result-count">
-            {query.data?.data.length ?? 0} members
+            {items.length} members
           </span>
         </div>
         <div className="data-table">
@@ -6217,7 +6382,7 @@ function MembersManager() {
             <span>Status</span>
             <span />
           </div>
-          {query.data?.data.map((item) => (
+          {paginatedItems.map((item) => (
             <div className="table-row members-row" key={item.id}>
               <span className="primary-cell">
                 <span className="member-avatar">
@@ -6271,9 +6436,16 @@ function MembersManager() {
             </div>
           ))}
         </div>
-        {!query.isLoading && !query.data?.data.length && (
+        {!query.isLoading && !items.length && (
           <Empty message="No members match this view." />
         )}
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
     </>
   );
@@ -8768,6 +8940,8 @@ function RegulationsManager() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [isCreating, setIsCreating] = useState(false);
 
   const query = useQuery({
@@ -8806,6 +8980,10 @@ function RegulationsManager() {
       return false;
     return true;
   });
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   if (query.isLoading) return <PageLoading />;
   if (query.isError) return <FatalError message={query.error.message} />;
@@ -8951,7 +9129,7 @@ function RegulationsManager() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {paginatedItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <strong>{item.title}</strong>
@@ -8991,6 +9169,13 @@ function RegulationsManager() {
             )}
           </tbody>
         </table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </section>
     </>
   );
@@ -9000,6 +9185,8 @@ function ComplaintsManager() {
   const client = useQueryClient();
   const [selected, setSelected] = useState<CmsComplaint | null>(null);
   const [notesInput, setNotesInput] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const query = useQuery({
     queryKey: ["complaints"],
@@ -9035,6 +9222,10 @@ function ComplaintsManager() {
   });
 
   const items = query.data?.data ?? [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   if (query.isLoading) return <PageLoading />;
   if (query.isError) return <FatalError message={query.error.message} />;
@@ -9058,7 +9249,7 @@ function ComplaintsManager() {
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
+              {paginatedItems.map((item) => (
                 <tr
                   key={item.id}
                   className={selected?.id === item.id ? "active" : ""}
@@ -9088,6 +9279,13 @@ function ComplaintsManager() {
               )}
             </tbody>
           </table>
+          <TablePagination
+            currentPage={currentPage}
+            totalItems={items.length}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+          />
         </section>
         <section className="inbox-detail">
           {selected ? (
@@ -9238,6 +9436,8 @@ function TechniciansManager() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const query = useQuery({
     queryKey: ["technicians"],
@@ -9278,6 +9478,10 @@ function TechniciansManager() {
       return false;
     return true;
   });
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   if (query.isLoading) return <PageLoading />;
   if (query.isError) return <FatalError message={query.error.message} />;
@@ -9410,7 +9614,7 @@ function TechniciansManager() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {paginatedItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <strong>{item.name}</strong>
@@ -9447,6 +9651,13 @@ function TechniciansManager() {
             )}
           </tbody>
         </table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </section>
     </>
   );
@@ -9455,6 +9666,8 @@ function TechniciansManager() {
 function ClubsManager() {
   const client = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const query = useQuery({
     queryKey: ["clubs"],
@@ -9487,6 +9700,10 @@ function ClubsManager() {
   });
 
   const items = query.data?.data ?? [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   if (query.isLoading) return <PageLoading />;
   if (query.isError) return <FatalError message={query.error.message} />;
@@ -9598,7 +9815,7 @@ function ClubsManager() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {paginatedItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <strong>{item.clubName}</strong>
@@ -9631,6 +9848,13 @@ function ClubsManager() {
             )}
           </tbody>
         </table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </section>
     </>
   );
@@ -9639,6 +9863,8 @@ function ClubsManager() {
 function ChampionshipsManager() {
   const client = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const query = useQuery({
     queryKey: ["championships"],
@@ -9671,6 +9897,10 @@ function ChampionshipsManager() {
   });
 
   const items = query.data?.data ?? [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   if (query.isLoading) return <PageLoading />;
   if (query.isError) return <FatalError message={query.error.message} />;
@@ -9795,7 +10025,7 @@ function ChampionshipsManager() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {paginatedItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <strong>#{item.rank}</strong>
@@ -9829,6 +10059,13 @@ function ChampionshipsManager() {
             )}
           </tbody>
         </table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </section>
     </>
   );
@@ -9837,6 +10074,8 @@ function ChampionshipsManager() {
 function WorkingGroupsManager() {
   const client = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const query = useQuery({
     queryKey: ["workingGroups"],
@@ -9869,6 +10108,10 @@ function WorkingGroupsManager() {
   });
 
   const items = query.data?.data ?? [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   if (query.isLoading) return <PageLoading />;
   if (query.isError) return <FatalError message={query.error.message} />;
@@ -9976,7 +10219,7 @@ function WorkingGroupsManager() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {paginatedItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <strong>{item.name}</strong>
@@ -10013,6 +10256,13 @@ function WorkingGroupsManager() {
             )}
           </tbody>
         </table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </section>
     </>
   );
@@ -10021,6 +10271,8 @@ function WorkingGroupsManager() {
 function LendersManager() {
   const client = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const query = useQuery({
     queryKey: ["lenders"],
@@ -10053,6 +10305,10 @@ function LendersManager() {
   });
 
   const items = query.data?.data ?? [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   if (query.isLoading) return <PageLoading />;
   if (query.isError) return <FatalError message={query.error.message} />;
@@ -10164,7 +10420,7 @@ function LendersManager() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {paginatedItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <strong>{item.brandName}</strong>
@@ -10197,6 +10453,13 @@ function LendersManager() {
             )}
           </tbody>
         </table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </section>
     </>
   );
@@ -10205,6 +10468,8 @@ function LendersManager() {
 function StatisticsManager() {
   const client = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const query = useQuery({
     queryKey: ["statistics"],
@@ -10237,6 +10502,10 @@ function StatisticsManager() {
   });
 
   const items = query.data?.data ?? [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   if (query.isLoading) return <PageLoading />;
   if (query.isError) return <FatalError message={query.error.message} />;
@@ -10363,7 +10632,7 @@ function StatisticsManager() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {paginatedItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <strong>{item.metricLabel}</strong>
@@ -10400,6 +10669,13 @@ function StatisticsManager() {
             )}
           </tbody>
         </table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </section>
     </>
   );
@@ -10416,6 +10692,15 @@ function WilayahManager() {
   >("regencies");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<CmsRegency> | null>(null);
+
+  const [regPage, setRegPage] = useState(1);
+  const [regPageSize, setRegPageSize] = useState(15);
+  const [distPage, setDistPage] = useState(1);
+  const [distPageSize, setDistPageSize] = useState(15);
+  const [villPage, setVillPage] = useState(1);
+  const [villPageSize, setVillPageSize] = useState(15);
+  const [provPage, setProvPage] = useState(1);
+  const [provPageSize, setProvPageSize] = useState(15);
 
   const { data: provData, isLoading: _loadingProv } = useQuery({
     queryKey: ["cms-wilayah-provinces"],
@@ -10590,7 +10875,7 @@ function WilayahManager() {
                 </tr>
               </thead>
               <tbody>
-                {regencies.map((r) => (
+                {regencies.slice((regPage - 1) * regPageSize, regPage * regPageSize).map((r) => (
                   <tr key={r.kode}>
                     <td>
                       <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
@@ -10646,6 +10931,14 @@ function WilayahManager() {
                 )}
               </tbody>
             </table>
+            <TablePagination
+              currentPage={regPage}
+              totalItems={regencies.length}
+              pageSize={regPageSize}
+              onPageChange={setRegPage}
+              onPageSizeChange={setRegPageSize}
+              pageSizeOptions={[15, 30, 50, 100]}
+            />
           </section>
         </>
       )}
@@ -10726,7 +11019,7 @@ function WilayahManager() {
                 </tr>
               </thead>
               <tbody>
-                {districts.map((d) => (
+                {districts.slice((distPage - 1) * distPageSize, distPage * distPageSize).map((d) => (
                   <tr key={d.kode}>
                     <td>
                       <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
@@ -10761,6 +11054,14 @@ function WilayahManager() {
                 )}
               </tbody>
             </table>
+            <TablePagination
+              currentPage={distPage}
+              totalItems={districts.length}
+              pageSize={distPageSize}
+              onPageChange={setDistPage}
+              onPageSizeChange={setDistPageSize}
+              pageSizeOptions={[15, 30, 50, 100]}
+            />
           </section>
         </>
       )}
@@ -10775,7 +11076,10 @@ function WilayahManager() {
                 </label>
                 <select
                   value={selectedProvinceCode}
-                  onChange={(e) => setSelectedProvinceCode(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedProvinceCode(e.target.value);
+                    setVillPage(1);
+                  }}
                   style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
                 >
                   {provinces.map((p) => (
@@ -10792,7 +11096,10 @@ function WilayahManager() {
                 </label>
                 <select
                   value={selectedRegencyCode}
-                  onChange={(e) => setSelectedRegencyCode(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedRegencyCode(e.target.value);
+                    setVillPage(1);
+                  }}
                   style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
                 >
                   {regencies.map((r) => (
@@ -10809,7 +11116,10 @@ function WilayahManager() {
                 </label>
                 <select
                   value={selectedDistrictCode}
-                  onChange={(e) => setSelectedDistrictCode(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedDistrictCode(e.target.value);
+                    setVillPage(1);
+                  }}
                   style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
                 >
                   {districts.map((d) => (
@@ -10827,7 +11137,10 @@ function WilayahManager() {
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setVillPage(1);
+                  }}
                   placeholder="Ketik nama kelurahan atau kode pos..."
                   style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
                 />
@@ -10856,7 +11169,7 @@ function WilayahManager() {
                 </tr>
               </thead>
               <tbody>
-                {villages.map((v) => (
+                {villages.slice((villPage - 1) * villPageSize, villPage * villPageSize).map((v) => (
                   <tr key={v.kode}>
                     <td>
                       <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
@@ -10884,6 +11197,14 @@ function WilayahManager() {
                 )}
               </tbody>
             </table>
+            <TablePagination
+              currentPage={villPage}
+              totalItems={villages.length}
+              pageSize={villPageSize}
+              onPageChange={setVillPage}
+              onPageSizeChange={setVillPageSize}
+              pageSizeOptions={[15, 30, 50, 100]}
+            />
           </section>
         </>
       )}
@@ -10902,7 +11223,7 @@ function WilayahManager() {
               </tr>
             </thead>
             <tbody>
-              {provinces.map((p) => (
+              {provinces.slice((provPage - 1) * provPageSize, provPage * provPageSize).map((p) => (
                 <tr key={p.kode}>
                   <td>
                     <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
@@ -10935,6 +11256,14 @@ function WilayahManager() {
               ))}
             </tbody>
           </table>
+          <TablePagination
+            currentPage={provPage}
+            totalItems={provinces.length}
+            pageSize={provPageSize}
+            onPageChange={setProvPage}
+            onPageSizeChange={setProvPageSize}
+            pageSizeOptions={[15, 30, 50, 100]}
+          />
         </section>
       )}
 
@@ -11054,6 +11383,8 @@ function WilayahManager() {
 function AdArtManager() {
   const queryClient = useQueryClient();
   const [docFilter, setDocFilter] = useState<string>("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [editingItem, setEditingItem] = useState<Partial<CmsAdArt> | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -11084,6 +11415,10 @@ function AdArtManager() {
 
   const items = data?.data || [];
   const filteredItems = docFilter === "ALL" ? items : items.filter((d) => d.docType === docFilter);
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   const handleAddArticle = () => {
     if (!editingItem) return;
@@ -11177,7 +11512,7 @@ function AdArtManager() {
             </tr>
           </thead>
           <tbody>
-            {filteredItems.map((item) => (
+            {paginatedItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <span
@@ -11256,6 +11591,13 @@ function AdArtManager() {
             )}
           </tbody>
         </table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={filteredItems.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
 
       {isModalOpen && editingItem && (
@@ -11442,6 +11784,8 @@ function AdArtManager() {
 // =========================================================================
 function MilestonesManager() {
   const queryClient = useQueryClient();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [editingItem, setEditingItem] = useState<Partial<CmsMilestone> | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -11471,6 +11815,10 @@ function MilestonesManager() {
   });
 
   const items = data?.data || [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   if (isLoading) return <PageLoading />;
 
@@ -11516,7 +11864,7 @@ function MilestonesManager() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {paginatedItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <span className="badge primary" style={{ fontWeight: 700 }}>
@@ -11576,6 +11924,13 @@ function MilestonesManager() {
             ))}
           </tbody>
         </table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
 
       {isModalOpen && editingItem && (
@@ -11712,6 +12067,8 @@ function MilestonesManager() {
 // =========================================================================
 function RefrigerantsManager() {
   const queryClient = useQueryClient();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [editingItem, setEditingItem] = useState<Partial<CmsRefrigerant> | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -11741,6 +12098,10 @@ function RefrigerantsManager() {
   });
 
   const items = data?.data || [];
+  const paginatedItems = items.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   if (isLoading) return <PageLoading />;
 
@@ -11794,7 +12155,7 @@ function RefrigerantsManager() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {paginatedItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <span className="badge primary" style={{ fontWeight: 700 }}>
@@ -11861,6 +12222,13 @@ function RefrigerantsManager() {
             ))}
           </tbody>
         </table>
+        <TablePagination
+          currentPage={currentPage}
+          totalItems={items.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
 
       {isModalOpen && editingItem && (
