@@ -697,34 +697,21 @@ function AdArtContent() {
 
               {/* Piagam Komitmen Certificate Showcase */}
               <div className="adart-piagam-shell">
-                <Landmark size={240} className="adart-piagam-watermark" />
+                <Landmark size={220} className="adart-piagam-watermark" />
                 <div className="piagam-gold-badge">
                   <BadgeCheck size={15} />
                   <span>Piagam Ketetapan Musyawarah Nasional 2024–2029</span>
                 </div>
-                <h3
-                  style={{
-                    fontSize: "24px",
-                    fontWeight: 900,
-                    marginBottom: "12px",
-                  }}
-                >
+                <h3 className="piagam-title">
                   Maklumat Kedaulatan Profesi & Kepatuhan Organisasi
                 </h3>
-                <p
-                  style={{
-                    color: "#cbd5e1",
-                    fontSize: "14.5px",
-                    lineHeight: "1.7",
-                    maxWidth: "860px",
-                  }}
-                >
+                <blockquote className="piagam-quote">
                   "Bahwa sesungguhnya profesionalisme dan kehormatan praktisi
                   tata udara hanya dapat dicapai melalui kepatuhan terhadap
                   standar keselamatan kerja, pelayanan yang jujur kepada
                   masyarakat, serta persaudaraan sesama teknisi dalam bingkai
                   Negara Kesatuan Republik Indonesia."
-                </p>
+                </blockquote>
 
                 <div className="piagam-signatures-row">
                   <div className="piagam-sign-box">
@@ -744,54 +731,59 @@ function AdArtContent() {
 
               {/* Quick Jump Grid into Chapters */}
               <div className="adart-chapter-grid">
-                {filteredAdChapters.slice(0, 4).map((ch) => {
+                {filteredAdChapters.map((ch) => {
                   const Icon = ch.icon;
                   return (
                     <article className="adart-chapter-card" key={ch.id}>
                       <div className="adart-chapter-top">
-                        <span
-                          className="adart-badge-num"
+                        <div className="adart-badge-cluster">
+                          <span
+                            className="adart-badge-num"
+                            style={{
+                              background: `${ch.color}15`,
+                              color: ch.color,
+                              border: `1px solid ${ch.color}35`,
+                            }}
+                          >
+                            {ch.chapter}
+                          </span>
+                          <span className="adart-badge-count">
+                            {ch.articles.length} Pasal
+                          </span>
+                        </div>
+                        <div
+                          className="adart-icon-frame"
                           style={{
-                            background: `${ch.color}15`,
+                            background: `${ch.color}12`,
                             color: ch.color,
-                            border: `1px solid ${ch.color}35`,
                           }}
                         >
-                          {ch.chapter}
-                        </span>
-                        <Icon size={20} color={ch.color} />
+                          <Icon size={18} />
+                        </div>
                       </div>
-                      <h4
-                        style={{
-                          fontSize: "17px",
-                          fontWeight: 800,
-                          margin: "0 0 8px",
-                        }}
-                      >
-                        {ch.title}
-                      </h4>
-                      <p
-                        style={{
-                          fontSize: "13.5px",
-                          color: "#64748b",
-                          lineHeight: "1.6",
-                          margin: "0 0 16px",
-                        }}
-                      >
-                        {ch.summary}
-                      </p>
+
+                      <h4 className="adart-card-title">{ch.title}</h4>
+                      <p className="adart-card-desc">{ch.summary}</p>
+
+                      {/* Mini Article Highlight Chips */}
+                      <div className="adart-articles-preview">
+                        {ch.articles.slice(0, 2).map((art) => (
+                          <div
+                            key={art.articleNumber}
+                            className="adart-art-chip"
+                          >
+                            <strong>{art.articleNumber}:</strong> {art.title}
+                          </div>
+                        ))}
+                      </div>
+
                       <button
                         type="button"
-                        className="button outline"
-                        style={{
-                          marginTop: "auto",
-                          fontSize: "13px",
-                          padding: "8px 14px",
-                        }}
+                        className="adart-chapter-action-btn"
                         onClick={() => setActiveTab("ad")}
                       >
-                        <span>Baca {ch.articles.length} Pasal Lengkap</span>
-                        <ChevronRight size={14} />
+                        <span>Buka {ch.articles.length} Pasal Lengkap</span>
+                        <ArrowRight size={13} className="action-arrow" />
                       </button>
                     </article>
                   );
