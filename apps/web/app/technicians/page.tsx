@@ -12,9 +12,11 @@ import {
   Crown,
   ExternalLink,
   Filter,
+  Globe,
   Loader2,
   MapPin,
   MessageSquare,
+  Navigation,
   Phone,
   QrCode,
   Search,
@@ -57,6 +59,8 @@ export interface MemberWorkshop {
   address: string;
   whatsapp: string;
   phone: string;
+  website?: string;
+  googleMapsUrl?: string;
   operatingHours: string;
   description: string;
   services: string[];
@@ -78,6 +82,8 @@ const SEED_MEMBER_WORKSHOPS: MemberWorkshop[] = [
     address: "Jl. Fatmawati Raya No. 45, Cilandak",
     whatsapp: "081289123456",
     phone: "02175901234",
+    website: "https://suryamandiriteknik.com",
+    googleMapsUrl: "Jl. Fatmawati Raya No. 45, Cilandak, Jakarta Selatan",
     operatingHours: "Senin - Sabtu: 08.00 - 18.00 | Siap 24 Jam",
     description:
       "Bengkel resmi rekanan APTI spesialis tata udara komersial perkantoran, multi-inverter VRV/VRF, dan cold storage industri. Dilengkapi teknisi BNSP Level IV.",
@@ -105,6 +111,8 @@ const SEED_MEMBER_WORKSHOPS: MemberWorkshop[] = [
     address: "Jl. Ngagel Jaya Selatan No. 88, Gubeng",
     whatsapp: "081334567890",
     phone: "0315021234",
+    website: "https://berkahrefrigerasi.com",
+    googleMapsUrl: "Jl. Ngagel Jaya Selatan No. 88, Gubeng, Surabaya",
     operatingHours: "Senin - Sabtu: 08.00 - 17.00",
     description:
       "Menyediakan suku cadang asli segala merk: kompresor inverter, sensor thermistor, kapasitor original, pipa ASTM B280, manifold digital, dan freon ramah lingkungan R32 / R290.",
@@ -131,6 +139,8 @@ const SEED_MEMBER_WORKSHOPS: MemberWorkshop[] = [
     address: "Jl. Soekarno-Hatta No. 312, Buahbatu",
     whatsapp: "081223456781",
     phone: "0227311234",
+    website: "https://nusantaracold.id",
+    googleMapsUrl: "Jl. Soekarno-Hatta No. 312, Buahbatu, Bandung",
     operatingHours: "Setiap Hari: 07.30 - 19.00",
     description:
       "Layanan servis cepat pendingin rumah tangga dan apartemen. Mengutamakan SOP vakum wajib dan SOP recovery freon tanpa buang emisi ke udara bebas.",
@@ -157,6 +167,8 @@ const SEED_MEMBER_WORKSHOPS: MemberWorkshop[] = [
     address: "Jl. Gatot Subroto KM 6.5 No. 19",
     whatsapp: "08116543210",
     phone: "0618451234",
+    website: "https://sentralinstrument.com",
+    googleMapsUrl: "Jl. Gatot Subroto KM 6.5 No. 19, Medan",
     operatingHours: "Senin - Sabtu: 08.00 - 17.30",
     description:
       "Mitra penyedia rental peralatan instalasi berstandar SKKNI: manifold digital Testo/Fieldpiece, recovery machine Promax, flaring kit hidrolik, dan tabung recovery bersertifikat.",
@@ -858,6 +870,52 @@ function TechniciansContent() {
                         <Clock size={13} color="#64748b" />
                         <span>{ws.operatingHours}</span>
                       </div>
+                      {ws.website && (
+                        <div className="meta-line">
+                          <Globe size={13} color="#0284c7" />
+                          <a
+                            href={ws.website.startsWith("http") ? ws.website : `https://${ws.website}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="workshop-meta-link"
+                          >
+                            <span>{ws.website.replace(/^https?:\/\//, "")}</span>
+                            <ExternalLink size={10} />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Interactive Google Maps Embed */}
+                    <div className="workshop-card-map-box">
+                      <div className="map-box-top">
+                        <small>
+                          <MapPin size={11} color="#0284c7" />
+                          <span>Peta Lokasi & Rute</span>
+                        </small>
+                        <a
+                          href={
+                            ws.googleMapsUrl && ws.googleMapsUrl.startsWith("http")
+                              ? ws.googleMapsUrl
+                              : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ws.googleMapsUrl || `${ws.address}, ${ws.city}, ${ws.province}`)}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="map-box-link"
+                        >
+                          <Navigation size={10} />
+                          <span>Navigasi</span>
+                        </a>
+                      </div>
+                      <iframe
+                        title={`Peta Lokasi ${ws.workshopName}`}
+                        src={`https://maps.google.com/maps?q=${encodeURIComponent(ws.googleMapsUrl || `${ws.address}, ${ws.city}, ${ws.province}, Indonesia`)}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
+                        width="100%"
+                        height="125"
+                        loading="lazy"
+                        style={{ border: 0, borderRadius: "8px", display: "block" }}
+                        allowFullScreen={false}
+                      />
                     </div>
 
                     <p className="workshop-item-desc">{ws.description}</p>
@@ -884,13 +942,39 @@ function TechniciansContent() {
                       </div>
 
                       <div className="workshop-action-buttons">
+                        {ws.website && (
+                          <a
+                            href={ws.website.startsWith("http") ? ws.website : `https://${ws.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-ws-website"
+                            title="Kunjungi Website Resmi"
+                          >
+                            <Globe size={13} />
+                            <span>Website</span>
+                          </a>
+                        )}
+                        <a
+                          href={
+                            ws.googleMapsUrl && ws.googleMapsUrl.startsWith("http")
+                              ? ws.googleMapsUrl
+                              : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ws.googleMapsUrl || `${ws.address}, ${ws.city}, ${ws.province}`)}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-ws-route"
+                          title="Buka Navigasi Rute Maps"
+                        >
+                          <Navigation size={13} />
+                          <span>Rute</span>
+                        </a>
                         <Link
                           href={`/verify?code=${encodeURIComponent(ws.memberNumber)}`}
                           className="btn-kta-check"
                           title="Cek Kredensial KTA Resmi"
                         >
-                          <QrCode size={14} />
-                          <span>Kredensial KTA</span>
+                          <QrCode size={13} />
+                          <span>KTA</span>
                         </Link>
                         <a
                           href={`https://wa.me/${ws.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Halo ${ws.workshopName}, saya menemukan profil workshop Anda di Direktori Resmi APTI Indonesia.`)}`}
@@ -898,8 +982,8 @@ function TechniciansContent() {
                           rel="noopener noreferrer"
                           className="btn-order-wa"
                         >
-                          <MessageSquare size={14} />
-                          <span>Hubungi WhatsApp</span>
+                          <MessageSquare size={13} />
+                          <span>WhatsApp</span>
                         </a>
                       </div>
                     </div>

@@ -15,10 +15,12 @@ import {
   CreditCard,
   ExternalLink,
   Eye,
+  Globe,
   Lock,
   LogOut,
   MapPin,
   MessageSquare,
+  Navigation,
   Phone,
   Plus,
   ReceiptText,
@@ -1665,6 +1667,55 @@ function DailyScheduleBuilder({
   );
 }
 
+export function getGoogleMapsEmbedUrl(
+  mapsUrl: string,
+  address: string,
+  village: string,
+  district: string,
+  city: string,
+  province: string,
+): string {
+  if (mapsUrl && mapsUrl.includes("output=embed")) {
+    return mapsUrl;
+  }
+  const query =
+    mapsUrl?.trim() ||
+    [address, village, district, city, province, "Indonesia"]
+      .filter(Boolean)
+      .join(", ");
+  return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+}
+
+export function getGoogleMapsDirectLink(
+  mapsUrl: string,
+  address: string,
+  village: string,
+  district: string,
+  city: string,
+  province: string,
+): string {
+  if (
+    mapsUrl &&
+    (mapsUrl.startsWith("http://") || mapsUrl.startsWith("https://"))
+  ) {
+    return mapsUrl;
+  }
+  const query =
+    mapsUrl?.trim() ||
+    [address, village, district, city, province, "Indonesia"]
+      .filter(Boolean)
+      .join(", ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+export function formatWebUrl(url: string): string {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  return `https://${url}`;
+}
+
 function MemberWorkshopPromo({
   member,
   emailVerified,
@@ -1702,6 +1753,12 @@ function MemberWorkshopPromo({
   const [phone, setPhone] = useState(existingMeta.phone || member.phone || "0812-3456-7890");
   const [whatsapp, setWhatsapp] = useState(
     existingMeta.whatsapp || member.phone || "0812-3456-7890",
+  );
+  const [website, setWebsite] = useState(
+    existingMeta.website || "",
+  );
+  const [googleMapsUrl, setGoogleMapsUrl] = useState(
+    existingMeta.googleMapsUrl || "",
   );
   const [dailySchedule, setDailySchedule] = useState<DaySchedule[]>(
     existingMeta.dailySchedule || DEFAULT_DAILY_SCHEDULE,
@@ -1846,6 +1903,8 @@ function MemberWorkshopPromo({
       address: address.trim(),
       phone: phone.trim(),
       whatsapp: whatsapp.trim(),
+      website: website.trim(),
+      googleMapsUrl: googleMapsUrl.trim(),
       operatingHours: operatingHoursSummary,
       dailySchedule,
       emergency24h,
@@ -2073,6 +2132,27 @@ function MemberWorkshopPromo({
             </label>
           </div>
 
+          <div className="form-row-2">
+            <label>
+              Website / Link Profil Resmi (Opsional)
+              <input
+                type="text"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                placeholder="https://bengkelacanda.com"
+              />
+            </label>
+            <label>
+              Link / Koordinat Google Maps (Opsional)
+              <input
+                type="text"
+                value={googleMapsUrl}
+                onChange={(e) => setGoogleMapsUrl(e.target.value)}
+                placeholder="https://maps.app.goo.gl/... atau Jl. Raya..."
+              />
+            </label>
+          </div>
+
           <DailyScheduleBuilder
             schedule={dailySchedule}
             emergency24h={emergency24h}
@@ -2171,6 +2251,64 @@ function MemberWorkshopPromo({
                 <Clock size={14} color="#64748b" />
                 <span>{operatingHoursSummary}</span>
               </div>
+              {website && (
+                <div className="meta-item">
+                  <Globe size={14} color="#0284c7" />
+                  <a
+                    href={formatWebUrl(website)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="workshop-meta-weblink"
+                  >
+                    <span>{website.replace(/^https?:\/\//, "")}</span>
+                    <ExternalLink size={11} />
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Embedded Google Maps Preview */}
+            <div className="workshop-card-map-section">
+              <div className="map-section-header">
+                <div className="map-title">
+                  <MapPin size={13} color="#0284c7" />
+                  <span>Peta Lokasi & Titik Operasional</span>
+                </div>
+                <a
+                  href={getGoogleMapsDirectLink(
+                    googleMapsUrl,
+                    address,
+                    village,
+                    district,
+                    city,
+                    province,
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="map-direct-action"
+                >
+                  <Navigation size={11} />
+                  <span>Buka Rute Maps</span>
+                </a>
+              </div>
+              <div className="map-iframe-container">
+                <iframe
+                  title="Peta Lokasi Bengkel"
+                  src={getGoogleMapsEmbedUrl(
+                    googleMapsUrl,
+                    address,
+                    village,
+                    district,
+                    city,
+                    province,
+                  )}
+                  width="100%"
+                  height="140"
+                  loading="lazy"
+                  style={{ border: 0, borderRadius: "10px", display: "block" }}
+                  allowFullScreen={false}
+                />
+              </div>
             </div>
 
             <p className="workshop-card-desc">{description}</p>
@@ -2194,15 +2332,46 @@ function MemberWorkshopPromo({
                 <ShieldCheck size={14} color="#10b981" />
                 <span>Mitra Terdaftar APTI · KTA: {member.memberNumber || "Valid"}</span>
               </div>
-              <a
-                href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-contact-mock"
-              >
-                <MessageSquare size={14} />
-                <span>Chat WhatsApp</span>
-              </a>
+              <div className="card-footer-buttons-group">
+                {website && (
+                  <a
+                    href={formatWebUrl(website)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-web-mock"
+                    title="Kunjungi Website Resmi"
+                  >
+                    <Globe size={13} />
+                    <span>Website</span>
+                  </a>
+                )}
+                <a
+                  href={getGoogleMapsDirectLink(
+                    googleMapsUrl,
+                    address,
+                    village,
+                    district,
+                    city,
+                    province,
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-maps-mock"
+                  title="Buka Navigasi Rute Maps"
+                >
+                  <Navigation size={13} />
+                  <span>Rute</span>
+                </a>
+                <a
+                  href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-contact-mock"
+                >
+                  <MessageSquare size={13} />
+                  <span>WhatsApp</span>
+                </a>
+              </div>
             </div>
           </div>
 
