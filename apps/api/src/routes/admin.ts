@@ -1074,7 +1074,10 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     { preHandler: app.authorize("contents.read") },
     async (request) => {
       const query = paginationSchema
-        .extend({ type: z.string().max(40).optional() })
+        .extend({
+          limit: z.coerce.number().int().min(1).max(500).default(20),
+          type: z.string().max(40).optional(),
+        })
         .parse(request.query);
       const conditions = [];
       if (query.type) conditions.push(eq(contents.type, query.type));
