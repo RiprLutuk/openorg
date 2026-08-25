@@ -78,10 +78,15 @@ export function checkMemberAuth(force = false) {
 }
 
 export function useMemberAuth() {
-  const [member, setMember] = useState<LoggedInMember | null>(cachedMember);
-  const [loading, setLoading] = useState(!hasChecked);
+  const [mounted, setMounted] = useState(false);
+  const [member, setMember] = useState<LoggedInMember | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setMounted(true);
+    setMember(cachedMember);
+    setLoading(!hasChecked);
+
     const handleUpdate = (updatedMember: LoggedInMember | null) => {
       setMember(updatedMember);
       setLoading(false);
@@ -102,9 +107,9 @@ export function useMemberAuth() {
   }, []);
 
   return {
-    isLoggedIn: Boolean(member),
-    member,
-    loading,
+    isLoggedIn: mounted ? Boolean(member) : false,
+    member: mounted ? member : null,
+    loading: mounted ? loading : true,
     refresh: checkMemberAuth,
   };
 }
