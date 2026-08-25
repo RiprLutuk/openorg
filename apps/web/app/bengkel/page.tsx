@@ -16,7 +16,7 @@ import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { NATIONAL_16_WORKSHOPS } from "@/components/home-featured-workshops";
 import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
 
-const MAX_NEARBY_RADIUS_KM = 180;
+const MAX_NEARBY_RADIUS_KM = 35;
 
 function computeDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;

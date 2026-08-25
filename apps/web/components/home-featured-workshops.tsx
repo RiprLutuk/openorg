@@ -364,8 +364,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   },
 ];
 
-// Maximum distance in KM considered "nearby" (e.g. within same metropolitan/regional cluster)
-const MAX_NEARBY_RADIUS_KM = 180;
+// Maximum distance in KM considered "nearby" (realistic daily technician operational radius)
+const MAX_NEARBY_RADIUS_KM = 35;
 
 // Helper to compute Haversine distance in KM
 function computeDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
