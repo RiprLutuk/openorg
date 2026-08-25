@@ -71,7 +71,13 @@ function WorkshopsPageContent() {
     nearestCity?: string | undefined;
   }>({ status: "idle" });
 
-  const applyLocationSort = (lat: number, lng: number, baseList: PublicWorkshopData[]) => {
+  const applyLocationSort = (
+    lat: number,
+    lng: number,
+    baseList: PublicWorkshopData[],
+    source: "gps" | "ip" = "gps",
+    customCityName?: string,
+  ) => {
     const withDistances: PublicWorkshopData[] = baseList.map((ws) => {
       const wsLat = ws.latitude ?? -6.2;
       const wsLng = ws.longitude ?? 106.8;
@@ -85,7 +91,7 @@ function WorkshopsPageContent() {
       status: "active",
       userLat: lat,
       userLng: lng,
-      nearestCity: withDistances[0]?.city ?? undefined,
+      nearestCity: customCityName || withDistances[0]?.city || undefined,
     });
   };
 
@@ -100,35 +106,56 @@ function WorkshopsPageContent() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        applyLocationSort(latitude, longitude, getStoredWorkshops());
+        applyLocationSort(latitude, longitude, getStoredWorkshops(), "gps");
       },
       (err) => {
-        console.warn("Geolocation permission not allowed or unavailable:", err.message);
-        setGeoState({ status: "denied" });
-        setWorkshops((prev) => shuffleArray(prev));
+        console.warn("Browser GPS permission not granted or timeout:", err.message);
+        detectLocationFromIp(getStoredWorkshops());
       },
-      { timeout: 9000, enableHighAccuracy: false }
+      { timeout: 8000, enableHighAccuracy: true }
     );
+  };
+
+  const detectLocationFromIp = (combined: PublicWorkshopData[]) => {
+    fetch("https://ipwho.is/")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && data?.latitude && data?.longitude) {
+          applyLocationSort(data.latitude, data.longitude, combined, "ip", data.city || data.region);
+        } else {
+          setWorkshops(shuffleArray(combined));
+        }
+      })
+      .catch(() => {
+        setWorkshops(shuffleArray(combined));
+      });
   };
 
   useEffect(() => {
     const combined = getStoredWorkshops();
 
-    if (typeof window !== "undefined" && navigator.geolocation) {
-      setGeoState({ status: "requesting" });
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined);
-        },
-        (err) => {
-          console.info("Geolocation not granted or timeout, using fair random rotation:", err.message);
-          setGeoState({ status: "denied" });
-          setWorkshops(shuffleArray(combined));
-        },
-        { timeout: 7000, enableHighAccuracy: false, maximumAge: 600000 }
-      );
+    if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: "geolocation" as PermissionName })
+        .then((permissionStatus) => {
+          if (permissionStatus.state === "granted") {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined, "gps");
+              },
+              () => {
+                detectLocationFromIp(combined);
+              }
+            );
+          } else {
+            detectLocationFromIp(combined);
+          }
+        })
+        .catch(() => {
+          detectLocationFromIp(combined);
+        });
     } else {
-      setWorkshops(shuffleArray(combined));
+      detectLocationFromIp(combined);
     }
   }, []);
 

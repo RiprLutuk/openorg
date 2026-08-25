@@ -418,12 +418,19 @@ export function HomeFeaturedWorkshops() {
     userLat?: number | undefined;
     userLng?: number | undefined;
     nearestCity?: string | undefined;
+    source?: "gps" | "ip" | undefined;
   }>({ status: "idle" });
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Apply location sorting
-  const applyLocationSort = (lat: number, lng: number, baseList: PublicWorkshopData[]) => {
+  const applyLocationSort = (
+    lat: number,
+    lng: number,
+    baseList: PublicWorkshopData[],
+    source: "gps" | "ip" = "gps",
+    customCityName?: string,
+  ) => {
     const withDistances: PublicWorkshopData[] = baseList.map((ws) => {
       const wsLat = ws.latitude ?? -6.2;
       const wsLng = ws.longitude ?? 106.8;
@@ -437,11 +444,12 @@ export function HomeFeaturedWorkshops() {
       status: "active",
       userLat: lat,
       userLng: lng,
-      nearestCity: withDistances[0]?.city ?? undefined,
+      nearestCity: customCityName || withDistances[0]?.city || undefined,
+      source,
     });
   };
 
-  // Request browser geolocation on demand or on mount if permitted
+  // Direct User-Gesture Trigger for Browser GPS
   const requestUserLocation = () => {
     if (typeof window === "undefined" || !navigator.geolocation) {
       setGeoState({ status: "denied" });
@@ -454,38 +462,74 @@ export function HomeFeaturedWorkshops() {
       (pos) => {
         const { latitude, longitude } = pos.coords;
         const combined = getStoredWorkshops();
-        applyLocationSort(latitude, longitude, combined);
+        applyLocationSort(latitude, longitude, combined, "gps");
       },
       (err) => {
-        console.warn("Geolocation permission not allowed or unavailable:", err.message);
-        setGeoState({ status: "denied" });
-        setWorkshops((prev) => shuffleArray(prev));
+        console.warn("Browser GPS permission not granted or timeout:", err.message);
+        // Try fallback to IP geolocation
+        fetch("https://ipwho.is/")
+          .then((r) => r.json())
+          .then((data) => {
+            if (data?.success && data?.latitude && data?.longitude) {
+              applyLocationSort(data.latitude, data.longitude, getStoredWorkshops(), "ip", data.city || data.region);
+            } else {
+              setGeoState({ status: "denied" });
+              setWorkshops(shuffleArray(getStoredWorkshops()));
+            }
+          })
+          .catch(() => {
+            setGeoState({ status: "denied" });
+            setWorkshops(shuffleArray(getStoredWorkshops()));
+          });
       },
-      { timeout: 9000, enableHighAccuracy: false }
+      { timeout: 8000, enableHighAccuracy: true }
     );
   };
 
-  // Initial load: Request location immediately so browser shows prompt to user
+  // On mount: Automatic IP Geolocation & Check existing GPS permissions
   useEffect(() => {
     const combined = getStoredWorkshops();
 
-    if (typeof window !== "undefined" && navigator.geolocation) {
-      setGeoState({ status: "requesting" });
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined);
-        },
-        (err) => {
-          console.info("Geolocation not granted or timeout, using fair random rotation:", err.message);
-          setGeoState({ status: "denied" });
-          setWorkshops(shuffleArray(combined));
-        },
-        { timeout: 7000, enableHighAccuracy: false, maximumAge: 600000 }
-      );
+    // 1. Check if browser GPS permission is already granted
+    if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: "geolocation" as PermissionName })
+        .then((permissionStatus) => {
+          if (permissionStatus.state === "granted") {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined, "gps");
+              },
+              () => {
+                detectLocationFromIp(combined);
+              }
+            );
+          } else {
+            detectLocationFromIp(combined);
+          }
+        })
+        .catch(() => {
+          detectLocationFromIp(combined);
+        });
     } else {
-      setWorkshops(shuffleArray(combined));
+      detectLocationFromIp(combined);
     }
   }, []);
+
+  const detectLocationFromIp = (combined: PublicWorkshopData[]) => {
+    fetch("https://ipwho.is/")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && data?.latitude && data?.longitude) {
+          applyLocationSort(data.latitude, data.longitude, combined, "ip", data.city || data.region);
+        } else {
+          setWorkshops(shuffleArray(combined));
+        }
+      })
+      .catch(() => {
+        setWorkshops(shuffleArray(combined));
+      });
+  };
 
   const handleShuffle = () => {
     setGeoState({ status: "idle" });
@@ -546,7 +590,7 @@ export function HomeFeaturedWorkshops() {
           <p>
             {geoState.status === "active" ? (
               <span className="ws-geo-active-text">
-                📍 Menampilkan bengkel &amp; toko terdekat dari lokasi Anda (Prioritas: {geoState.nearestCity || "Sekitar Anda"}).
+                📍 Menampilkan bengkel &amp; toko terdekat dari lokasi Anda (Prioritas Wilayah: {geoState.nearestCity || "Sekitar Anda"}).
               </span>
             ) : (
               `${workshops.length}+ bengkel AC resmi, klinik modul inverter & penyedia suku cadang berlisensi di seluruh Indonesia.`
@@ -585,17 +629,17 @@ export function HomeFeaturedWorkshops() {
               disabled={geoState.status === "requesting"}
               title={
                 geoState.status === "active"
-                  ? "Lokasi aktif: Menampilkan bengkel terdekat"
-                  : "Deteksi lokasi saya untuk menampilkan bengkel terdekat"
+                  ? "Lokasi aktif: Menampilkan bengkel terdekat. Klik untuk deteksi GPS presisi tinggi."
+                  : "Klik untuk mendeteksi lokasi GPS Anda dan mengurutkan bengkel terdekat"
               }
             >
               <Compass size={13} className={geoState.status === "requesting" ? "animate-spin" : ""} />
               <span>
                 {geoState.status === "active"
-                  ? "Terdekat Saya ✓"
+                  ? `Terdekat (${geoState.nearestCity || "Aktif"}) ✓`
                   : geoState.status === "requesting"
-                  ? "Mencari..."
-                  : "Dekat Saya"}
+                  ? "Mendeteksi..."
+                  : "📍 Dekat Saya"}
               </span>
             </button>
 
