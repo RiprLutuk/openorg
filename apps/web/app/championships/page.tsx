@@ -373,20 +373,12 @@ export function ChampionshipsPageContent() {
       try {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
-        const query = new URLSearchParams();
-        if (selectedSeason) query.set("seasonYear", selectedSeason.toString());
-        if (searchParam) query.set("search", searchParam);
-        query.set("page", currentPage.toString());
-        query.set("limit", ITEMS_PER_PAGE_CHAMPIONSHIPS.toString());
-
-        const res = await fetch(`${apiUrl}/v1/public/championships?${query.toString()}`);
+        const res = await fetch(`${apiUrl}/v1/public/championships?limit=100`);
         if (!res.ok) throw new Error("Gagal memuat data kejuaraan");
         const json = await res.json();
         if (Array.isArray(json.data) && json.data.length > 0) {
           setStandings(json.data);
-          if (json.meta?.total !== undefined) {
-            setTotalCount(json.meta.total);
-          }
+          setTotalCount(json.data.length);
         }
       } catch (err) {
         console.error(err);
@@ -395,7 +387,7 @@ export function ChampionshipsPageContent() {
       }
     };
     void fetchChampionships();
-  }, [selectedSeason, searchParam, currentPage]);
+  }, []);
 
   const filtered = standings.filter((row) => {
     const matchSeason = !row.seasonYear || row.seasonYear === selectedSeason;
@@ -412,12 +404,12 @@ export function ChampionshipsPageContent() {
     );
   });
 
-  // Client-side windowing if API returned full list, otherwise use API items
-  const totalFilteredCount = filtered.length > ITEMS_PER_PAGE_CHAMPIONSHIPS ? filtered.length : Math.max(filtered.length, totalCount);
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE_CHAMPIONSHIPS));
-  const paginatedRows = filtered.length > ITEMS_PER_PAGE_CHAMPIONSHIPS
-    ? filtered.slice((currentPage - 1) * ITEMS_PER_PAGE_CHAMPIONSHIPS, currentPage * ITEMS_PER_PAGE_CHAMPIONSHIPS)
-    : filtered;
+  const totalFilteredCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalFilteredCount / ITEMS_PER_PAGE_CHAMPIONSHIPS));
+  const paginatedRows = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE_CHAMPIONSHIPS,
+    currentPage * ITEMS_PER_PAGE_CHAMPIONSHIPS,
+  );
 
   const topPodium = filtered.slice(0, 3);
 
