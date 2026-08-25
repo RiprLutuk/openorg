@@ -617,11 +617,16 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
           .select({
             application: memberApplications,
             unitName: organizationUnits.name,
+            createdMember: members,
           })
           .from(memberApplications)
           .leftJoin(
             organizationUnits,
             eq(memberApplications.requestedUnitId, organizationUnits.id),
+          )
+          .leftJoin(
+            members,
+            eq(memberApplications.createdMemberId, members.id),
           )
           .where(where)
           .orderBy(desc(memberApplications.createdAt))
@@ -640,25 +645,29 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
           reviewerNotes: row.application.reviewNotes,
           member: {
             id: row.application.createdMemberId ?? row.application.id,
-            name: row.application.fullName,
-            email: row.application.email,
-            phone: row.application.phone,
+            name: row.createdMember?.name ?? row.application.fullName,
+            email: row.createdMember?.email ?? row.application.email,
+            phone: row.createdMember?.phone ?? row.application.phone,
             address:
-              (row.application.payload as Record<string, unknown> | null)
+              ((row.createdMember?.metadata as Record<string, unknown> | null)
+                ?.address as string | undefined) ??
+              ((row.application.payload as Record<string, unknown> | null)
                 ?.address != null
                 ? String(
                     (row.application.payload as Record<string, unknown>)
                       .address,
                   )
-                : null,
+                : null),
             memberNumber:
-              (row.application.payload as Record<string, unknown> | null)
+              row.createdMember?.memberNumber ??
+              ((row.application.payload as Record<string, unknown> | null)
                 ?.memberNumber != null
                 ? String(
                     (row.application.payload as Record<string, unknown>)
                       .memberNumber,
                   )
-                : "PENDING",
+                : "PENDING"),
+            status: row.createdMember?.status ?? row.application.status,
             customFields:
               (row.application.payload as Record<string, unknown> | null) ?? {},
           },
