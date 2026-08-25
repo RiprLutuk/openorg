@@ -30,6 +30,7 @@
 - [x] Universal Design System Refactor across all 15+ subpages (React SaaS / Meraki UI / Flowbite standards).
 - [x] Member Portal email verification security gating & workshop promotion showcase.
 - [x] Full-spectrum high-contrast Dark SaaS color sweep (eliminated all remaining low-contrast dark font instances).
+- [x] Location-based discovery (GPS geolocation & Haversine distance sorting) and server-side URL pagination for Technicians and Workshops (`/technicians?tab=workshops`).
 
 ---
 

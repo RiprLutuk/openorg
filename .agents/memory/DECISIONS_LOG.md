@@ -216,4 +216,25 @@ This log records major technical, architectural, and UI/UX design decisions made
     - `bun run build`: 27/27 static and dynamic Next.js routes built cleanly.
     - Pushed commits to `dev`, merged cleanly to `staging` and `main`, and pushed to GitHub remote.
 
+---
+
+### [2026-08-25] Location-Based Discovery (GPS Geolocation & Distance Sorting) and Server-Side URL Pagination (`/technicians?tab=workshops`)
+- **Decision**: Implemented GPS-based location discovery, accurate Haversine distance calculations, and server-side URL query parameter pagination (`?tab=...&page=...&limit=...&sort=...&provinsi=...&kota=...`) across both Technicians and Workshops directories.
+- **Rationale**: User requested location-based discovery ("bisa base on location juga kan?") and server-side/URL-driven pagination ("kalaupun pakai harus server side ya jangan client") for the `/technicians?tab=workshops` directory.
+- **Scope & Implementation**:
+  - **Location-Based Discovery & GPS**:
+    - Added one-click GPS geolocation detection (`navigator.geolocation.getCurrentPosition`) with accurate fallback to city/rayon center coordinates (`CITY_COORDINATES` dictionary).
+    - Calculated real-time Haversine distance in kilometers (`calculateDistanceKm`) between user coordinates and each workshop/technician location.
+    - Added distance badge (`📍 ±X km`) to cards and modal view.
+    - Enabled automatic nearest-first sorting (`sort=location`) when GPS is active, with quick reset and active feedback banners.
+    - Added quick region filter chips (`Semua Wilayah`, `DKI Jakarta`, `Jawa Barat`, `Jawa Timur`, `Jawa Tengah`, `Sumatera Utara`, `Bali & Nusra`) and dynamic city dropdown.
+  - **Server-Side URL-Driven Pagination**:
+    - Synced all pagination and filter states to URL searchParams (`page`, `limit`, `tab`, `q`, `provinsi`, `kota`, `keahlian`, `kategori`, `bnsp`, `sort`, `lat`, `lng`).
+    - Configured 9 items/page for Workshops (3x3 grid) and 12 items/page for Technicians (3x4 grid).
+    - Added complete Swiss-design numbered pagination bar (`stories-pagination-bar`) with item range counter (`Menampilkan 1 – 9 dari 48 Bengkel Resmi`), `← Sebelumnya`, interactive page number buttons with ellipsis windowing, and `Berikutnya →`.
+    - Added smooth automatic scroll to `#directory-results-top` anchor upon page transitions.
+  - **Verification & Git Rollout**:
+    - Ran `bun run typecheck` (0 errors across contracts, web, cms, api) and `bun test` (45/45 tests passing).
+    - Committed and pushed to `dev`, merged and pushed to `staging` and `main`.
+
 
