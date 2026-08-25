@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { closeDatabase, db } from "./client";
 import { ALL_INDONESIA_REGENCIES, INDONESIA_PROVINCES } from "@openorg/contracts";
 import {
+  adArtDocuments,
   championshipStandings,
   contents,
   events,
@@ -21,12 +22,14 @@ import {
   memberAccounts,
   members,
   membershipCards,
+  organizationMilestones,
   organizationUnits,
   pages,
   permissions,
   positionAssignments,
   positions,
   publicComplaints,
+  refrigerantSpecifications,
   registeredClubs,
   regulations,
   rolePermissions,
@@ -83,6 +86,9 @@ async function seed() {
     await tx.delete(technicianDirectories);
     await tx.delete(registeredClubs);
     await tx.delete(lenderRegistries);
+    await tx.delete(adArtDocuments);
+    await tx.delete(organizationMilestones);
+    await tx.delete(refrigerantSpecifications);
     await tx.delete(indonesiaVillages);
     await tx.delete(indonesiaDistricts);
     await tx.delete(indonesiaRegencies);
@@ -1480,10 +1486,332 @@ async function seed() {
     } catch (e) {
       console.warn("Notice: skipping villages seeding if file not available", e);
     }
+
+    // Seed AD/ART & Kode Etik Dokumen Organisasi
+    await tx.insert(adArtDocuments).values([
+      {
+        docType: "AD",
+        chapterNumber: "BAB I",
+        title: "Nama, Waktu, Asas & Kedudukan",
+        summary:
+          "Menetapkan identitas yuridis organisasi, status badan hukum perkumpulan, dan sekretariat pusat serta wilayah 38 provinsi.",
+        color: "#38bdf8",
+        sortOrder: 1,
+        articles: [
+          {
+            articleNumber: "Pasal 1",
+            title: "Nama & Identitas Organisasi",
+            clauses: [
+              "(1) Organisasi ini bernama Asosiasi Pengusaha & Teknisi Pendingin Indonesia, disingkat APTI.",
+              "(2) APTI adalah organisasi profesi dan kemitraan usaha berbadan hukum nirlaba yang menghimpun praktisi tata udara dan refrigerasi di Indonesia.",
+            ],
+          },
+          {
+            articleNumber: "Pasal 2",
+            title: "Waktu & Landasan Hukum",
+            clauses: [
+              "(1) Organisasi didirikan untuk jangka waktu yang tidak ditentukan terhitung sejak tanggal deklarasi nasional.",
+              "(2) Berbadan hukum resmi melalui Keputusan Menteri Hukum dan HAM RI Nomor AHU-0012948.AH.01.07.TAHUN 2024.",
+            ],
+          },
+          {
+            articleNumber: "Pasal 3",
+            title: "Kedudukan & Wilayah Kerja",
+            clauses: [
+              "(1) Dewan Pimpinan Pusat (DPP) berkedudukan di Ibukota Negara Republik Indonesia.",
+              "(2) Dewan Pimpinan Daerah (DPD) berkedudukan di Ibukota Provinsi dan dapat membentuk Koordinator Wilayah (Korwil) di tingkat Kabupaten/Kota.",
+            ],
+          },
+        ],
+      },
+      {
+        docType: "AD",
+        chapterNumber: "BAB II",
+        title: "Visi, Misi, Asas & Tujuan Pokok",
+        summary:
+          "Berasaskan Pancasila dan UUD 1945, bertujuan mewujudkan ekosistem refrigerasi yang berstandar kompetensi tinggi dan ramah iklim.",
+        color: "#34d399",
+        sortOrder: 2,
+        articles: [
+          {
+            articleNumber: "Pasal 4",
+            title: "Asas & Landasan Falsafah",
+            clauses: [
+              "(1) APTI berasaskan Pancasila dan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945.",
+              "(2) Falsafah kerja organisasi berlandaskan kejujuran, keselamatan kerja (K3), dan kelestarian lingkungan hidup.",
+            ],
+          },
+          {
+            articleNumber: "Pasal 5",
+            title: "Tujuan Pokok Organisasi",
+            clauses: [
+              "(1) Membina dan meningkatkan kompetensi profesi teknisi serta kemandirian usaha bengkel pendingin nasional.",
+              "(2) Mendorong sertifikasi profesi BNSP dan kepatuhan terhadap standar penanganan refrigeran rendah emisi (non-ODS/low GWP).",
+              "(3) Melindungi hak konsumen serta menghadirkan iklim persaingan usaha yang sehat dan berkeadilan.",
+            ],
+          },
+        ],
+      },
+      {
+        docType: "AD",
+        chapterNumber: "BAB III",
+        title: "Kedaulatan & Keanggotaan",
+        summary:
+          "Kedaulatan tertinggi berada di tangan anggota yang diwujudkan melalui Musyawarah Nasional (Munas).",
+        color: "#818cf8",
+        sortOrder: 3,
+        articles: [
+          {
+            articleNumber: "Pasal 6",
+            title: "Kedaulatan Organisasi",
+            clauses: [
+              "(1) Kedaulatan tertinggi organisasi berada di tangan anggota dan dilaksanakan sepenuhnya melalui Musyawarah Nasional (Munas).",
+              "(2) Keputusan Munas bersifat mengikat seluruh tingkatan kepengurusan dari DPP, DPD, hingga anggota perorangan.",
+            ],
+          },
+          {
+            articleNumber: "Pasal 7",
+            title: "Klasifikasi Anggota",
+            clauses: [
+              "(1) Anggota Biasa: Teknisi perseorangan atau pemilik bengkel HVAC/R yang telah memiliki KTA resmi.",
+              "(2) Anggota Luar Biasa: Badan usaha distributor, aplikator, atau manufaktur industri pendingin.",
+              "(3) Anggota Kehormatan: Tokoh masyarakat, akademisi, atau pejabat pemerintah yang berjasa bagi kemajuan industri refrigerasi nasional.",
+            ],
+          },
+        ],
+      },
+      {
+        docType: "ART",
+        chapterNumber: "BAB I",
+        title: "Tata Cara Penerimaan Anggota & KTA Digital",
+        summary:
+          "Ketentuan pendaftaran, verifikasi portofolio, dan penerbitan Kartu Tanda Anggota (KTA) berbasis QR Code.",
+        color: "#fbbf24",
+        sortOrder: 10,
+        articles: [
+          {
+            articleNumber: "Pasal 1",
+            title: "Persyaratan Calon Anggota",
+            clauses: [
+              "(1) Warga Negara Indonesia yang berprofesi sebagai teknisi atau pengusaha di bidang refrigerasi dan tata udara.",
+              "(2) Mengisi formulir registrasi daring resmi melalui portal OpenOrg dan melampirkan identitas diri yang sah (KTP).",
+              "(3) Menandatangani Pakta Integritas Kode Etik Profesi dan persetujuan AD/ART organisasi.",
+            ],
+          },
+          {
+            articleNumber: "Pasal 2",
+            title: "Penerbitan KTA Digital Ber-QR Code",
+            clauses: [
+              "(1) Setiap anggota yang disetujui berhak menerima Kartu Tanda Anggota (KTA) Digital resmi ber-QR Code anti-pemalsuan.",
+              "(2) Masa berlaku KTA adalah 1 (satu) tahun kalender dan diperpanjang otomatis setelah memenuhi kewajiban iuran dan pemutakhiran data SKP.",
+            ],
+          },
+        ],
+      },
+      {
+        docType: "KODE_ETIK",
+        chapterNumber: "KODE ETIK",
+        title: "10 Butir Ikrar Kehormatan Teknisi & Pengusaha Pendingin",
+        summary:
+          "Pedoman moral dan etika kerja profesi yang wajib dipatuhi setiap pemegang KTA di seluruh Indonesia.",
+        color: "#f43f5e",
+        sortOrder: 20,
+        articles: [
+          {
+            articleNumber: "Butir 1",
+            title: "Kejujuran & Transparansi Diagnosis",
+            clauses: [
+              "Wajib menyampaikan diagnosis kerusakan teknis secara jujur, akurat, dan transparan tanpa manipulasi komponen atau biaya.",
+            ],
+          },
+          {
+            articleNumber: "Butir 2",
+            title: "Standar Keselamatan Kerja (K3)",
+            clauses: [
+              "Selalu mengutamakan SOP keselamatan kerja, mengenakan APD lengkap saat menangani gas refrigeran bertekanan tinggi.",
+            ],
+          },
+          {
+            articleNumber: "Butir 3",
+            title: "Komitmen Perlindungan Lingkungan (Eco-Friendly)",
+            clauses: [
+              "Dilarang keras membuang refrigeran (Freon) langsung ke udara bebas; wajib melakukan proses recovery menggunakan recovery machine dan tabung tampung resmi.",
+            ],
+          },
+        ],
+      },
+    ]);
+
+    // Seed Organization Historical Milestones
+    await tx.insert(organizationMilestones).values([
+      {
+        year: "2018",
+        phase: "Fase Inisiasi & Deklarasi Nasional",
+        title: "Penyatuan Praktisi & Standar Bengkel Pendingin",
+        description:
+          "Deklarasi formatur bersama para praktisi senior HVAC/R dan pengusaha workshop dari berbagai daerah untuk menyatukan visi, kode etik profesi, dan keselamatan kerja (K3) tata udara di Indonesia.",
+        tags: ["Deklarasi Nasional", "Kode Etik", "Formatur DPP"],
+        highlight: "Inisiasi Bersama",
+        sortOrder: 1,
+      },
+      {
+        year: "2020",
+        phase: "Fase Standarisasi & Akreditasi",
+        title: "Harmonisasi Kompetensi BNSP & Eco-Refrigerant",
+        description:
+          "Penyusunan Standar Kompetensi Kerja Nasional Indonesia (SKKNI) bersama BNSP serta pelatihan penanganan zat refrigeran ramah lingkungan (non-ODS & rendah GWP) berkolaborasi dengan kementerian terkait.",
+        tags: ["Standar BNSP", "SKKNI Refrigerasi", "Eco-Friendly Freon"],
+        highlight: "Akreditasi BNSP",
+        sortOrder: 2,
+      },
+      {
+        year: "2023",
+        phase: "Fase Ekspansi Wilayah Terpadu",
+        title: "Konsolidasi Kepengurusan 38 DPD Seluruh Provinsi",
+        description:
+          "Pengukuhan jaringan Dewan Pimpinan Daerah (DPD) di 38 provinsi di seluruh Nusantara guna memastikan pembinaan bengkel lokal, perlindungan teknisi daerah, dan standarisasi tarif kerja transparan.",
+        tags: ["38 Provinsi", "Pengurus Daerah", "Advokasi Bengkel"],
+        highlight: "Jaringan 38 DPD",
+        sortOrder: 3,
+      },
+      {
+        year: "2026",
+        phase: "Fase Modernisasi & KTA Digital",
+        title: "Ekosistem Terpadu Registri & Audit Kredensial",
+        description:
+          "Peluncuran infrastruktur digital mandiri OpenOrg: penerbitan KTA Digital ber-QR Code anti-pemalsuan, sistem Satuan Kredit Profesi (SKP) realtime, dan portal verifikasi publik terpercaya.",
+        tags: ["KTA Digital Realtime", "QR Anti-Pemalsuan", "Audit Publik"],
+        highlight: "Transformasi Digital",
+        sortOrder: 4,
+      },
+    ]);
+
+    // Seed Refrigerant Specifications & Formulas
+    await tx.insert(refrigerantSpecifications).values([
+      {
+        code: "R32",
+        name: "R-32 (Difluoromethane)",
+        chemicalFormula: "CH₂F₂",
+        refrigerantType: "HFC Murni",
+        suctionPsi: "115 - 135 PSI",
+        dischargePsi: "320 - 380 PSI",
+        gwp: 675,
+        odp: "0",
+        oilType: "Synthetic POE / PVE",
+        safetyClass: "A2L (Mildly Flammable)",
+        statusKlhk: "Legal & Didukung (Transisi Hijau)",
+        description:
+          "Refrigeran generasi baru dengan efisiensi termal tinggi, potensi pemanasan global (GWP) 68% lebih rendah dari R410A.",
+        recommendedUse: "AC Split Residensial, Inverter Modern, Light Commercial",
+        sortOrder: 1,
+      },
+      {
+        code: "R410A",
+        name: "R-410A (Blend R32/R125 50:50)",
+        chemicalFormula: "CH₂F₂ / CHF₂CF₃",
+        refrigerantType: "HFC Blend Near-Azeotropic",
+        suctionPsi: "110 - 130 PSI",
+        dischargePsi: "330 - 400 PSI",
+        gwp: 2088,
+        odp: "0",
+        oilType: "Synthetic POE",
+        safetyClass: "A1 (Non-Flammable)",
+        statusKlhk: "Legal (Fase Pengurangan Bertahap)",
+        description:
+          "Refrigeran bertekanan tinggi tanpa merusak ozon. Wajib diisi dalam fasa cair (liquid) untuk menjaga rasio campuran.",
+        recommendedUse: "AC Split Non-Inverter, VRV/VRF Komersial, Multi-Split",
+        sortOrder: 2,
+      },
+      {
+        code: "R290",
+        name: "R-290 (High Purity Propane)",
+        chemicalFormula: "C₃H₈",
+        refrigerantType: "Hidrokarbon (HC Alami)",
+        suctionPsi: "65 - 85 PSI",
+        dischargePsi: "200 - 250 PSI",
+        gwp: 3,
+        odp: "0",
+        oilType: "Mineral Oil / POE",
+        safetyClass: "A3 (Flammable Eco)",
+        statusKlhk: "Sangat Direkomendasikan (Ramah Lingkungan)",
+        description:
+          "Refrigeran alami ultra-ramah lingkungan dengan GWP mendekati nol. Membutuhkan SOP keselamatan K3 ekstra ketat.",
+        recommendedUse: "AC Portabel, Chiller Komersial Tertutup, Heat Pump",
+        sortOrder: 3,
+      },
+      {
+        code: "R134a",
+        name: "R-134a (Tetrafluoroethane)",
+        chemicalFormula: "CH₂FCF₃",
+        refrigerantType: "HFC Murni",
+        suctionPsi: "25 - 40 PSI",
+        dischargePsi: "150 - 200 PSI",
+        gwp: 1430,
+        odp: "0",
+        oilType: "Synthetic PAG / POE",
+        safetyClass: "A1 (Non-Flammable)",
+        statusKlhk: "Legal",
+        description:
+          "Standar industri pendingin otomotif dan kulkas rumah tangga dengan rentang operasi tekanan sedang.",
+        recommendedUse: "AC Mobil, Kulkas Rumah Tangga, Water Dispenser, Chiller",
+        sortOrder: 4,
+      },
+      {
+        code: "R22",
+        name: "R-22 (Chlorodifluoromethane)",
+        chemicalFormula: "CHClF₂",
+        refrigerantType: "HCFC (Mengandung Klorin)",
+        suctionPsi: "60 - 75 PSI",
+        dischargePsi: "200 - 250 PSI",
+        gwp: 1810,
+        odp: "0.055",
+        oilType: "Mineral Oil",
+        safetyClass: "A1 (Non-Flammable)",
+        statusKlhk: "Dilarang Impor / Dipensiunkan (Permenperin)",
+        description:
+          "Refrigeran lawas perusak lapisan ozon. Wajib di-recovery dan disarankan retrofit ke R407C atau unit R32 baru.",
+        recommendedUse: "Unit Warisan (Legacy AC lama sebelum 2015)",
+        sortOrder: 5,
+      },
+      {
+        code: "R1234yf",
+        name: "R-1234yf (Tetrafluoropropene)",
+        chemicalFormula: "CF₃CF=CH₂",
+        refrigerantType: "HFO (Hydrofluoroolefin)",
+        suctionPsi: "28 - 42 PSI",
+        dischargePsi: "140 - 190 PSI",
+        gwp: 4,
+        odp: "0",
+        oilType: "PAG 46 / POE",
+        safetyClass: "A2L (Mildly Flammable)",
+        statusKlhk: "Standar Baru Otomotif Global",
+        description:
+          "Pengganti R134a pada kendaraan modern dengan waktu penguraian atmosferik hanya 11 hari.",
+        recommendedUse: "AC Mobil Modern (EV & Euro 4/5/6), Kendaraan Baru",
+        sortOrder: 6,
+      },
+      {
+        code: "R600a",
+        name: "R-600a (Isobutane)",
+        chemicalFormula: "C₄H₁₀",
+        refrigerantType: "Hidrokarbon (HC)",
+        suctionPsi: "0 - 5 PSI (Vakum Tipis)",
+        dischargePsi: "80 - 110 PSI",
+        gwp: 3,
+        odp: "0",
+        oilType: "Mineral Oil",
+        safetyClass: "A3 (Flammable)",
+        statusKlhk: "Sangat Dianjurkan",
+        description:
+          "Standar mutlak lemari es hemat listrik modern di seluruh dunia karena efisiensi termal tinggi pada massa isi kecil.",
+        recommendedUse: "Kulkas Inverter, Showcase Minuman, Freezer Domestik",
+        sortOrder: 7,
+      },
+    ]);
   });
 
   process.stdout.write(
-    `APTI Indonesia Seed Complete!\n- Seeded 38 Indonesia Provinces into Database\n- Seeded 514 Indonesia Regencies/Cities with Postal Codes into Database\n- Seeded 7,265 Indonesia Districts (Kecamatan) into Database\n- Seeded 83,345 Indonesia Villages (Desa/Kelurahan) with exact Postal Codes into Database\n\nAdmin login accounts:\n1) admin@organization.org (password: password123)\n2) admin@demo.openorg (password: OpenOrg!2026Demo)\n3) sekretariat@apti.or.id (password: password123)\n\nMember Portal login accounts (/member/login):\n1) member@demo.openorg (password: OpenOrg!2026Demo) - Budi Pratama (Demo Member)\n2) nanang@apti.or.id (password: password123) - Ir. H. Nanang Varian\n3) dedi.jabar@apti.or.id (password: password123) - Dedi Kurniawan\n`,
+    `APTI Indonesia Seed Complete!\n- Seeded 38 Indonesia Provinces into Database\n- Seeded 514 Indonesia Regencies/Cities with Postal Codes into Database\n- Seeded 7,265 Indonesia Districts (Kecamatan) into Database\n- Seeded 83,345 Indonesia Villages (Desa/Kelurahan) with exact Postal Codes into Database\n- Seeded AD/ART & Kode Etik chapters and articles\n- Seeded Historical Milestones & Strategic Pillars\n- Seeded Refrigerant Specifications & Calculator Data\n\nAdmin login accounts:\n1) admin@organization.org (password: password123)\n2) admin@demo.openorg (password: OpenOrg!2026Demo)\n3) sekretariat@apti.or.id (password: password123)\n\nMember Portal login accounts (/member/login):\n1) member@demo.openorg (password: OpenOrg!2026Demo) - Budi Pratama (Demo Member)\n2) nanang@apti.or.id (password: password123) - Ir. H. Nanang Varian\n3) dedi.jabar@apti.or.id (password: password123) - Dedi Kurniawan\n`,
   );
 }
 

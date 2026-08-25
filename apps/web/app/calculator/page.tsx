@@ -28,7 +28,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface RefrigerantData {
@@ -208,6 +208,42 @@ export default function CalculatorPage() {
 
   // Selected Refrigerant
   const [selectedRef, setSelectedRef] = useState<string>("R32");
+  const [apiRefrigerants, setApiRefrigerants] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/v1/public/calculator/refrigerants")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
+          setApiRefrigerants(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const activeRefrigerantsMap = useMemo<Record<string, RefrigerantData>>(() => {
+    if (apiRefrigerants.length > 0) {
+      const mapped: Record<string, RefrigerantData> = {};
+      for (const r of apiRefrigerants) {
+        mapped[r.code] = {
+          name: r.name,
+          chemicalFormula: r.chemicalFormula,
+          type: r.refrigerantType,
+          suctionPsi: r.suctionPsi,
+          dischargePsi: r.dischargePsi,
+          gwp: r.gwp,
+          odp: Number(r.odp) || 0,
+          oilType: r.oilType,
+          safetyClass: r.safetyClass as any,
+          statusKlhk: r.statusKlhk,
+          description: r.description,
+          recommendedUse: r.recommendedUse,
+        };
+      }
+      return mapped;
+    }
+    return REFRIGERANTS;
+  }, [apiRefrigerants]);
 
   // Calculation Logic (Indonesian Standard HVAC Sizing)
   const area = length * width;
@@ -297,7 +333,9 @@ export default function CalculatorPage() {
 
   const recommendation = getPkRecommendation(totalRawBtu);
   const activeRefrigerant: RefrigerantData =
-    REFRIGERANTS[selectedRef] ?? REFRIGERANTS.R32!;
+    activeRefrigerantsMap[selectedRef] ??
+    activeRefrigerantsMap.R32 ??
+    Object.values(activeRefrigerantsMap)[0]!;
 
   const applyPreset = (preset: (typeof ROOM_PRESETS)[0]) => {
     setLength(preset.l);
@@ -735,8 +773,8 @@ export default function CalculatorPage() {
             <div className="refrigerants-suite slide-in-up">
               {/* Refrigerant Selector Chips */}
               <div className="ref-selector-bar">
-                {Object.keys(REFRIGERANTS).map((key) => {
-                  const item = REFRIGERANTS[key]!;
+                {Object.keys(activeRefrigerantsMap).map((key) => {
+                  const item = activeRefrigerantsMap[key]!;
                   return (
                     <button
                       key={key}

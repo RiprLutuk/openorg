@@ -686,3 +686,88 @@ export const saveWilayahVillage = (village: {
     method: "POST",
     body: JSON.stringify(village),
   });
+
+export type CmsAdArt = {
+  id: string;
+  docType: "AD" | "ART" | "KODE_ETIK";
+  chapterNumber: string;
+  title: string;
+  summary: string;
+  color: string;
+  sortOrder: number;
+  articles: Array<{
+    articleNumber: string;
+    title: string;
+    clauses: string[];
+  }>;
+};
+
+export const getAdArtList = () => api<{ data: CmsAdArt[] }>("/v1/admin/ad-art");
+
+export const saveAdArt = (doc: Partial<CmsAdArt>) =>
+  api<{ data: CmsAdArt }>("/v1/admin/ad-art", {
+    method: "POST",
+    body: JSON.stringify(doc),
+  });
+
+export const deleteAdArt = (id: string) =>
+  api<{ data: { success: boolean } }>(`/v1/admin/ad-art/${id}`, {
+    method: "DELETE",
+  });
+
+export type CmsMilestone = {
+  id: string;
+  year: string;
+  phase: string;
+  title: string;
+  description: string;
+  tags: string[];
+  highlight: string;
+  sortOrder: number;
+};
+
+export const getMilestonesList = () =>
+  api<{ data: CmsMilestone[] }>("/v1/admin/milestones");
+
+export const saveMilestone = (milestone: Partial<CmsMilestone>) =>
+  api<{ data: CmsMilestone }>("/v1/admin/milestones", {
+    method: "POST",
+    body: JSON.stringify(milestone),
+  });
+
+export const deleteMilestone = (id: string) =>
+  api<{ data: { success: boolean } }>(`/v1/admin/milestones/${id}`, {
+    method: "DELETE",
+  });
+
+export type CmsRefrigerant = {
+  id: string;
+  code: string;
+  name: string;
+  chemicalFormula: string;
+  refrigerantType: string;
+  suctionPsi: string;
+  dischargePsi: string;
+  gwp: number;
+  odp: string;
+  oilType: string;
+  safetyClass: string;
+  statusKlhk: string;
+  description: string;
+  recommendedUse: string;
+  sortOrder: number;
+};
+
+export const getRefrigerantsList = () =>
+  api<{ data: CmsRefrigerant[] }>("/v1/admin/refrigerants");
+
+export const saveRefrigerant = (ref: Partial<CmsRefrigerant>) =>
+  api<{ data: CmsRefrigerant }>("/v1/admin/refrigerants", {
+    method: "POST",
+    body: JSON.stringify(ref),
+  });
+
+export const deleteRefrigerant = (id: string) =>
+  api<{ data: { success: boolean } }>(`/v1/admin/refrigerants/${id}`, {
+    method: "DELETE",
+  });

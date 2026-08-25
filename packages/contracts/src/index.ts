@@ -528,4 +528,56 @@ export type PublicSite = {
   quickContact: PublicQuickContact | null;
 };
 
+export type AdArtArticle = {
+  articleNumber: string;
+  title: string;
+  clauses: string[];
+};
+
+export type AdArtDocument = {
+  id: string;
+  docType: "AD" | "ART" | "KODE_ETIK";
+  chapterNumber: string;
+  title: string;
+  summary: string;
+  color: string;
+  sortOrder: number;
+  articles: AdArtArticle[];
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type OrganizationMilestone = {
+  id: string;
+  year: string;
+  phase: string;
+  title: string;
+  description: string;
+  tags: string[];
+  highlight: string;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type RefrigerantSpecification = {
+  id: string;
+  code: string;
+  name: string;
+  chemicalFormula: string;
+  refrigerantType: string;
+  suctionPsi: string;
+  dischargePsi: string;
+  gwp: number;
+  odp: string;
+  oilType: string;
+  safetyClass: string;
+  statusKlhk: string;
+  description: string;
+  recommendedUse: string;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export * from "./wilayah";

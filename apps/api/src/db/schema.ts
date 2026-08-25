@@ -1124,6 +1124,73 @@ export const lenderRegistries = pgTable("lender_registries", {
   ...timestamps,
 });
 
+export const adArtDocuments = pgTable(
+  "ad_art_documents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    docType: varchar("doc_type", { length: 20 }).notNull().default("AD"), // "AD", "ART", "KODE_ETIK"
+    chapterNumber: varchar("chapter_number", { length: 40 }).notNull(), // "BAB I"
+    title: varchar("title", { length: 255 }).notNull(),
+    summary: text("summary").notNull().default(""),
+    color: varchar("color", { length: 30 }).notNull().default("#38bdf8"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    articles: jsonb("articles").$type<
+      Array<{
+        articleNumber: string;
+        title: string;
+        clauses: string[];
+      }>
+    >().notNull().default([]),
+    ...timestamps,
+  },
+  (table) => [
+    index("idx_ad_art_doc_type").on(table.docType),
+    index("idx_ad_art_sort").on(table.sortOrder),
+  ],
+);
+
+export const organizationMilestones = pgTable(
+  "organization_milestones",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    year: varchar("year", { length: 20 }).notNull(),
+    phase: varchar("phase", { length: 150 }).notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description").notNull(),
+    tags: jsonb("tags").$type<string[]>().notNull().default([]),
+    highlight: varchar("highlight", { length: 100 }).notNull().default(""),
+    sortOrder: integer("sort_order").notNull().default(0),
+    ...timestamps,
+  },
+  (table) => [index("idx_milestones_sort").on(table.sortOrder)],
+);
+
+export const refrigerantSpecifications = pgTable(
+  "refrigerant_specifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: varchar("code", { length: 30 }).notNull().unique(), // "R32", "R410A"
+    name: varchar("name", { length: 150 }).notNull(),
+    chemicalFormula: varchar("chemical_formula", { length: 80 }).notNull().default(""),
+    refrigerantType: varchar("refrigerant_type", { length: 80 }).notNull().default("HFC"),
+    suctionPsi: varchar("suction_psi", { length: 80 }).notNull().default(""),
+    dischargePsi: varchar("discharge_psi", { length: 80 }).notNull().default(""),
+    gwp: integer("gwp").notNull().default(0),
+    odp: varchar("odp", { length: 20 }).notNull().default("0"),
+    oilType: varchar("oil_type", { length: 80 }).notNull().default("Synthetic POE"),
+    safetyClass: varchar("safety_class", { length: 80 }).notNull().default("A1"),
+    statusKlhk: varchar("status_klhk", { length: 150 }).notNull().default("Legal"),
+    description: text("description").notNull().default(""),
+    recommendedUse: text("recommended_use").notNull().default(""),
+    sortOrder: integer("sort_order").notNull().default(0),
+    ...timestamps,
+  },
+  (table) => [
+    index("idx_refrigerant_code").on(table.code),
+    index("idx_refrigerant_sort").on(table.sortOrder),
+  ],
+);
+
 export const indonesiaProvinces = pgTable(
   "indonesia_provinces",
   {
@@ -1164,12 +1231,8 @@ export const indonesiaDistricts = pgTable(
   "indonesia_districts",
   {
     kode: varchar("kode", { length: 20 }).primaryKey(),
-    regencyKode: varchar("regency_kode", { length: 15 })
-      .notNull()
-      .references(() => indonesiaRegencies.kode, { onDelete: "cascade" }),
-    provinceKode: varchar("province_kode", { length: 10 })
-      .notNull()
-      .references(() => indonesiaProvinces.kode, { onDelete: "cascade" }),
+    regencyKode: varchar("regency_kode", { length: 15 }).notNull(),
+    provinceKode: varchar("province_kode", { length: 10 }).notNull(),
     nama: varchar("nama", { length: 150 }).notNull(),
     ...timestamps,
   },
@@ -1184,15 +1247,9 @@ export const indonesiaVillages = pgTable(
   "indonesia_villages",
   {
     kode: varchar("kode", { length: 25 }).primaryKey(),
-    districtKode: varchar("district_kode", { length: 20 })
-      .notNull()
-      .references(() => indonesiaDistricts.kode, { onDelete: "cascade" }),
-    regencyKode: varchar("regency_kode", { length: 15 })
-      .notNull()
-      .references(() => indonesiaRegencies.kode, { onDelete: "cascade" }),
-    provinceKode: varchar("province_kode", { length: 10 })
-      .notNull()
-      .references(() => indonesiaProvinces.kode, { onDelete: "cascade" }),
+    districtKode: varchar("district_kode", { length: 20 }).notNull(),
+    regencyKode: varchar("regency_kode", { length: 15 }).notNull(),
+    provinceKode: varchar("province_kode", { length: 10 }).notNull(),
     nama: varchar("nama", { length: 150 }).notNull(),
     kodepos: varchar("kodepos", { length: 10 }).notNull().default(""),
     ...timestamps,

@@ -212,3 +212,20 @@ export const getWilayahRegenciesApi = cache(
     );
   },
 );
+
+export const getAdArtApi = cache((docType?: string, search?: string) => {
+  const params = new URLSearchParams();
+  if (docType) params.set("type", docType);
+  if (search) params.set("search", search);
+  return publicApi<any[]>(`/ad-art${params.toString() ? `?${params.toString()}` : ""}`);
+});
+
+export const getMilestonesApi = cache(() => {
+  return publicApi<any[]>("/milestones");
+});
+
+export const getRefrigerantsApi = cache((search?: string) => {
+  return publicApi<any[]>(
+    `/calculator/refrigerants${search ? `?search=${encodeURIComponent(search)}` : ""}`,
+  );
+});

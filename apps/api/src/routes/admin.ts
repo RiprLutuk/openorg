@@ -4,6 +4,7 @@ import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { db } from "../db/client";
 import {
+  adArtDocuments,
   auditLogs,
   championshipStandings,
   contactSubmissions,
@@ -17,9 +18,11 @@ import {
   lenderRegistries,
   memberApplications,
   members,
+  organizationMilestones,
   organizationUnits,
   pages,
   publicComplaints,
+  refrigerantSpecifications,
   registeredClubs,
   regulations,
   siteSettings,
@@ -1618,5 +1621,153 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       .returning();
 
     return reply.status(201).send({ data: row });
+  });
+
+  // =========================================================================
+  // Admin AD/ART & Kode Etik Manager
+  // =========================================================================
+  app.get("/ad-art", async () => {
+    const rows = await db
+      .select()
+      .from(adArtDocuments)
+      .orderBy(asc(adArtDocuments.sortOrder), asc(adArtDocuments.chapterNumber));
+    return { data: rows };
+  });
+
+  app.post("/ad-art", async (request, reply) => {
+    const adArtSchema = z.object({
+      id: z.string().uuid().optional(),
+      docType: z.enum(["AD", "ART", "KODE_ETIK"]).default("AD"),
+      chapterNumber: z.string().min(1),
+      title: z.string().min(1),
+      summary: z.string().default(""),
+      color: z.string().default("#38bdf8"),
+      sortOrder: z.number().int().default(0),
+      articles: z
+        .array(
+          z.object({
+            articleNumber: z.string(),
+            title: z.string(),
+            clauses: z.array(z.string()),
+          }),
+        )
+        .default([]),
+    });
+
+    const body = adArtSchema.parse(request.body);
+    if (body.id) {
+      const [row] = await db
+        .update(adArtDocuments)
+        .set({ ...body, updatedAt: new Date() })
+        .where(eq(adArtDocuments.id, body.id))
+        .returning();
+      return reply.send({ data: row });
+    }
+    const [row] = await db.insert(adArtDocuments).values(body).returning();
+    return reply.status(201).send({ data: row });
+  });
+
+  app.delete("/ad-art/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    await db.delete(adArtDocuments).where(eq(adArtDocuments.id, id));
+    return { data: { success: true } };
+  });
+
+  // =========================================================================
+  // Admin Organization Milestones Manager
+  // =========================================================================
+  app.get("/milestones", async () => {
+    const rows = await db
+      .select()
+      .from(organizationMilestones)
+      .orderBy(asc(organizationMilestones.sortOrder), asc(organizationMilestones.year));
+    return { data: rows };
+  });
+
+  app.post("/milestones", async (request, reply) => {
+    const milestoneSchema = z.object({
+      id: z.string().uuid().optional(),
+      year: z.string().min(2),
+      phase: z.string().min(2),
+      title: z.string().min(2),
+      description: z.string().min(2),
+      tags: z.array(z.string()).default([]),
+      highlight: z.string().default(""),
+      sortOrder: z.number().int().default(0),
+    });
+
+    const body = milestoneSchema.parse(request.body);
+    if (body.id) {
+      const [row] = await db
+        .update(organizationMilestones)
+        .set({ ...body, updatedAt: new Date() })
+        .where(eq(organizationMilestones.id, body.id))
+        .returning();
+      return reply.send({ data: row });
+    }
+    const [row] = await db.insert(organizationMilestones).values(body).returning();
+    return reply.status(201).send({ data: row });
+  });
+
+  app.delete("/milestones/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    await db.delete(organizationMilestones).where(eq(organizationMilestones.id, id));
+    return { data: { success: true } };
+  });
+
+  // =========================================================================
+  // Admin Refrigerant Specifications & Calculator Manager
+  // =========================================================================
+  app.get("/refrigerants", async () => {
+    const rows = await db
+      .select()
+      .from(refrigerantSpecifications)
+      .orderBy(asc(refrigerantSpecifications.sortOrder), asc(refrigerantSpecifications.code));
+    return { data: rows };
+  });
+
+  app.post("/refrigerants", async (request, reply) => {
+    const refSchema = z.object({
+      id: z.string().uuid().optional(),
+      code: z.string().min(2),
+      name: z.string().min(2),
+      chemicalFormula: z.string().default(""),
+      refrigerantType: z.string().default("HFC"),
+      suctionPsi: z.string().default(""),
+      dischargePsi: z.string().default(""),
+      gwp: z.number().int().default(0),
+      odp: z.string().default("0"),
+      oilType: z.string().default("Synthetic POE"),
+      safetyClass: z.string().default("A1"),
+      statusKlhk: z.string().default("Legal"),
+      description: z.string().default(""),
+      recommendedUse: z.string().default(""),
+      sortOrder: z.number().int().default(0),
+    });
+
+    const body = refSchema.parse(request.body);
+    if (body.id) {
+      const [row] = await db
+        .update(refrigerantSpecifications)
+        .set({ ...body, updatedAt: new Date() })
+        .where(eq(refrigerantSpecifications.id, body.id))
+        .returning();
+      return reply.send({ data: row });
+    }
+    const [row] = await db
+      .insert(refrigerantSpecifications)
+      .values(body)
+      .onConflictDoUpdate({
+        target: refrigerantSpecifications.code,
+        set: { ...body, updatedAt: new Date() },
+      })
+      .returning();
+    return reply.status(201).send({ data: row });
+  });
+
+  app.delete("/refrigerants/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    await db.delete(refrigerantSpecifications).where(eq(refrigerantSpecifications.id, id));
+    return { data: { success: true } };
   });
 };

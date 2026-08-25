@@ -4,6 +4,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 import { db } from "../db/client";
 import {
+  adArtDocuments,
   championshipStandings,
   contactSubmissions,
   contents,
@@ -15,11 +16,13 @@ import {
   industryStatistics,
   lenderRegistries,
   members,
+  organizationMilestones,
   organizationUnits,
   pages,
   positionAssignments,
   positions,
   publicComplaints,
+  refrigerantSpecifications,
   registeredClubs,
   regulations,
   siteSettings,
@@ -822,4 +825,86 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       },
     };
   });
+
+  // =========================================================================
+  // AD/ART & Kode Etik Organisasi Public API
+  // =========================================================================
+  app.get("/ad-art", async (request) => {
+    const query = z
+      .object({
+        type: z.string().optional(),
+        search: z.string().optional(),
+      })
+      .parse(request.query);
+
+    const conditions = [];
+    if (query.type?.trim()) {
+      conditions.push(eq(adArtDocuments.docType, query.type.trim()));
+    }
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(adArtDocuments.title, q),
+          ilike(adArtDocuments.summary, q),
+          ilike(adArtDocuments.chapterNumber, q),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(adArtDocuments)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(adArtDocuments.sortOrder), asc(adArtDocuments.chapterNumber));
+
+    return { data: rows };
+  });
+
+  // =========================================================================
+  // Profil & Sejarah Organisasi (Milestones) Public API
+  // =========================================================================
+  const handleGetMilestones = async () => {
+    const rows = await db
+      .select()
+      .from(organizationMilestones)
+      .orderBy(asc(organizationMilestones.sortOrder), asc(organizationMilestones.year));
+
+    return { data: rows };
+  };
+
+  app.get("/milestones", handleGetMilestones);
+  app.get("/organization-profile/milestones", handleGetMilestones);
+
+  // =========================================================================
+  // Katalog Spesifikasi Freon / Refrigeran & Kalkulator Public API
+  // =========================================================================
+  const handleGetRefrigerants = async (request: any) => {
+    const query = z
+      .object({ search: z.string().optional() })
+      .parse(request.query);
+
+    const conditions = [];
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(refrigerantSpecifications.code, q),
+          ilike(refrigerantSpecifications.name, q),
+          ilike(refrigerantSpecifications.refrigerantType, q),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(refrigerantSpecifications)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(refrigerantSpecifications.sortOrder), asc(refrigerantSpecifications.code));
+
+    return { data: rows };
+  };
+
+  app.get("/calculator/refrigerants", handleGetRefrigerants);
+  app.get("/refrigerants", handleGetRefrigerants);
 };

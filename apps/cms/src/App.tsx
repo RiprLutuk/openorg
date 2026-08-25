@@ -17,8 +17,10 @@ import {
   Copy,
   CornerDownRight,
   Cpu,
+  Calculator,
   CreditCard,
   Download,
+  Edit2,
   FileText,
   Flag,
   Globe2,
@@ -39,6 +41,7 @@ import {
   QrCode,
   RefreshCw,
   Save,
+  Scale,
   Search,
   Settings,
   ShieldAlert,
@@ -95,6 +98,9 @@ import {
   type CmsTechnician,
   type CmsUnit,
   type CmsWorkingGroup,
+  type CmsAdArt,
+  type CmsMilestone,
+  type CmsRefrigerant,
   type DashboardData,
   getWilayahProvinces,
   getWilayahRegencies,
@@ -104,6 +110,15 @@ import {
   saveWilayahRegency,
   saveWilayahDistrict,
   saveWilayahVillage,
+  getAdArtList,
+  saveAdArt,
+  deleteAdArt,
+  getMilestonesList,
+  saveMilestone,
+  deleteMilestone,
+  getRefrigerantsList,
+  saveRefrigerant,
+  deleteRefrigerant,
   type Session,
 } from "./api";
 
@@ -128,6 +143,9 @@ type Screen =
   | "lenders"
   | "statistics"
   | "wilayah"
+  | "adArt"
+  | "milestones"
+  | "refrigerants"
   | "appearance"
   | "settings";
 
@@ -161,6 +179,9 @@ const menu: Array<{
   {
     title: "Services & Registry",
     items: [
+      { id: "adArt", label: "AD/ART & Kode Etik", icon: Scale },
+      { id: "milestones", label: "Sejarah & Profil", icon: Sparkles },
+      { id: "refrigerants", label: "Katalog Freon & Kalkulator", icon: Calculator },
       { id: "regulations", label: "Regulations & Legal", icon: FileText },
       { id: "complaints", label: "Complaints & Ethics", icon: ShieldAlert },
       { id: "technicians", label: "Technicians Directory", icon: Wrench },
@@ -740,6 +761,9 @@ function Studio({ session }: { session: Session }) {
           {screen === "lenders" && <LendersManager />}
           {screen === "statistics" && <StatisticsManager />}
           {screen === "wilayah" && <WilayahManager />}
+          {screen === "adArt" && <AdArtManager />}
+          {screen === "milestones" && <MilestonesManager />}
+          {screen === "refrigerants" && <RefrigerantsManager />}
           {screen === "appearance" && <Appearance />}
           {screen === "settings" && <SettingsManager />}
         </main>
@@ -10934,6 +10958,999 @@ function WilayahManager() {
                 </button>
                 <button type="submit" className="button primary" disabled={saveRegencyMut.isPending}>
                   {saveRegencyMut.isPending ? "Menyimpan..." : "Simpan ke Database API"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// =========================================================================
+// 1. AD/ART & Kode Etik Manager
+// =========================================================================
+function AdArtManager() {
+  const queryClient = useQueryClient();
+  const [docFilter, setDocFilter] = useState<string>("ALL");
+  const [editingItem, setEditingItem] = useState<Partial<CmsAdArt> | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin_ad_art"],
+    queryFn: getAdArtList,
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: (doc: Partial<CmsAdArt>) => saveAdArt(doc),
+    onSuccess: () => {
+      toast.success("Dokumen AD/ART berhasil disimpan ke database!");
+      void queryClient.invalidateQueries({ queryKey: ["admin_ad_art"] });
+      setIsModalOpen(false);
+      setEditingItem(null);
+    },
+    onError: (err: any) => toast.error(err.message || "Gagal menyimpan dokumen AD/ART"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteAdArt(id),
+    onSuccess: () => {
+      toast.success("Dokumen berhasil dihapus.");
+      void queryClient.invalidateQueries({ queryKey: ["admin_ad_art"] });
+    },
+    onError: (err: any) => toast.error(err.message || "Gagal menghapus dokumen"),
+  });
+
+  const items = data?.data || [];
+  const filteredItems = docFilter === "ALL" ? items : items.filter((d) => d.docType === docFilter);
+
+  const handleAddArticle = () => {
+    if (!editingItem) return;
+    const currentArticles = editingItem.articles || [];
+    setEditingItem({
+      ...editingItem,
+      articles: [
+        ...currentArticles,
+        {
+          articleNumber: `Pasal ${currentArticles.length + 1}`,
+          title: "Judul Pasal Baru",
+          clauses: ["(1) Isi ketentuan pasal pertama."],
+        },
+      ],
+    });
+  };
+
+  const handleRemoveArticle = (idx: number) => {
+    if (!editingItem) return;
+    const currentArticles = [...(editingItem.articles || [])];
+    currentArticles.splice(idx, 1);
+    setEditingItem({ ...editingItem, articles: currentArticles });
+  };
+
+  if (isLoading) return <PageLoading />;
+
+  return (
+    <>
+      <PageHeading
+        eyebrow="Hukum & Konstitusi Organisasi"
+        title="AD / ART & Kode Etik Profesi"
+        description="Kelola Bab dan Pasal Anggaran Dasar (AD), Anggaran Rumah Tangga (ART), serta Butir Ikrar Kode Etik Profesi yang tampil di portal publik."
+        action={
+          <button
+            type="button"
+            className="button primary"
+            onClick={() => {
+              setEditingItem({
+                docType: "AD",
+                chapterNumber: `BAB ${items.length + 1}`,
+                title: "",
+                summary: "",
+                color: "#38bdf8",
+                sortOrder: items.length + 1,
+                articles: [
+                  {
+                    articleNumber: "Pasal 1",
+                    title: "Ketentuan Pokok",
+                    clauses: ["(1) Penjelasan ketentuan."],
+                  },
+                ],
+              });
+              setIsModalOpen(true);
+            }}
+          >
+            <Plus size={16} /> Tambah Bab Dokumen
+          </button>
+        }
+      />
+
+      <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+        {[
+          { key: "ALL", label: `Semua Dokumen (${items.length})` },
+          { key: "AD", label: "Anggaran Dasar (AD)" },
+          { key: "ART", label: "Anggaran Rumah Tangga (ART)" },
+          { key: "KODE_ETIK", label: "Kode Etik Profesi" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            className={`button ${docFilter === tab.key ? "primary" : "secondary"}`}
+            style={{ padding: "6px 14px", fontSize: "13px" }}
+            onClick={() => setDocFilter(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="table-wrapper">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th style={{ width: "90px" }}>Jenis</th>
+              <th style={{ width: "110px" }}>Bab / Nomor</th>
+              <th>Judul Dokumen</th>
+              <th>Ringkasan Bab</th>
+              <th style={{ width: "100px", textAlign: "center" }}>Jml Pasal</th>
+              <th style={{ width: "70px", textAlign: "center" }}>Urutan</th>
+              <th style={{ width: "140px", textAlign: "right" }}>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredItems.map((item) => (
+              <tr key={item.id}>
+                <td>
+                  <span
+                    className="badge"
+                    style={{
+                      background:
+                        item.docType === "AD"
+                          ? "#0284c71a"
+                          : item.docType === "ART"
+                            ? "#10b9811a"
+                            : "#f59e0b1a",
+                      color:
+                        item.docType === "AD"
+                          ? "#0284c7"
+                          : item.docType === "ART"
+                            ? "#10b981"
+                            : "#f59e0b",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {item.docType}
+                  </span>
+                </td>
+                <td>
+                  <strong>{item.chapterNumber}</strong>
+                </td>
+                <td>
+                  <div style={{ fontWeight: 600 }}>{item.title}</div>
+                </td>
+                <td>
+                  <span style={{ color: "#64748b", fontSize: "13px" }}>
+                    {item.summary || "—"}
+                  </span>
+                </td>
+                <td style={{ textAlign: "center" }}>
+                  <span className="badge secondary">
+                    {item.articles?.length || 0} Pasal
+                  </span>
+                </td>
+                <td style={{ textAlign: "center" }}>{item.sortOrder}</td>
+                <td style={{ textAlign: "right" }}>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="button secondary"
+                      style={{ padding: "4px 8px" }}
+                      onClick={() => {
+                        setEditingItem(item);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      <Edit2 size={13} /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="button danger"
+                      style={{ padding: "4px 8px" }}
+                      onClick={() => {
+                        if (confirm(`Hapus ${item.chapterNumber}: ${item.title}?`)) {
+                          deleteMutation.mutate(item.id);
+                        }
+                      }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filteredItems.length === 0 && (
+              <tr>
+                <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "#64748b" }}>
+                  Belum ada dokumen yang sesuai filter.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {isModalOpen && editingItem && (
+        <div className="modal-backdrop">
+          <div className="modal-content" style={{ maxWidth: "720px", maxHeight: "85vh", overflowY: "auto" }}>
+            <div className="modal-header">
+              <h3>{editingItem.id ? "Edit Bab Dokumen" : "Tambah Bab Dokumen Baru"}</h3>
+              <button
+                type="button"
+                className="icon-button"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setEditingItem(null);
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                saveMutation.mutate(editingItem);
+              }}
+              style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "14px" }}
+            >
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+                <label>
+                  Tipe Dokumen
+                  <select
+                    value={editingItem.docType || "AD"}
+                    onChange={(e) => setEditingItem({ ...editingItem, docType: e.target.value as any })}
+                  >
+                    <option value="AD">Anggaran Dasar (AD)</option>
+                    <option value="ART">Anggaran Rumah Tangga (ART)</option>
+                    <option value="KODE_ETIK">Kode Etik Profesi</option>
+                  </select>
+                </label>
+                <label>
+                  Nomor / Bab *
+                  <input
+                    type="text"
+                    required
+                    value={editingItem.chapterNumber || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, chapterNumber: e.target.value })}
+                    placeholder="BAB I / Butir 1"
+                  />
+                </label>
+                <label>
+                  Urutan Tampil
+                  <input
+                    type="number"
+                    value={editingItem.sortOrder ?? 0}
+                    onChange={(e) => setEditingItem({ ...editingItem, sortOrder: Number(e.target.value) })}
+                  />
+                </label>
+              </div>
+
+              <label>
+                Judul Bab / Dokumen *
+                <input
+                  type="text"
+                  required
+                  value={editingItem.title || ""}
+                  onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                  placeholder="Contoh: Nama, Waktu, Asas & Kedudukan"
+                />
+              </label>
+
+              <label>
+                Ringkasan Bab
+                <textarea
+                  rows={2}
+                  value={editingItem.summary || ""}
+                  onChange={(e) => setEditingItem({ ...editingItem, summary: e.target.value })}
+                  placeholder="Ringkasan isi bab untuk panduan cepat anggota..."
+                />
+              </label>
+
+              <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "14px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                  <h4 style={{ margin: 0 }}>Daftar Pasal / Butir Ketentuan ({editingItem.articles?.length || 0})</h4>
+                  <button type="button" className="button secondary" onClick={handleAddArticle}>
+                    <Plus size={14} /> Tambah Pasal
+                  </button>
+                </div>
+
+                {editingItem.articles?.map((art, artIdx) => (
+                  <div
+                    key={artIdx}
+                    style={{
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "8px",
+                      padding: "12px",
+                      marginBottom: "12px",
+                      background: "#f8fafc",
+                    }}
+                  >
+                    <div style={{ display: "grid", gridTemplateColumns: "140px 1fr 40px", gap: "10px", marginBottom: "8px" }}>
+                      <input
+                        type="text"
+                        value={art.articleNumber}
+                        onChange={(e) => {
+                          const updated = [...(editingItem.articles || [])];
+                          const target = updated[artIdx];
+                          if (target) {
+                            updated[artIdx] = { ...target, articleNumber: e.target.value };
+                            setEditingItem({ ...editingItem, articles: updated });
+                          }
+                        }}
+                        placeholder="Pasal 1"
+                      />
+                      <input
+                        type="text"
+                        value={art.title}
+                        onChange={(e) => {
+                          const updated = [...(editingItem.articles || [])];
+                          const target = updated[artIdx];
+                          if (target) {
+                            updated[artIdx] = { ...target, title: e.target.value };
+                            setEditingItem({ ...editingItem, articles: updated });
+                          }
+                        }}
+                        placeholder="Judul Pasal"
+                      />
+                      <button
+                        type="button"
+                        className="button danger"
+                        style={{ padding: "4px" }}
+                        onClick={() => handleRemoveArticle(artIdx)}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+
+                    <label style={{ fontSize: "12px", color: "#64748b" }}>
+                      Isi Ayat / Ketentuan (Satu baris per ayat):
+                      <textarea
+                        rows={3}
+                        value={art.clauses.join("\n")}
+                        onChange={(e) => {
+                          const updated = [...(editingItem.articles || [])];
+                          const target = updated[artIdx];
+                          if (target) {
+                            updated[artIdx] = {
+                              ...target,
+                              clauses: e.target.value.split("\n").filter(Boolean),
+                            };
+                            setEditingItem({ ...editingItem, articles: updated });
+                          }
+                        }}
+                        placeholder="(1) Ketentuan pertama...&#10;(2) Ketentuan kedua..."
+                        style={{ marginTop: "4px" }}
+                      />
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "14px" }}>
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setEditingItem(null);
+                  }}
+                >
+                  Batal
+                </button>
+                <button type="submit" className="button primary" disabled={saveMutation.isPending}>
+                  {saveMutation.isPending ? "Menyimpan..." : "Simpan Dokumen"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// =========================================================================
+// 2. Sejarah & Profil Milestones Manager
+// =========================================================================
+function MilestonesManager() {
+  const queryClient = useQueryClient();
+  const [editingItem, setEditingItem] = useState<Partial<CmsMilestone> | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin_milestones"],
+    queryFn: getMilestonesList,
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: (m: Partial<CmsMilestone>) => saveMilestone(m),
+    onSuccess: () => {
+      toast.success("Tonggak sejarah organisasi berhasil disimpan!");
+      void queryClient.invalidateQueries({ queryKey: ["admin_milestones"] });
+      setIsModalOpen(false);
+      setEditingItem(null);
+    },
+    onError: (err: any) => toast.error(err.message || "Gagal menyimpan data sejarah"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteMilestone(id),
+    onSuccess: () => {
+      toast.success("Tonggak sejarah berhasil dihapus.");
+      void queryClient.invalidateQueries({ queryKey: ["admin_milestones"] });
+    },
+    onError: (err: any) => toast.error(err.message || "Gagal menghapus data sejarah"),
+  });
+
+  const items = data?.data || [];
+
+  if (isLoading) return <PageLoading />;
+
+  return (
+    <>
+      <PageHeading
+        eyebrow="Sejarah & Profil Organisasi"
+        title="Tonggak Sejarah & Fase Perjalanan"
+        description="Kelola linimasa pembentukan organisasi, pencapaian strategis, dan transformasi per tahun yang tampil di halaman Profil Publik."
+        action={
+          <button
+            type="button"
+            className="button primary"
+            onClick={() => {
+              setEditingItem({
+                year: new Date().getFullYear().toString(),
+                phase: "Fase Baru",
+                title: "",
+                description: "",
+                tags: ["Organisasi", "Nasional"],
+                highlight: "Pencapaian Utama",
+                sortOrder: items.length + 1,
+              });
+              setIsModalOpen(true);
+            }}
+          >
+            <Plus size={16} /> Tambah Fase Sejarah
+          </button>
+        }
+      />
+
+      <div className="table-wrapper">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th style={{ width: "90px" }}>Tahun</th>
+              <th>Fase Perjalanan</th>
+              <th>Judul Pencapaian</th>
+              <th>Highlight Badge</th>
+              <th>Tagar</th>
+              <th style={{ width: "70px", textAlign: "center" }}>Urutan</th>
+              <th style={{ width: "140px", textAlign: "right" }}>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={item.id}>
+                <td>
+                  <span className="badge primary" style={{ fontWeight: 700 }}>
+                    {item.year}
+                  </span>
+                </td>
+                <td>
+                  <strong>{item.phase}</strong>
+                </td>
+                <td>
+                  <div style={{ fontWeight: 600 }}>{item.title}</div>
+                  <div style={{ color: "#64748b", fontSize: "12px", marginTop: "2px" }}>
+                    {item.description}
+                  </div>
+                </td>
+                <td>
+                  <span className="badge secondary">{item.highlight || "—"}</span>
+                </td>
+                <td>
+                  <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                    {item.tags?.map((t, idx) => (
+                      <span key={idx} style={{ fontSize: "11px", background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px" }}>
+                        #{t}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td style={{ textAlign: "center" }}>{item.sortOrder}</td>
+                <td style={{ textAlign: "right" }}>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="button secondary"
+                      style={{ padding: "4px 8px" }}
+                      onClick={() => {
+                        setEditingItem(item);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      <Edit2 size={13} /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="button danger"
+                      style={{ padding: "4px 8px" }}
+                      onClick={() => {
+                        if (confirm(`Hapus sejarah tahun ${item.year}: ${item.title}?`)) {
+                          deleteMutation.mutate(item.id);
+                        }
+                      }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {isModalOpen && editingItem && (
+        <div className="modal-backdrop">
+          <div className="modal-content" style={{ maxWidth: "600px" }}>
+            <div className="modal-header">
+              <h3>{editingItem.id ? "Edit Tonggak Sejarah" : "Tambah Tonggak Sejarah Baru"}</h3>
+              <button
+                type="button"
+                className="icon-button"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setEditingItem(null);
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                saveMutation.mutate(editingItem);
+              }}
+              style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "14px" }}
+            >
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "12px" }}>
+                <label>
+                  Tahun *
+                  <input
+                    type="text"
+                    required
+                    value={editingItem.year || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, year: e.target.value })}
+                    placeholder="Contoh: 2026"
+                  />
+                </label>
+                <label>
+                  Nama Fase Perjalanan *
+                  <input
+                    type="text"
+                    required
+                    value={editingItem.phase || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, phase: e.target.value })}
+                    placeholder="Contoh: Fase Modernisasi Digital"
+                  />
+                </label>
+              </div>
+
+              <label>
+                Judul Pencapaian Utama *
+                <input
+                  type="text"
+                  required
+                  value={editingItem.title || ""}
+                  onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                  placeholder="Contoh: Peluncuran KTA Digital & Sertifikasi BNSP"
+                />
+              </label>
+
+              <label>
+                Deskripsi Lengkap Narasi Sejarah *
+                <textarea
+                  rows={4}
+                  required
+                  value={editingItem.description || ""}
+                  onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                  placeholder="Jelaskan momentum dan capaian organisasi pada fase ini..."
+                />
+              </label>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <label>
+                  Highlight Badge Label
+                  <input
+                    type="text"
+                    value={editingItem.highlight || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, highlight: e.target.value })}
+                    placeholder="Contoh: Transformasi Digital"
+                  />
+                </label>
+                <label>
+                  Urutan Tampil
+                  <input
+                    type="number"
+                    value={editingItem.sortOrder ?? 0}
+                    onChange={(e) => setEditingItem({ ...editingItem, sortOrder: Number(e.target.value) })}
+                  />
+                </label>
+              </div>
+
+              <label>
+                Tagar Kategori (Pisahkan dengan koma)
+                <input
+                  type="text"
+                  value={editingItem.tags?.join(", ") || ""}
+                  onChange={(e) =>
+                    setEditingItem({
+                      ...editingItem,
+                      tags: e.target.value
+                        .split(",")
+                        .map((t) => t.trim())
+                        .filter(Boolean),
+                    })
+                  }
+                  placeholder="KTA Digital, QR Anti-Pemalsuan, Audit Publik"
+                />
+              </label>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "14px" }}>
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setEditingItem(null);
+                  }}
+                >
+                  Batal
+                </button>
+                <button type="submit" className="button primary" disabled={saveMutation.isPending}>
+                  {saveMutation.isPending ? "Menyimpan..." : "Simpan Sejarah"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// =========================================================================
+// 3. Katalog Spesifikasi Freon / Refrigerants & Kalkulator Manager
+// =========================================================================
+function RefrigerantsManager() {
+  const queryClient = useQueryClient();
+  const [editingItem, setEditingItem] = useState<Partial<CmsRefrigerant> | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin_refrigerants"],
+    queryFn: getRefrigerantsList,
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: (r: Partial<CmsRefrigerant>) => saveRefrigerant(r),
+    onSuccess: () => {
+      toast.success("Spesifikasi refrigeran berhasil disimpan!");
+      void queryClient.invalidateQueries({ queryKey: ["admin_refrigerants"] });
+      setIsModalOpen(false);
+      setEditingItem(null);
+    },
+    onError: (err: any) => toast.error(err.message || "Gagal menyimpan spesifikasi"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteRefrigerant(id),
+    onSuccess: () => {
+      toast.success("Spesifikasi refrigeran berhasil dihapus.");
+      void queryClient.invalidateQueries({ queryKey: ["admin_refrigerants"] });
+    },
+    onError: (err: any) => toast.error(err.message || "Gagal menghapus data"),
+  });
+
+  const items = data?.data || [];
+
+  if (isLoading) return <PageLoading />;
+
+  return (
+    <>
+      <PageHeading
+        eyebrow="Data Teknis & Standardisasi"
+        title="Katalog Freon & Spesifikasi Kalkulator"
+        description="Kelola data teknis zat pendingin refrigeran: rumus kimia, rentang tekanan kerja PSI, standar oli kompresor, potensi GWP/ODP, dan status legalitas KLHK."
+        action={
+          <button
+            type="button"
+            className="button primary"
+            onClick={() => {
+              setEditingItem({
+                code: "R32",
+                name: "R-32 (Difluoromethane)",
+                chemicalFormula: "CH₂F₂",
+                refrigerantType: "HFC Murni",
+                suctionPsi: "115 - 135 PSI",
+                dischargePsi: "320 - 380 PSI",
+                gwp: 675,
+                odp: "0",
+                oilType: "Synthetic POE",
+                safetyClass: "A2L (Mildly Flammable)",
+                statusKlhk: "Legal",
+                description: "",
+                recommendedUse: "AC Inverter, Residensial",
+                sortOrder: items.length + 1,
+              });
+              setIsModalOpen(true);
+            }}
+          >
+            <Plus size={16} /> Tambah Spesifikasi Freon
+          </button>
+        }
+      />
+
+      <div className="table-wrapper">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th style={{ width: "90px" }}>Kode</th>
+              <th>Nama Senyawa</th>
+              <th>Jenis Refrigeran</th>
+              <th>Tekanan Suction / Discharge</th>
+              <th style={{ width: "80px", textAlign: "center" }}>GWP</th>
+              <th>Safety Class</th>
+              <th>Status Regulasi KLHK</th>
+              <th style={{ width: "140px", textAlign: "right" }}>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={item.id}>
+                <td>
+                  <span className="badge primary" style={{ fontWeight: 700 }}>
+                    {item.code}
+                  </span>
+                </td>
+                <td>
+                  <div style={{ fontWeight: 600 }}>{item.name}</div>
+                  <div style={{ color: "#64748b", fontSize: "12px" }}>
+                    {item.chemicalFormula} · Oli: {item.oilType}
+                  </div>
+                </td>
+                <td>{item.refrigerantType}</td>
+                <td>
+                  <span style={{ fontSize: "12px", fontFamily: "monospace" }}>
+                    S: {item.suctionPsi} | D: {item.dischargePsi}
+                  </span>
+                </td>
+                <td style={{ textAlign: "center" }}>
+                  <span
+                    className="badge"
+                    style={{
+                      background: item.gwp < 100 ? "#10b9811a" : item.gwp < 1000 ? "#38bdf81a" : "#f59e0b1a",
+                      color: item.gwp < 100 ? "#10b981" : item.gwp < 1000 ? "#0284c7" : "#f59e0b",
+                    }}
+                  >
+                    {item.gwp}
+                  </span>
+                </td>
+                <td>
+                  <span className="badge secondary">{item.safetyClass}</span>
+                </td>
+                <td>
+                  <span style={{ fontSize: "12px" }}>{item.statusKlhk}</span>
+                </td>
+                <td style={{ textAlign: "right" }}>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="button secondary"
+                      style={{ padding: "4px 8px" }}
+                      onClick={() => {
+                        setEditingItem(item);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      <Edit2 size={13} /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="button danger"
+                      style={{ padding: "4px 8px" }}
+                      onClick={() => {
+                        if (confirm(`Hapus refrigeran ${item.code}?`)) {
+                          deleteMutation.mutate(item.id);
+                        }
+                      }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {isModalOpen && editingItem && (
+        <div className="modal-backdrop">
+          <div className="modal-content" style={{ maxWidth: "680px", maxHeight: "85vh", overflowY: "auto" }}>
+            <div className="modal-header">
+              <h3>{editingItem.id ? "Edit Spesifikasi Freon" : "Tambah Spesifikasi Freon Baru"}</h3>
+              <button
+                type="button"
+                className="icon-button"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setEditingItem(null);
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                saveMutation.mutate(editingItem);
+              }}
+              style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "14px" }}
+            >
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "12px" }}>
+                <label>
+                  Kode Refrigeran *
+                  <input
+                    type="text"
+                    required
+                    value={editingItem.code || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, code: e.target.value })}
+                    placeholder="Contoh: R32 / R410A"
+                  />
+                </label>
+                <label>
+                  Nama Lengkap Senyawa *
+                  <input
+                    type="text"
+                    required
+                    value={editingItem.name || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                    placeholder="Contoh: R-32 (Difluoromethane)"
+                  />
+                </label>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+                <label>
+                  Rumus Kimia
+                  <input
+                    type="text"
+                    value={editingItem.chemicalFormula || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, chemicalFormula: e.target.value })}
+                    placeholder="CH₂F₂"
+                  />
+                </label>
+                <label>
+                  Jenis Zat
+                  <input
+                    type="text"
+                    value={editingItem.refrigerantType || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, refrigerantType: e.target.value })}
+                    placeholder="HFC Murni / HC Alami"
+                  />
+                </label>
+                <label>
+                  Jenis Oli Kompresor
+                  <input
+                    type="text"
+                    value={editingItem.oilType || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, oilType: e.target.value })}
+                    placeholder="Synthetic POE / PAG"
+                  />
+                </label>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <label>
+                  Rentang Tekanan Suction (Rendah)
+                  <input
+                    type="text"
+                    value={editingItem.suctionPsi || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, suctionPsi: e.target.value })}
+                    placeholder="115 - 135 PSI"
+                  />
+                </label>
+                <label>
+                  Rentang Tekanan Discharge (Tinggi)
+                  <input
+                    type="text"
+                    value={editingItem.dischargePsi || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, dischargePsi: e.target.value })}
+                    placeholder="320 - 380 PSI"
+                  />
+                </label>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+                <label>
+                  Nilai GWP (Pemanasan Global)
+                  <input
+                    type="number"
+                    value={editingItem.gwp ?? 0}
+                    onChange={(e) => setEditingItem({ ...editingItem, gwp: Number(e.target.value) })}
+                  />
+                </label>
+                <label>
+                  Nilai ODP (Perusak Ozon)
+                  <input
+                    type="text"
+                    value={editingItem.odp || "0"}
+                    onChange={(e) => setEditingItem({ ...editingItem, odp: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Safety Class ASHRAE
+                  <input
+                    type="text"
+                    value={editingItem.safetyClass || "A1"}
+                    onChange={(e) => setEditingItem({ ...editingItem, safetyClass: e.target.value })}
+                    placeholder="A1 / A2L / A3"
+                  />
+                </label>
+              </div>
+
+              <label>
+                Status Regulasi KLHK
+                <input
+                  type="text"
+                  value={editingItem.statusKlhk || ""}
+                  onChange={(e) => setEditingItem({ ...editingItem, statusKlhk: e.target.value })}
+                  placeholder="Legal & Didukung (Transisi Hijau)"
+                />
+              </label>
+
+              <label>
+                Rekomendasi Penggunaan Unit
+                <input
+                  type="text"
+                  value={editingItem.recommendedUse || ""}
+                  onChange={(e) => setEditingItem({ ...editingItem, recommendedUse: e.target.value })}
+                  placeholder="AC Split Inverter, VRV Komersial, dll."
+                />
+              </label>
+
+              <label>
+                Deskripsi Karakteristik Teknis
+                <textarea
+                  rows={3}
+                  value={editingItem.description || ""}
+                  onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                  placeholder="Karakteristik perpindahan panas dan panduan pengisian..."
+                />
+              </label>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "14px" }}>
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setEditingItem(null);
+                  }}
+                >
+                  Batal
+                </button>
+                <button type="submit" className="button primary" disabled={saveMutation.isPending}>
+                  {saveMutation.isPending ? "Menyimpan..." : "Simpan Spesifikasi"}
                 </button>
               </div>
             </form>

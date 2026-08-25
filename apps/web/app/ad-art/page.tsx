@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface ArticleClause {
@@ -401,6 +401,18 @@ function AdArtContent() {
     Record<string, boolean>
   >({ "ad-bab-1-Pasal 1": true });
   const [copiedPledge, setCopiedPledge] = useState<string | null>(null);
+  const [apiDocs, setApiDocs] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/v1/public/ad-art")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
+          setApiDocs(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const toggleArticle = (key: string) => {
     setExpandedArticles((prev) => ({
@@ -415,11 +427,46 @@ function AdArtContent() {
     setTimeout(() => setCopiedPledge(null), 2000);
   };
 
+  // Combine API data with fallback static data
+  const adSourceData = useMemo<ChapterData[]>(() => {
+    const fromApi = apiDocs.filter((d) => d.docType === "AD");
+    if (fromApi.length > 0) {
+      return fromApi.map((d) => ({
+        id: d.id,
+        type: "AD" as const,
+        chapter: d.chapterNumber,
+        title: d.title,
+        summary: d.summary,
+        color: d.color || "#38bdf8",
+        icon: Landmark,
+        articles: (d.articles || []) as ArticleClause[],
+      }));
+    }
+    return adChaptersData;
+  }, [apiDocs]);
+
+  const artSourceData = useMemo<ChapterData[]>(() => {
+    const fromApi = apiDocs.filter((d) => d.docType === "ART");
+    if (fromApi.length > 0) {
+      return fromApi.map((d) => ({
+        id: d.id,
+        type: "ART" as const,
+        chapter: d.chapterNumber,
+        title: d.title,
+        summary: d.summary,
+        color: d.color || "#10b981",
+        icon: Scale,
+        articles: (d.articles || []) as ArticleClause[],
+      }));
+    }
+    return artChaptersData;
+  }, [apiDocs]);
+
   // Filter Chapters based on search
   const filteredAdChapters = useMemo(() => {
-    if (!searchQuery.trim()) return adChaptersData;
+    if (!searchQuery.trim()) return adSourceData;
     const q = searchQuery.toLowerCase();
-    return adChaptersData.filter(
+    return adSourceData.filter(
       (ch) =>
         ch.title.toLowerCase().includes(q) ||
         ch.summary.toLowerCase().includes(q) ||
@@ -431,12 +478,12 @@ function AdArtContent() {
             art.clauses.some((c) => c.toLowerCase().includes(q)),
         ),
     );
-  }, [searchQuery]);
+  }, [searchQuery, adSourceData]);
 
   const filteredArtChapters = useMemo(() => {
-    if (!searchQuery.trim()) return artChaptersData;
+    if (!searchQuery.trim()) return artSourceData;
     const q = searchQuery.toLowerCase();
-    return artChaptersData.filter(
+    return artSourceData.filter(
       (ch) =>
         ch.title.toLowerCase().includes(q) ||
         ch.summary.toLowerCase().includes(q) ||
@@ -448,7 +495,7 @@ function AdArtContent() {
             art.clauses.some((c) => c.toLowerCase().includes(q)),
         ),
     );
-  }, [searchQuery]);
+  }, [searchQuery, artSourceData]);
 
   const filteredPledges = useMemo(() => {
     if (!searchQuery.trim()) return ethicsPledgesData;

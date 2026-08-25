@@ -18,7 +18,7 @@ import {
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
-import { getSite } from "@/lib/api";
+import { getMilestonesApi, getSite } from "@/lib/api";
 
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getSite();
@@ -30,8 +30,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function OrganizationProfilePage() {
   const site = await getSite();
+  const apiMilestones = await getMilestonesApi().catch(() => []);
 
-  const milestones = [
+  const defaultMilestones = [
     {
       year: "2018",
       phase: "Fase Inisiasi & Deklarasi Nasional",
@@ -69,6 +70,18 @@ export default async function OrganizationProfilePage() {
       highlight: "Transformasi Digital",
     },
   ];
+
+  const milestones =
+    apiMilestones && apiMilestones.length > 0
+      ? apiMilestones.map((m: any) => ({
+          year: m.year,
+          phase: m.phase,
+          title: m.title,
+          description: m.description,
+          tags: m.tags || [],
+          highlight: m.highlight || "",
+        }))
+      : defaultMilestones;
 
   const strategicPillars = [
     {
@@ -348,7 +361,7 @@ export default async function OrganizationProfilePage() {
                   <p>{ms.description}</p>
 
                   <div className="timeline-tags">
-                    {ms.tags.map((tag) => (
+                    {ms.tags.map((tag: string) => (
                       <span key={tag} className="timeline-tag">
                         #{tag}
                       </span>
