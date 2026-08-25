@@ -23850,17 +23850,90 @@ img {
   flex-shrink: 0;
 }
 
-.carousel-autoplay-btn {
+.btn-view-all-hero {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  font-size: 13px;
+  font-weight: 750;
+  padding: 9px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Dedicated Showcase Toolbar (Filters on Left, Controls on Right) */
+.ws-showcase-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Category Filter Chips */
+.ws-category-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+  min-width: 280px;
+}
+
+.ws-category-chips-row::-webkit-scrollbar {
+  display: none;
+}
+
+.ws-cat-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6.5px 15px;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
   background: #f8fafc;
-  border: 1px solid #cbd5e1;
   color: #475569;
   font-size: 12.5px;
   font-weight: 650;
-  padding: 8px 13px;
-  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.ws-cat-filter-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.ws-cat-filter-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+
+/* Carousel Toolbar Controls Group */
+.ws-carousel-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.carousel-autoplay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 6.5px 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
@@ -23881,14 +23954,14 @@ img {
 .btn-shuffle-fair {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: #f8fafc;
   border: 1px solid #cbd5e1;
   color: #334155;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 10px;
+  padding: 6.5px 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
@@ -23903,16 +23976,16 @@ img {
 .carousel-arrows-pair {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .carousel-arrow-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   border: 1px solid #cbd5e1;
   background: #ffffff;
   color: #334155;
@@ -23925,39 +23998,6 @@ img {
   color: #ffffff;
   border-color: #0284c7;
 }
-
-.btn-view-all-hero {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 750;
-  padding: 8px 16px;
-  border-radius: 10px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-/* Category Filter Chips Row */
-.ws-category-chips-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 16px;
-  margin-bottom: 4px;
-  scrollbar-width: none;
-}
-
-.ws-category-chips-row::-webkit-scrollbar {
-  display: none;
-}
-
-.ws-cat-filter-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 7px 16px;
-  border-radius: 9999px;
   border: 1px solid #e2e8f0;
   background: #f8fafc;
   color: #475569;
@@ -24408,9 +24448,33 @@ img {
 
   .ws-heading-right {
     width: 100%;
+  }
+
+  .btn-view-all-hero {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .ws-showcase-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .ws-category-chips-row {
+    width: 100%;
+    margin: 0 -16px;
+    padding: 0 16px 4px;
+  }
+
+  .ws-carousel-controls-group {
+    width: 100%;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
     gap: 8px;
   }
 
@@ -24418,19 +24482,12 @@ img {
     display: none;
   }
 
-  .carousel-autoplay-btn {
-    font-size: 11.5px;
-    padding: 8px 10px;
+  .carousel-autoplay-btn,
+  .btn-shuffle-fair {
     flex: 1;
     justify-content: center;
-  }
-
-  .btn-shuffle-fair,
-  .btn-view-all-hero {
-    flex: 1;
-    justify-content: center;
-    font-size: 11.5px;
-    padding: 8px 10px;
+    font-size: 12px;
+    padding: 8px 12px;
     text-align: center;
   }
 

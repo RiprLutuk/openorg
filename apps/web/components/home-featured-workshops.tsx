@@ -423,49 +423,6 @@ export function HomeFeaturedWorkshops() {
           </div>
 
           <div className="ws-heading-right">
-            {/* Auto-Play Toggle */}
-            <button
-              type="button"
-              className={`carousel-autoplay-btn ${isAutoPlay ? "active" : ""}`}
-              onClick={() => setIsAutoPlay((prev) => !prev)}
-              title={isAutoPlay ? "Jeda Auto-Scroll" : "Mulai Auto-Scroll Otomatis"}
-              aria-label="Toggle Auto-Scroll"
-            >
-              {isAutoPlay ? <Pause size={14} /> : <Play size={14} />}
-              <span>{isAutoPlay ? "Auto-Scroll Aktif" : "Auto-Scroll Jeda"}</span>
-            </button>
-
-            {/* Fair Shuffle */}
-            <button
-              type="button"
-              className="btn-shuffle-fair"
-              onClick={handleShuffle}
-              title="Acak urutan tampilan agar rotasi promosi adil bagi semua anggota"
-            >
-              <Shuffle size={14} />
-              <span>Rotasi Acak</span>
-            </button>
-
-            {/* Arrows */}
-            <div className="carousel-arrows-pair">
-              <button
-                type="button"
-                className="carousel-arrow-btn"
-                onClick={() => handleScroll("left")}
-                aria-label="Geser ke kiri"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <button
-                type="button"
-                className="carousel-arrow-btn"
-                onClick={() => handleScroll("right")}
-                aria-label="Geser ke kanan"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-
             <Link href="/bengkel" className="button primary btn-view-all-hero">
               <span>Semua Bengkel</span>
               <ArrowRight size={14} />
@@ -473,8 +430,8 @@ export function HomeFeaturedWorkshops() {
           </div>
         </div>
 
-        {/* Category Filter Chips */}
-        {categories.length > 0 && (
+        {/* Dedicated Toolbar: Category Filter Chips on Left + Controls on Right */}
+        <div className="ws-showcase-toolbar">
           <div className="ws-category-chips-row">
             <button
               type="button"
@@ -494,7 +451,49 @@ export function HomeFeaturedWorkshops() {
               </button>
             ))}
           </div>
-        )}
+
+          <div className="ws-carousel-controls-group">
+            <button
+              type="button"
+              className={`carousel-autoplay-btn ${isAutoPlay ? "active" : ""}`}
+              onClick={() => setIsAutoPlay((prev) => !prev)}
+              title={isAutoPlay ? "Jeda Auto-Scroll" : "Mulai Auto-Scroll Otomatis"}
+              aria-label="Toggle Auto-Scroll"
+            >
+              {isAutoPlay ? <Pause size={13} /> : <Play size={13} />}
+              <span>{isAutoPlay ? "Auto-Scroll" : "Jeda"}</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn-shuffle-fair"
+              onClick={handleShuffle}
+              title="Acak urutan tampilan agar rotasi promosi adil bagi semua anggota"
+            >
+              <Shuffle size={13} />
+              <span>Rotasi Acak</span>
+            </button>
+
+            <div className="carousel-arrows-pair">
+              <button
+                type="button"
+                className="carousel-arrow-btn"
+                onClick={() => handleScroll("left")}
+                aria-label="Geser ke kiri"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                type="button"
+                className="carousel-arrow-btn"
+                onClick={() => handleScroll("right")}
+                aria-label="Geser ke kanan"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Horizontal Swipeable / Scrollable Carousel with Auto-Scroll */}
         <div
