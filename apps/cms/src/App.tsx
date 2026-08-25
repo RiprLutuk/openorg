@@ -5688,55 +5688,55 @@ function GovernanceManager() {
   return (
     <>
       <PageHeading
-        eyebrow="GovernOS"
-        title="Structure & appointments"
-        description="Operate national, regional, chapter, and committee structures with traceable position terms—without fixing DPP or DPD into the codebase."
+        eyebrow="Tata Kelola Organisasi"
+        title="Struktur & Kepengurusan"
+        description="Kelola hierarki Dewan Pimpinan Pusat (DPP), DPD Wilayah, Korwil/DPC, registri posisi jabatan, dan masa bakti pengurus resmi."
         action={
           <button
             className="button primary"
             type="button"
             onClick={() => setEditor("appointment")}
           >
-            <Plus size={18} /> New appointment
+            <Plus size={16} /> <span>Penugasan Pengurus</span>
           </button>
         }
       />
       <div className="governance-stats">
         <article>
-          <Building2 size={20} />
-          <span>
+          <Building2 size={24} />
+          <div>
             <strong>{units.filter((unit) => unit.isActive).length}</strong>
-            <small>Active units</small>
-          </span>
+            <small>Unit Wilayah Aktif</small>
+          </div>
         </article>
         <article>
-          <Network size={20} />
-          <span>
+          <Network size={24} />
+          <div>
             <strong>{positions.length}</strong>
-            <small>Defined positions</small>
-          </span>
+            <small>Posisi Struktur / Jabatan</small>
+          </div>
         </article>
         <article>
-          <BadgeCheck size={20} />
-          <span>
+          <BadgeCheck size={24} />
+          <div>
             <strong>{currentAssignments.length}</strong>
-            <small>Current appointments</small>
-          </span>
+            <small>Pejabat & Pengurus Terlantik</small>
+          </div>
         </article>
       </div>
       <div className="governance-layout">
         <section className="panel governance-units">
           <div className="panel-head governance-panel-head">
             <div>
-              <span className="eyebrow">Organization map</span>
-              <h2>Units</h2>
+              <span className="eyebrow">Peta Organisasi</span>
+              <h2>Unit & Wilayah</h2>
             </div>
             <button
               type="button"
               className="button subtle"
               onClick={() => setEditor("unit")}
             >
-              <Plus size={16} /> Add unit
+              <Plus size={15} /> Tambah Unit
             </button>
           </div>
           <div className="unit-tree">
@@ -5755,16 +5755,20 @@ function GovernanceManager() {
                   <span className="unit-icon">
                     <Building2 size={18} />
                   </span>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="unit-title-row">
                       <strong>{unit.name}</strong>
                       <Status value={unit.isActive ? "active" : "inactive"} />
                     </div>
                     <small>
-                      {unit.type}{" "}
-                      {parent ? `· under ${parent.name}` : "· root unit"}
+                      {unit.type === "national"
+                        ? "Tingkat Nasional / Pusat"
+                        : unit.type === "regional"
+                          ? "Tingkat Provinsi / DPD"
+                          : "Tingkat Daerah / Korwil"}{" "}
+                      {parent ? `· Bagian dari ${parent.name}` : "· Unit Induk Pusat"}
                     </small>
-                    <p>{unitPositions.length} configured positions</p>
+                    <p>{unitPositions.length} Posisi Jabatan Dikonfigurasi</p>
                   </div>
                 </article>
               );
@@ -5774,15 +5778,15 @@ function GovernanceManager() {
         <section className="panel governance-positions">
           <div className="panel-head governance-panel-head">
             <div>
-              <span className="eyebrow">Term register</span>
-              <h2>Positions & office holders</h2>
+              <span className="eyebrow">Registri Jabatan & Pengurus</span>
+              <h2>Daftar Posisi & Pejabat</h2>
             </div>
             <button
               type="button"
               className="button subtle"
               onClick={() => setEditor("position")}
             >
-              <Plus size={16} /> Add position
+              <Plus size={15} /> Tambah Jabatan
             </button>
           </div>
           <div className="position-register">
@@ -5796,50 +5800,64 @@ function GovernanceManager() {
               const active = positionAssignmentsList.find((item) =>
                 isCurrent(item.startsAt, item.endsAt),
               );
+              const initials = (active?.member?.name ?? "AG")
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase();
+
               return (
                 <article key={position.id}>
                   <div className="position-copy">
-                    <small>{unit?.name ?? "Unassigned unit"}</small>
+                    <small>{unit?.name ?? "Unit Tidak Ditentukan"}</small>
                     <strong>{position.title}</strong>
                     <p>
-                      {position.description ?? "No mandate description yet."}
+                      {position.description ?? "Belum ada rincian uraian tugas/mandat."}
                     </p>
                   </div>
                   <div className="office-holder">
                     {active ? (
                       <>
-                        <span>
-                          {(active.member?.name ?? "AG")
-                            .slice(0, 2)
-                            .toUpperCase()}
-                        </span>
-                        <div className="office-holder-copy">
-                          <strong>{active.member?.name ?? "Anggota"}</strong>
+                        <div className="office-holder-avatar">
+                          {initials}
+                        </div>
+                        <div className="office-holder-info">
+                          <strong>{active.member?.name ?? "Nama Pengurus"}</strong>
                           <small>
-                            {active.member?.memberNumber ?? "—"}
+                            {active.member?.memberNumber ?? "KTA-APTI-PENDING"}
                             {active.startsAt
-                              ? ` · since ${new Date(active.startsAt).toLocaleDateString()}`
+                              ? ` · Menjabat sejak ${new Date(active.startsAt).toLocaleDateString("id-ID", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })}`
                               : ""}
                           </small>
                         </div>
                         <button
                           type="button"
-                          className="text-button"
+                          className="button ghost destructive"
+                          style={{ fontSize: "11px", padding: "4px 8px" }}
                           disabled={endAppointment.isPending}
-                          onClick={() => endAppointment.mutate(active.id)}
+                          onClick={() => {
+                            if (confirm(`Akhiri masa tugas ${active.member?.name} untuk jabatan ${position.title}?`)) {
+                              endAppointment.mutate(active.id);
+                            }
+                          }}
                         >
-                          End term
+                          Selesai Tugas
                         </button>
                       </>
                     ) : (
-                      <span className="vacant">Vacant</span>
+                      <span className="vacant">Posisi Lowong (Belum ada pejabat)</span>
                     )}
                   </div>
                 </article>
               );
             })}
             {!positions.length && (
-              <Empty message="Define positions to start the appointment register." />
+              <Empty message="Belum ada posisi jabatan yang dikonfigurasi." />
             )}
           </div>
         </section>
