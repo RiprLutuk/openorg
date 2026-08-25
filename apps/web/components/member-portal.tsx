@@ -8,6 +8,7 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
+  ChevronDown,
   CreditCard,
   ExternalLink,
   Eye,
@@ -19,6 +20,7 @@ import {
   Plus,
   ReceiptText,
   Save,
+  Search,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
@@ -27,10 +29,11 @@ import {
   UserRound,
   WalletCards,
   Wrench,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useCallback, useEffect, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MemberApiError, memberApi } from "@/lib/member-client";
 import { MemberPortraitCard } from "./member-portrait-card";
 
@@ -892,19 +895,255 @@ const WORKSHOP_CATEGORIES = [
   "Rental Alat Ukur & Manifold Digital",
   "Penyedia Modul PCB & Elektronik Pendingin",
   "Kontraktor Tata Udara & Cold Storage Industri",
+  "Layanan Uji Kebocoran & Retrofit Hydrocarbon R290",
+  "Konsultan Efisiensi Energi HVAC",
 ];
 
 const POPULAR_WORKSHOP_SERVICES = [
   "Cuci AC Inverter Bebas Bau",
   "Vakum Standar SKKNI (Dua Tahap)",
-  "Recovery Freon R32 / R410A",
+  "Recovery Freon R32 / R410A / R290",
   "Uji Tekanan Nitrogen K3",
   "Bongkar Pasang AC Split",
   "Perbaikan Modul PCB Inverter",
-  "Instalasi AC Cassette / Standing",
-  "Servis Chiller & VRV Komersial",
+  "Instalasi AC Cassette / Standing / Ducting",
+  "Servis Chiller & VRV/VRF Komersial",
+  "Retrofit Hydrocarbon R290 Ramah Lingkungan",
+  "Perawatan Cold Storage & Freezer Room",
+  "Pembersihan Saluran Ducting HVAC",
+  "Uji Kebocoran Freon Elektronik",
+  "Penggantian Kompresor Inverter & Scroll",
+  "Kalibrasi Sensor & Thermostat Digital",
   "Penyedia Sparepart & Freon Asli",
 ];
+
+interface SearchableMultiSelectProps {
+  label: string;
+  placeholder?: string;
+  options: string[];
+  selected: string[];
+  onChange: (selected: string[]) => void;
+  allowCustom?: boolean;
+}
+
+function SearchableMultiSelect({
+  label,
+  placeholder = "Ketik untuk mencari atau menambah layanan...",
+  options,
+  selected,
+  onChange,
+  allowCustom = true,
+}: SearchableMultiSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return options;
+    return options.filter((opt) => opt.toLowerCase().includes(q));
+  }, [options, search]);
+
+  const hasExactMatch = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return (
+      options.some((opt) => opt.toLowerCase() === q) ||
+      selected.some((s) => s.toLowerCase() === q)
+    );
+  }, [options, selected, search]);
+
+  const toggleOption = (opt: string) => {
+    if (selected.includes(opt)) {
+      onChange(selected.filter((item) => item !== opt));
+    } else {
+      onChange([...selected, opt]);
+    }
+  };
+
+  const removeOption = (opt: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    onChange(selected.filter((item) => item !== opt));
+  };
+
+  const handleAddCustom = () => {
+    const trimmed = search.trim();
+    if (!trimmed) return;
+    if (!selected.includes(trimmed)) {
+      onChange([...selected, trimmed]);
+    }
+    setSearch("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (filteredOptions.length > 0) {
+        const target = filteredOptions[0];
+        if (target) {
+          toggleOption(target);
+          setSearch("");
+        }
+      } else if (allowCustom && search.trim()) {
+        handleAddCustom();
+      }
+    } else if (e.key === "Escape") {
+      setIsOpen(false);
+    }
+  };
+
+  return (
+    <div className="searchable-multi-select-wrap" ref={containerRef}>
+      <span className="searchable-multi-select-label">{label}</span>
+      <div
+        className={`searchable-multi-select-box ${isOpen ? "focused" : ""}`}
+        onClick={() => {
+          setIsOpen(true);
+          inputRef.current?.focus();
+        }}
+      >
+        <div className="searchable-multi-select-tags">
+          {selected.map((item) => (
+            <span key={item} className="searchable-tag-chip">
+              <Wrench size={11} className="tag-icon" />
+              <span className="tag-text">{item}</span>
+              <button
+                type="button"
+                className="tag-remove-btn"
+                onClick={(e) => removeOption(item, e)}
+                title={`Hapus ${item}`}
+              >
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+          <div className="search-inline-box">
+            <Search size={13} className="search-inline-icon" />
+            <input
+              ref={inputRef}
+              type="text"
+              className="search-inline-input"
+              placeholder={
+                selected.length === 0
+                  ? placeholder
+                  : "Cari atau tambah layanan lainnya…"
+              }
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                if (!isOpen) setIsOpen(true);
+              }}
+              onFocus={() => setIsOpen(true)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+        </div>
+        <div className="searchable-multi-select-controls">
+          {selected.length > 0 && (
+            <button
+              type="button"
+              className="clear-all-tags-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange([]);
+              }}
+              title="Bersihkan semua pilihan"
+            >
+              <X size={14} />
+            </button>
+          )}
+          <ChevronDown
+            size={16}
+            className={`chevron-icon ${isOpen ? "rotated" : ""}`}
+          />
+        </div>
+      </div>
+
+      {isOpen && (
+        <div className="searchable-multi-select-dropdown">
+          <div className="dropdown-toolbar">
+            <small>
+              {selected.length} dari {options.length} layanan unggulan dipilih
+            </small>
+            <div className="dropdown-quick-links">
+              <button
+                type="button"
+                className="quick-link"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onChange(Array.from(new Set([...options, ...selected])));
+                }}
+              >
+                Pilih Semua
+              </button>
+              {selected.length > 0 && (
+                <button
+                  type="button"
+                  className="quick-link reset-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onChange([]);
+                  }}
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="dropdown-items-scroll">
+            {filteredOptions.map((opt) => {
+              const isSelected = selected.includes(opt);
+              return (
+                <div
+                  key={opt}
+                  className={`dropdown-item-row ${isSelected ? "selected" : ""}`}
+                  onClick={() => toggleOption(opt)}
+                >
+                  <div className={`option-check-square ${isSelected ? "checked" : ""}`}>
+                    {isSelected && <Check size={12} />}
+                  </div>
+                  <span className="option-text">{opt}</span>
+                </div>
+              );
+            })}
+
+            {allowCustom && search.trim() && !hasExactMatch && (
+              <div
+                className="dropdown-item-row add-new-custom"
+                onClick={handleAddCustom}
+              >
+                <Plus size={14} className="add-icon" />
+                <span>
+                  Tambahkan <strong>&quot;{search.trim()}&quot;</strong> sebagai keahlian khusus
+                </span>
+              </div>
+            )}
+
+            {filteredOptions.length === 0 && (!allowCustom || !search.trim()) && (
+              <div className="dropdown-empty-row">
+                Tidak ada layanan yang cocok dengan kata kunci.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function MemberWorkshopPromo({
   member,
@@ -1180,25 +1419,14 @@ function MemberWorkshopPromo({
             </label>
           </div>
 
-          <label>
-            Layanan & Keahlian Unggulan (Pilih yang disediakan)
-            <div className="service-tags-selector">
-              {POPULAR_WORKSHOP_SERVICES.map((srv) => {
-                const active = selectedServices.includes(srv);
-                return (
-                  <button
-                    key={srv}
-                    type="button"
-                    className={`tag-chip ${active ? "active" : ""}`}
-                    onClick={() => toggleService(srv)}
-                  >
-                    {active ? <Check size={13} /> : <Plus size={13} />}
-                    <span>{srv}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </label>
+          <SearchableMultiSelect
+            label="Layanan & Keahlian Unggulan (Pencarian & Multi-Select)"
+            placeholder="Cari atau ketik layanan baru..."
+            options={POPULAR_WORKSHOP_SERVICES}
+            selected={selectedServices}
+            onChange={setSelectedServices}
+            allowCustom={true}
+          />
 
           <label>
             Deskripsi Profil Usaha
