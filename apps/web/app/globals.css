@@ -8830,29 +8830,32 @@ img {
   }
 
   .sim-input-row {
-    flex-direction: column;
-    gap: 8px;
+    display: flex;
+    width: 100%;
   }
 
   .sim-input-wrap {
     width: 100%;
-    height: 42px;
+    height: 38px;
+    padding: 2px 2px 2px 8px;
     box-sizing: border-box;
   }
 
   .sim-input-wrap input {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .btn-sim-verify {
-    width: 100%;
-    height: 40px;
-    border-radius: 10px;
-    font-size: 13px;
+    width: auto;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-size: 11px;
     font-weight: 700;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
   }
 
   .sim-sample-chips {
@@ -8985,13 +8988,6 @@ img {
   .btn-search-another {
     width: 100%;
     justify-content: center;
-  }
-  .sim-input-row {
-    flex-direction: column;
-  }
-  .btn-sim-verify {
-    width: 100%;
-    height: 44px;
   }
   .assurance-grid {
     grid-template-columns: 1fr;
