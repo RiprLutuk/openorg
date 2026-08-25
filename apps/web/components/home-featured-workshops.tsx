@@ -494,33 +494,49 @@ export function HomeFeaturedWorkshops() {
       });
   };
 
-  // On mount: Automatic IP Geolocation & Check existing GPS permissions
+  // On mount: Automatic API Fetch, IP Geolocation & Check existing GPS permissions
   useEffect(() => {
-    const combined = getStoredWorkshops();
+    fetch("/api/v1/public/workshops")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((res) => {
+        let baseList = getStoredWorkshops();
+        if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+          const serverWorkshops: PublicWorkshopData[] = res.data;
+          const memberNums = new Set(serverWorkshops.map((p) => p.memberNumber));
+          const baseWithoutDuplicates = baseList.filter(
+            (w) => !memberNums.has(w.memberNumber),
+          );
+          baseList = [...serverWorkshops, ...baseWithoutDuplicates];
+        }
 
-    if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
-      navigator.permissions
-        .query({ name: "geolocation" as PermissionName })
-        .then((permissionStatus) => {
-          if (permissionStatus.state === "granted") {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined, "gps");
-              },
-              () => {
-                detectLocationFromIp(combined);
+        if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
+          navigator.permissions
+            .query({ name: "geolocation" as PermissionName })
+            .then((permissionStatus) => {
+              if (permissionStatus.state === "granted") {
+                navigator.geolocation.getCurrentPosition(
+                  (pos) => {
+                    applyLocationSort(pos.coords.latitude, pos.coords.longitude, baseList, "gps");
+                  },
+                  () => {
+                    detectLocationFromIp(baseList);
+                  }
+                );
+              } else {
+                detectLocationFromIp(baseList);
               }
-            );
-          } else {
-            detectLocationFromIp(combined);
-          }
-        })
-        .catch(() => {
-          detectLocationFromIp(combined);
-        });
-    } else {
-      detectLocationFromIp(combined);
-    }
+            })
+            .catch(() => {
+              detectLocationFromIp(baseList);
+            });
+        } else {
+          detectLocationFromIp(baseList);
+        }
+      })
+      .catch(() => {
+        const combined = getStoredWorkshops();
+        detectLocationFromIp(combined);
+      });
   }, []);
 
   const handleShuffle = () => {

@@ -74,6 +74,23 @@ function WorkshopsPageContent() {
     nearestCity?: string | undefined;
   }>({ status: "idle" });
 
+  useEffect(() => {
+    fetch("/api/v1/public/workshops")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((res) => {
+        if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+          const serverWorkshops: PublicWorkshopData[] = res.data;
+          const memberNums = new Set(serverWorkshops.map((p) => p.memberNumber));
+          const baseWithoutDuplicates = NATIONAL_16_WORKSHOPS.filter(
+            (w) => !memberNums.has(w.memberNumber),
+          );
+          const merged = [...serverWorkshops, ...baseWithoutDuplicates];
+          setWorkshops(merged);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const applyLocationSort = (
     lat: number,
     lng: number,
