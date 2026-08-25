@@ -459,15 +459,34 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       pageCount,
       contentCount,
       memberCount,
+      activeMemberCount,
+      pendingMemberCount,
       eventCount,
+      techCount,
+      clubCount,
+      complaintCount,
       inboxCount,
       applicationCount,
       recentContent,
+      recentMembersList,
+      unitsList,
+      membersList,
     ] = await Promise.all([
       db.select({ value: sql<number>`count(*)::int` }).from(pages),
       db.select({ value: sql<number>`count(*)::int` }).from(contents),
       db.select({ value: sql<number>`count(*)::int` }).from(members),
+      db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(members)
+        .where(eq(members.status, "active")),
+      db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(members)
+        .where(or(eq(members.status, "pending"), eq(members.status, "applicant"))),
       db.select({ value: sql<number>`count(*)::int` }).from(events),
+      db.select({ value: sql<number>`count(*)::int` }).from(technicianDirectories),
+      db.select({ value: sql<number>`count(*)::int` }).from(registeredClubs),
+      db.select({ value: sql<number>`count(*)::int` }).from(publicComplaints),
       db
         .select({ value: sql<number>`count(*)::int` })
         .from(contactSubmissions)
@@ -487,18 +506,108 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         .from(contents)
         .orderBy(desc(contents.updatedAt))
         .limit(5),
+      db
+        .select({
+          id: members.id,
+          name: members.name,
+          memberNumber: members.memberNumber,
+          status: members.status,
+          createdAt: members.createdAt,
+        })
+        .from(members)
+        .orderBy(desc(members.createdAt))
+        .limit(5),
+      db
+        .select({
+          id: organizationUnits.id,
+          name: organizationUnits.name,
+          code: organizationUnits.code,
+        })
+        .from(organizationUnits),
+      db
+        .select({
+          id: members.id,
+          unitId: members.unitId,
+          status: members.status,
+          createdAt: members.createdAt,
+        })
+        .from(members),
     ]);
+
+    // Compute regional unit distribution
+    const unitMap = new Map<string, { name: string; count: number }>();
+    for (const u of unitsList) {
+      unitMap.set(u.id, { name: u.name, count: 0 });
+    }
+    let unassignedCount = 0;
+    for (const m of membersList) {
+      if (m.unitId && unitMap.has(m.unitId)) {
+        unitMap.get(m.unitId)!.count += 1;
+      } else {
+        unassignedCount += 1;
+      }
+    }
+    const unitDistribution = Array.from(unitMap.values())
+      .filter((u) => u.count > 0)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 7);
+    if (unassignedCount > 0 && unitDistribution.length < 7) {
+      unitDistribution.push({ name: "DPP / Nasional", count: unassignedCount });
+    }
+
+    // Compute monthly registration trend (last 6 months)
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
+    ];
+    const now = new Date();
+    const monthlyGrowth: { month: string; count: number; active: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const label = `${monthNames[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
+      const monthIdx = d.getMonth();
+      const yearVal = d.getFullYear();
+      let count = 0;
+      let active = 0;
+      for (const m of membersList) {
+        const cd = new Date(m.createdAt);
+        if (cd.getMonth() === monthIdx && cd.getFullYear() === yearVal) {
+          count++;
+          if (m.status === "active") active++;
+        }
+      }
+      monthlyGrowth.push({ month: label, count, active });
+    }
+
     return {
       data: {
         counts: {
           pages: pageCount[0]?.value ?? 0,
           contents: contentCount[0]?.value ?? 0,
           members: memberCount[0]?.value ?? 0,
+          activeMembers: activeMemberCount[0]?.value ?? 0,
+          pendingMembers: pendingMemberCount[0]?.value ?? 0,
           events: eventCount[0]?.value ?? 0,
+          technicians: techCount[0]?.value ?? 0,
+          clubs: clubCount[0]?.value ?? 0,
+          complaints: complaintCount[0]?.value ?? 0,
           inbox: inboxCount[0]?.value ?? 0,
           applications: applicationCount[0]?.value ?? 0,
         },
+        unitDistribution,
+        monthlyGrowth,
         recentContent,
+        recentMembers: recentMembersList,
       },
     };
   });

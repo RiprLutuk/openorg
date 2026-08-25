@@ -40,16 +40,37 @@ export type DashboardData = {
     pages: number;
     contents: number;
     members: number;
+    activeMembers?: number;
+    pendingMembers?: number;
     events: number;
+    technicians?: number;
+    clubs?: number;
+    complaints?: number;
     inbox: number;
     applications: number;
   };
+  unitDistribution?: Array<{
+    name: string;
+    count: number;
+  }>;
+  monthlyGrowth?: Array<{
+    month: string;
+    count: number;
+    active: number;
+  }>;
   recentContent: Array<{
     id: string;
     title: string;
     type: string;
     status: string;
     updatedAt: string;
+  }>;
+  recentMembers?: Array<{
+    id: string;
+    name: string;
+    memberNumber: string;
+    status: string;
+    createdAt: string;
   }>;
 };
 
