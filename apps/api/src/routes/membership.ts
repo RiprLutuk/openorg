@@ -17,6 +17,7 @@ import {
   siteSettings,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
+import { generateKtaNumber } from "../lib/kta";
 import {
   hashMemberSessionToken,
   MEMBER_SESSION_TTL_SECONDS,
@@ -90,9 +91,14 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
     { config: { rateLimit: { max: 5, timeWindow: "1 hour" } } },
     async (request, reply) => {
       const input = registrationInput.parse(request.body);
+      let unitCode: string | null = null;
       if (input.unitId) {
         const [unit] = await db
-          .select({ id: organizationUnits.id })
+          .select({
+            id: organizationUnits.id,
+            code: organizationUnits.code,
+            slug: organizationUnits.slug,
+          })
           .from(organizationUnits)
           .where(
             and(
@@ -107,6 +113,7 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
             "INVALID_ORGANIZATION_UNIT",
             "The selected organization unit is not available.",
           );
+        unitCode = unit.code || unit.slug || null;
       }
       const [duplicate] = await db
         .select({ id: members.id })
@@ -121,6 +128,18 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
           "MEMBER_ALREADY_REGISTERED",
           "An account with this email or phone number already exists.",
         );
+
+      const [settings] = await db
+        .select({ name: siteSettings.name, slug: siteSettings.slug })
+        .from(siteSettings)
+        .limit(1);
+      const orgName = settings?.name || "APTI";
+
+      const memberNumber = generateKtaNumber({
+        orgName,
+        unitCode,
+        date: new Date(),
+      });
 
       const passwordHash = await hash(input.password, {
         algorithm: 2,
@@ -140,7 +159,7 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
           .insert(members)
           .values({
             unitId: input.unitId ?? null,
-            memberNumber: `APP-${randomUUID().slice(0, 8).toUpperCase()}`,
+            memberNumber,
             name: input.name,
             email: input.email,
             phone: input.phone,
@@ -688,12 +707,34 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
           return { application: updatedApp, card: null };
         }
 
-        const prefix = "KTA";
-        const randomNum = String(Math.floor(100000 + Math.random() * 900000));
-        const memberNumber = `${prefix}-${randomNum}`;
+        const [settings] = await tx
+          .select({ name: siteSettings.name, slug: siteSettings.slug })
+          .from(siteSettings)
+          .limit(1);
+        const orgName = settings?.name || "APTI";
+
+        let unitCode: string | null = null;
+        if (application.requestedUnitId) {
+          const [unit] = await tx
+            .select({
+              code: organizationUnits.code,
+              slug: organizationUnits.slug,
+            })
+            .from(organizationUnits)
+            .where(eq(organizationUnits.id, application.requestedUnitId))
+            .limit(1);
+          unitCode = unit?.code || unit?.slug || null;
+        }
 
         let memberId = application.createdMemberId;
+        let memberNumber: string;
+
         if (!memberId) {
+          memberNumber = generateKtaNumber({
+            orgName,
+            unitCode,
+            date: reviewedAt,
+          });
           const [createdMem] = await tx
             .insert(members)
             .values({
@@ -708,6 +749,25 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
             .returning();
           memberId = createdMem?.id ?? "";
         } else {
+          const [existingMem] = await tx
+            .select({ memberNumber: members.memberNumber })
+            .from(members)
+            .where(eq(members.id, memberId))
+            .limit(1);
+
+          if (
+            existingMem?.memberNumber &&
+            existingMem.memberNumber.split(".").length === 4
+          ) {
+            memberNumber = existingMem.memberNumber;
+          } else {
+            memberNumber = generateKtaNumber({
+              orgName,
+              unitCode,
+              date: reviewedAt,
+            });
+          }
+
           await tx
             .update(members)
             .set({
@@ -718,7 +778,7 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
             .where(eq(members.id, memberId));
         }
 
-        const cardCode = `KTA-${randomUUID().slice(0, 8).toUpperCase()}`;
+        const cardCode = memberNumber;
         const [card] = await tx
           .insert(membershipCards)
           .values({
