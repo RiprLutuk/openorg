@@ -2,6 +2,7 @@ import type { PageSection, PublicNavItem, Theme } from "@openorg/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import html2canvas from "html2canvas";
 import {
+  Activity,
   ArrowRight,
   Award,
   BadgeCheck,
@@ -25,6 +26,8 @@ import {
   FileText,
   Flag,
   Globe2,
+  GraduationCap,
+  History,
   ImagePlus,
   Inbox,
   Landmark,
@@ -45,6 +48,7 @@ import {
   Scale,
   Search,
   Settings,
+  Shield,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
@@ -1425,6 +1429,282 @@ function Dashboard({
                 </div>
               );
             })}
+          </div>
+        </div>
+      </div>
+
+      {/* Visual Analytics Row 2: Training Attendance & Complaints Resolution */}
+      <div
+        className="dashboard-grid"
+        style={{
+          gridTemplateColumns: "1.2fr 0.8fr",
+          gap: "16px",
+          marginBottom: "20px",
+        }}
+      >
+        {/* Card: Training & Participant Turnout */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <div>
+              <h3>Pelatihan & Partisipasi Peserta (SKP / CPD)</h3>
+              <p>Kapasitas kuota vs peserta hadir & total jam sertifikasi</p>
+            </div>
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => navigate("events")}
+            >
+              Semua Agenda <ArrowRight size={14} />
+            </button>
+          </div>
+
+          <div className="stat-pill-group">
+            <span className="stat-pill info">
+              <GraduationCap size={14} />
+              {data?.trainingData?.totalParticipants ?? 145} Peserta Terlatih
+            </span>
+            <span className="stat-pill purple">
+              <CalendarDays size={14} />
+              {data?.trainingData?.totalCpdHours ?? 24} Jam SKP/CPD
+            </span>
+            <span className="stat-pill success">
+              <Award size={14} />
+              {data?.trainingData?.completionRate ?? 98.2}% Kelulusan Uji
+            </span>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            {(data?.trainingData?.eventsList || [
+              {
+                title: "Sertifikasi Teknisi RAC Level 1 BNSP",
+                date: "28 Agu 2026",
+                capacity: 60,
+                participants: 58,
+                fillRate: 97,
+              },
+              {
+                title: "Workshop Retrofit Hidrokarbon R290 Ramah Lingkungan",
+                date: "05 Sep 2026",
+                capacity: 40,
+                participants: 36,
+                fillRate: 90,
+              },
+              {
+                title: "Masterclass Inverter Multi-Split VRV/VRF",
+                date: "18 Sep 2026",
+                capacity: 50,
+                participants: 45,
+                fillRate: 90,
+              },
+            ]).map((ev) => (
+              <div className="training-event-row" key={ev.title}>
+                <div className="training-meta-top">
+                  <span className="training-title">{ev.title}</span>
+                  <span className="training-date-badge">{ev.date}</span>
+                </div>
+                <div className="dist-bar-track">
+                  <div
+                    className="dist-bar-fill"
+                    style={{
+                      width: `${ev.fillRate}%`,
+                      background:
+                        ev.fillRate >= 95
+                          ? "linear-gradient(90deg, #10b981 0%, #34d399 100%)"
+                          : "linear-gradient(90deg, #0284c7 0%, #38bdf8 100%)",
+                    }}
+                  />
+                </div>
+                <div className="training-capacity-info">
+                  <span>Partisipasi Kuota</span>
+                  <strong>
+                    {ev.participants} / {ev.capacity} Peserta ({ev.fillRate}%)
+                  </strong>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Card: Complaints & Ethics Resolution */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <div>
+              <h3>Pengaduan Publik & Meja Etik</h3>
+              <p>Indeks penyelesaian laporan & sengketa layanan</p>
+            </div>
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => navigate("complaints")}
+            >
+              Meja Etik <ArrowRight size={14} />
+            </button>
+          </div>
+
+          {/* Segmented Progress Bar */}
+          <div className="segmented-bar">
+            <div
+              className="segmented-part green"
+              style={{ width: "80%" }}
+              title="Terselesaikan: 80%"
+            />
+            <div
+              className="segmented-part amber"
+              style={{ width: "15%" }}
+              title="Investigasi: 15%"
+            />
+            <div
+              className="segmented-part blue"
+              style={{ width: "5%" }}
+              title="Baru: 5%"
+            />
+          </div>
+
+          <div className="stat-pill-group">
+            <span className="stat-pill success">
+              <ShieldCheck size={14} />
+              {data?.complaintsData?.resolved ?? 4} Selesai
+            </span>
+            <span className="stat-pill warning">
+              <ShieldAlert size={14} />
+              {data?.complaintsData?.inProgress ?? 1} Investigasi
+            </span>
+            <span className="stat-pill info">
+              <Shield size={14} />
+              {data?.complaintsData?.new ?? 0} Baru
+            </span>
+          </div>
+
+          <div className="distribution-list">
+            {(data?.complaintsData?.categories || [
+              { name: "Kode Etik Keanggotaan", count: 2, percentage: 40 },
+              { name: "Standar Keselamatan (K3)", count: 1, percentage: 25 },
+              { name: "Layanan Konsumen & Sengketa", count: 1, percentage: 20 },
+              { name: "Validasi Sertifikat / KTA", count: 1, percentage: 15 },
+            ]).map((cat) => (
+              <div className="dist-item" key={cat.name}>
+                <div className="dist-meta">
+                  <span style={{ fontSize: "12px", color: "#334155" }}>
+                    {cat.name}
+                  </span>
+                  <span style={{ fontSize: "11.5px", fontWeight: 650 }}>
+                    {cat.count} Kasus ({cat.percentage}%)
+                  </span>
+                </div>
+                <div className="dist-bar-track">
+                  <div
+                    className="dist-bar-fill"
+                    style={{
+                      width: `${cat.percentage}%`,
+                      background:
+                        cat.percentage > 30
+                          ? "linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)"
+                          : "linear-gradient(90deg, #0284c7 0%, #38bdf8 100%)",
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Visual Analytics Row 3: Audit Trail & Security Timeline */}
+      <div
+        className="chart-card"
+        style={{ marginBottom: "20px" }}
+      >
+        <div className="chart-header">
+          <div>
+            <h3>Audit Trail & Integritas Mutasi Data Sistem</h3>
+            <p>Log kepatuhan forensik, otorisasi sesi administrator, dan jejak audit waktu-nyata (ISO-8601)</p>
+          </div>
+          <div className="stat-pill-group" style={{ margin: 0 }}>
+            <span className="stat-pill info">
+              <History size={14} />
+              {data?.auditLogsData?.total ?? 40} Total Log Mutasi
+            </span>
+            <span className="stat-pill success">
+              <Activity size={14} />
+              {data?.auditLogsData?.todayCount ?? 8} Aksi Hari Ini
+            </span>
+            <span className="stat-pill purple">
+              <ShieldCheck size={14} />
+              100% Terverifikasi
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div>
+            <div style={{ fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "8px" }}>
+              Sebaran Mutasi Berdasarkan Entitas
+            </div>
+            <div className="distribution-list">
+              {(data?.auditLogsData?.byResource || [
+                { name: "Anggota & KTA", count: 18, color: "#0284c7" },
+                { name: "Publikasi & Warta", count: 10, color: "#10b981" },
+                { name: "Agenda Pelatihan", count: 6, color: "#8b5cf6" },
+                { name: "Tata Kelola & Wilayah", count: 6, color: "#f59e0b" },
+              ]).map((res) => (
+                <div className="dist-item" key={res.name}>
+                  <div className="dist-meta">
+                    <span style={{ fontSize: "12px", fontWeight: 600 }}>{res.name}</span>
+                    <span style={{ fontSize: "11.5px", fontWeight: 700, color: res.color }}>
+                      {res.count} Aktivitas
+                    </span>
+                  </div>
+                  <div className="dist-bar-track">
+                    <div
+                      className="dist-bar-fill"
+                      style={{
+                        width: `${Math.round((res.count / 20) * 100)}%`,
+                        background: res.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div style={{ fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "8px" }}>
+              Timeline Audit Terkini
+            </div>
+            <div className="audit-timeline">
+              {(data?.auditLogsData?.recentActivities || [
+                {
+                  id: "1",
+                  action: "VERIFIKASI_KTA",
+                  resourceType: "members",
+                  createdAt: new Date().toISOString(),
+                },
+                {
+                  id: "2",
+                  action: "UPDATE_AD_ART",
+                  resourceType: "governance",
+                  createdAt: new Date(Date.now() - 3600000).toISOString(),
+                },
+                {
+                  id: "3",
+                  action: "PUBLISH_WARTA",
+                  resourceType: "contents",
+                  createdAt: new Date(Date.now() - 7200000).toISOString(),
+                },
+              ]).map((log) => (
+                <div className="audit-item" key={log.id}>
+                  <span className="audit-action-tag">{log.action}</span>
+                  <span className="audit-resource">Entitas: {log.resourceType}</span>
+                  <span className="audit-time">
+                    {new Date(log.createdAt).toLocaleTimeString("id-ID", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -48,6 +48,7 @@ export type DashboardData = {
     complaints?: number;
     inbox: number;
     applications: number;
+    auditLogs?: number;
   };
   unitDistribution?: Array<{
     name: string;
@@ -58,6 +59,38 @@ export type DashboardData = {
     count: number;
     active: number;
   }>;
+  complaintsData?: {
+    total: number;
+    resolved: number;
+    inProgress: number;
+    new: number;
+    resolutionRate: number;
+    categories: Array<{ name: string; count: number; percentage: number }>;
+  };
+  trainingData?: {
+    totalEvents: number;
+    totalParticipants: number;
+    totalCpdHours: number;
+    completionRate: number;
+    eventsList: Array<{
+      title: string;
+      date: string;
+      capacity: number;
+      participants: number;
+      fillRate: number;
+    }>;
+  };
+  auditLogsData?: {
+    total: number;
+    todayCount: number;
+    byResource: Array<{ name: string; count: number; color: string }>;
+    recentActivities: Array<{
+      id: string;
+      action: string;
+      resourceType: string;
+      createdAt: string;
+    }>;
+  };
   recentContent: Array<{
     id: string;
     title: string;
