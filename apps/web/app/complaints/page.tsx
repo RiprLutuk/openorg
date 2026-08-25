@@ -42,8 +42,32 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState, useRef, useCallback } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+
+// High-clarity character set omitting confusing glyphs (0, O, 1, I, l)
+const CAPTCHA_CHARSET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+
+function generateRandomCode(length = 5): string {
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += CAPTCHA_CHARSET.charAt(
+      Math.floor(Math.random() * CAPTCHA_CHARSET.length),
+    );
+  }
+  return result;
+}
+
+// Fast non-reversible hash to verify client answer without exposing plaintext in DOM or state
+function computeCaptchaHash(text: string, salt: string): string {
+  let h = 0x811c9dc5;
+  const combined = text.trim().toUpperCase() + ":" + salt;
+  for (let i = 0; i < combined.length; i++) {
+    h ^= combined.charCodeAt(i);
+    h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+  }
+  return (h >>> 0).toString(16);
+}
 
 export interface EvidenceFileItem {
   id: string;
@@ -111,30 +135,144 @@ export default function ComplaintsPage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploadingAny, setIsUploadingAny] = useState(false);
 
-  // Anti-Bot & Captcha State
-  const [captchaNum1, setCaptchaNum1] = useState(7);
-  const [captchaNum2, setCaptchaNum2] = useState(4);
-  const [captchaOp, setCaptchaOp] = useState<"+" | "-">("+");
+  // Anti-Bot & Canvas Captcha State
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [captchaSalt, setCaptchaSalt] = useState("");
+  const [captchaHash, setCaptchaHash] = useState("");
   const [captchaInput, setCaptchaInput] = useState("");
   const [formStartTime, setFormStartTime] = useState<number>(Date.now());
   const [isRotatingCaptcha, setIsRotatingCaptcha] = useState(false);
+  const humanInteractionsRef = useRef<number>(0);
 
-  const generateCaptcha = () => {
+  const drawCaptchaCanvas = useCallback((code: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // 1. Dynamic background gradient with subtle color shift
+    const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+    const hue1 = Math.floor(Math.random() * 360);
+    const hue2 = (hue1 + 45) % 360;
+    bgGrad.addColorStop(0, `hsl(${hue1}, 20%, 95%)`);
+    bgGrad.addColorStop(1, `hsl(${hue2}, 25%, 90%)`);
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, width, height);
+
+    // 2. Draw 120-150 random noise dots (anti-OCR noise matrix)
+    for (let i = 0; i < 140; i++) {
+      ctx.fillStyle = `hsla(${Math.random() * 360}, 65%, 45%, ${Math.random() * 0.35 + 0.15})`;
+      ctx.beginPath();
+      ctx.arc(
+        Math.random() * width,
+        Math.random() * height,
+        Math.random() * 1.5 + 0.5,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+    }
+
+    // 3. Draw 3-4 random curved interference lines across glyphs
+    for (let i = 0; i < 4; i++) {
+      ctx.strokeStyle = `hsla(${Math.random() * 360}, 60%, 40%, ${Math.random() * 0.3 + 0.25})`;
+      ctx.lineWidth = Math.random() * 1.2 + 0.8;
+      ctx.beginPath();
+      ctx.moveTo(Math.random() * 15, Math.random() * height);
+      ctx.bezierCurveTo(
+        Math.random() * width * 0.4,
+        Math.random() * height,
+        Math.random() * width * 0.7,
+        Math.random() * height,
+        width - Math.random() * 15,
+        Math.random() * height,
+      );
+      ctx.stroke();
+    }
+
+    // 4. Render each character with randomized angle, font family, scale & position jitter
+    const fontFamilies = [
+      "bold 22px monospace",
+      "bold 23px sans-serif",
+      "bold 24px Georgia",
+      "bold 22px 'Courier New'",
+    ];
+    const charSpacing = width / (code.length + 1);
+
+    for (let i = 0; i < code.length; i++) {
+      const char = code[i] ?? "";
+      ctx.save();
+
+      const x = charSpacing * (i + 1) + (Math.random() * 4 - 2);
+      const y = height / 2 + (Math.random() * 6 - 3);
+      const angle = (Math.random() * 36 - 18) * (Math.PI / 180);
+
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+
+      ctx.font =
+        fontFamilies[Math.floor(Math.random() * fontFamilies.length)] ??
+        "bold 22px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.fillStyle = `hsl(${Math.floor(Math.random() * 360)}, 75%, 22%)`;
+      ctx.fillText(char, 0, 0);
+
+      ctx.restore();
+    }
+
+    // 5. Draw 2 thin crossing lines through characters to break continuous edges for AI OCR
+    for (let i = 0; i < 2; i++) {
+      ctx.strokeStyle = `rgba(15, 23, 42, ${Math.random() * 0.2 + 0.2})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, Math.random() * height);
+      ctx.lineTo(width, Math.random() * height);
+      ctx.stroke();
+    }
+  }, []);
+
+  const generateCaptcha = useCallback(() => {
     setIsRotatingCaptcha(true);
-    const n1 = Math.floor(Math.random() * 12) + 5; // 5 - 16
-    const n2 = Math.floor(Math.random() * 8) + 2; // 2 - 9
-    const op = Math.random() > 0.4 ? "+" : "-";
-    setCaptchaNum1(n1);
-    setCaptchaNum2(n2);
-    setCaptchaOp(op);
+    const newCode = generateRandomCode(5);
+    const newSalt = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const newHash = computeCaptchaHash(newCode, newSalt);
+
+    setCaptchaSalt(newSalt);
+    setCaptchaHash(newHash);
     setCaptchaInput("");
+
+    // Draw on canvas next frame
+    requestAnimationFrame(() => {
+      drawCaptchaCanvas(newCode);
+    });
+
     setTimeout(() => setIsRotatingCaptcha(false), 300);
-  };
+  }, [drawCaptchaCanvas]);
 
   useEffect(() => {
     generateCaptcha();
     setFormStartTime(Date.now());
-  }, []);
+
+    // Track real physical user interaction (mouse/touch/keys)
+    const handleHumanInteraction = () => {
+      humanInteractionsRef.current += 1;
+    };
+
+    window.addEventListener("mousemove", handleHumanInteraction, { passive: true });
+    window.addEventListener("touchstart", handleHumanInteraction, { passive: true });
+    window.addEventListener("keydown", handleHumanInteraction, { passive: true });
+
+    return () => {
+      window.removeEventListener("mousemove", handleHumanInteraction);
+      window.removeEventListener("touchstart", handleHumanInteraction);
+      window.removeEventListener("keydown", handleHumanInteraction);
+    };
+  }, [generateCaptcha]);
 
   // Handle Multi-File Selection & Upload
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -265,16 +403,28 @@ export default function ComplaintsPage() {
       return;
     }
 
-    // 3. Captcha Math Challenge Verification
-    const expectedAnswer =
-      captchaOp === "+"
-        ? captchaNum1 + captchaNum2
-        : captchaNum1 - captchaNum2;
-    const userAnswer = parseInt(captchaInput.trim(), 10);
-
-    if (isNaN(userAnswer) || userAnswer !== expectedAnswer) {
+    // 3. Human Physical Interaction Check (Mouse/Touch/Keyboard)
+    if (humanInteractionsRef.current < 2) {
       setSubmitError(
-        "Hasil verifikasi keamanan (Captcha) salah. Silakan jawab pertanyaan hitungan dengan benar.",
+        "Sistem tidak mendeteksi interaksi fisik pengguna yang sah. Harap coba kembali.",
+      );
+      generateCaptcha();
+      return;
+    }
+
+    // 4. Visual Canvas Captcha Cryptographic Verification
+    const inputClean = captchaInput.trim().toUpperCase();
+    if (!inputClean || inputClean.length !== 5) {
+      setSubmitError(
+        "Harap ketik 5 karakter kode verifikasi keamanan sesuai gambar.",
+      );
+      return;
+    }
+
+    const calculatedHash = computeCaptchaHash(inputClean, captchaSalt);
+    if (calculatedHash !== captchaHash) {
+      setSubmitError(
+        "Kode verifikasi keamanan salah. Silakan ketik ulang 5 karakter yang tertera pada gambar.",
       );
       generateCaptcha();
       return;
@@ -928,24 +1078,28 @@ export default function ComplaintsPage() {
                       </div>
                     </div>
 
-                    {/* SECTION 4: Keamanan Anti-Spam (Compact Code Token) */}
+                    {/* SECTION 4: Keamanan Anti-Spam (Canvas Anti-AI / Anti-OCR) */}
                     <div className="form-step-block security-compact-block">
                       <div className="form-step-badge">
                         <span className="step-num-pill security-pill">04</span>
-                        <h4>Verifikasi Anti-Spam</h4>
+                        <h4>Verifikasi Anti-Spam (Human Check)</h4>
                       </div>
 
                       <div className="captcha-compact-row">
-                        <div className="captcha-code-badge">
-                          <code className="captcha-mono-text">
-                            {captchaNum1} {captchaOp} {captchaNum2} = ?
-                          </code>
+                        <div className="captcha-canvas-wrap">
+                          <canvas
+                            ref={canvasRef}
+                            width={160}
+                            height={40}
+                            className="captcha-canvas-element"
+                            aria-label="Kode verifikasi keamanan visual"
+                          />
                           <button
                             type="button"
                             className={`btn-refresh-captcha-mini ${isRotatingCaptcha ? "rotating" : ""}`}
                             onClick={generateCaptcha}
-                            title="Ganti hitungan keamanan"
-                            aria-label="Ganti hitungan keamanan"
+                            title="Ganti kode verifikasi"
+                            aria-label="Ganti kode verifikasi"
                           >
                             <RotateCw size={13} />
                           </button>
@@ -955,17 +1109,24 @@ export default function ComplaintsPage() {
                           <Lock size={13} className="captcha-lock-icon-mini" />
                           <input
                             id="captcha-answer"
-                            type="number"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
+                            type="text"
+                            maxLength={5}
+                            autoCapitalize="characters"
+                            autoComplete="off"
+                            spellCheck={false}
                             value={captchaInput}
-                            onChange={(e) => setCaptchaInput(e.target.value)}
+                            onChange={(e) =>
+                              setCaptchaInput(e.target.value.toUpperCase())
+                            }
                             required
-                            placeholder="Ketik angka hasil..."
-                            className="captcha-compact-input"
+                            placeholder="Ketik 5 karakter..."
+                            className="captcha-compact-input uppercase tracking-wider font-mono font-bold"
                           />
                         </div>
                       </div>
+                      <small className="captcha-subtext">
+                        Ketik 5 karakter huruf/angka pada gambar di atas untuk memastikan Anda bukan bot/AI otomatis.
+                      </small>
                     </div>
 
                     <div className="form-submit-row">
