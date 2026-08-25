@@ -7,13 +7,17 @@ import {
   Building2,
   Check,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clock,
+  Compass,
   Copy,
   Crown,
   ExternalLink,
   Filter,
   Globe,
   Loader2,
+  LocateFixed,
   MapPin,
   MessageSquare,
   Navigation,
@@ -33,7 +37,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { NATIONAL_16_WORKSHOPS } from "@/components/home-featured-workshops";
 import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
@@ -50,11 +54,73 @@ interface Technician {
   rating: string | null;
   certifiedBnsp: boolean;
   isAvailable: boolean;
+  distanceKm?: number | undefined;
 }
 
 export type MemberWorkshop = PublicWorkshopData;
 
 const SEED_MEMBER_WORKSHOPS: MemberWorkshop[] = NATIONAL_16_WORKSHOPS;
+
+const ITEMS_PER_PAGE_WORKSHOPS = 9;
+const ITEMS_PER_PAGE_TECHS = 12;
+
+const CITY_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  "jakarta": { lat: -6.2088, lng: 106.8456 },
+  "jakarta selatan": { lat: -6.2615, lng: 106.8106 },
+  "jakarta barat": { lat: -6.1683, lng: 106.7589 },
+  "jakarta pusat": { lat: -6.1805, lng: 106.8284 },
+  "jakarta timur": { lat: -6.2250, lng: 106.9004 },
+  "jakarta utara": { lat: -6.1384, lng: 106.8640 },
+  "bandung": { lat: -6.9175, lng: 107.6191 },
+  "surabaya": { lat: -7.2575, lng: 112.7521 },
+  "semarang": { lat: -6.9667, lng: 110.4167 },
+  "yogyakarta": { lat: -7.7956, lng: 110.3695 },
+  "jogja": { lat: -7.7956, lng: 110.3695 },
+  "medan": { lat: 3.5952, lng: 98.6722 },
+  "makassar": { lat: -5.1477, lng: 119.4327 },
+  "denpasar": { lat: -8.6705, lng: 115.2126 },
+  "bali": { lat: -8.6705, lng: 115.2126 },
+  "palembang": { lat: -2.9761, lng: 104.7754 },
+  "tangerang": { lat: -6.1783, lng: 106.6319 },
+  "bekasi": { lat: -6.2383, lng: 106.9756 },
+  "bogor": { lat: -6.5971, lng: 106.8060 },
+  "depok": { lat: -6.4025, lng: 106.7942 },
+  "malang": { lat: -7.9666, lng: 112.6326 },
+  "balikpapan": { lat: -1.2379, lng: 116.8289 },
+  "pekanbaru": { lat: 0.5071, lng: 101.4478 },
+  "lampung": { lat: -5.4500, lng: 105.2667 },
+  "bandar lampung": { lat: -5.4500, lng: 105.2667 },
+  "batam": { lat: 1.1301, lng: 104.0529 },
+  "banjarmasin": { lat: -3.3194, lng: 114.5908 },
+  "samarinda": { lat: -0.5022, lng: 117.1536 },
+  "manado": { lat: 1.4748, lng: 124.8428 },
+  "padang": { lat: -0.9471, lng: 100.4172 },
+  "pontianak": { lat: -0.0263, lng: 109.3425 },
+  "solo": { lat: -7.5755, lng: 110.8243 },
+  "surakarta": { lat: -7.5755, lng: 110.8243 },
+  "cirebon": { lat: -6.7320, lng: 108.5523 },
+  "sukabumi": { lat: -6.9277, lng: 106.9300 },
+  "tasikmalaya": { lat: -7.3274, lng: 108.2207 },
+};
+
+function calculateDistanceKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 interface SkillTierInfo {
   levelNumber: number;
@@ -184,51 +250,104 @@ function getTechWorkshop(tech: Technician, wsList: MemberWorkshop[]): MemberWork
 
 function TechniciansContent() {
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<"technicians" | "workshops">(
-    (searchParams.get("tab") as "technicians" | "workshops") || "technicians",
-  );
+  
+  // URL-driven query states
+  const rawPage = parseInt(searchParams.get("page") || "1", 10);
+  const currentPage = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+  const activeTab = (searchParams.get("tab") as "technicians" | "workshops") || "technicians";
+  const search = searchParams.get("q") || "";
+  const selectedProvince = searchParams.get("provinsi") || "all";
+  const selectedCity = searchParams.get("kota") || "all";
+  const selectedSkill = searchParams.get("keahlian") || "all";
+  const selectedWorkshopCat = searchParams.get("kategori") || "all";
+  const onlyBnsp = searchParams.get("bnsp") === "1" || searchParams.get("bnsp") === "true";
+  const sortMode = searchParams.get("sort") || "default";
+
+  // Client data states
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [workshops, setWorkshops] = useState<MemberWorkshop[]>(SEED_MEMBER_WORKSHOPS);
   const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState(searchParams.get("q") || "");
-  const [selectedProvince, setSelectedProvince] = useState(
-    searchParams.get("provinsi") || "all",
-  );
-  const [selectedSkill, setSelectedSkill] = useState(
-    searchParams.get("keahlian") || "all",
-  );
-  const [selectedWorkshopCat, setSelectedWorkshopCat] = useState<string>("all");
-  const [onlyBnsp, setOnlyBnsp] = useState(
-    searchParams.get("bnsp") === "1" || searchParams.get("bnsp") === "true",
-  );
   const [copiedKta, setCopiedKta] = useState<string | null>(null);
-  const [activeTechModal, setActiveTechModal] = useState<Technician | null>(
-    null,
-  );
+  const [activeTechModal, setActiveTechModal] = useState<Technician | null>(null);
 
-  const updateUrl = (
-    newSearch: string,
-    newProvince: string,
-    newSkill: string,
-    newBnsp: boolean,
-    newTab: "technicians" | "workshops" = activeTab,
-  ) => {
+  // Geolocation states
+  const [userGeo, setUserGeo] = useState<{ lat: number; lng: number } | null>(() => {
+    const lat = searchParams.get("lat");
+    const lng = searchParams.get("lng");
+    if (lat && lng) {
+      const pLat = parseFloat(lat);
+      const pLng = parseFloat(lng);
+      if (!isNaN(pLat) && !isNaN(pLng)) {
+        return { lat: pLat, lng: pLng };
+      }
+    }
+    return null;
+  });
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  // URL State Updater (Server-Friendly URL Search Params)
+  const updateUrl = (params: {
+    tab?: "technicians" | "workshops";
+    q?: string;
+    provinsi?: string;
+    kota?: string;
+    keahlian?: string;
+    kategori?: string;
+    bnsp?: boolean;
+    page?: number;
+    sort?: string;
+    lat?: string | null;
+    lng?: string | null;
+  }) => {
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
-      if (newTab !== "technicians") url.searchParams.set("tab", newTab);
+
+      const nextTab = params.tab ?? activeTab;
+      if (nextTab !== "technicians") url.searchParams.set("tab", nextTab);
       else url.searchParams.delete("tab");
 
-      if (newSearch.trim()) url.searchParams.set("q", newSearch.trim());
+      const nextSearch = params.q !== undefined ? params.q : search;
+      if (nextSearch.trim()) url.searchParams.set("q", nextSearch.trim());
       else url.searchParams.delete("q");
 
-      if (newProvince !== "all") url.searchParams.set("provinsi", newProvince);
+      const nextProv = params.provinsi !== undefined ? params.provinsi : selectedProvince;
+      if (nextProv !== "all") url.searchParams.set("provinsi", nextProv);
       else url.searchParams.delete("provinsi");
 
-      if (newSkill !== "all") url.searchParams.set("keahlian", newSkill);
+      const nextKota = params.kota !== undefined ? params.kota : selectedCity;
+      if (nextKota !== "all") url.searchParams.set("kota", nextKota);
+      else url.searchParams.delete("kota");
+
+      const nextSkill = params.keahlian !== undefined ? params.keahlian : selectedSkill;
+      if (nextSkill !== "all") url.searchParams.set("keahlian", nextSkill);
       else url.searchParams.delete("keahlian");
 
-      if (newBnsp) url.searchParams.set("bnsp", "1");
+      const nextCat = params.kategori !== undefined ? params.kategori : selectedWorkshopCat;
+      if (nextCat !== "all") url.searchParams.set("kategori", nextCat);
+      else url.searchParams.delete("kategori");
+
+      const nextBnsp = params.bnsp !== undefined ? params.bnsp : onlyBnsp;
+      if (nextBnsp) url.searchParams.set("bnsp", "1");
       else url.searchParams.delete("bnsp");
+
+      const nextSort = params.sort !== undefined ? params.sort : sortMode;
+      if (nextSort !== "default") url.searchParams.set("sort", nextSort);
+      else url.searchParams.delete("sort");
+
+      const nextPage = params.page !== undefined ? params.page : 1;
+      if (nextPage > 1) url.searchParams.set("page", String(nextPage));
+      else url.searchParams.delete("page");
+
+      if (params.lat !== undefined && params.lng !== undefined) {
+        if (params.lat && params.lng) {
+          url.searchParams.set("lat", params.lat);
+          url.searchParams.set("lng", params.lng);
+        } else {
+          url.searchParams.delete("lat");
+          url.searchParams.delete("lng");
+        }
+      }
 
       window.history.replaceState(
         null,
@@ -236,6 +355,43 @@ function TechniciansContent() {
         url.pathname + (url.search ? url.search : ""),
       );
     }
+  };
+
+  // GPS Geolocation Handler
+  const handleDetectLocation = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setLocationError("Perangkat tidak mendukung geolokasi GPS.");
+      return;
+    }
+    setIsLocating(true);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setUserGeo(coords);
+        setIsLocating(false);
+        updateUrl({
+          lat: coords.lat.toFixed(4),
+          lng: coords.lng.toFixed(4),
+          sort: "location",
+          page: 1,
+        });
+      },
+      (err) => {
+        console.warn("Geolocation error:", err);
+        setIsLocating(false);
+        setLocationError(
+          "Izin akses GPS tidak diberikan atau tidak dapat dijangkau. Silakan pilih provinsi atau kota secara manual.",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  };
+
+  const handleClearLocation = () => {
+    setUserGeo(null);
+    setLocationError(null);
+    updateUrl({ lat: null, lng: null, sort: "default", page: 1 });
   };
 
   useEffect(() => {
@@ -273,21 +429,32 @@ function TechniciansContent() {
     }
   }, []);
 
-  const provinces = Array.from(
-    new Set(
-      activeTab === "technicians"
-        ? technicians.map((t) => t.province).filter(Boolean)
-        : workshops.map((w) => w.province).filter(Boolean),
-    ),
-  );
+  const provinces = useMemo(() => {
+    return Array.from(
+      new Set(
+        activeTab === "technicians"
+          ? technicians.map((t) => t.province).filter(Boolean)
+          : workshops.map((w) => w.province).filter(Boolean),
+      ),
+    );
+  }, [activeTab, technicians, workshops]);
 
-  const skillLevels = Array.from(
-    new Set(technicians.map((t) => t.skillLevel).filter(Boolean)),
-  );
+  const availableCities = useMemo(() => {
+    const pool = activeTab === "technicians" ? technicians : workshops;
+    const filteredByProv =
+      selectedProvince === "all"
+        ? pool
+        : pool.filter((item) => item.province === selectedProvince);
+    return Array.from(new Set(filteredByProv.map((i) => i.city).filter(Boolean)));
+  }, [activeTab, technicians, workshops, selectedProvince]);
 
-  const workshopCategories = Array.from(
-    new Set(workshops.map((w) => w.category).filter(Boolean)),
-  );
+  const skillLevels = useMemo(() => {
+    return Array.from(new Set(technicians.map((t) => t.skillLevel).filter(Boolean)));
+  }, [technicians]);
+
+  const workshopCategories = useMemo(() => {
+    return Array.from(new Set(workshops.map((w) => w.category).filter(Boolean)));
+  }, [workshops]);
 
   const handleCopyKta = (e: React.MouseEvent, kta: string) => {
     e.stopPropagation();
@@ -296,43 +463,143 @@ function TechniciansContent() {
     setTimeout(() => setCopiedKta(null), 2000);
   };
 
-  const filteredTechs = technicians.filter((t) => {
-    const matchSearch =
-      !search ||
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.ktaNumber.toLowerCase().includes(search.toLowerCase()) ||
-      t.city.toLowerCase().includes(search.toLowerCase()) ||
-      t.workshopName?.toLowerCase().includes(search.toLowerCase());
+  // 1. Process Technicians (Enrich Distance & Filter)
+  const filteredTechs = useMemo(() => {
+    return technicians
+      .map((t) => {
+        let distanceKm: number | undefined = undefined;
+        if (userGeo) {
+          const cityLookup =
+            CITY_COORDINATES[t.city?.toLowerCase()] ||
+            CITY_COORDINATES[t.province?.toLowerCase()];
+          if (cityLookup) {
+            distanceKm = calculateDistanceKm(
+              userGeo.lat,
+              userGeo.lng,
+              cityLookup.lat,
+              cityLookup.lng,
+            );
+          }
+        }
+        return { ...t, distanceKm };
+      })
+      .filter((t) => {
+        const matchSearch =
+          !search ||
+          t.name.toLowerCase().includes(search.toLowerCase()) ||
+          t.ktaNumber.toLowerCase().includes(search.toLowerCase()) ||
+          t.city.toLowerCase().includes(search.toLowerCase()) ||
+          t.workshopName?.toLowerCase().includes(search.toLowerCase());
 
-    const matchProvince =
-      selectedProvince === "all" || t.province === selectedProvince;
+        const matchProvince =
+          selectedProvince === "all" || t.province === selectedProvince;
 
-    const matchSkill =
-      selectedSkill === "all" || t.skillLevel === selectedSkill;
+        const matchCity =
+          selectedCity === "all" || t.city === selectedCity;
 
-    const matchBnsp = !onlyBnsp || t.certifiedBnsp;
+        const matchSkill =
+          selectedSkill === "all" || t.skillLevel === selectedSkill;
 
-    return matchSearch && matchProvince && matchSkill && matchBnsp;
-  });
+        const matchBnsp = !onlyBnsp || t.certifiedBnsp;
 
-  const filteredWorkshops = workshops.filter((w) => {
-    const matchSearch =
-      !search ||
-      w.workshopName.toLowerCase().includes(search.toLowerCase()) ||
-      w.tagline.toLowerCase().includes(search.toLowerCase()) ||
-      w.city.toLowerCase().includes(search.toLowerCase()) ||
-      w.ownerName.toLowerCase().includes(search.toLowerCase()) ||
-      w.memberNumber.toLowerCase().includes(search.toLowerCase()) ||
-      w.services.some((s) => s.toLowerCase().includes(search.toLowerCase()));
+        return matchSearch && matchProvince && matchCity && matchSkill && matchBnsp;
+      })
+      .sort((a, b) => {
+        if (userGeo || sortMode === "location") {
+          if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
+            return a.distanceKm - b.distanceKm;
+          }
+        }
+        return (parseFloat(b.rating || "0") || 0) - (parseFloat(a.rating || "0") || 0);
+      });
+  }, [technicians, userGeo, search, selectedProvince, selectedCity, selectedSkill, onlyBnsp, sortMode]);
 
-    const matchProvince =
-      selectedProvince === "all" || w.province === selectedProvince;
+  // 2. Process Workshops (Enrich Distance & Filter)
+  const filteredWorkshops = useMemo(() => {
+    return workshops
+      .map((w) => {
+        let distanceKm: number | undefined = undefined;
+        if (userGeo) {
+          const lat = w.latitude;
+          const lng = w.longitude;
+          if (lat && lng) {
+            distanceKm = calculateDistanceKm(userGeo.lat, userGeo.lng, lat, lng);
+          } else {
+            const cityLookup =
+              CITY_COORDINATES[w.city?.toLowerCase()] ||
+              CITY_COORDINATES[w.province?.toLowerCase()];
+            if (cityLookup) {
+              distanceKm = calculateDistanceKm(
+                userGeo.lat,
+                userGeo.lng,
+                cityLookup.lat,
+                cityLookup.lng,
+              );
+            }
+          }
+        }
+        return { ...w, distanceKm };
+      })
+      .filter((w) => {
+        const matchSearch =
+          !search ||
+          w.workshopName.toLowerCase().includes(search.toLowerCase()) ||
+          w.tagline.toLowerCase().includes(search.toLowerCase()) ||
+          w.city.toLowerCase().includes(search.toLowerCase()) ||
+          w.ownerName.toLowerCase().includes(search.toLowerCase()) ||
+          w.memberNumber.toLowerCase().includes(search.toLowerCase()) ||
+          w.services.some((s) => s.toLowerCase().includes(search.toLowerCase()));
 
-    const matchCat =
-      selectedWorkshopCat === "all" || w.category === selectedWorkshopCat;
+        const matchProvince =
+          selectedProvince === "all" || w.province === selectedProvince;
 
-    return matchSearch && matchProvince && matchCat;
-  });
+        const matchCity =
+          selectedCity === "all" || w.city === selectedCity;
+
+        const matchCat =
+          selectedWorkshopCat === "all" || w.category === selectedWorkshopCat;
+
+        return matchSearch && matchProvince && matchCity && matchCat;
+      })
+      .sort((a, b) => {
+        if (userGeo || sortMode === "location") {
+          if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
+            return a.distanceKm - b.distanceKm;
+          }
+        }
+        return (b.rating || 0) - (a.rating || 0);
+      });
+  }, [workshops, userGeo, search, selectedProvince, selectedCity, selectedWorkshopCat, sortMode]);
+
+  // Pagination Math
+  const itemsPerPage =
+    activeTab === "workshops" ? ITEMS_PER_PAGE_WORKSHOPS : ITEMS_PER_PAGE_TECHS;
+  const totalItems =
+    activeTab === "workshops" ? filteredWorkshops.length : filteredTechs.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const startIndex = (safePage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+  const paginatedTechs = useMemo(() => {
+    return filteredTechs.slice(startIndex, endIndex);
+  }, [filteredTechs, startIndex, endIndex]);
+
+  const paginatedWorkshops = useMemo(() => {
+    return filteredWorkshops.slice(startIndex, endIndex);
+  }, [filteredWorkshops, startIndex, endIndex]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    updateUrl({ page: newPage });
+    if (typeof window !== "undefined") {
+      const anchor = document.getElementById("directory-results-top");
+      if (anchor) {
+        anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
 
   return (
     <div className="technicians-page-suite">
@@ -342,18 +609,18 @@ function TechniciansContent() {
           <div className="tech-hero-inner">
             <div className="tech-hero-pill">
               <Wrench size={14} />
-              <span>DIREKTORI NASIONAL RESMI</span>
+              <span>DIREKTORI RESMI &amp; BURSA BENGKEL</span>
             </div>
 
             <h1 className="tech-hero-title">
-              Direktori Teknisi & Bengkel Pendingin{" "}
+              Direktori Teknisi &amp; Bengkel{" "}
               <span className="text-gradient">Terverifikasi</span>
             </h1>
 
             <p className="tech-hero-lead">
               Temukan teknisi tata udara (HVAC/R) dan bursa bengkel/toko
               berlisensi KTA resmi dengan sertifikasi BNSP, jaminan standar K3,
-              dan reputasi terpercaya di seluruh Indonesia.
+              serta pencarian berbasis radius lokasi terdekat dari posisi Anda.
             </p>
           </div>
 
@@ -385,7 +652,7 @@ function TechniciansContent() {
                 </div>
                 <div>
                   <strong>{workshops.length}+ Bengkel Resmi</strong>
-                  <small>Mitra & Toko Suku Cadang</small>
+                  <small>Mitra &amp; Toko Suku Cadang</small>
                 </div>
               </div>
               <div className="stat-item">
@@ -418,7 +685,7 @@ function TechniciansContent() {
       </header>
 
       {/* 2. Main Directory Body & Interactive Search Controls */}
-      <section className="tech-body section-space">
+      <section className="tech-body section-space" id="directory-results-top">
         <div className="wrap">
           {/* Main Directory Tab Switcher */}
           <div className="directory-main-tabs">
@@ -426,8 +693,7 @@ function TechniciansContent() {
               type="button"
               className={`dir-tab-btn ${activeTab === "technicians" ? "active" : ""}`}
               onClick={() => {
-                setActiveTab("technicians");
-                updateUrl(search, selectedProvince, selectedSkill, onlyBnsp, "technicians");
+                updateUrl({ tab: "technicians", page: 1 });
               }}
             >
               <Users size={17} />
@@ -437,16 +703,147 @@ function TechniciansContent() {
               type="button"
               className={`dir-tab-btn ${activeTab === "workshops" ? "active" : ""}`}
               onClick={() => {
-                setActiveTab("workshops");
-                updateUrl(search, selectedProvince, selectedSkill, onlyBnsp, "workshops");
+                updateUrl({ tab: "workshops", page: 1 });
               }}
             >
               <Store size={17} />
-              <span>Bursa Bengkel & Toko Resmi Anggota ({workshops.length})</span>
+              <span>Bursa Bengkel &amp; Toko Resmi Anggota ({workshops.length})</span>
             </button>
           </div>
 
-          {/* Controls Bar */}
+          {/* Quick Location & GPS Action Bar */}
+          <div className="tech-location-quick-bar">
+            <div className="location-bar-left">
+              <span className="location-bar-label">
+                <MapPin size={14} className="text-sky-600" />
+                <span>Radius Wilayah:</span>
+              </span>
+              <div className="location-quick-chips">
+                <button
+                  type="button"
+                  className={`loc-chip-btn ${selectedProvince === "all" && !userGeo ? "active" : ""}`}
+                  onClick={() => {
+                    handleClearLocation();
+                    updateUrl({ provinsi: "all", kota: "all", page: 1 });
+                  }}
+                >
+                  Semua Wilayah
+                </button>
+                <button
+                  type="button"
+                  className={`loc-chip-btn ${selectedProvince === "DKI Jakarta" ? "active" : ""}`}
+                  onClick={() => updateUrl({ provinsi: "DKI Jakarta", kota: "all", page: 1 })}
+                >
+                  DKI Jakarta
+                </button>
+                <button
+                  type="button"
+                  className={`loc-chip-btn ${selectedProvince === "Jawa Barat" ? "active" : ""}`}
+                  onClick={() => updateUrl({ provinsi: "Jawa Barat", kota: "all", page: 1 })}
+                >
+                  Jawa Barat
+                </button>
+                <button
+                  type="button"
+                  className={`loc-chip-btn ${selectedProvince === "Jawa Timur" ? "active" : ""}`}
+                  onClick={() => updateUrl({ provinsi: "Jawa Timur", kota: "all", page: 1 })}
+                >
+                  Jawa Timur
+                </button>
+                <button
+                  type="button"
+                  className={`loc-chip-btn ${selectedProvince === "Jawa Tengah" ? "active" : ""}`}
+                  onClick={() => updateUrl({ provinsi: "Jawa Tengah", kota: "all", page: 1 })}
+                >
+                  Jawa Tengah
+                </button>
+                <button
+                  type="button"
+                  className={`loc-chip-btn ${selectedProvince === "Sumatera Utara" ? "active" : ""}`}
+                  onClick={() => updateUrl({ provinsi: "Sumatera Utara", kota: "all", page: 1 })}
+                >
+                  Sumatera Utara
+                </button>
+                <button
+                  type="button"
+                  className={`loc-chip-btn ${selectedProvince === "Bali" ? "active" : ""}`}
+                  onClick={() => updateUrl({ provinsi: "Bali", kota: "all", page: 1 })}
+                >
+                  Bali &amp; Nusra
+                </button>
+              </div>
+            </div>
+
+            <div className="location-bar-right">
+              {userGeo ? (
+                <div className="tech-gps-active-badge">
+                  <LocateFixed size={14} className="animate-pulse text-emerald-600" />
+                  <span>GPS Aktif ({userGeo.lat.toFixed(2)}, {userGeo.lng.toFixed(2)})</span>
+                  <button
+                    type="button"
+                    className="gps-clear-btn"
+                    onClick={handleClearLocation}
+                    title="Nonaktifkan filter GPS"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="tech-gps-trigger-btn"
+                  onClick={handleDetectLocation}
+                  disabled={isLocating}
+                  title="Deteksi lokasi saat ini untuk menemukan bengkel/teknisi terdekat"
+                >
+                  {isLocating ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      <span>Mencari Lokasi...</span>
+                    </>
+                  ) : (
+                    <>
+                      <LocateFixed size={14} />
+                      <span>📍 Lokasi Terdekat (GPS)</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Location Active Feedback / Error Notification */}
+          {userGeo && (
+            <div className="tech-location-banner">
+              <LocateFixed size={16} className="text-sky-600 flex-shrink-0" />
+              <span>
+                <strong>Mode Lokasi Terdekat Aktif:</strong> Menampilkan hasil diurutkan dari jarak terdekat ke posisi GPS Anda.
+              </span>
+              <button
+                type="button"
+                className="btn-text-clear-gps"
+                onClick={handleClearLocation}
+              >
+                Reset Urutan
+              </button>
+            </div>
+          )}
+
+          {locationError && (
+            <div className="tech-location-error-banner">
+              <MapPin size={15} className="text-amber-600 flex-shrink-0" />
+              <span>{locationError}</span>
+              <button
+                type="button"
+                className="btn-text-clear-gps"
+                onClick={() => setLocationError(null)}
+              >
+                Tutup
+              </button>
+            </div>
+          )}
+
+          {/* Controls Bar: Search & Select Dropdowns */}
           <div className="tech-controls-bar">
             {/* Search Input */}
             <div className="tech-search-box">
@@ -462,14 +859,7 @@ function TechniciansContent() {
                 }
                 value={search}
                 onChange={(e) => {
-                  setSearch(e.target.value);
-                  updateUrl(
-                    e.target.value,
-                    selectedProvince,
-                    selectedSkill,
-                    onlyBnsp,
-                    activeTab,
-                  );
+                  updateUrl({ q: e.target.value, page: 1 });
                 }}
                 aria-label="Pencarian direktori"
               />
@@ -478,8 +868,7 @@ function TechniciansContent() {
                   type="button"
                   className="search-clear-btn"
                   onClick={() => {
-                    setSearch("");
-                    updateUrl("", selectedProvince, selectedSkill, onlyBnsp, activeTab);
+                    updateUrl({ q: "", page: 1 });
                   }}
                   aria-label="Bersihkan pencarian"
                 >
@@ -491,24 +880,42 @@ function TechniciansContent() {
             {/* Filters Row */}
             <div className="tech-filters-group">
               {/* Province Select */}
-              {provinces.length > 0 && (
+              <select
+                id="technicians-province-select"
+                name="techniciansProvince"
+                value={selectedProvince}
+                onChange={(e) => {
+                  updateUrl({ provinsi: e.target.value, kota: "all", page: 1 });
+                }}
+                className="tech-select-input"
+                aria-label="Filter berdasarkan provinsi"
+              >
+                <option value="all">
+                  Semua Provinsi ({provinces.length})
+                </option>
+                {provinces.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+
+              {/* City Select */}
+              {availableCities.length > 0 && (
                 <select
-                  id="technicians-province-select"
-                  name="techniciansProvince"
-                  value={selectedProvince}
+                  id="technicians-city-select"
+                  name="techniciansCity"
+                  value={selectedCity}
                   onChange={(e) => {
-                    setSelectedProvince(e.target.value);
-                    updateUrl(search, e.target.value, selectedSkill, onlyBnsp, activeTab);
+                    updateUrl({ kota: e.target.value, page: 1 });
                   }}
                   className="tech-select-input"
-                  aria-label="Filter berdasarkan provinsi"
+                  aria-label="Filter berdasarkan kota/kabupaten"
                 >
-                  <option value="all">
-                    Semua Provinsi ({provinces.length})
-                  </option>
-                  {provinces.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
+                  <option value="all">Semua Kota / Rayon</option>
+                  {availableCities.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
                     </option>
                   ))}
                 </select>
@@ -523,14 +930,7 @@ function TechniciansContent() {
                       name="techniciansSkill"
                       value={selectedSkill}
                       onChange={(e) => {
-                        setSelectedSkill(e.target.value);
-                        updateUrl(
-                          search,
-                          selectedProvince,
-                          e.target.value,
-                          onlyBnsp,
-                          activeTab,
-                        );
+                        updateUrl({ keahlian: e.target.value, page: 1 });
                       }}
                       className="tech-select-input"
                       aria-label="Filter berdasarkan tingkat keahlian SKKNI"
@@ -549,20 +949,18 @@ function TechniciansContent() {
                     type="button"
                     className={`tech-toggle-btn ${onlyBnsp ? "active" : ""}`}
                     onClick={() => {
-                      const nextBnsp = !onlyBnsp;
-                      setOnlyBnsp(nextBnsp);
-                      updateUrl(search, selectedProvince, selectedSkill, nextBnsp, activeTab);
+                      updateUrl({ bnsp: !onlyBnsp, page: 1 });
                     }}
                   >
                     <Award size={14} />
-                    <span>Hanya BNSP Certified</span>
+                    <span>Hanya BNSP</span>
                   </button>
                 </>
               ) : (
                 <>
                   <select
                     value={selectedWorkshopCat}
-                    onChange={(e) => setSelectedWorkshopCat(e.target.value)}
+                    onChange={(e) => updateUrl({ kategori: e.target.value, page: 1 })}
                     className="tech-select-input"
                     aria-label="Filter berdasarkan kategori bengkel/toko"
                   >
@@ -612,11 +1010,26 @@ function TechniciansContent() {
               </div>
               <div className="banner-right">
                 <Link href="/join" className="button primary">
-                  Daftar Anggota & Pasang Iklan
+                  Daftar Anggota &amp; Pasang Iklan
                 </Link>
               </div>
             </div>
           )}
+
+          {/* Results Summary Bar */}
+          <div className="directory-results-meta-bar">
+            <span className="results-count-text">
+              Menampilkan <strong>{totalItems > 0 ? startIndex + 1 : 0} – {endIndex}</strong> dari <strong>{totalItems}</strong> {activeTab === "workshops" ? "Bengkel Resmi" : "Teknisi Berlisensi"}
+              {selectedProvince !== "all" && <span> di <em>{selectedProvince}</em></span>}
+              {selectedCity !== "all" && <span>, <em>{selectedCity}</em></span>}
+              {userGeo && <span className="text-sky-600 font-semibold"> (Urutan Berdasarkan Jarak Terdekat)</span>}
+            </span>
+            {totalPages > 1 && (
+              <span className="results-page-indicator">
+                Halaman <strong>{safePage}</strong> dari <strong>{totalPages}</strong>
+              </span>
+            )}
+          </div>
 
           {/* Results Grid: Tab 1 (Technicians) */}
           {activeTab === "technicians" && (
@@ -633,8 +1046,7 @@ function TechniciansContent() {
                     type="button"
                     className="btn-switch-workshop-tab"
                     onClick={() => {
-                      setActiveTab("workshops");
-                      updateUrl(search, selectedProvince, selectedSkill, onlyBnsp, "workshops");
+                      updateUrl({ tab: "workshops", page: 1 });
                     }}
                   >
                     <Store size={13} />
@@ -651,8 +1063,8 @@ function TechniciansContent() {
                 </div>
               ) : (
                 <div className="tech-cards-grid">
-                  {filteredTechs.length > 0 ? (
-                    filteredTechs.map((tech) => (
+                  {paginatedTechs.length > 0 ? (
+                    paginatedTechs.map((tech) => (
                       <article className="tech-card-modern" key={tech.id}>
                         {/* Top Bar: Compact Skill Level Badge & BNSP/Rating */}
                         <div className="tech-card-top">
@@ -669,6 +1081,12 @@ function TechniciansContent() {
                               </span>
                             );
                           })()}
+
+                          {tech.distanceKm !== undefined && (
+                            <span className="ws-pill-distance" title={`Jarak ke lokasi: ±${tech.distanceKm.toFixed(1)} km`}>
+                              📍 {tech.distanceKm < 1 ? "< 1 km" : `±${Math.round(tech.distanceKm)} km`}
+                            </span>
+                          )}
 
                           {tech.certifiedBnsp && (
                             <span className="tech-bnsp-badge">
@@ -750,55 +1168,59 @@ function TechniciansContent() {
                           );
                         })()}
 
-                        {/* Footer Row: KTA Number + Actions */}
+                        {/* Card Footer: KTA Number + Quick Verification Link */}
                         <div className="tech-card-footer">
-                          <span className="tech-kta-chip">
-                            <QrCode size={12} color="#0284c7" />
+                          <button
+                            type="button"
+                            className="btn-copy-kta-code"
+                            onClick={(e) => handleCopyKta(e, tech.ktaNumber)}
+                            title="Salin nomor KTA ke clipboard"
+                          >
+                            <QrCode size={13} color="#0284c7" />
                             <span>{tech.ktaNumber}</span>
-                          </span>
-
-                          <div className="tech-actions-quick">
-                            {tech.phone && (
-                              <a
-                                href={`https://wa.me/${tech.phone.replace(/[^0-9]/g, "")}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn-quick-wa"
-                                title="Hubungi via WhatsApp"
-                              >
-                                <Phone size={13} />
-                                <span>Kontak</span>
-                              </a>
+                            {copiedKta === tech.ktaNumber ? (
+                              <span className="copy-state-icon text-emerald-600">
+                                <Check size={11} />
+                              </span>
+                            ) : (
+                              <span className="copy-state-icon">
+                                <Copy size={11} />
+                              </span>
                             )}
-                            <button
-                              type="button"
-                              className="tech-detail-btn"
-                              onClick={() => setActiveTechModal(tech)}
-                            >
-                              <span>Detail</span>
-                              <ArrowRight size={12} />
-                            </button>
-                          </div>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="btn-tech-detail-arrow"
+                            onClick={() => setActiveTechModal(tech)}
+                            title="Buka detail kredensial"
+                          >
+                            <span>Detail</span>
+                            <ArrowRight size={12} />
+                          </button>
                         </div>
                       </article>
                     ))
                   ) : (
                     <div className="tech-empty-state">
-                      <Wrench size={44} color="#94a3b8" />
+                      <Users size={44} color="#94a3b8" />
                       <h3>Tidak Ada Teknisi yang Sesuai</h3>
                       <p>
-                        Coba sesuaikan kata kunci nama, nomor KTA, atau ubah filter
-                        wilayah dan jenjang keahlian.
+                        Coba sesuaikan kata kunci pencarian atau ubah filter jenjang
+                        keahlian dan provinsi.
                       </p>
                       <button
                         type="button"
                         className="button secondary btn-reset-tech"
                         onClick={() => {
-                          setSearch("");
-                          setSelectedProvince("all");
-                          setSelectedSkill("all");
-                          setOnlyBnsp(false);
-                          updateUrl("", "all", "all", false, "technicians");
+                          updateUrl({
+                            q: "",
+                            provinsi: "all",
+                            kota: "all",
+                            keahlian: "all",
+                            bnsp: false,
+                            page: 1,
+                          });
                         }}
                       >
                         Reset Filter Pencarian
@@ -813,8 +1235,8 @@ function TechniciansContent() {
           {/* Results Grid: Tab 2 (Member Workshops & Stores) */}
           {activeTab === "workshops" && (
             <div className="home-workshops-grid-compact">
-              {filteredWorkshops.length > 0 ? (
-                filteredWorkshops.map((ws) => (
+              {paginatedWorkshops.length > 0 ? (
+                paginatedWorkshops.map((ws) => (
                   <PublicWorkshopCard key={ws.id} workshop={ws} />
                 ))
               ) : (
@@ -829,9 +1251,13 @@ function TechniciansContent() {
                     type="button"
                     className="button secondary btn-reset-tech"
                     onClick={() => {
-                      setSearch("");
-                      setSelectedProvince("all");
-                      setSelectedWorkshopCat("all");
+                      updateUrl({
+                        q: "",
+                        provinsi: "all",
+                        kota: "all",
+                        kategori: "all",
+                        page: 1,
+                      });
                     }}
                   >
                     Reset Filter Bengkel
@@ -840,10 +1266,76 @@ function TechniciansContent() {
               )}
             </div>
           )}
+
+          {/* 3. Server-Side URL-Driven Pagination Bar (Swiss Design) */}
+          {totalPages > 1 && (
+            <nav
+              className="stories-pagination-bar"
+              aria-label="Navigasi Halaman Direktori"
+            >
+              <div className="pagination-info">
+                Halaman <strong>{safePage}</strong> dari <strong>{totalPages}</strong> (Total <strong>{totalItems}</strong> data)
+              </div>
+
+              <div className="pagination-controls">
+                <button
+                  type="button"
+                  className="page-nav-btn"
+                  onClick={() => handlePageChange(safePage - 1)}
+                  disabled={safePage <= 1}
+                  aria-label="Halaman Sebelumnya"
+                >
+                  <ChevronLeft size={14} />
+                  <span>Sebelumnya</span>
+                </button>
+
+                <div className="page-numbers-group">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((p) => {
+                      return (
+                        p === 1 ||
+                        p === totalPages ||
+                        Math.abs(p - safePage) <= 1
+                      );
+                    })
+                    .map((p, index, array) => {
+                      const prevPage = array[index - 1];
+                      const showEllipsis = prevPage && p - prevPage > 1;
+
+                      return (
+                        <div key={p} style={{ display: "flex", alignItems: "center" }}>
+                          {showEllipsis && <span className="px-1 text-slate-400 text-xs">...</span>}
+                          <button
+                            type="button"
+                            className={`page-num-btn ${safePage === p ? "active" : ""}`}
+                            onClick={() => handlePageChange(p)}
+                            aria-label={`Buka Halaman ${p}`}
+                            aria-current={safePage === p ? "page" : undefined}
+                          >
+                            {p}
+                          </button>
+                        </div>
+                      );
+                    })}
+                </div>
+
+                <button
+                  type="button"
+                  className="page-nav-btn"
+                  onClick={() => handlePageChange(safePage + 1)}
+                  disabled={safePage >= totalPages}
+                  aria-label="Halaman Berikutnya"
+                >
+                  <span>Berikutnya</span>
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </nav>
+          )}
         </div>
       </section>
 
-      {/* 3. Smart Conversion CTA */}
+      {/* 4. Smart Conversion CTA */}
       <DynamicBottomCta
         organizationName="APTI Indonesia"
         guestTitle="Anda Teknisi Pendingin dan Belum Memiliki KTA?"
