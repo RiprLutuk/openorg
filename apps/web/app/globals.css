@@ -23850,13 +23850,6 @@ img {
   flex-shrink: 0;
 }
 
-.btn-shuffle-fair {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  color: #334155;
 .carousel-autoplay-btn {
   display: inline-flex;
   align-items: center;
