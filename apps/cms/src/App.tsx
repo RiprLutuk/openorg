@@ -3087,13 +3087,8 @@ function ContentManager() {
 
   const client = useQueryClient();
   const query = useQuery({
-    queryKey: ["contents", type],
-    queryFn: () =>
-      api<{ data: CmsContent[] }>(
-        type === "all"
-          ? "/v1/admin/contents?limit=200"
-          : `/v1/admin/contents?limit=200&type=${type}`,
-      ),
+    queryKey: ["contents"],
+    queryFn: () => api<{ data: CmsContent[] }>("/v1/admin/contents?limit=200"),
   });
 
   const remove = useMutation({
@@ -3119,10 +3114,15 @@ function ContentManager() {
   if (editor)
     return <ContentEditor content={editor} onClose={() => setEditor(null)} />;
 
-  const rawItems = query.data?.data ?? [];
-  const filtered = rawItems.filter((item) => {
+  const allItems = query.data?.data ?? [];
+  const countPost = allItems.filter((i) => i.type === "post").length;
+  const countNews = allItems.filter((i) => i.type === "news").length;
+  const countCampaign = allItems.filter((i) => i.type === "campaign").length;
+
+  const filtered = allItems.filter((item) => {
+    if (type !== "all" && item.type !== type) return false;
     if (statusFilter !== "all" && item.status !== statusFilter) return false;
-    if (!search) return true;
+    if (!search.trim()) return true;
     const term = search.toLowerCase();
     return (
       item.title.toLowerCase().includes(term) ||
@@ -3141,7 +3141,7 @@ function ContentManager() {
       <PageHeading
         eyebrow="Penerbitan & Publikasi"
         title="Warta, Berita & Rilis Resmi"
-        description="Kelola materi edukasi, rilis pers asosiasi, berita industri refrigerasi, dan pengumuman resmi."
+        description="Kelola materi edukasi teknisi, rilis pers asosiasi, berita industri refrigerasi, dan pengumuman resmi."
         action={
           <button
             type="button"
@@ -3153,110 +3153,86 @@ function ContentManager() {
         }
       />
 
-      <div className="table-panel">
-        <div className="toolbar" style={{ flexWrap: "wrap", gap: "10px" }}>
-          <div className="segmented" style={{ margin: 0 }}>
-            <button
-              type="button"
-              className={type === "all" ? "active" : ""}
-              onClick={() => {
-                setType("all");
-                setCurrentPage(1);
-              }}
-            >
-              Semua Warta
-            </button>
-            <button
-              type="button"
-              className={type === "post" ? "active" : ""}
-              onClick={() => {
-                setType("post");
-                setCurrentPage(1);
-              }}
-            >
-              Edukasi & Cerita
-            </button>
-            <button
-              type="button"
-              className={type === "news" ? "active" : ""}
-              onClick={() => {
-                setType("news");
-                setCurrentPage(1);
-              }}
-            >
-              Berita & Rilis
-            </button>
-            <button
-              type="button"
-              className={type === "campaign" ? "active" : ""}
-              onClick={() => {
-                setType("campaign");
-                setCurrentPage(1);
-              }}
-            >
-              Kampanye & Acara
-            </button>
-          </div>
+      <div className="segmented mb-3">
+        <button
+          type="button"
+          className={type === "all" ? "active" : ""}
+          onClick={() => {
+            setType("all");
+            setCurrentPage(1);
+          }}
+        >
+          Semua Warta ({allItems.length})
+        </button>
+        <button
+          type="button"
+          className={type === "post" ? "active" : ""}
+          onClick={() => {
+            setType("post");
+            setCurrentPage(1);
+          }}
+        >
+          Edukasi & SOP ({countPost})
+        </button>
+        <button
+          type="button"
+          className={type === "news" ? "active" : ""}
+          onClick={() => {
+            setType("news");
+            setCurrentPage(1);
+          }}
+        >
+          Berita & Rilis ({countNews})
+        </button>
+        <button
+          type="button"
+          className={type === "campaign" ? "active" : ""}
+          onClick={() => {
+            setType("campaign");
+            setCurrentPage(1);
+          }}
+        >
+          Kampanye & Acara ({countCampaign})
+        </button>
+      </div>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              flex: 1,
-              justifyContent: "flex-end",
-              alignItems: "center",
-            }}
-          >
-            <div className="search-box" style={{ maxWidth: "260px" }}>
-              <Search size={15} />
-              <input
-                value={search}
+      <div className="table-panel">
+        <div className="table-toolbar">
+          <label className="search-field">
+            <Search size={16} />
+            <input
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Cari judul warta, slug, atau penulis..."
+            />
+          </label>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div className="compact-filter">
+              <label>Status</label>
+              <select
+                value={statusFilter}
                 onChange={(e) => {
-                  setSearch(e.target.value);
+                  setStatusFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder="Cari judul atau slug..."
-              />
+              >
+                <option value="all">Semua Status</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="review">Review</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="archived">Archived</option>
+              </select>
             </div>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              style={{
-                padding: "6px 10px",
-                borderRadius: "6px",
-                border: "1px solid var(--line)",
-                fontSize: "12.5px",
-                background: "#ffffff",
-              }}
-            >
-              <option value="all">Semua Status</option>
-              <option value="published">Published (Terbit)</option>
-              <option value="draft">Draft</option>
-              <option value="review">Under Review</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="archived">Archived</option>
-            </select>
-
-            <div
-              style={{
-                display: "inline-flex",
-                border: "1px solid var(--line)",
-                borderRadius: "6px",
-                overflow: "hidden",
-              }}
-            >
+            <div className="view-mode-toggle">
               <button
                 type="button"
-                className={`icon-button ${viewMode === "table" ? "active" : ""}`}
-                style={{
-                  borderRadius: 0,
-                  background: viewMode === "table" ? "#f1f5f9" : "#ffffff",
-                  padding: "6px 8px",
-                }}
+                className={viewMode === "table" ? "active" : ""}
                 title="Tampilan Tabel"
                 onClick={() => setViewMode("table")}
               >
@@ -3264,18 +3240,15 @@ function ContentManager() {
               </button>
               <button
                 type="button"
-                className={`icon-button ${viewMode === "grid" ? "active" : ""}`}
-                style={{
-                  borderRadius: 0,
-                  background: viewMode === "grid" ? "#f1f5f9" : "#ffffff",
-                  padding: "6px 8px",
-                }}
+                className={viewMode === "grid" ? "active" : ""}
                 title="Tampilan Kartu"
                 onClick={() => setViewMode("grid")}
               >
                 <LayoutGrid size={16} />
               </button>
             </div>
+
+            <span className="result-count">{filtered.length} warta</span>
           </div>
         </div>
 
@@ -3285,138 +3258,157 @@ function ContentManager() {
           <Empty message="Tidak ada konten warta yang sesuai dengan filter pencarian." />
         ) : viewMode === "table" ? (
           <>
-            <div className="table-responsive">
-              <table className="compact-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: "60px" }}>Sampul</th>
-                    <th>Judul & Tautan Slug</th>
-                    <th>Tipe</th>
-                    <th>Penulis</th>
-                    <th>Status</th>
-                    <th>Diperbarui</th>
-                    <th style={{ textAlign: "right" }}>Aksi</th>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th style={{ width: "64px" }}>Sampul</th>
+                  <th>Judul Warta & Slug</th>
+                  <th>Kategori</th>
+                  <th>Penulis</th>
+                  <th>Status</th>
+                  <th>Diperbarui</th>
+                  <th style={{ textAlign: "right" }}>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginated.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <div
+                        style={{
+                          width: "48px",
+                          height: "36px",
+                          borderRadius: "5px",
+                          background: "#f1f5f9",
+                          overflow: "hidden",
+                          display: "grid",
+                          placeItems: "center",
+                          border: "1px solid #e2e8f0",
+                        }}
+                      >
+                        {item.coverUrl ? (
+                          <img
+                            src={item.coverUrl}
+                            alt=""
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <FileText size={16} color="#94a3b8" />
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          color: "#0f172a",
+                          fontSize: "13px",
+                        }}
+                      >
+                        {item.title}
+                        {item.featured && (
+                          <span
+                            className="tag-badge"
+                            style={{
+                              marginLeft: "6px",
+                              background: "#fef3c7",
+                              color: "#b45309",
+                              fontSize: "10.5px",
+                            }}
+                          >
+                            ★ Unggulan
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "11.5px",
+                          color: "#64748b",
+                          fontFamily: "monospace",
+                          marginTop: "2px",
+                        }}
+                      >
+                        /{item.slug}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="tag-badge">
+                        {item.type === "post"
+                          ? "Edukasi"
+                          : item.type === "news"
+                            ? "Berita"
+                            : item.type}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          fontSize: "12.5px",
+                          color: "#334155",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {item.authorName || "Tim Redaksi"}
+                      </span>
+                    </td>
+                    <td>
+                      <Status value={item.status} />
+                    </td>
+                    <td>
+                      <span style={{ fontSize: "12px", color: "#64748b" }}>
+                        {new Date(item.updatedAt).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </td>
+                    <td>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          gap: "6px",
+                        }}
+                      >
+                        <a
+                          href={`${PUBLIC_SITE_URL}/stories/${item.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="icon-button"
+                          title="Lihat di Web Publik"
+                        >
+                          <ExternalLink size={15} />
+                        </a>
+                        <button
+                          type="button"
+                          className="icon-button"
+                          title="Edit Warta"
+                          onClick={() => setEditor(item)}
+                        >
+                          <Edit2 size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-button danger"
+                          title="Hapus Warta"
+                          onClick={() =>
+                            confirm(`Hapus warta "${item.title}"?`) &&
+                            remove.mutate(item.id)
+                          }
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {paginated.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <div
-                          style={{
-                            width: "44px",
-                            height: "32px",
-                            borderRadius: "4px",
-                            background: "#f1f5f9",
-                            overflow: "hidden",
-                            display: "grid",
-                            placeItems: "center",
-                          }}
-                        >
-                          {item.coverUrl ? (
-                            <img
-                              src={item.coverUrl}
-                              alt=""
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                              }}
-                            />
-                          ) : (
-                            <FileText size={16} color="#94a3b8" />
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ fontWeight: 700, color: "#0f172a" }}>
-                          {item.title}
-                          {item.featured && (
-                            <span
-                              className="tag-badge"
-                              style={{
-                                marginLeft: "6px",
-                                background: "#fef3c7",
-                                color: "#b45309",
-                              }}
-                            >
-                              Featured
-                            </span>
-                          )}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "11.5px",
-                            color: "#64748b",
-                            fontFamily: "monospace",
-                          }}
-                        >
-                          /{item.slug}
-                        </div>
-                      </td>
-                      <td>
-                        <span className="tag-badge">{item.type}</span>
-                      </td>
-                      <td>
-                        <span style={{ fontSize: "12.5px", color: "#334155" }}>
-                          {item.authorName || "Tim Redaksi"}
-                        </span>
-                      </td>
-                      <td>
-                        <Status value={item.status} />
-                      </td>
-                      <td>
-                        <span style={{ fontSize: "12px", color: "#64748b" }}>
-                          {new Date(item.updatedAt).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </span>
-                      </td>
-                      <td>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            gap: "6px",
-                          }}
-                        >
-                          <a
-                            href={`${PUBLIC_SITE_URL}/stories/${item.slug}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="icon-button"
-                            title="Lihat di Web Publik"
-                          >
-                            <ExternalLink size={15} />
-                          </a>
-                          <button
-                            type="button"
-                            className="icon-button"
-                            title="Edit Warta"
-                            onClick={() => setEditor(item)}
-                          >
-                            <Edit2 size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            className="icon-button danger"
-                            title="Hapus Warta"
-                            onClick={() =>
-                              confirm(`Hapus warta "${item.title}"?`) &&
-                              remove.mutate(item.id)
-                            }
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
 
             <TablePagination
               currentPage={currentPage}
@@ -3431,7 +3423,10 @@ function ContentManager() {
           </>
         ) : (
           <>
-            <div className="content-grid" style={{ marginTop: "14px" }}>
+            <div
+              className="content-grid"
+              style={{ padding: "16px", gap: "16px" }}
+            >
               {paginated.map((item) => (
                 <article className="content-card" key={item.id}>
                   <div className="content-cover">
@@ -3451,7 +3446,13 @@ function ContentManager() {
                       }}
                     >
                       <Status value={item.status} />
-                      <span className="tag-badge">{item.type}</span>
+                      <span className="tag-badge">
+                        {item.type === "post"
+                          ? "Edukasi"
+                          : item.type === "news"
+                            ? "Berita"
+                            : item.type}
+                      </span>
                     </div>
                     <h3>{item.title}</h3>
                     <p>/{item.slug}</p>

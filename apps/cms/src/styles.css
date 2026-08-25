@@ -877,6 +877,39 @@ h4,
   box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
 }
 
+.view-mode-toggle {
+  display: inline-flex;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  overflow: hidden;
+  height: 34px;
+  background: #ffffff;
+}
+
+.view-mode-toggle button {
+  border: none;
+  background: transparent;
+  padding: 0 10px;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.view-mode-toggle button:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.view-mode-toggle button.active {
+  background: #e2e8f0;
+  color: #0284c7;
+  font-weight: 700;
+}
+
 /* Data Table Grid */
 table.data-table {
   width: 100%;
