@@ -383,18 +383,21 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         complainantName: z.string().min(2).max(160),
         complainantEmail: z.string().email().max(320),
         complainantPhone: z.string().max(40).optional(),
-        targetType: z
-          .enum(["member", "technician", "lender", "company"])
-          .default("member"),
+        targetType: z.string().max(60).default("technician"),
         targetIdentifier: z.string().min(2).max(160),
-        category: z
-          .enum(["kode_etik", "layanan_teknisi", "penagihan", "sengketa"])
-          .default("kode_etik"),
+        category: z.string().min(2).max(80).default("kode_etik"),
         description: z.string().min(10).max(10_000),
         evidenceFileUrl: z.string().max(2048).optional(),
+        hpWebsite: z.string().max(100).optional(),
       });
 
       const body = complaintSchema.parse(request.body);
+
+      // Anti-Bot Honeypot Trap
+      if (body.hpWebsite && body.hpWebsite.trim().length > 0) {
+        throw new AppError(400, "BOT_DETECTED", "Verifikasi keamanan gagal.");
+      }
+
       const ticketNumber = `CMP-${Date.now().toString(36).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
 
       const [complaint] = await db

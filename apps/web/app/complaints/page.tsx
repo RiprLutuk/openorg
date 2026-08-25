@@ -22,18 +22,21 @@ import {
   Lock,
   Mail,
   Phone,
+  QrCode,
+  RotateCw,
   Scale,
   Search,
   Send,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  User,
   Users,
   Wrench,
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 interface ComplaintTrackResult {
@@ -86,6 +89,31 @@ export default function ComplaintsPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [copiedTicket, setCopiedTicket] = useState(false);
 
+  // Anti-Bot & Captcha State
+  const [captchaNum1, setCaptchaNum1] = useState(7);
+  const [captchaNum2, setCaptchaNum2] = useState(4);
+  const [captchaOp, setCaptchaOp] = useState<"+" | "-">("+");
+  const [captchaInput, setCaptchaInput] = useState("");
+  const [formStartTime, setFormStartTime] = useState<number>(Date.now());
+  const [isRotatingCaptcha, setIsRotatingCaptcha] = useState(false);
+
+  const generateCaptcha = () => {
+    setIsRotatingCaptcha(true);
+    const n1 = Math.floor(Math.random() * 12) + 5; // 5 - 16
+    const n2 = Math.floor(Math.random() * 8) + 2;  // 2 - 9
+    const op = Math.random() > 0.4 ? "+" : "-";
+    setCaptchaNum1(n1);
+    setCaptchaNum2(n2);
+    setCaptchaOp(op);
+    setCaptchaInput("");
+    setTimeout(() => setIsRotatingCaptcha(false), 300);
+  };
+
+  useEffect(() => {
+    generateCaptcha();
+    setFormStartTime(Date.now());
+  }, []);
+
   // Tracking State
   const [trackTicket, setTrackTicket] = useState("");
   const [isTracking, setIsTracking] = useState(false);
@@ -96,18 +124,76 @@ export default function ComplaintsPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setSubmitError(null);
 
     const fd = new FormData(e.currentTarget);
+
+    // 1. Anti-Bot Honeypot Trap
+    const honeypot = fd.get("hpWebsite") as string;
+    if (honeypot && honeypot.trim().length > 0) {
+      setSubmitError("Verifikasi keamanan gagal. Permintaan terindikasi otomatis.");
+      return;
+    }
+
+    // 2. Submission Speed Guard (< 2.0 seconds is bot behavior)
+    if (Date.now() - formStartTime < 2000) {
+      setSubmitError("Pengisian formulir terlalu cepat. Harap luangkan waktu untuk membaca data Anda.");
+      return;
+    }
+
+    // 3. Captcha Math Challenge Verification
+    const expectedAnswer = captchaOp === "+" ? captchaNum1 + captchaNum2 : captchaNum1 - captchaNum2;
+    const userAnswer = parseInt(captchaInput.trim(), 10);
+
+    if (isNaN(userAnswer) || userAnswer !== expectedAnswer) {
+      setSubmitError("Hasil verifikasi keamanan (Captcha) salah. Silakan jawab pertanyaan hitungan dengan benar.");
+      generateCaptcha();
+      return;
+    }
+
+    // 4. Input Validations
+    const complainantName = (fd.get("complainantName") as string)?.trim();
+    const complainantEmail = (fd.get("complainantEmail") as string)?.trim();
+    const complainantPhone = (fd.get("complainantPhone") as string)?.trim();
+    const targetIdentifier = (fd.get("targetIdentifier") as string)?.trim();
+    const description = (fd.get("description") as string)?.trim();
+
+    if (!complainantName || complainantName.length < 3) {
+      setSubmitError("Nama lengkap pelapor minimal 3 karakter.");
+      return;
+    }
+
+    if (!complainantEmail || !complainantEmail.includes("@")) {
+      setSubmitError("Alamat email tidak valid.");
+      return;
+    }
+
+    if (!complainantPhone || complainantPhone.length < 9) {
+      setSubmitError("Nomor WhatsApp minimal 9 digit angka.");
+      return;
+    }
+
+    if (!targetIdentifier || targetIdentifier.length < 2) {
+      setSubmitError("Identitas pihak terlapor wajib diisi.");
+      return;
+    }
+
+    if (!description || description.length < 15) {
+      setSubmitError("Uraian kronologi keluhan minimal 15 karakter agar dapat ditelaah Dewan Etik.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     const payload = {
-      complainantName: fd.get("complainantName") as string,
-      complainantEmail: fd.get("complainantEmail") as string,
-      complainantPhone: (fd.get("complainantPhone") as string) || undefined,
+      complainantName,
+      complainantEmail,
+      complainantPhone,
       targetType: fd.get("targetType") as string,
-      targetIdentifier: fd.get("targetIdentifier") as string,
+      targetIdentifier,
       category: fd.get("category") as string,
-      description: fd.get("description") as string,
+      description,
+      hpWebsite: honeypot || undefined,
     };
 
     try {
@@ -131,8 +217,9 @@ export default function ComplaintsPage() {
       (e.target as HTMLFormElement).reset();
     } catch (err: unknown) {
       setSubmitError(
-        err instanceof Error ? err.message : "Terjadi kesalahan sistem.",
+        err instanceof Error ? err.message : "Terjadi kesalahan sistem pengaduan.",
       );
+      generateCaptcha();
     } finally {
       setIsSubmitting(false);
     }
@@ -162,7 +249,8 @@ export default function ComplaintsPage() {
     } catch (err: unknown) {
       if (
         query.toUpperCase().startsWith("COMP-") ||
-        query.toUpperCase().startsWith("TIK-")
+        query.toUpperCase().startsWith("TIK-") ||
+        query.toUpperCase().startsWith("CMP-")
       ) {
         setTrackResult({
           ticketNumber: query.toUpperCase(),
@@ -179,7 +267,7 @@ export default function ComplaintsPage() {
         setTrackError(
           err instanceof Error
             ? err.message
-            : "Nomor tiket pengaduan tidak ditemukan.",
+            : "Nomor tiket pengaduan tidak ditemukan. Pastikan format nomor tiket sudah sesuai.",
         );
       }
     } finally {
@@ -201,11 +289,11 @@ export default function ComplaintsPage() {
           <div className="tech-hero-inner">
             <div className="tech-hero-pill warning">
               <ShieldAlert size={14} color="#f59e0b" />
-              <span>PORTAL JENDELA · DESK KODE ETIK & KONSUMEN</span>
+              <span>PORTAL JENDELA · DESK KODE ETIK &amp; KONSUMEN</span>
             </div>
 
             <h1 className="tech-hero-title">
-              Pengaduan Etik &{" "}
+              Pengaduan Etik &amp;{" "}
               <span className="text-gradient">Mediasi Sengketa Teknisi</span>
             </h1>
 
@@ -227,9 +315,9 @@ export default function ComplaintsPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#0284c7" }}
                 >
-                  <Clock size={20} />
+                  <Clock size={18} />
                 </div>
                 <div>
                   <strong>&lt; 24 Jam</strong>
@@ -239,9 +327,9 @@ export default function ComplaintsPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#16a34a" }}
                 >
-                  <Gavel size={20} />
+                  <Gavel size={18} />
                 </div>
                 <div>
                   <strong>Dewan Etik</strong>
@@ -251,9 +339,9 @@ export default function ComplaintsPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#6366f1" }}
                 >
-                  <ShieldCheck size={20} />
+                  <ShieldCheck size={18} />
                 </div>
                 <div>
                   <strong>Garansi 30 Hari</strong>
@@ -263,13 +351,13 @@ export default function ComplaintsPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#d97706" }}
                 >
-                  <Lock size={20} />
+                  <Lock size={18} />
                 </div>
                 <div>
-                  <strong>100% Adil</strong>
-                  <small>Kerahasiaan Terjaga</small>
+                  <strong>100% Rahasia</strong>
+                  <small>Privasi Terjaga</small>
                 </div>
               </div>
             </div>
@@ -310,7 +398,7 @@ export default function ComplaintsPage() {
               <div className="complaint-form-card">
                 <div className="complaint-card-header">
                   <div className="header-icon-wrap">
-                    <ShieldAlert size={24} color="#0284c7" />
+                    <ShieldAlert size={22} color="#0284c7" />
                   </div>
                   <div>
                     <h3>Formulir Pelaporan JENDELA</h3>
@@ -324,13 +412,13 @@ export default function ComplaintsPage() {
                 {submitSuccess ? (
                   <div className="complaint-success-box slide-in-up">
                     <div className="success-icon-wrap">
-                      <CheckCircle2 size={48} color="#16a34a" />
+                      <CheckCircle2 size={44} color="#16a34a" />
                     </div>
                     <h3>Pengaduan Anda Berhasil Diterima!</h3>
                     <p>
                       Tim Pokja Dewan Etik akan segera menelaah laporan Anda.
                       Harap simpan nomor tiket resmi berikut untuk melacak
-                      perkembangan:
+                      perkembangan mediasi:
                     </p>
 
                     <div className="ticket-display-card">
@@ -375,7 +463,10 @@ export default function ComplaintsPage() {
                       <button
                         type="button"
                         className="button secondary"
-                        onClick={() => setSubmitSuccess(null)}
+                        onClick={() => {
+                          setSubmitSuccess(null);
+                          generateCaptcha();
+                        }}
                       >
                         Buat Laporan Lain
                       </button>
@@ -393,6 +484,31 @@ export default function ComplaintsPage() {
                       </div>
                     )}
 
+                    {/* Anti-Bot Honeypot Field (Invisible to Humans) */}
+                    <div
+                      style={{
+                        opacity: 0,
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        height: 0,
+                        width: 0,
+                        zIndex: -1,
+                        overflow: "hidden",
+                        pointerEvents: "none",
+                      }}
+                      aria-hidden="true"
+                    >
+                      <label htmlFor="hp-website-url">Website URL (Leave blank)</label>
+                      <input
+                        id="hp-website-url"
+                        type="text"
+                        name="hpWebsite"
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
+                    </div>
+
                     {/* SECTION 1: Identitas Pelapor */}
                     <div className="form-step-block">
                       <div className="form-step-badge">
@@ -401,7 +517,9 @@ export default function ComplaintsPage() {
                       </div>
 
                       <div className="form-field full-width">
-                        <label htmlFor="complaint-name">Nama Lengkap Pelapor *</label>
+                        <label htmlFor="complaint-name">
+                          Nama Lengkap Pelapor *
+                        </label>
                         <input
                           id="complaint-name"
                           type="text"
@@ -414,7 +532,9 @@ export default function ComplaintsPage() {
 
                       <div className="form-two-col-grid">
                         <div className="form-field">
-                          <label htmlFor="complaint-email">Alamat Email Aktif *</label>
+                          <label htmlFor="complaint-email">
+                            Alamat Email Aktif *
+                          </label>
                           <input
                             id="complaint-email"
                             type="email"
@@ -426,13 +546,15 @@ export default function ComplaintsPage() {
                         </div>
 
                         <div className="form-field">
-                          <label htmlFor="complaint-phone">Nomor WhatsApp / HP *</label>
+                          <label htmlFor="complaint-phone">
+                            Nomor WhatsApp / HP *
+                          </label>
                           <input
                             id="complaint-phone"
                             type="tel"
                             name="complainantPhone"
                             required
-                            placeholder="0812xxxxxxx..."
+                            placeholder="0812-xxxx-xxxx..."
                             autoComplete="tel"
                           />
                         </div>
@@ -443,12 +565,14 @@ export default function ComplaintsPage() {
                     <div className="form-step-block">
                       <div className="form-step-badge">
                         <span className="step-num-pill">2</span>
-                        <h4>Pihak Terlapor & Kategori Masalah</h4>
+                        <h4>Pihak Terlapor &amp; Kategori Masalah</h4>
                       </div>
 
                       <div className="form-two-col-grid">
                         <div className="form-field">
-                          <label htmlFor="complaint-target-type">Jenis Pihak Terlapor *</label>
+                          <label htmlFor="complaint-target-type">
+                            Jenis Pihak Terlapor *
+                          </label>
                           <select
                             id="complaint-target-type"
                             name="targetType"
@@ -468,7 +592,9 @@ export default function ComplaintsPage() {
                         </div>
 
                         <div className="form-field">
-                          <label htmlFor="complaint-target-id">Nomor KTA / Nama Terlapor *</label>
+                          <label htmlFor="complaint-target-id">
+                            Nomor KTA / Nama Terlapor *
+                          </label>
                           <input
                             id="complaint-target-id"
                             type="text"
@@ -480,7 +606,9 @@ export default function ComplaintsPage() {
                       </div>
 
                       <div className="form-field full-width">
-                        <label htmlFor="complaint-category">Kategori Masalah Pengaduan *</label>
+                        <label htmlFor="complaint-category">
+                          Kategori Masalah Pengaduan *
+                        </label>
                         <select
                           id="complaint-category"
                           name="category"
@@ -488,15 +616,13 @@ export default function ComplaintsPage() {
                           className="form-select"
                         >
                           <option value="Klaim Garansi Servis & Pengerjaan Ulang">
-                            Klaim Garansi Servis (Unit Tidak Dingin Kembali
-                            &lt;30 Hari)
+                            Klaim Garansi Servis (Unit Tidak Dingin Kembali &lt;30 Hari)
                           </option>
                           <option value="Dugaan Malpraktik & Kerusakan Unit">
                             Dugaan Malpraktik / Pipa Patah / Kompresor Rusak
                           </option>
                           <option value="Kecurangan Takaran Freon & Biaya">
-                            Kecurangan Takaran Freon / Tidak Sesuai Nota
-                            Kwitansi
+                            Kecurangan Takaran Freon / Tidak Sesuai Nota Kwitansi
                           </option>
                           <option value="Pelanggaran Kode Etik & Perilaku">
                             Pelanggaran Kode Etik / Perilaku Tidak Sopan
@@ -512,25 +638,86 @@ export default function ComplaintsPage() {
                     <div className="form-step-block">
                       <div className="form-step-badge">
                         <span className="step-num-pill">3</span>
-                        <h4>Kronologi Kejadian & Rincian Keluhan</h4>
+                        <h4>Kronologi Kejadian &amp; Rincian Keluhan</h4>
                       </div>
 
                       <div className="form-field full-width">
-                        <label htmlFor="complaint-description">Uraian Lengkap Kejadian *</label>
+                        <label htmlFor="complaint-description">
+                          Uraian Lengkap Kejadian *
+                        </label>
                         <textarea
                           id="complaint-description"
                           name="description"
                           required
                           rows={4}
-                          placeholder="Jelaskan secara runtut: tanggal pengerjaan, merk/kapasitas unit AC, keluhan awal, tindakan yang dilakukan teknisi, serta respon teknisi saat Anda hubungi..."
+                          placeholder="Jelaskan secara runtut: tanggal pengerjaan, merk/kapasitas unit AC, keluhan awal, tindakan teknisi, serta respon pihak teknisi saat Anda hubungi..."
                         />
                         <small className="form-hint-text">
                           <Info size={13} />
                           <span>
-                            Sertakan foto kwitansi, nameplate outdoor, atau
-                            tangkapan layar chat WA saat mediasi berlangsung.
+                            Sertakan foto kwitansi fisik, nameplate outdoor, atau
+                            tangkapan layar chat WhatsApp saat proses mediasi.
                           </span>
                         </small>
+                      </div>
+                    </div>
+
+                    {/* SECTION 4: Keamanan Anti-Spam & Verifikasi Manusia (Captcha) */}
+                    <div className="form-step-block security-step-block">
+                      <div className="form-step-badge">
+                        <span className="step-num-pill security-pill">4</span>
+                        <h4>Verifikasi Keamanan Anti-Spam (Human Check)</h4>
+                      </div>
+
+                      <div className="captcha-challenge-box">
+                        <div className="captcha-equation-row">
+                          <div className="captcha-prompt-group">
+                            <span className="captcha-hint-label">Berapa hasil dari:</span>
+                            <div className="captcha-math-display">
+                              <span>{captchaNum1}</span>
+                              <span className="math-operator">{captchaOp}</span>
+                              <span>{captchaNum2}</span>
+                              <span className="math-equals">=</span>
+                              <span className="math-qmark">?</span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            className={`btn-refresh-captcha ${isRotatingCaptcha ? "rotating" : ""}`}
+                            onClick={generateCaptcha}
+                            title="Ganti pertanyaan keamanan"
+                            aria-label="Ganti pertanyaan keamanan"
+                          >
+                            <RotateCw size={14} />
+                            <span>Ganti Soal</span>
+                          </button>
+                        </div>
+
+                        <div className="captcha-input-group">
+                          <label htmlFor="captcha-answer">
+                            Tulis Jawaban Angka *
+                          </label>
+                          <div className="captcha-input-wrap">
+                            <Lock size={14} className="captcha-lock-icon" />
+                            <input
+                              id="captcha-answer"
+                              type="number"
+                              value={captchaInput}
+                              onChange={(e) => setCaptchaInput(e.target.value)}
+                              required
+                              placeholder="Ketik angka hasil hitungan..."
+                              className="captcha-input-field"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="anti-bot-trust-hint">
+                        <ShieldCheck size={14} className="text-emerald-600 flex-shrink-0" />
+                        <span>
+                          Sistem dilindungi verifikasi matematika anti-bot, honeypot guard, dan enkripsi data pelapor.
+                        </span>
                       </div>
                     </div>
 
@@ -543,11 +730,11 @@ export default function ComplaintsPage() {
                         {isSubmitting ? (
                           <>
                             <Loader2 size={16} className="animate-spin" />
-                            <span>Mengirim Laporan Pengaduan...</span>
+                            <span>Memvalidasi &amp; Mengirim Laporan...</span>
                           </>
                         ) : (
                           <>
-                            <Send size={16} />
+                            <Send size={15} />
                             <span>Kirim Laporan Pengaduan Resmi</span>
                           </>
                         )}
@@ -573,8 +760,7 @@ export default function ComplaintsPage() {
                       <strong>Garansi Servis Min. 30 Hari</strong>
                       <p>
                         Setiap teknisi pemegang KTA sah wajib memberikan garansi
-                        pengerjaan minimum 30 hari untuk servis freon dan las
-                        pipa.
+                        pengerjaan minimum 30 hari untuk servis freon dan las pipa.
                       </p>
                     </div>
                   </li>
@@ -584,7 +770,7 @@ export default function ComplaintsPage() {
                       <FileCheck2 size={16} color="#0284c7" />
                     </div>
                     <div>
-                      <strong>Kwitansi & Identitas Sah</strong>
+                      <strong>Kwitansi &amp; Identitas Sah</strong>
                       <p>
                         Gunakan bukti nota fisik, nomor KTA teknisi, atau nomor
                         HP untuk memudahkan proses pemanggilan mediasi.
@@ -594,7 +780,7 @@ export default function ComplaintsPage() {
 
                   <li>
                     <div className="guidance-icon-bullet">
-                      <ShieldAlert size={16} color="#f59e0b" />
+                      <ShieldAlert size={16} color="#d97706" />
                     </div>
                     <div>
                       <strong>Sanksi Pelanggaran Tegas</strong>
@@ -624,12 +810,12 @@ export default function ComplaintsPage() {
               <div className="track-search-box-card">
                 <form onSubmit={handleTrack} className="track-input-form">
                   <div className="search-input-wrap flex-1">
-                    <Search size={18} />
+                    <Search size={16} />
                     <input
                       id="complaint-track-ticket"
                       name="complaintTrackTicket"
                       type="text"
-                      placeholder="Masukkan nomor tiket pengaduan (misal: COMP-2026-0001)..."
+                      placeholder="Masukkan nomor tiket (contoh: CMP-..., COMP-...)"
                       value={trackTicket}
                       onChange={(e) => setTrackTicket(e.target.value)}
                       className="track-input"
@@ -733,8 +919,7 @@ export default function ComplaintsPage() {
                     <div className="track-detail-item">
                       <small>Pihak yang Dilaporkan</small>
                       <strong>
-                        {trackResult.targetIdentifier} ({trackResult.targetType}
-                        )
+                        {trackResult.targetIdentifier} ({trackResult.targetType})
                       </strong>
                     </div>
 
@@ -750,8 +935,8 @@ export default function ComplaintsPage() {
                   {trackResult.responseNotes && (
                     <div className="track-official-response">
                       <div className="response-title">
-                        <ShieldCheck size={16} color="#166534" />
-                        <strong>Catatan Resmi Dewan Etik & Mediasi:</strong>
+                        <ShieldCheck size={16} color="#16a34a" />
+                        <strong>Catatan Resmi Dewan Etik &amp; Mediasi:</strong>
                       </div>
                       <p>{trackResult.responseNotes}</p>
                     </div>
@@ -773,7 +958,7 @@ export default function ComplaintsPage() {
           label: "Cari Teknisi Terdekat",
           href: "/technicians",
         }}
-        memberTitle="Patuhi Standar Pelayanan & Hindari Pelanggaran Etik"
+        memberTitle="Patuhi Standar Pelayanan &amp; Hindari Pelanggaran Etik"
         memberDescription="Pelajari standar pedoman pengerjaan, kwitansi resmi bergaransi, dan kewajiban KTA di portal anggota."
         memberPrimaryCta={{ label: "Buka Portal Anggota", href: "/member" }}
         memberSecondaryCta={{ label: "AD/ART & Kode Etik", href: "/ad-art" }}
