@@ -1124,7 +1124,60 @@ export const lenderRegistries = pgTable("lender_registries", {
   ...timestamps,
 });
 
+export const indonesiaProvinces = pgTable(
+  "indonesia_provinces",
+  {
+    kode: varchar("kode", { length: 10 }).primaryKey(),
+    nama: varchar("nama", { length: 100 }).notNull(),
+    ibukota: varchar("ibukota", { length: 100 }).notNull().default(""),
+    kodepos: varchar("kodepos", { length: 10 }).notNull().default(""),
+    kodeposRange: varchar("kodepos_range", { length: 50 }).notNull().default(""),
+    ...timestamps,
+  },
+  (table) => [
+    index("idx_indonesia_provinces_nama").on(table.nama),
+  ],
+);
+
+export const indonesiaRegencies = pgTable(
+  "indonesia_regencies",
+  {
+    kode: varchar("kode", { length: 15 }).primaryKey(),
+    provinceKode: varchar("province_kode", { length: 10 })
+      .notNull()
+      .references(() => indonesiaProvinces.kode, { onDelete: "cascade" }),
+    nama: varchar("nama", { length: 150 }).notNull(),
+    ibukota: varchar("ibukota", { length: 100 }).notNull().default(""),
+    kodepos: varchar("kodepos", { length: 10 }).notNull().default(""),
+    kodeposRange: varchar("kodepos_range", { length: 50 }).notNull().default(""),
+    kodeposList: jsonb("kodepos_list").$type<string[]>().notNull().default([]),
+    ...timestamps,
+  },
+  (table) => [
+    index("idx_indonesia_regencies_province").on(table.provinceKode),
+    index("idx_indonesia_regencies_nama").on(table.nama),
+    index("idx_indonesia_regencies_kodepos").on(table.kodepos),
+  ],
+);
+
 // Relations definitions
+export const indonesiaProvincesRelations = relations(
+  indonesiaProvinces,
+  ({ many }) => ({
+    regencies: many(indonesiaRegencies),
+  }),
+);
+
+export const indonesiaRegenciesRelations = relations(
+  indonesiaRegencies,
+  ({ one }) => ({
+    province: one(indonesiaProvinces, {
+      fields: [indonesiaRegencies.provinceKode],
+      references: [indonesiaProvinces.kode],
+    }),
+  }),
+);
+
 export const userRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   roles: many(userRoles),

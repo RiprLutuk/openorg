@@ -8,6 +8,8 @@ import {
   contactSubmissions,
   contents,
   events,
+  indonesiaProvinces,
+  indonesiaRegencies,
   industryStatistics,
   lenderRegistries,
   members,
@@ -591,5 +593,102 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         updatedAt: new Date().toISOString(),
       },
     };
+  });
+
+  // =========================================================================
+  // Database Wilayah & Kodepos Indonesia (Kepmendagri)
+  // =========================================================================
+  app.get("/wilayah/provinces", async (request) => {
+    const query = z
+      .object({
+        search: z.string().optional(),
+      })
+      .parse(request.query);
+
+    const conditions = [];
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(indonesiaProvinces.nama, q),
+          ilike(indonesiaProvinces.ibukota, q),
+          ilike(indonesiaProvinces.kode, q),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(indonesiaProvinces)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(indonesiaProvinces.kode));
+
+    return { data: rows };
+  });
+
+  app.get("/wilayah/regencies", async (request) => {
+    const query = z
+      .object({
+        province: z.string().optional(),
+        search: z.string().optional(),
+      })
+      .parse(request.query);
+
+    const conditions = [];
+
+    if (query.province?.trim()) {
+      const p = query.province.trim();
+      conditions.push(
+        or(
+          eq(indonesiaRegencies.provinceKode, p),
+          ilike(indonesiaRegencies.provinceKode, p),
+        ),
+      );
+    }
+
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(indonesiaRegencies.nama, q),
+          ilike(indonesiaRegencies.ibukota, q),
+          ilike(indonesiaRegencies.kode, q),
+          ilike(indonesiaRegencies.kodepos, q),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(indonesiaRegencies)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(indonesiaRegencies.kode));
+
+    return { data: rows };
+  });
+
+  app.get("/wilayah/kodepos/:kodepos", async (request) => {
+    const params = z
+      .object({
+        kodepos: z.string().min(2).max(10),
+      })
+      .parse(request.params);
+
+    const targetKodepos = params.kodepos.trim();
+
+    // Query regency matching postal code
+    const regencyRows = await db
+      .select()
+      .from(indonesiaRegencies)
+      .where(
+        or(
+          eq(indonesiaRegencies.kodepos, targetKodepos),
+          ilike(indonesiaRegencies.kodeposRange, `%${targetKodepos}%`),
+          sql`${indonesiaRegencies.kodeposList} @> ${JSON.stringify([targetKodepos])}::jsonb`,
+        ),
+      )
+      .limit(10);
+
+    return { data: regencyRows };
   });
 };

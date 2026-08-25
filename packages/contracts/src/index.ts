@@ -527,3 +527,5 @@ export type PublicSite = {
   announcement: PublicAnnouncement | null;
   quickContact: PublicQuickContact | null;
 };
+
+export * from "./wilayah";

@@ -1,10 +1,13 @@
 import { hash } from "@node-rs/argon2";
 import { eq } from "drizzle-orm";
 import { closeDatabase, db } from "./client";
+import { ALL_INDONESIA_REGENCIES, INDONESIA_PROVINCES } from "@openorg/contracts";
 import {
   championshipStandings,
   contents,
   events,
+  indonesiaProvinces,
+  indonesiaRegencies,
   industryStatistics,
   learningActivities,
   learningCreditLedger,
@@ -76,6 +79,8 @@ async function seed() {
     await tx.delete(technicianDirectories);
     await tx.delete(registeredClubs);
     await tx.delete(lenderRegistries);
+    await tx.delete(indonesiaRegencies);
+    await tx.delete(indonesiaProvinces);
     await tx.delete(users);
 
     // 1. Site Settings APTI Indonesia (Asosiasi Pengusaha & Teknisi Pendingin Indonesia)
@@ -1400,10 +1405,39 @@ async function seed() {
         ],
       },
     ]);
+
+    // Seed Database Wilayah & Kodepos Indonesia (38 Provinsi & 514 Kab/Kota)
+    if (INDONESIA_PROVINCES.length > 0) {
+      await tx.insert(indonesiaProvinces).values(
+        INDONESIA_PROVINCES.map((p) => ({
+          kode: p.kode,
+          nama: p.nama,
+          ibukota: p.ibukota,
+          kodepos: p.kodepos,
+          kodeposRange: p.kodeposRange,
+        })),
+      );
+    }
+
+    const chunkSize = 100;
+    for (let i = 0; i < ALL_INDONESIA_REGENCIES.length; i += chunkSize) {
+      const chunk = ALL_INDONESIA_REGENCIES.slice(i, i + chunkSize);
+      await tx.insert(indonesiaRegencies).values(
+        chunk.map((r) => ({
+          kode: r.kode,
+          provinceKode: r.provinceCode,
+          nama: r.nama,
+          ibukota: r.ibukota,
+          kodepos: r.kodepos,
+          kodeposRange: r.kodeposRange,
+          kodeposList: r.kodeposList,
+        })),
+      );
+    }
   });
 
   process.stdout.write(
-    `APTI Indonesia Seed Complete!\nAdmin login accounts:\n1) admin@organization.org (password: password123)\n2) admin@demo.openorg (password: OpenOrg!2026Demo)\n3) sekretariat@apti.or.id (password: password123)\n\nMember Portal login accounts (/member/login):\n1) member@demo.openorg (password: OpenOrg!2026Demo) - Budi Pratama (Demo Member)\n2) nanang@apti.or.id (password: password123) - Ir. H. Nanang Varian\n3) dedi.jabar@apti.or.id (password: password123) - Dedi Kurniawan\n`,
+    `APTI Indonesia Seed Complete!\n- Seeded 38 Indonesia Provinces into Database\n- Seeded 514 Indonesia Regencies/Cities with Postal Codes into Database\n\nAdmin login accounts:\n1) admin@organization.org (password: password123)\n2) admin@demo.openorg (password: OpenOrg!2026Demo)\n3) sekretariat@apti.or.id (password: password123)\n\nMember Portal login accounts (/member/login):\n1) member@demo.openorg (password: OpenOrg!2026Demo) - Budi Pratama (Demo Member)\n2) nanang@apti.or.id (password: password123) - Ir. H. Nanang Varian\n3) dedi.jabar@apti.or.id (password: password123) - Dedi Kurniawan\n`,
   );
 }
 
