@@ -18,11 +18,14 @@ import {
   ExternalLink,
   Eye,
   Globe,
+  LayoutGrid,
   Lock,
   LogOut,
   MapPin,
+  Maximize2,
   MessageSquare,
   Navigation,
+  PanelRight,
   Phone,
   Plus,
   ReceiptText,
@@ -30,6 +33,7 @@ import {
   Search,
   ShieldAlert,
   ShieldCheck,
+  Smartphone,
   Sparkles,
   Store,
   Tag,
@@ -2037,6 +2041,7 @@ function MemberWorkshopPromo({
   const [isPublished, setIsPublished] = useState<boolean>(
     existingMeta.isPublished ?? true,
   );
+  const [previewMode, setPreviewMode] = useState<"grid" | "mobile" | "compact" | "full">("grid");
 
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -2466,167 +2471,216 @@ function MemberWorkshopPromo({
           </div>
         </form>
 
-        {/* Right Column: Real-time Public Card Preview */}
+        {/* Right Column: Real-time Dynamic Card Preview */}
         <div className="workshop-ad-preview-side">
-          <div className="preview-header-label">
-            <Eye size={14} color="#0284c7" />
-            <span>PRATINJAU TAMPILAN IKLAN DI WEBSITE</span>
+          <div className="preview-top-controls-bar">
+            <div className="preview-header-label">
+              <Eye size={14} color="#0284c7" />
+              <span>PRATINJAU IKLAN DI WEBSITE</span>
+            </div>
+
+            <div className="preview-device-switch-pill">
+              <button
+                type="button"
+                className={`device-btn ${previewMode === "grid" ? "active" : ""}`}
+                onClick={() => setPreviewMode("grid")}
+                title="Tampilan Grid Katalog (~380px standard)"
+              >
+                <LayoutGrid size={12} />
+                <span>Grid</span>
+              </button>
+              <button
+                type="button"
+                className={`device-btn ${previewMode === "mobile" ? "active" : ""}`}
+                onClick={() => setPreviewMode("mobile")}
+                title="Tampilan Layar HP (~320px)"
+              >
+                <Smartphone size={12} />
+                <span>Mobile</span>
+              </button>
+              <button
+                type="button"
+                className={`device-btn ${previewMode === "compact" ? "active" : ""}`}
+                onClick={() => setPreviewMode("compact")}
+                title="Tampilan Widget Sidebar (~290px)"
+              >
+                <PanelRight size={12} />
+                <span>Widget</span>
+              </button>
+              <button
+                type="button"
+                className={`device-btn ${previewMode === "full" ? "active" : ""}`}
+                onClick={() => setPreviewMode("full")}
+                title="Tampilan Lebar Penuh (100%)"
+              >
+                <Maximize2 size={12} />
+                <span>Penuh</span>
+              </button>
+            </div>
           </div>
 
-          <div className="public-workshop-card-mockup">
-            <div className="workshop-card-top">
-              <div className="workshop-brand-badge">
-                <Store size={18} color="#0284c7" />
-                <span className="workshop-cat-label">{category}</span>
+          <div className={`preview-viewport-wrapper mode-${previewMode}`}>
+            <div className="public-workshop-card-mockup">
+              <div className="workshop-card-top">
+                <div className="workshop-brand-badge">
+                  <Store size={15} color="#0284c7" />
+                  <span className="workshop-cat-label">{category}</span>
+                </div>
+                <div className="card-top-right-badges">
+                  {emergency24h && (
+                    <span className="emergency-preview-chip">
+                      🚨 24 Jam
+                    </span>
+                  )}
+                  <span
+                    className={`published-indicator ${isPublished && emailVerified ? "live" : "draft"}`}
+                  >
+                    ● {isPublished && emailVerified ? "Tayang" : "Draf"}
+                  </span>
+                </div>
               </div>
-              {emergency24h && (
-                <span className="emergency-preview-chip">
-                  🚨 Siap Panggilan 24 Jam
-                </span>
-              )}
-              <span
-                className={`published-indicator ${isPublished && emailVerified ? "live" : "draft"}`}
-              >
-                ● {isPublished && emailVerified ? "Iklan Tayang" : "Draf / Terkunci"}
-              </span>
-            </div>
 
-            <h3 className="workshop-card-title">{workshopName || "Nama Bengkel Anda"}</h3>
-            <p className="workshop-card-tagline">{tagline}</p>
+              <div className="workshop-card-header-block">
+                <h3 className="workshop-card-title">{workshopName || "Nama Bengkel Anda"}</h3>
+                {tagline && <p className="workshop-card-tagline">{tagline}</p>}
+              </div>
 
-            <div className="workshop-card-meta">
-              <div className="meta-item">
-                <MapPin size={14} color="#64748b" />
-                <span>{[village, district, city, province].filter(Boolean).join(", ")}</span>
-              </div>
-              <div className="meta-item">
-                <Phone size={14} color="#64748b" />
-                <span>{whatsapp}</span>
-              </div>
-              <div className="meta-item">
-                <Clock size={14} color="#64748b" />
-                <span>{operatingHoursSummary}</span>
-              </div>
-              {website && (
+              <div className="workshop-card-meta">
                 <div className="meta-item">
-                  <Globe size={14} color="#0284c7" />
-                  <a
-                    href={formatWebUrl(website)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="workshop-meta-weblink"
-                  >
-                    <span>{website.replace(/^https?:\/\//, "")}</span>
-                    <ExternalLink size={11} />
-                  </a>
+                  <MapPin size={13} color="#0284c7" className="meta-icon" />
+                  <span>{[village, district, city, province].filter(Boolean).join(", ") || "Lokasi belum diisi"}</span>
                 </div>
-              )}
-            </div>
-
-            {/* Embedded Google Maps Preview */}
-            <div className="workshop-card-map-section">
-              <div className="map-section-header">
-                <div className="map-title">
-                  <MapPin size={13} color="#0284c7" />
-                  <span>Peta Lokasi & Titik Operasional</span>
+                <div className="meta-item">
+                  <Phone size={13} color="#64748b" className="meta-icon" />
+                  <span>{whatsapp || "No. WhatsApp"}</span>
                 </div>
-                <a
-                  href={getGoogleMapsDirectLink(
-                    googleMapsUrl,
-                    address,
-                    village,
-                    district,
-                    city,
-                    province,
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="map-direct-action"
-                >
-                  <Navigation size={11} />
-                  <span>Buka Rute Maps</span>
-                </a>
-              </div>
-              <div className="map-iframe-container">
-                <iframe
-                  title="Peta Lokasi Bengkel"
-                  src={getGoogleMapsEmbedUrl(
-                    googleMapsUrl,
-                    address,
-                    village,
-                    district,
-                    city,
-                    province,
-                  )}
-                  width="100%"
-                  height="140"
-                  loading="lazy"
-                  style={{ border: 0, borderRadius: "10px", display: "block" }}
-                  allowFullScreen={false}
-                />
-              </div>
-            </div>
-
-            <p className="workshop-card-desc">{description}</p>
-
-            <div className="workshop-card-services">
-              {selectedServices.slice(0, 4).map((srv) => (
-                <span key={srv} className="mini-service-chip">
-                  <Wrench size={11} color="#0284c7" />
-                  {srv}
-                </span>
-              ))}
-              {selectedServices.length > 4 && (
-                <span className="mini-service-chip count-chip">
-                  +{selectedServices.length - 4} lainnya
-                </span>
-              )}
-            </div>
-
-            <div className="workshop-card-footer">
-              <div className="owner-verified-pill">
-                <ShieldCheck size={14} color="#10b981" />
-                <span>Mitra Terdaftar APTI · KTA: {member.memberNumber || "Valid"}</span>
-              </div>
-              <div className="card-footer-buttons-group">
+                <div className="meta-item">
+                  <Clock size={13} color="#64748b" className="meta-icon" />
+                  <span>{operatingHoursSummary}</span>
+                </div>
                 {website && (
+                  <div className="meta-item">
+                    <Globe size={13} color="#0284c7" className="meta-icon" />
+                    <a
+                      href={formatWebUrl(website)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="workshop-meta-weblink"
+                    >
+                      <span>{website.replace(/^https?:\/\//, "")}</span>
+                      <ExternalLink size={10} />
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Embedded Google Maps Preview */}
+              <div className="workshop-card-map-section">
+                <div className="map-section-header">
+                  <div className="map-title">
+                    <MapPin size={12} color="#0284c7" />
+                    <span>Peta Lokasi & Titik Operasional</span>
+                  </div>
                   <a
-                    href={formatWebUrl(website)}
+                    href={getGoogleMapsDirectLink(
+                      googleMapsUrl,
+                      address,
+                      village,
+                      district,
+                      city,
+                      province,
+                    )}
                     target="_blank"
                     rel="noreferrer"
-                    className="btn-web-mock"
-                    title="Kunjungi Website Resmi"
+                    className="map-direct-action"
                   >
-                    <Globe size={13} />
-                    <span>Website</span>
+                    <Navigation size={10} />
+                    <span>Buka Rute</span>
                   </a>
-                )}
-                <a
-                  href={getGoogleMapsDirectLink(
-                    googleMapsUrl,
-                    address,
-                    village,
-                    district,
-                    city,
-                    province,
+                </div>
+                <div className="map-iframe-container">
+                  <iframe
+                    title="Peta Lokasi Bengkel"
+                    src={getGoogleMapsEmbedUrl(
+                      googleMapsUrl,
+                      address,
+                      village,
+                      district,
+                      city,
+                      province,
+                    )}
+                    width="100%"
+                    height="125"
+                    loading="lazy"
+                    style={{ border: 0, borderRadius: "8px", display: "block" }}
+                    allowFullScreen={false}
+                  />
+                </div>
+              </div>
+
+              {description && <p className="workshop-card-desc">{description}</p>}
+
+              {selectedServices.length > 0 && (
+                <div className="workshop-card-services">
+                  {selectedServices.slice(0, previewMode === "compact" ? 2 : 4).map((srv) => (
+                    <span key={srv} className="mini-service-chip">
+                      <Wrench size={10} color="#0284c7" />
+                      <span>{srv}</span>
+                    </span>
+                  ))}
+                  {selectedServices.length > (previewMode === "compact" ? 2 : 4) && (
+                    <span className="mini-service-chip count-chip">
+                      +{selectedServices.length - (previewMode === "compact" ? 2 : 4)} lainnya
+                    </span>
                   )}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-maps-mock"
-                  title="Buka Navigasi Rute Maps"
-                >
-                  <Navigation size={13} />
-                  <span>Rute</span>
-                </a>
-                <a
-                  href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-contact-mock"
-                >
-                  <MessageSquare size={13} />
-                  <span>WhatsApp</span>
-                </a>
+                </div>
+              )}
+
+              <div className="workshop-card-footer">
+                <div className="owner-verified-pill">
+                  <ShieldCheck size={13} color="#10b981" />
+                  <span>Mitra APTI · KTA: {member.memberNumber || "Valid"}</span>
+                </div>
+                <div className="card-footer-buttons-group">
+                  {website && (
+                    <a
+                      href={formatWebUrl(website)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-web-mock"
+                      title="Kunjungi Website Resmi"
+                    >
+                      <Globe size={12} />
+                      <span>Web</span>
+                    </a>
+                  )}
+                  <a
+                    href={getGoogleMapsDirectLink(
+                      googleMapsUrl,
+                      address,
+                      village,
+                      district,
+                      city,
+                      province,
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-maps-mock"
+                    title="Buka Navigasi Rute Maps"
+                  >
+                    <Navigation size={12} />
+                    <span>Rute</span>
+                  </a>
+                  <a
+                    href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-contact-mock"
+                  >
+                    <MessageSquare size={12} />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
