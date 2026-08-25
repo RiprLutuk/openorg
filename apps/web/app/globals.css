@@ -4619,15 +4619,17 @@ img {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-/* Digital KTA Card - Executive Titanium */
+/* Digital KTA Card - Executive Crisp White & Modern Minimalist */
 .digital-kta-card {
   position: relative;
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 18px;
   padding: 22px;
-  color: #ffffff;
-  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.5);
+  color: #0f172a;
+  box-shadow:
+    0 16px 36px -8px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(15, 23, 42, 0.03);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -4638,8 +4640,10 @@ img {
 }
 
 .digital-kta-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6);
+  border-color: #cbd5e1;
+  box-shadow:
+    0 20px 40px -8px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(2, 132, 199, 0.15);
 }
 
 .kta-card-glow {
@@ -4651,7 +4655,7 @@ img {
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgba(2, 132, 199, 0.15) 0%,
+    rgba(2, 132, 199, 0.08) 0%,
     transparent 70%
   );
   pointer-events: none;
@@ -4689,40 +4693,42 @@ img {
   place-items: center;
   font-size: 11px;
   font-weight: 800;
-  color: #fff;
+  color: #ffffff;
 }
 
 .kta-org-name {
   font-size: 13.5px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #f8fafc;
+  color: #0f172a;
   display: block;
 }
 
 .kta-card-type {
   font-size: 9px;
-  font-weight: 700;
-  color: #93c5fd;
-  letter-spacing: 0.1em;
+  font-weight: 750;
+  color: #0284c7;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .kta-security-chip {
-  width: 36px;
-  height: 28px;
+  width: 34px;
+  height: 26px;
   border-radius: 6px;
-  background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 50%, #aa771c 100%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.25);
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   overflow: hidden;
 }
 
 .chip-gold-lines {
   position: absolute;
-  inset: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  inset: 3px;
+  border: 1px solid rgba(2, 132, 199, 0.25);
   border-radius: 2px;
 }
 
@@ -4743,27 +4749,29 @@ img {
   width: 100%;
   height: 100%;
   border-radius: 12px;
-  background: linear-gradient(135deg, #1e293b, #334155);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.2);
   display: grid;
   place-items: center;
   font-size: 16px;
   font-weight: 800;
-  color: #e2e8f0;
+  color: #ffffff;
 }
 
 .kta-verified-badge {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 20px;
-  height: 20px;
+  bottom: -3px;
+  right: -3px;
+  width: 19px;
+  height: 19px;
   border-radius: 50%;
   background: #16a34a;
   color: #ffffff;
   display: grid;
   place-items: center;
-  border: 2px solid #0b2545;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .kta-member-details {
@@ -4775,15 +4783,15 @@ img {
 
 .kta-member-name {
   font-size: 15px;
-  font-weight: 750;
-  color: #ffffff;
+  font-weight: 800;
+  color: #0f172a;
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
 }
 
 .kta-member-title {
   font-size: 11.5px;
-  color: #cbd5e1;
+  color: #64748b;
   margin: 0 0 6px;
 }
 
@@ -4804,14 +4812,19 @@ img {
 .kta-member-meta-grid strong {
   font-size: 11.5px;
   font-weight: 800;
-  color: #38bdf8;
+  color: #0284c7;
   letter-spacing: 0.02em;
 }
 
 .kta-status-pill {
   font-size: 9.5px;
-  font-weight: 800;
-  color: #4ade80;
+  font-weight: 750;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  display: inline-block;
   letter-spacing: 0.02em;
 }
 
@@ -4820,7 +4833,7 @@ img {
   justify-content: space-between;
   align-items: center;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid #f1f5f9;
 }
 
 .kta-qr-wrap {
@@ -4831,7 +4844,8 @@ img {
 
 .kta-qr-code {
   padding: 4px;
-  background: #ffffff;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   color: #0f172a;
   border-radius: 6px;
   display: grid;
@@ -4852,21 +4866,23 @@ img {
 
 .kta-qr-text strong {
   font-size: 10.5px;
-  color: #e2e8f0;
+  color: #334155;
 }
 
 .kta-official-seal {
-  color: #38bdf8;
-  opacity: 0.85;
+  color: #0284c7;
+  opacity: 0.9;
 }
 
 /* Verification Simulator Card */
 .verification-simulator-card {
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
   padding: 22px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 16px 36px -8px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(15, 23, 42, 0.03);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -8554,7 +8570,9 @@ img {
     padding: 16px;
     border-radius: 16px;
     gap: 14px;
-    background: #0b1528;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.08);
   }
 
   .kta-card-header {
@@ -8581,7 +8599,7 @@ img {
   .kta-org-name {
     font-size: 12.5px;
     font-weight: 800;
-    color: #f8fafc;
+    color: #0f172a;
     line-height: 1.2;
     display: block;
   }
@@ -8589,14 +8607,17 @@ img {
   .kta-card-type {
     font-size: 8px;
     letter-spacing: 0.08em;
-    color: #7dd3fc;
+    color: #0284c7;
+    font-weight: 750;
   }
 
   .kta-security-chip {
-    width: 32px;
-    height: 24px;
+    width: 30px;
+    height: 22px;
     border-radius: 5px;
     flex-shrink: 0;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
   }
 
   .kta-card-body {
@@ -8607,8 +8628,8 @@ img {
   }
 
   .kta-member-photo-frame {
-    width: 54px;
-    height: 54px;
+    width: 52px;
+    height: 52px;
     flex-shrink: 0;
   }
 
@@ -8628,8 +8649,8 @@ img {
 
   .kta-member-name {
     font-size: 13.5px;
-    font-weight: 750;
-    color: #ffffff;
+    font-weight: 800;
+    color: #0f172a;
     line-height: 1.25;
     margin: 0;
     text-align: left;
@@ -8637,7 +8658,7 @@ img {
 
   .kta-member-title {
     font-size: 10.5px;
-    color: #94a3b8;
+    color: #64748b;
     margin: 2px 0 6px;
     text-align: left;
   }
@@ -8653,7 +8674,7 @@ img {
   .kta-member-meta-grid small {
     font-size: 8px;
     font-weight: 700;
-    color: #64748b;
+    color: #94a3b8;
     letter-spacing: 0.04em;
     display: block;
     margin-bottom: 1px;
@@ -8663,17 +8684,21 @@ img {
   .kta-member-meta-grid strong {
     font-size: 11px;
     font-weight: 800;
-    color: #38bdf8;
+    color: #0284c7;
     text-align: left;
     display: block;
   }
 
   .kta-status-pill {
-    font-size: 9.5px;
-    font-weight: 800;
-    color: #4ade80;
+    font-size: 9px;
+    font-weight: 750;
+    color: #15803d;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    padding: 1px 5px;
+    border-radius: 4px;
     text-align: left;
-    display: block;
+    display: inline-block;
   }
 
   .kta-card-footer {
@@ -8681,7 +8706,7 @@ img {
     justify-content: space-between;
     align-items: center;
     padding-top: 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid #f1f5f9;
   }
 
   .kta-qr-wrap {
@@ -8694,7 +8719,8 @@ img {
   .kta-qr-code {
     padding: 3px;
     border-radius: 6px;
-    background: #ffffff;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     color: #0f172a;
     display: grid;
     place-items: center;
@@ -8702,8 +8728,8 @@ img {
   }
 
   .kta-qr-code svg {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
   }
 
   .kta-qr-text {
@@ -8714,19 +8740,19 @@ img {
 
   .kta-qr-text small {
     font-size: 7.5px;
-    color: #64748b;
+    color: #94a3b8;
     font-weight: 700;
     letter-spacing: 0.04em;
   }
 
   .kta-qr-text strong {
-    font-size: 9px;
-    color: #cbd5e1;
+    font-size: 9.5px;
+    color: #334155;
     word-break: break-all;
   }
 
   .kta-official-seal {
-    color: #38bdf8;
+    color: #0284c7;
     flex-shrink: 0;
   }
 
