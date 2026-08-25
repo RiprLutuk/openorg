@@ -1,14 +1,17 @@
 "use client";
 
 import {
+  AlertTriangle,
   Award,
   BadgeCheck,
   BookOpen,
   Building2,
+  Calendar,
   CalendarDays,
   Check,
   CheckCircle2,
   ChevronDown,
+  Clock,
   CreditCard,
   ExternalLink,
   Eye,
@@ -1283,6 +1286,345 @@ function SearchableSingleSelect({
   );
 }
 
+export interface DaySchedule {
+  day: "Senin" | "Selasa" | "Rabu" | "Kamis" | "Jumat" | "Sabtu" | "Minggu";
+  shortDay: "Sen" | "Sel" | "Rab" | "Kam" | "Jum" | "Sab" | "Min";
+  isOpen: boolean;
+  openTime: string;
+  closeTime: string;
+  is24Hours: boolean;
+}
+
+const DEFAULT_DAILY_SCHEDULE: DaySchedule[] = [
+  { day: "Senin", shortDay: "Sen", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+  { day: "Selasa", shortDay: "Sel", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+  { day: "Rabu", shortDay: "Rab", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+  { day: "Kamis", shortDay: "Kam", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+  { day: "Jumat", shortDay: "Jum", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+  { day: "Sabtu", shortDay: "Sab", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+  { day: "Minggu", shortDay: "Min", isOpen: false, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+];
+
+export function formatScheduleSummary(
+  schedule: DaySchedule[],
+  emergency24h: boolean,
+): string {
+  const openDays = schedule.filter((d) => d.isOpen);
+  if (openDays.length === 0) {
+    return emergency24h
+      ? "Tutup Rutin (🚨 Siap Panggilan 24 Jam)"
+      : "Tutup Sementara";
+  }
+
+  let baseSummary = "";
+  if (openDays.length === 7 && openDays.every((d) => d.is24Hours)) {
+    baseSummary = "Buka 24 Jam Setiap Hari";
+  } else {
+    const monSat = schedule.slice(0, 6);
+    const sun = schedule[6];
+    const firstMon = schedule[0]!;
+    const monSatSame =
+      monSat.every(
+        (d) =>
+          d.isOpen &&
+          d.openTime === firstMon.openTime &&
+          d.closeTime === firstMon.closeTime &&
+          d.is24Hours === firstMon.is24Hours,
+      ) && !sun?.isOpen;
+
+    const monFri = schedule.slice(0, 5);
+    const monFriSame =
+      monFri.every(
+        (d) =>
+          d.isOpen &&
+          d.openTime === firstMon.openTime &&
+          d.closeTime === firstMon.closeTime &&
+          d.is24Hours === firstMon.is24Hours,
+      ) &&
+      !schedule[5]?.isOpen &&
+      !sun?.isOpen;
+
+    const all7Same =
+      openDays.length === 7 &&
+      schedule.every(
+        (d) =>
+          d.openTime === firstMon.openTime &&
+          d.closeTime === firstMon.closeTime &&
+          d.is24Hours === firstMon.is24Hours,
+      );
+
+    if (all7Same) {
+      const timeStr = firstMon.is24Hours
+        ? "24 Jam"
+        : `${firstMon.openTime} - ${firstMon.closeTime}`;
+      baseSummary = `Setiap Hari: ${timeStr}`;
+    } else if (monSatSame) {
+      const timeStr = firstMon.is24Hours
+        ? "24 Jam"
+        : `${firstMon.openTime} - ${firstMon.closeTime}`;
+      baseSummary = `Senin - Sabtu: ${timeStr} (Minggu Libur)`;
+    } else if (monFriSame) {
+      const timeStr = firstMon.is24Hours
+        ? "24 Jam"
+        : `${firstMon.openTime} - ${firstMon.closeTime}`;
+      baseSummary = `Senin - Jumat: ${timeStr} | Sab - Min: Libur`;
+    } else {
+      const chunks: string[] = [];
+      for (const d of schedule) {
+        if (!d.isOpen) {
+          chunks.push(`${d.shortDay}: Libur`);
+        } else if (d.is24Hours) {
+          chunks.push(`${d.shortDay}: 24 Jam`);
+        } else {
+          chunks.push(`${d.shortDay}: ${d.openTime}-${d.closeTime}`);
+        }
+      }
+      baseSummary = chunks.join(" | ");
+    }
+  }
+
+  if (emergency24h) {
+    baseSummary += " · 🚨 Siap Panggilan 24 Jam";
+  }
+
+  return baseSummary;
+}
+
+interface DailyScheduleBuilderProps {
+  schedule: DaySchedule[];
+  emergency24h: boolean;
+  onScheduleChange: (newSchedule: DaySchedule[]) => void;
+  onEmergencyChange: (newEmergency: boolean) => void;
+}
+
+function DailyScheduleBuilder({
+  schedule,
+  emergency24h,
+  onScheduleChange,
+  onEmergencyChange,
+}: DailyScheduleBuilderProps) {
+  const summaryText = useMemo(
+    () => formatScheduleSummary(schedule, emergency24h),
+    [schedule, emergency24h],
+  );
+
+  const applyPreset = (type: "workshop" | "office" | "everyday" | "24h") => {
+    let updated: DaySchedule[] = [];
+    if (type === "workshop") {
+      updated = [
+        { day: "Senin", shortDay: "Sen", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+        { day: "Selasa", shortDay: "Sel", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+        { day: "Rabu", shortDay: "Rab", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+        { day: "Kamis", shortDay: "Kam", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+        { day: "Jumat", shortDay: "Jum", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+        { day: "Sabtu", shortDay: "Sab", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+        { day: "Minggu", shortDay: "Min", isOpen: false, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+      ];
+    } else if (type === "office") {
+      updated = [
+        { day: "Senin", shortDay: "Sen", isOpen: true, openTime: "08:00", closeTime: "17:00", is24Hours: false },
+        { day: "Selasa", shortDay: "Sel", isOpen: true, openTime: "08:00", closeTime: "17:00", is24Hours: false },
+        { day: "Rabu", shortDay: "Rab", isOpen: true, openTime: "08:00", closeTime: "17:00", is24Hours: false },
+        { day: "Kamis", shortDay: "Kam", isOpen: true, openTime: "08:00", closeTime: "17:00", is24Hours: false },
+        { day: "Jumat", shortDay: "Jum", isOpen: true, openTime: "08:00", closeTime: "17:00", is24Hours: false },
+        { day: "Sabtu", shortDay: "Sab", isOpen: false, openTime: "08:00", closeTime: "15:00", is24Hours: false },
+        { day: "Minggu", shortDay: "Min", isOpen: false, openTime: "08:00", closeTime: "15:00", is24Hours: false },
+      ];
+    } else if (type === "everyday") {
+      updated = schedule.map((d) => ({
+        ...d,
+        isOpen: true,
+        openTime: "08:00",
+        closeTime: "20:00",
+        is24Hours: false,
+      }));
+    } else if (type === "24h") {
+      updated = schedule.map((d) => ({
+        ...d,
+        isOpen: true,
+        is24Hours: true,
+      }));
+      onEmergencyChange(true);
+    }
+    onScheduleChange(updated);
+  };
+
+  const updateDay = (idx: number, patch: Partial<DaySchedule>) => {
+    const next = [...schedule];
+    const item = next[idx];
+    if (item) {
+      next[idx] = { ...item, ...patch };
+      onScheduleChange(next);
+    }
+  };
+
+  const copyMondayToWeekdays = () => {
+    const monday = schedule[0];
+    if (!monday) return;
+    const next = schedule.map((d, i) => {
+      if (i >= 1 && i <= 4) {
+        return {
+          ...d,
+          isOpen: monday.isOpen,
+          openTime: monday.openTime,
+          closeTime: monday.closeTime,
+          is24Hours: monday.is24Hours,
+        };
+      }
+      return d;
+    });
+    onScheduleChange(next);
+  };
+
+  return (
+    <div className="daily-schedule-container">
+      <div className="daily-schedule-header">
+        <div className="daily-schedule-title-row">
+          <strong>
+            <Clock size={16} color="#0284c7" />
+            <span>Jam Operasional & Jadwal Kustom Harian</span>
+          </strong>
+          <span className="schedule-live-summary-badge">{summaryText}</span>
+        </div>
+
+        {/* Quick Presets Bar */}
+        <div className="schedule-presets-bar">
+          <span className="schedule-preset-label">Template Cepat:</span>
+          <button
+            type="button"
+            className="schedule-preset-btn"
+            onClick={() => applyPreset("workshop")}
+          >
+            🛠️ Sen - Sab (08:00 - 18:00)
+          </button>
+          <button
+            type="button"
+            className="schedule-preset-btn"
+            onClick={() => applyPreset("office")}
+          >
+            🏢 Sen - Jum (08:00 - 17:00)
+          </button>
+          <button
+            type="button"
+            className="schedule-preset-btn"
+            onClick={() => applyPreset("everyday")}
+          >
+            🌟 Setiap Hari (08:00 - 20:00)
+          </button>
+          <button
+            type="button"
+            className="schedule-preset-btn"
+            onClick={() => applyPreset("24h")}
+          >
+            🕒 24 Jam Nonstop
+          </button>
+        </div>
+      </div>
+
+      {/* Emergency 24H Callout Readiness Card */}
+      <div className="emergency-callout-box">
+        <div className="emergency-callout-info">
+          <AlertTriangle size={18} color="#b45309" className="flex-shrink-0 mt-0.5" />
+          <div>
+            <strong>Kesiapan Layanan Darurat 24 Jam (Emergency Callout)</strong>
+            <small>
+              Aktifkan jika workshop Anda menerima panggilan darurat malam/hari libur (bocor freon, chiller mati, dsb).
+            </small>
+          </div>
+        </div>
+        <button
+          type="button"
+          className={`emergency-toggle-btn ${emergency24h ? "active" : "inactive"}`}
+          onClick={() => onEmergencyChange(!emergency24h)}
+        >
+          <span>{emergency24h ? "🚨 Siap 24 Jam Aktif" : "Nonaktif"}</span>
+        </button>
+      </div>
+
+      {/* 7-Day Interactive Row Grid */}
+      <div className="daily-schedule-list">
+        {schedule.map((dayItem, idx) => (
+          <div
+            key={dayItem.day}
+            className={`day-schedule-row ${!dayItem.isOpen ? "closed" : ""}`}
+          >
+            <div className="day-name-badge">
+              <strong>{dayItem.day}</strong>
+              <button
+                type="button"
+                className={`day-status-pill ${dayItem.isOpen ? "open" : "closed"}`}
+                onClick={() => updateDay(idx, { isOpen: !dayItem.isOpen })}
+              >
+                {dayItem.isOpen ? "Buka" : "Libur"}
+              </button>
+            </div>
+
+            <div className="day-controls-group">
+              {dayItem.isOpen ? (
+                <>
+                  {!dayItem.is24Hours ? (
+                    <div className="time-range-group">
+                      <input
+                        type="time"
+                        value={dayItem.openTime}
+                        onChange={(e) =>
+                          updateDay(idx, { openTime: e.target.value })
+                        }
+                      />
+                      <span className="time-separator">s/d</span>
+                      <input
+                        type="time"
+                        value={dayItem.closeTime}
+                        onChange={(e) =>
+                          updateDay(idx, { closeTime: e.target.value })
+                        }
+                      />
+                    </div>
+                  ) : (
+                    <span
+                      className="schedule-live-summary-badge"
+                      style={{
+                        background: "#f0fdf4",
+                        borderColor: "#bbf7d0",
+                        color: "#166534",
+                      }}
+                    >
+                      Buka 24 Jam Penuh
+                    </span>
+                  )}
+
+                  <button
+                    type="button"
+                    className={`twentyfour-toggle-btn ${dayItem.is24Hours ? "active" : ""}`}
+                    onClick={() =>
+                      updateDay(idx, { is24Hours: !dayItem.is24Hours })
+                    }
+                  >
+                    24 Jam
+                  </button>
+
+                  {idx === 0 && (
+                    <button
+                      type="button"
+                      className="btn-copy-mon-fri"
+                      onClick={copyMondayToWeekdays}
+                      title="Salin jam Senin ke Selasa - Jumat"
+                    >
+                      (Salin ke Sen-Jum)
+                    </button>
+                  )}
+                </>
+              ) : (
+                <span className="day-closed-msg">Tutup / Libur Operasional</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function MemberWorkshopPromo({
   member,
   emailVerified,
@@ -1321,8 +1663,11 @@ function MemberWorkshopPromo({
   const [whatsapp, setWhatsapp] = useState(
     existingMeta.whatsapp || member.phone || "0812-3456-7890",
   );
-  const [operatingHours, setOperatingHours] = useState(
-    existingMeta.operatingHours || "Senin - Sabtu: 08.00 - 18.00 | Siap 24 Jam Panggilan",
+  const [dailySchedule, setDailySchedule] = useState<DaySchedule[]>(
+    existingMeta.dailySchedule || DEFAULT_DAILY_SCHEDULE,
+  );
+  const [emergency24h, setEmergency24h] = useState<boolean>(
+    existingMeta.emergency24h ?? true,
   );
   const [description, setDescription] = useState(
     existingMeta.description ||
@@ -1422,6 +1767,10 @@ function MemberWorkshopPromo({
     }
   };
 
+  const operatingHoursSummary = useMemo(() => {
+    return formatScheduleSummary(dailySchedule, emergency24h);
+  }, [dailySchedule, emergency24h]);
+
   const handleDistrictChange = (newDist: string) => {
     setDistrict(newDist);
     setVillage("");
@@ -1457,7 +1806,9 @@ function MemberWorkshopPromo({
       address: address.trim(),
       phone: phone.trim(),
       whatsapp: whatsapp.trim(),
-      operatingHours: operatingHours.trim(),
+      operatingHours: operatingHoursSummary,
+      dailySchedule,
+      emergency24h,
       description: description.trim(),
       services: selectedServices,
       isPublished,
@@ -1669,7 +2020,7 @@ function MemberWorkshopPromo({
             </label>
           </div>
 
-          <div className="form-row-2">
+          <div className="form-row-1" style={{ marginBottom: "10px" }}>
             <label>
               Nomor WhatsApp Pemesanan *
               <input
@@ -1680,16 +2031,14 @@ function MemberWorkshopPromo({
                 placeholder="0812-xxxx-xxxx"
               />
             </label>
-            <label>
-              Jam Operasional & Kesiapan
-              <input
-                type="text"
-                value={operatingHours}
-                onChange={(e) => setOperatingHours(e.target.value)}
-                placeholder="Senin - Sabtu 08.00 - 18.00"
-              />
-            </label>
           </div>
+
+          <DailyScheduleBuilder
+            schedule={dailySchedule}
+            emergency24h={emergency24h}
+            onScheduleChange={setDailySchedule}
+            onEmergencyChange={setEmergency24h}
+          />
 
           <SearchableMultiSelect
             label="Layanan & Keahlian Unggulan (Pencarian & Multi-Select)"
@@ -1754,6 +2103,11 @@ function MemberWorkshopPromo({
                 <Store size={18} color="#0284c7" />
                 <span className="workshop-cat-label">{category}</span>
               </div>
+              {emergency24h && (
+                <span className="emergency-preview-chip">
+                  🚨 Siap Panggilan 24 Jam
+                </span>
+              )}
               <span
                 className={`published-indicator ${isPublished && emailVerified ? "live" : "draft"}`}
               >
@@ -1772,6 +2126,10 @@ function MemberWorkshopPromo({
               <div className="meta-item">
                 <Phone size={14} color="#64748b" />
                 <span>{whatsapp}</span>
+              </div>
+              <div className="meta-item">
+                <Clock size={14} color="#64748b" />
+                <span>{operatingHoursSummary}</span>
               </div>
             </div>
 
