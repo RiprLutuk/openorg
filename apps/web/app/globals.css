@@ -23810,16 +23810,9 @@ img {
   background: #ffffff;
   border-top: 1px solid #f1f5f9;
   border-bottom: 1px solid #f1f5f9;
-}
-
-/* Heading Block matching other Sections */
-.ws-showcase-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 24px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
 }
 
 .ws-heading-left {

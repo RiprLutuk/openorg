@@ -408,26 +408,17 @@ export function HomeFeaturedWorkshops() {
   return (
     <section className="section-space home-workshops-showcase-section">
       <div className="wrap">
-        {/* Section Heading: Standard OpenOrg Design System */}
-        <div className="section-heading ws-showcase-heading">
-          <div className="ws-heading-left">
-            <Link href="/bengkel" className="eyebrow-cta-link">
-              <Store size={13} className="text-sky-600" />
-              <span>Bursa Bengkel &amp; Toko Resmi</span>
-              <ArrowRight size={12} />
-            </Link>
-            <h2>Jaringan Bengkel &amp; Toko Mitra Anggota</h2>
-            <p>
-              {workshops.length}+ bengkel AC resmi, klinik modul inverter &amp; penyedia suku cadang berlisensi di seluruh Indonesia.
-            </p>
-          </div>
-
-          <div className="ws-heading-right">
-            <Link href="/bengkel" className="button primary btn-view-all-hero">
-              <span>Semua Bengkel</span>
-              <ArrowRight size={14} />
-            </Link>
-          </div>
+        {/* Section Heading: 100% Left Aligned, Identical to Pelatihan & Sertifikasi & Publikasi */}
+        <div className="section-heading">
+          <Link href="/bengkel" className="eyebrow-cta-link">
+            <Store size={13} className="text-sky-600" />
+            <span>Bursa Bengkel &amp; Toko Resmi</span>
+            <ArrowRight size={12} />
+          </Link>
+          <h2>Jaringan Bengkel &amp; Toko Mitra Anggota</h2>
+          <p>
+            {workshops.length}+ bengkel AC resmi, klinik modul inverter &amp; penyedia suku cadang berlisensi di seluruh Indonesia.
+          </p>
         </div>
 
         {/* Dedicated Toolbar: Category Filter Chips on Left + Controls on Right */}
@@ -492,6 +483,11 @@ export function HomeFeaturedWorkshops() {
                 <ChevronRight size={16} />
               </button>
             </div>
+
+            <Link href="/bengkel" className="button primary btn-view-all-hero">
+              <span>Semua Bengkel</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
 
