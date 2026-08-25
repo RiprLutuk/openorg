@@ -24,6 +24,8 @@ import {
   CreditCard,
   Download,
   Edit2,
+  ExternalLink,
+  Eye,
   FileText,
   Flag,
   Globe2,
@@ -33,6 +35,8 @@ import {
   Inbox,
   Landmark,
   LayoutDashboard,
+  LayoutGrid,
+  List,
   LogOut,
   Mail,
   MapPin,
@@ -1104,6 +1108,60 @@ function Dashboard({
     queryFn: () => api<{ data: DashboardData }>("/v1/admin/dashboard"),
   });
 
+  const data = query.data?.data;
+  const totalMembers = data?.counts.members ?? 0;
+  const activeMembers = data?.counts.activeMembers ?? totalMembers;
+  const pendingMembers = data?.counts.pendingMembers ?? 0;
+  const totalEvents = data?.counts.events ?? 0;
+  const totalClubs = data?.counts.clubs ?? 0;
+  const totalTechs = data?.counts.technicians ?? totalMembers;
+  const totalComplaints = data?.counts.complaints ?? 0;
+
+  // Dynamic 6-month growth curve scaled cleanly from actual active database records
+  const monthlyData: Array<{ month: string; count: number; active: number }> =
+    useMemo(() => {
+      if (
+        data?.monthlyGrowth &&
+        data.monthlyGrowth.length > 0 &&
+        data.monthlyGrowth.some((m) => m.count > 0)
+      ) {
+        return data.monthlyGrowth;
+      }
+      const base = Math.max(totalMembers, 6);
+      return [
+        {
+          month: "Mar 26",
+          count: Math.max(1, Math.round(base * 0.25)),
+          active: Math.max(1, Math.round(base * 0.22)),
+        },
+        {
+          month: "Apr 26",
+          count: Math.max(2, Math.round(base * 0.4)),
+          active: Math.max(2, Math.round(base * 0.36)),
+        },
+        {
+          month: "Mei 26",
+          count: Math.max(3, Math.round(base * 0.55)),
+          active: Math.max(3, Math.round(base * 0.5)),
+        },
+        {
+          month: "Jun 26",
+          count: Math.max(4, Math.round(base * 0.7)),
+          active: Math.max(4, Math.round(base * 0.65)),
+        },
+        {
+          month: "Jul 26",
+          count: Math.max(5, Math.round(base * 0.85)),
+          active: Math.max(5, Math.round(base * 0.8)),
+        },
+        {
+          month: "Agu 26",
+          count: base,
+          active: Math.max(activeMembers, Math.round(base * 0.92)),
+        },
+      ];
+    }, [data?.monthlyGrowth, totalMembers, activeMembers]);
+
   if (query.isLoading) return <PageLoading />;
   if (query.isError) {
     return (
@@ -1124,15 +1182,6 @@ function Dashboard({
       </div>
     );
   }
-  const data = query.data?.data;
-
-  const totalMembers = data?.counts.members ?? 0;
-  const activeMembers = data?.counts.activeMembers ?? totalMembers;
-  const pendingMembers = data?.counts.pendingMembers ?? 0;
-  const totalEvents = data?.counts.events ?? 0;
-  const totalClubs = data?.counts.clubs ?? 0;
-  const totalTechs = data?.counts.technicians ?? totalMembers;
-  const totalComplaints = data?.counts.complaints ?? 0;
 
   const stats = [
     {
@@ -1183,51 +1232,6 @@ function Dashboard({
     month: "long",
     year: "numeric",
   });
-
-  // Dynamic 6-month growth curve scaled cleanly from actual active database records
-  const monthlyData: Array<{ month: string; count: number; active: number }> =
-    useMemo(() => {
-      if (
-        data?.monthlyGrowth &&
-        data.monthlyGrowth.length > 0 &&
-        data.monthlyGrowth.some((m) => m.count > 0)
-      ) {
-        return data.monthlyGrowth;
-      }
-    const base = Math.max(totalMembers, 6);
-    return [
-      {
-        month: "Mar 26",
-        count: Math.max(1, Math.round(base * 0.25)),
-        active: Math.max(1, Math.round(base * 0.22)),
-      },
-      {
-        month: "Apr 26",
-        count: Math.max(2, Math.round(base * 0.4)),
-        active: Math.max(2, Math.round(base * 0.36)),
-      },
-      {
-        month: "Mei 26",
-        count: Math.max(3, Math.round(base * 0.55)),
-        active: Math.max(3, Math.round(base * 0.5)),
-      },
-      {
-        month: "Jun 26",
-        count: Math.max(4, Math.round(base * 0.7)),
-        active: Math.max(4, Math.round(base * 0.65)),
-      },
-      {
-        month: "Jul 26",
-        count: Math.max(5, Math.round(base * 0.85)),
-        active: Math.max(5, Math.round(base * 0.8)),
-      },
-      {
-        month: "Agu 26",
-        count: base,
-        active: Math.max(activeMembers, Math.round(base * 0.92)),
-      },
-    ];
-  }, [data?.monthlyGrowth, totalMembers, activeMembers]);
 
   const maxMonthVal = Math.max(...monthlyData.map((d) => d.count), 1);
 
@@ -3073,112 +3077,431 @@ function ImageUploadField({
 }
 
 function ContentManager() {
-  const [type, setType] = useState("post");
+  const [type, setType] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [editor, setEditor] = useState<CmsContent | "new" | null>(null);
+
   const client = useQueryClient();
   const query = useQuery({
     queryKey: ["contents", type],
     queryFn: () =>
-      api<{ data: CmsContent[] }>(`/v1/admin/contents?limit=100&type=${type}`),
+      api<{ data: CmsContent[] }>(
+        type === "all"
+          ? "/v1/admin/contents?limit=200"
+          : `/v1/admin/contents?limit=200&type=${type}`,
+      ),
   });
+
   const remove = useMutation({
     mutationFn: (id: string) =>
       api(`/v1/admin/contents/${id}`, { method: "DELETE" }),
     onSuccess: () => {
+      toast.success("Konten warta berhasil dihapus.");
       void client.invalidateQueries({ queryKey: ["contents"] });
       void client.invalidateQueries({ queryKey: ["dashboard"] });
     },
+    onError: (err) => {
+      toast.error(err.message || "Gagal menghapus konten.");
+    },
   });
+
   if (editor === "new")
-    return <ContentEditor defaultType={type} onClose={() => setEditor(null)} />;
+    return (
+      <ContentEditor
+        defaultType={type === "all" ? "post" : type}
+        onClose={() => setEditor(null)}
+      />
+    );
   if (editor)
     return <ContentEditor content={editor} onClose={() => setEditor(null)} />;
+
+  const rawItems = query.data?.data ?? [];
+  const filtered = rawItems.filter((item) => {
+    if (statusFilter !== "all" && item.status !== statusFilter) return false;
+    if (!search) return true;
+    const term = search.toLowerCase();
+    return (
+      item.title.toLowerCase().includes(term) ||
+      item.slug.toLowerCase().includes(term) ||
+      (item.authorName && item.authorName.toLowerCase().includes(term))
+    );
+  });
+
+  const paginated = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
     <>
       <PageHeading
-        eyebrow="Publishing"
-        title="Stories & news"
-        description="Manage articles, announcements, campaigns, and updates in one editorial workflow."
+        eyebrow="Penerbitan & Publikasi"
+        title="Warta, Berita & Rilis Resmi"
+        description="Kelola materi edukasi, rilis pers asosiasi, berita industri refrigerasi, dan pengumuman resmi."
         action={
           <button
             type="button"
             className="button primary"
             onClick={() => setEditor("new")}
           >
-            <Plus size={18} /> New story
+            <Plus size={16} /> <span>Tulis Warta Baru</span>
           </button>
         }
       />
-      <div className="segmented">
-        <button
-          type="button"
-          className={type === "post" ? "active" : ""}
-          onClick={() => setType("post")}
-        >
-          Stories
-        </button>
-        <button
-          type="button"
-          className={type === "news" ? "active" : ""}
-          onClick={() => setType("news")}
-        >
-          News
-        </button>
-        <button
-          type="button"
-          className={type === "campaign" ? "active" : ""}
-          onClick={() => setType("campaign")}
-        >
-          Campaigns
-        </button>
-      </div>
-      <div className="content-grid">
-        {query.data?.data.map((item) => (
-          <article className="content-card" key={item.id}>
-            <div className="content-cover">
-              {item.coverUrl ? (
-                <img src={item.coverUrl} alt="" />
-              ) : (
-                <Newspaper size={28} />
-              )}
+
+      <div className="table-panel">
+        <div className="toolbar" style={{ flexWrap: "wrap", gap: "10px" }}>
+          <div className="segmented" style={{ margin: 0 }}>
+            <button
+              type="button"
+              className={type === "all" ? "active" : ""}
+              onClick={() => {
+                setType("all");
+                setCurrentPage(1);
+              }}
+            >
+              Semua Warta
+            </button>
+            <button
+              type="button"
+              className={type === "post" ? "active" : ""}
+              onClick={() => {
+                setType("post");
+                setCurrentPage(1);
+              }}
+            >
+              Edukasi & Cerita
+            </button>
+            <button
+              type="button"
+              className={type === "news" ? "active" : ""}
+              onClick={() => {
+                setType("news");
+                setCurrentPage(1);
+              }}
+            >
+              Berita & Rilis
+            </button>
+            <button
+              type="button"
+              className={type === "campaign" ? "active" : ""}
+              onClick={() => {
+                setType("campaign");
+                setCurrentPage(1);
+              }}
+            >
+              Kampanye & Acara
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              flex: 1,
+              justifyContent: "flex-end",
+              alignItems: "center",
+            }}
+          >
+            <div className="search-box" style={{ maxWidth: "260px" }}>
+              <Search size={15} />
+              <input
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Cari judul atau slug..."
+              />
             </div>
-            <div>
-              <Status value={item.status} />
-              <h3>{item.title}</h3>
-              <p>/{item.slug}</p>
-              <footer>
-                <span>
-                  Updated {new Date(item.updatedAt).toLocaleDateString()}
-                </span>
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() => setEditor(item)}
-                >
-                  Edit <ArrowRight size={15} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-button danger"
-                  aria-label={`Delete ${item.title}`}
-                  onClick={() =>
-                    confirm(`Delete ${item.title}?`) && remove.mutate(item.id)
-                  }
-                >
-                  <X size={16} />
-                </button>
-              </footer>
+
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              style={{
+                padding: "6px 10px",
+                borderRadius: "6px",
+                border: "1px solid var(--line)",
+                fontSize: "12.5px",
+                background: "#ffffff",
+              }}
+            >
+              <option value="all">Semua Status</option>
+              <option value="published">Published (Terbit)</option>
+              <option value="draft">Draft</option>
+              <option value="review">Under Review</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="archived">Archived</option>
+            </select>
+
+            <div
+              style={{
+                display: "inline-flex",
+                border: "1px solid var(--line)",
+                borderRadius: "6px",
+                overflow: "hidden",
+              }}
+            >
+              <button
+                type="button"
+                className={`icon-button ${viewMode === "table" ? "active" : ""}`}
+                style={{
+                  borderRadius: 0,
+                  background: viewMode === "table" ? "#f1f5f9" : "#ffffff",
+                  padding: "6px 8px",
+                }}
+                title="Tampilan Tabel"
+                onClick={() => setViewMode("table")}
+              >
+                <List size={16} />
+              </button>
+              <button
+                type="button"
+                className={`icon-button ${viewMode === "grid" ? "active" : ""}`}
+                style={{
+                  borderRadius: 0,
+                  background: viewMode === "grid" ? "#f1f5f9" : "#ffffff",
+                  padding: "6px 8px",
+                }}
+                title="Tampilan Kartu"
+                onClick={() => setViewMode("grid")}
+              >
+                <LayoutGrid size={16} />
+              </button>
             </div>
-          </article>
-        ))}
-      </div>
-      {!query.data?.data.length && (
-        <div className="panel">
-          <Empty
-            message={`No ${type} content yet. Start with the first story your audience should see.`}
-          />
+          </div>
         </div>
-      )}
+
+        {query.isLoading ? (
+          <PageLoading />
+        ) : filtered.length === 0 ? (
+          <Empty message="Tidak ada konten warta yang sesuai dengan filter pencarian." />
+        ) : viewMode === "table" ? (
+          <>
+            <div className="table-responsive">
+              <table className="compact-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: "60px" }}>Sampul</th>
+                    <th>Judul & Tautan Slug</th>
+                    <th>Tipe</th>
+                    <th>Penulis</th>
+                    <th>Status</th>
+                    <th>Diperbarui</th>
+                    <th style={{ textAlign: "right" }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginated.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <div
+                          style={{
+                            width: "44px",
+                            height: "32px",
+                            borderRadius: "4px",
+                            background: "#f1f5f9",
+                            overflow: "hidden",
+                            display: "grid",
+                            placeItems: "center",
+                          }}
+                        >
+                          {item.coverUrl ? (
+                            <img
+                              src={item.coverUrl}
+                              alt=""
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            <FileText size={16} color="#94a3b8" />
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontWeight: 700, color: "#0f172a" }}>
+                          {item.title}
+                          {item.featured && (
+                            <span
+                              className="tag-badge"
+                              style={{
+                                marginLeft: "6px",
+                                background: "#fef3c7",
+                                color: "#b45309",
+                              }}
+                            >
+                              Featured
+                            </span>
+                          )}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "11.5px",
+                            color: "#64748b",
+                            fontFamily: "monospace",
+                          }}
+                        >
+                          /{item.slug}
+                        </div>
+                      </td>
+                      <td>
+                        <span className="tag-badge">{item.type}</span>
+                      </td>
+                      <td>
+                        <span style={{ fontSize: "12.5px", color: "#334155" }}>
+                          {item.authorName || "Tim Redaksi"}
+                        </span>
+                      </td>
+                      <td>
+                        <Status value={item.status} />
+                      </td>
+                      <td>
+                        <span style={{ fontSize: "12px", color: "#64748b" }}>
+                          {new Date(item.updatedAt).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </td>
+                      <td>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            gap: "6px",
+                          }}
+                        >
+                          <a
+                            href={`${PUBLIC_SITE_URL}/stories/${item.slug}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="icon-button"
+                            title="Lihat di Web Publik"
+                          >
+                            <ExternalLink size={15} />
+                          </a>
+                          <button
+                            type="button"
+                            className="icon-button"
+                            title="Edit Warta"
+                            onClick={() => setEditor(item)}
+                          >
+                            <Edit2 size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            className="icon-button danger"
+                            title="Hapus Warta"
+                            onClick={() =>
+                              confirm(`Hapus warta "${item.title}"?`) &&
+                              remove.mutate(item.id)
+                            }
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <TablePagination
+              currentPage={currentPage}
+              pageSize={pageSize}
+              totalItems={filtered.length}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <div className="content-grid" style={{ marginTop: "14px" }}>
+              {paginated.map((item) => (
+                <article className="content-card" key={item.id}>
+                  <div className="content-cover">
+                    {item.coverUrl ? (
+                      <img src={item.coverUrl} alt="" />
+                    ) : (
+                      <Newspaper size={28} />
+                    )}
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      <Status value={item.status} />
+                      <span className="tag-badge">{item.type}</span>
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p>/{item.slug}</p>
+                    <footer>
+                      <span>
+                        {new Date(item.updatedAt).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <div style={{ display: "flex", gap: "6px" }}>
+                        <button
+                          type="button"
+                          className="text-button"
+                          onClick={() => setEditor(item)}
+                        >
+                          Edit <ArrowRight size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-button danger"
+                          aria-label={`Delete ${item.title}`}
+                          onClick={() =>
+                            confirm(`Hapus warta "${item.title}"?`) &&
+                            remove.mutate(item.id)
+                          }
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </footer>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <TablePagination
+              currentPage={currentPage}
+              pageSize={pageSize}
+              totalItems={filtered.length}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
+          </>
+        )}
+      </div>
     </>
   );
 }
