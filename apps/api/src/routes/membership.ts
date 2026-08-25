@@ -594,8 +594,15 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
     "/applications",
     { preHandler: app.authorize("members.read") },
     async (request) => {
-      const query = paginationSchema.parse(request.query);
+      const query = paginationSchema
+        .extend({
+          limit: z.coerce.number().int().min(1).max(500).default(20),
+          status: z.string().optional(),
+        })
+        .parse(request.query);
       const conditions = [];
+      if (query.status)
+        conditions.push(eq(memberApplications.status, query.status as any));
       if (query.search)
         conditions.push(
           or(

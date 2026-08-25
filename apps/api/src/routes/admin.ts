@@ -1326,7 +1326,10 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     { preHandler: app.authorize("members.read") },
     async (request) => {
       const query = paginationSchema
-        .extend({ status: memberStatusInput.optional() })
+        .extend({
+          limit: z.coerce.number().int().min(1).max(500).default(20),
+          status: memberStatusInput.optional(),
+        })
         .parse(request.query);
       const conditions = [];
       if (query.status) conditions.push(eq(members.status, query.status));
@@ -1342,7 +1345,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
           .from(members)
           .leftJoin(organizationUnits, eq(members.unitId, organizationUnits.id))
           .where(where)
-          .orderBy(asc(members.name))
+          .orderBy(desc(members.createdAt))
           .limit(query.limit)
           .offset((query.page - 1) * query.limit),
         db

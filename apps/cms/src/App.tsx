@@ -6031,20 +6031,22 @@ function GovernanceEditor({
 function ApplicationsManager() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("pending");
+  const [status, setStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selected, setSelected] = useState<CmsMembershipApplication | null>(
     null,
   );
   const [error, setError] = useState("");
+
   const query = useQuery({
-    queryKey: ["membership-applications", search, status],
+    queryKey: ["membership-applications"],
     queryFn: () =>
       api<{ data: CmsMembershipApplication[]; meta: { total: number } }>(
-        `/v1/admin/membership/applications?limit=100&search=${encodeURIComponent(search)}${status ? `&status=${status}` : ""}`,
+        "/v1/admin/membership/applications?limit=200",
       ),
   });
+
   const review = useMutation({
     mutationFn: ({
       id,
@@ -6085,6 +6087,7 @@ function ApplicationsManager() {
       toast.error(`Gagal memproses pendaftaran: ${reason.message}`);
     },
   });
+
   const submitReview = (
     form: HTMLFormElement,
     decision: "approve" | "reject",
@@ -6093,9 +6096,7 @@ function ApplicationsManager() {
     const data = new FormData(form);
     const rejectionReason = String(data.get("rejectionReason") ?? "").trim();
     if (decision === "reject" && !rejectionReason) {
-      setError(
-        "Add a clear rejection reason before rejecting this application.",
-      );
+      setError("Wajib mengisi alasan penolakan sebelum menolak permohonan.");
       return;
     }
     setError("");
@@ -6107,129 +6108,224 @@ function ApplicationsManager() {
       expiresAt: String(data.get("expiresAt") ?? ""),
     });
   };
-  const items = query.data?.data ?? [];
-  const paginatedItems = items.slice(
+
+  const allItems = query.data?.data ?? [];
+  const countPending = allItems.filter((i) => i.status === "pending").length;
+  const countApplicant = allItems.filter(
+    (i) => i.status === "applicant",
+  ).length;
+  const countActive = allItems.filter((i) => i.status === "active").length;
+  const countRejected = allItems.filter((i) => i.status === "rejected").length;
+
+  const filtered = allItems.filter((item) => {
+    if (status !== "all" && item.status !== status) return false;
+    if (!search.trim()) return true;
+    const term = search.toLowerCase();
+    const name = item.member?.name ?? (item as any).fullName ?? "";
+    const email = item.member?.email ?? (item as any).email ?? "";
+    const phone = item.member?.phone ?? (item as any).phone ?? "";
+    const unit = item.unitName ?? "";
+    return (
+      name.toLowerCase().includes(term) ||
+      email.toLowerCase().includes(term) ||
+      phone.toLowerCase().includes(term) ||
+      unit.toLowerCase().includes(term)
+    );
+  });
+
+  const paginatedItems = filtered.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
+
   return (
     <>
       <PageHeading
-        eyebrow="Member operations"
-        title="Applications"
-        description="Verify incoming registrations, record a review trail, and issue member numbers and cards in one controlled workflow."
+        eyebrow="Operasional Keanggotaan"
+        title="Pendaftaran & Verifikasi KTA"
+        description="Verifikasi berkas calon anggota, tinjau kualifikasi teknisi pendingin, dan terbitkan nomor KTA Digital resmi."
       />
+
+      <div className="segmented mb-3">
+        <button
+          type="button"
+          className={status === "all" ? "active" : ""}
+          onClick={() => {
+            setStatus("all");
+            setCurrentPage(1);
+          }}
+        >
+          Semua Pendaftaran ({allItems.length})
+        </button>
+        <button
+          type="button"
+          className={status === "pending" ? "active" : ""}
+          onClick={() => {
+            setStatus("pending");
+            setCurrentPage(1);
+          }}
+        >
+          Menunggu Review ({countPending})
+        </button>
+        <button
+          type="button"
+          className={status === "applicant" ? "active" : ""}
+          onClick={() => {
+            setStatus("applicant");
+            setCurrentPage(1);
+          }}
+        >
+          Belum Verifikasi Email ({countApplicant})
+        </button>
+        <button
+          type="button"
+          className={status === "active" ? "active" : ""}
+          onClick={() => {
+            setStatus("active");
+            setCurrentPage(1);
+          }}
+        >
+          Disetujui ({countActive})
+        </button>
+        <button
+          type="button"
+          className={status === "rejected" ? "active" : ""}
+          onClick={() => {
+            setStatus("rejected");
+            setCurrentPage(1);
+          }}
+        >
+          Ditolak ({countRejected})
+        </button>
+      </div>
+
       <div className="inbox-layout applications-layout">
         <section className="table-panel inbox-list">
           <div className="table-toolbar">
-            <label className="search-field">
-              <Search size={18} />
+            <label className="search-field" style={{ minWidth: "100%" }}>
+              <Search size={16} />
               <input
                 value={search}
                 onChange={(event) => {
                   setSearch(event.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder="Search applicants…"
+                placeholder="Cari nama pemohon, email, atau no. HP..."
               />
             </label>
-            <select
-              value={status}
-              onChange={(event) => {
-                setStatus(event.target.value);
-                setSelected(null);
-                setCurrentPage(1);
-              }}
-            >
-              <option value="">All status</option>
-              <option value="applicant">Email unverified</option>
-              <option value="pending">Pending review</option>
-              <option value="active">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
           </div>
+
           <div className="submission-list application-list">
-            {paginatedItems.map((item) => {
-              const memberName =
-                item.member?.name ?? (item as any).fullName ?? "Pemohon";
-              const memberEmail =
-                item.member?.email ?? (item as any).email ?? "No email";
-              return (
-                <button
-                  type="button"
-                  className={selected?.id === item.id ? "active" : ""}
-                  key={item.id}
-                  onClick={() => {
-                    setSelected(item);
-                    setError("");
-                  }}
-                >
-                  <span className="submission-dot" data-status={item.status} />
-                  <span>
-                    <strong>{memberName}</strong>
-                    <small>{item.unitName ?? "No organization unit"}</small>
-                    <p>
-                      {memberEmail} · Submitted{" "}
-                      {new Date(
-                        item.submittedAt ||
-                          (item as any).createdAt ||
-                          Date.now(),
-                      ).toLocaleDateString()}
-                    </p>
-                  </span>
-                  <Status value={item.status} />
-                </button>
-              );
-            })}
+            {query.isLoading ? (
+              <PageLoading />
+            ) : filtered.length === 0 ? (
+              <Empty message="Tidak ada permohonan anggota yang sesuai dengan filter." />
+            ) : (
+              paginatedItems.map((item) => {
+                const memberName =
+                  item.member?.name ?? (item as any).fullName ?? "Pemohon";
+                const memberEmail =
+                  item.member?.email ?? (item as any).email ?? "Tanpa email";
+                const isSelected = selected?.id === item.id;
+                return (
+                  <button
+                    type="button"
+                    className={isSelected ? "active" : ""}
+                    key={item.id}
+                    onClick={() => {
+                      setSelected(item);
+                      setError("");
+                    }}
+                  >
+                    <span
+                      className="submission-dot"
+                      data-status={item.status}
+                    />
+                    <span>
+                      <strong>{memberName}</strong>
+                      <small>
+                        {item.unitName ?? "Dewan Pimpinan Pusat (DPP)"}
+                      </small>
+                      <p>
+                        {memberEmail} ·{" "}
+                        {new Date(
+                          item.submittedAt ||
+                            (item as any).createdAt ||
+                            Date.now(),
+                        ).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </span>
+                    <Status value={item.status} />
+                  </button>
+                );
+              })
+            )}
           </div>
-          {!query.isLoading && !items.length && (
-            <Empty message="No membership applications match this view." />
-          )}
+
           <TablePagination
             currentPage={currentPage}
-            totalItems={items.length}
+            totalItems={filtered.length}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
-            onPageSizeChange={setPageSize}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
           />
         </section>
+
         <section className="panel submission-detail application-detail">
           {selected ? (
             <>
               <div className="panel-head">
                 <div>
-                  <span className="eyebrow">Application detail</span>
+                  <span className="eyebrow">Detail Berkas Permohonan</span>
                   <h2>
                     {selected.member?.name ??
                       (selected as any).fullName ??
                       "Pemohon"}
                   </h2>
                   <p>
-                    {selected.member?.memberNumber ?? "PENDING"} ·{" "}
-                    {selected.unitName ?? "Unassigned"}
+                    {selected.member?.memberNumber ?? "REG-PENDING"} ·{" "}
+                    {selected.unitName ?? "Dewan Pimpinan Pusat (DPP)"}
                   </p>
                 </div>
                 <Status value={selected.status} />
               </div>
+
               <dl>
                 <div>
-                  <dt>Email</dt>
+                  <dt>Alamat Email</dt>
                   <dd>
                     {selected.member?.email ?? (selected as any).email ?? "—"}
                   </dd>
                 </div>
                 <div>
-                  <dt>Phone</dt>
+                  <dt>Nomor Telepon / WA</dt>
                   <dd>
                     {selected.member?.phone ?? (selected as any).phone ?? "—"}
                   </dd>
                 </div>
                 <div>
-                  <dt>Address</dt>
+                  <dt>Alamat Domisili</dt>
                   <dd>
                     {selected.member?.address ??
                       (selected as any).address ??
                       "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Tanggal Diajukan</dt>
+                  <dd>
+                    {new Date(
+                      selected.submittedAt ||
+                        (selected as any).createdAt ||
+                        Date.now(),
+                    ).toLocaleString("id-ID")}
                   </dd>
                 </div>
                 {Object.entries(
@@ -6242,38 +6338,59 @@ function ApplicationsManager() {
                     <dd>{String(value || "—")}</dd>
                   </div>
                 ))}
-                <div>
-                  <dt>Submitted</dt>
-                  <dd>{new Date(selected.submittedAt).toLocaleString()}</dd>
-                </div>
               </dl>
+
               {selected.rejectionReason && (
-                <div className="review-note rejected-note">
-                  <strong>Rejection reason</strong>
-                  <p>{selected.rejectionReason}</p>
+                <div
+                  className="review-note rejected-note"
+                  style={{
+                    background: "#fef2f2",
+                    padding: "12px",
+                    borderRadius: "6px",
+                    border: "1px solid #fecaca",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <strong style={{ color: "#dc2626" }}>Alasan Penolakan:</strong>
+                  <p style={{ margin: "4px 0 0", color: "#991b1b" }}>
+                    {selected.rejectionReason}
+                  </p>
                 </div>
               )}
+
               {selected.reviewerNotes && (
-                <div className="review-note">
-                  <strong>Reviewer notes</strong>
-                  <p>{selected.reviewerNotes}</p>
+                <div
+                  className="review-note"
+                  style={{
+                    background: "#f0f9ff",
+                    padding: "12px",
+                    borderRadius: "6px",
+                    border: "1px solid #bae6fd",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <strong style={{ color: "#0284c7" }}>Catatan Reviewer:</strong>
+                  <p style={{ margin: "4px 0 0", color: "#0369a1" }}>
+                    {selected.reviewerNotes}
+                  </p>
                 </div>
               )}
+
               {(selected.status === "pending" ||
                 selected.status === "applicant" ||
                 selected.status === "rejected") && (
                 <form className="review-form">
                   {error && <div className="alert error">{error}</div>}
                   <label>
-                    Internal reviewer notes
+                    Catatan Verifikasi Internal
                     <textarea
                       name="reviewerNotes"
-                      rows={3}
-                      placeholder="Verification notes, document checks, or follow-up…"
+                      rows={2}
+                      placeholder="Catatan pemeriksaan dokumen, validasi identitas, atau klarifikasi teknisi…"
                     />
                   </label>
                   <label>
-                    Card expiry date
+                    Masa Berlaku KTA
                     <input
                       name="expiresAt"
                       type="date"
@@ -6285,11 +6402,11 @@ function ApplicationsManager() {
                     />
                   </label>
                   <label>
-                    Rejection reason
+                    Alasan Penolakan (Wajib jika menolak)
                     <textarea
                       name="rejectionReason"
                       rows={2}
-                      placeholder="Required only when rejecting"
+                      placeholder="Contoh: Dokumen KTP tidak jelas, sertifikat tidak terverifikasi…"
                     />
                   </label>
                   <div className="submission-actions">
@@ -6302,7 +6419,7 @@ function ApplicationsManager() {
                         if (form) submitReview(form, "reject");
                       }}
                     >
-                      Reject application
+                      Tolak Permohonan
                     </button>
                     <button
                       type="button"
@@ -6315,21 +6432,36 @@ function ApplicationsManager() {
                     >
                       <BadgeCheck size={17} />
                       {review.isPending
-                        ? "Processing…"
-                        : "Approve & issue card"}
+                        ? "Memproses…"
+                        : "Setujui & Terbitkan KTA"}
                     </button>
                   </div>
                 </form>
               )}
+
               {selected.status === "active" && (
-                <div className="success-callout">
-                  <BadgeCheck size={20} />
-                  <span>
-                    <strong>Membership approved</strong>
-                    <small>
-                      The member number and active card have been issued.
-                    </small>
-                  </span>
+                <div
+                  className="success-callout"
+                  style={{
+                    background: "#ecfdf5",
+                    border: "1px solid #a7f3d0",
+                    borderRadius: "8px",
+                    padding: "16px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginTop: "14px",
+                  }}
+                >
+                  <BadgeCheck size={24} color="#059669" />
+                  <div>
+                    <strong style={{ color: "#065f46", fontSize: "14px" }}>
+                      Keanggotaan Telah Disetujui
+                    </strong>
+                    <p style={{ margin: "2px 0 0", color: "#047857", fontSize: "12px" }}>
+                      Nomor KTA Digital dan kredensial resmi telah diterbitkan aktif untuk anggota ini.
+                    </p>
+                  </div>
                 </div>
               )}
             </>
@@ -7396,10 +7528,21 @@ function MembersManager() {
     queryKey: ["members", search],
     queryFn: () =>
       api<{ data: CmsMember[] }>(
-        `/v1/admin/members?limit=100&search=${encodeURIComponent(search)}`,
+        `/v1/admin/members?limit=200&search=${encodeURIComponent(search)}`,
       ),
   });
-  const items = query.data?.data ?? [];
+  const rawItems = query.data?.data ?? [];
+  const items = useMemo(() => {
+    return [...rawItems].sort((a, b) => {
+      const timeA = new Date(
+        (a as any).createdAt || (a as any).joinedAt || 0,
+      ).getTime();
+      const timeB = new Date(
+        (b as any).createdAt || (b as any).joinedAt || 0,
+      ).getTime();
+      return timeB - timeA;
+    });
+  }, [rawItems]);
   const paginatedItems = items.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
