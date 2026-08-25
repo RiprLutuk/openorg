@@ -25054,32 +25054,30 @@ img {
     flex-shrink: 0;
   }
 
-  .btn-geo-location {
-    padding: 5px 11px;
-    font-size: 11px;
-    border-radius: 9999px;
-    flex-shrink: 0;
-  }
-
   .ws-carousel-controls-group {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 6px;
+  }
+
+  .btn-geo-location {
+    flex: 1;
+    justify-content: center;
+    padding: 5px 8px;
+    font-size: 11px;
+    border-radius: 6px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 
   .carousel-autoplay-btn,
   .btn-shuffle-fair {
-    padding: 4.5px 9px;
+    padding: 5px 9px;
     font-size: 11px;
     border-radius: 6px;
-  }
-
-  .ws-link-all-desktop {
-    font-size: 11px;
-    padding: 4px 6px;
-    margin-left: auto;
+    flex-shrink: 0;
   }
 
   .carousel-arrows-pair {

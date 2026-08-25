@@ -618,10 +618,30 @@ export function HomeFeaturedWorkshops() {
           </p>
         </div>
 
-        {/* Dedicated Toolbar: Unified Filters on Left + Clean Tools on Right */}
+        {/* Dedicated Toolbar: Category Filters on Left + Tools & Location on Right */}
         <div className="ws-showcase-toolbar">
           <div className="ws-category-chips-row">
-            {/* Geolocation / Nearby Scope Toggle as Primary Pill */}
+            <button
+              type="button"
+              className={`ws-cat-filter-btn ${selectedCat === "all" ? "active" : ""}`}
+              onClick={() => setSelectedCat("all")}
+            >
+              Semua ({filtered.length})
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                className={`ws-cat-filter-btn ${selectedCat === cat ? "active" : ""}`}
+                onClick={() => setSelectedCat(cat)}
+              >
+                {cat.replace(/^Bengkel\s+/i, "").replace(/& Manifold Digital/i, "& Manifold")}
+              </button>
+            ))}
+          </div>
+
+          <div className="ws-carousel-controls-group">
+            {/* Geolocation / Nearby Scope Toggle */}
             {geoState.status === "active" ? (
               <button
                 type="button"
@@ -649,30 +669,10 @@ export function HomeFeaturedWorkshops() {
                 title="Deteksi lokasi saya untuk menampilkan bengkel terdekat di wilayah Anda"
               >
                 <Compass size={12} className={geoState.status === "requesting" ? "animate-spin" : ""} />
-                <span>{geoState.status === "requesting" ? "Mendeteksi..." : "📍 Dekat Saya"}</span>
+                <span>{geoState.status === "requesting" ? "Mendeteksi..." : "Lokasi Saya"}</span>
               </button>
             )}
 
-            <button
-              type="button"
-              className={`ws-cat-filter-btn ${selectedCat === "all" ? "active" : ""}`}
-              onClick={() => setSelectedCat("all")}
-            >
-              Semua ({filtered.length})
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                className={`ws-cat-filter-btn ${selectedCat === cat ? "active" : ""}`}
-                onClick={() => setSelectedCat(cat)}
-              >
-                {cat.replace(/^Bengkel\s+/i, "").replace(/& Manifold Digital/i, "& Manifold")}
-              </button>
-            ))}
-          </div>
-
-          <div className="ws-carousel-controls-group">
             {/* Fair Shuffle */}
             <button
               type="button"
@@ -714,10 +714,6 @@ export function HomeFeaturedWorkshops() {
                 <ChevronRight size={15} />
               </button>
             </div>
-
-            <Link href="/bengkel" className="ws-link-all-desktop">
-              <span>Semua Bengkel →</span>
-            </Link>
           </div>
         </div>
 
