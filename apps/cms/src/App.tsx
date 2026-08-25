@@ -452,11 +452,17 @@ export function App() {
     retry: false,
   });
   if (session.isLoading) return <Splash />;
-  if (session.error instanceof ApiError && session.error.status === 401)
-    return <Login />;
-  if (session.isError) return <FatalError message={session.error.message} />;
-  if (!session.data)
-    return <FatalError message="The session response was empty." />;
+  if (session.isError || !session.data?.data) {
+    const isAuth =
+      (session.error instanceof ApiError && session.error.status === 401) ||
+      (session.error as { status?: number })?.status === 401 ||
+      session.error?.message?.includes("401") ||
+      session.error?.message?.toLowerCase().includes("unauthorized") ||
+      !session.data?.data;
+
+    if (isAuth) return <Login />;
+    return <FatalError message={session.error?.message || "Koneksi ke server terputus."} />;
+  }
   return <Studio session={session.data.data} />;
 }
 
@@ -1099,6 +1105,25 @@ function Dashboard({
   });
 
   if (query.isLoading) return <PageLoading />;
+  if (query.isError) {
+    return (
+      <div className="panel" style={{ padding: "32px", textAlign: "center" }}>
+        <h3 style={{ color: "#dc2626", marginBottom: "8px" }}>
+          Gagal Memuat Data Dashboard
+        </h3>
+        <p style={{ color: "#64748b", marginBottom: "16px" }}>
+          {query.error?.message}
+        </p>
+        <button
+          type="button"
+          className="button primary"
+          onClick={() => query.refetch()}
+        >
+          Muat Ulang Dashboard
+        </button>
+      </div>
+    );
+  }
   const data = query.data?.data;
 
   const totalMembers = data?.counts.members ?? 0;
