@@ -925,7 +925,7 @@ interface SearchableMultiSelectProps {
 
 function SearchableMultiSelect({
   label,
-  placeholder = "Ketik untuk mencari atau menambah layanan...",
+  placeholder = "Ketik atau pilih layanan & keahlian...",
   options,
   selected,
   onChange,
@@ -1002,78 +1002,78 @@ function SearchableMultiSelect({
     }
   };
 
+  const unusedSuggestions = useMemo(() => {
+    return options.filter((opt) => !selected.includes(opt)).slice(0, 5);
+  }, [options, selected]);
+
   return (
     <div className="searchable-multi-select-wrap" ref={containerRef}>
-      <span className="searchable-multi-select-label">{label}</span>
+      <div className="multi-select-header-row">
+        <span className="searchable-multi-select-label">{label}</span>
+        <div className="multi-select-header-actions">
+          {selected.length > 0 && (
+            <>
+              <span className="multi-select-count-badge">
+                {selected.length} Layanan Terpilih
+              </span>
+              <button
+                type="button"
+                className="multi-select-reset-btn"
+                onClick={() => onChange([])}
+              >
+                Reset
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Clean Search / Trigger Box */}
       <div
-        className={`searchable-multi-select-box ${isOpen ? "focused" : ""}`}
+        className={`searchable-multi-input-box ${isOpen ? "focused" : ""}`}
         onClick={() => {
           setIsOpen(true);
           inputRef.current?.focus();
         }}
       >
-        <div className="searchable-multi-select-tags">
-          {selected.map((item) => (
-            <span key={item} className="searchable-tag-chip">
-              <Wrench size={11} className="tag-icon" />
-              <span className="tag-text">{item}</span>
-              <button
-                type="button"
-                className="tag-remove-btn"
-                onClick={(e) => removeOption(item, e)}
-                title={`Hapus ${item}`}
-              >
-                <X size={12} />
-              </button>
-            </span>
-          ))}
-          <div className="search-inline-box">
-            <Search size={13} className="search-inline-icon" />
-            <input
-              ref={inputRef}
-              type="text"
-              className="search-inline-input"
-              placeholder={
-                selected.length === 0
-                  ? placeholder
-                  : "Cari atau tambah layanan lainnya…"
-              }
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                if (!isOpen) setIsOpen(true);
-              }}
-              onFocus={() => setIsOpen(true)}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-        </div>
-        <div className="searchable-multi-select-controls">
-          {selected.length > 0 && (
-            <button
-              type="button"
-              className="clear-all-tags-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                onChange([]);
-              }}
-              title="Bersihkan semua pilihan"
-            >
-              <X size={14} />
-            </button>
-          )}
-          <ChevronDown
-            size={16}
-            className={`chevron-icon ${isOpen ? "rotated" : ""}`}
-          />
-        </div>
+        <Search size={16} className="search-box-icon" />
+        <input
+          ref={inputRef}
+          type="text"
+          className="search-box-input"
+          placeholder={placeholder}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            if (!isOpen) setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          onKeyDown={handleKeyDown}
+        />
+        {search && (
+          <button
+            type="button"
+            className="search-box-clear-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSearch("");
+            }}
+          >
+            <X size={14} />
+          </button>
+        )}
+        <ChevronDown
+          size={16}
+          className={`chevron-icon ${isOpen ? "rotated" : ""}`}
+        />
       </div>
 
+      {/* Search Dropdown Checklist */}
       {isOpen && (
         <div className="searchable-multi-select-dropdown">
           <div className="dropdown-toolbar">
             <small>
-              {selected.length} dari {options.length} layanan unggulan dipilih
+              {selected.length} dari {options.length} layanan terdaftar dipilih
             </small>
             <div className="dropdown-quick-links">
               <button
@@ -1095,7 +1095,7 @@ function SearchableMultiSelect({
                     onChange([]);
                   }}
                 >
-                  Reset
+                  Bersihkan
                 </button>
               )}
             </div>
@@ -1110,7 +1110,9 @@ function SearchableMultiSelect({
                   className={`dropdown-item-row ${isSelected ? "selected" : ""}`}
                   onClick={() => toggleOption(opt)}
                 >
-                  <div className={`option-check-square ${isSelected ? "checked" : ""}`}>
+                  <div
+                    className={`option-check-square ${isSelected ? "checked" : ""}`}
+                  >
                     {isSelected && <Check size={12} />}
                   </div>
                   <span className="option-text">{opt}</span>
@@ -1136,6 +1138,44 @@ function SearchableMultiSelect({
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Selected Tag Cloud (Full readable badges) */}
+      {selected.length > 0 && (
+        <div className="multi-select-active-tags">
+          {selected.map((item) => (
+            <span key={item} className="active-service-tag">
+              <Wrench size={12} className="active-tag-icon" />
+              <span className="active-tag-label">{item}</span>
+              <button
+                type="button"
+                className="active-tag-remove"
+                onClick={(e) => removeOption(item, e)}
+                title={`Hapus ${item}`}
+              >
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Quick Suggestions Chips Bar */}
+      {unusedSuggestions.length > 0 && (
+        <div className="multi-select-suggestions-bar">
+          <span className="suggestions-lead">Saran Cepat:</span>
+          {unusedSuggestions.map((sug) => (
+            <button
+              key={sug}
+              type="button"
+              className="quick-suggestion-chip"
+              onClick={() => toggleOption(sug)}
+            >
+              <Plus size={11} />
+              <span>{sug}</span>
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -2041,8 +2081,8 @@ function MemberWorkshopPromo({
           />
 
           <SearchableMultiSelect
-            label="Layanan & Keahlian Unggulan (Pencarian & Multi-Select)"
-            placeholder="Cari atau ketik layanan baru..."
+            label="Layanan & Keahlian Unggulan"
+            placeholder="Ketik atau pilih layanan & keahlian..."
             options={POPULAR_WORKSHOP_SERVICES}
             selected={selectedServices}
             onChange={setSelectedServices}
