@@ -34,6 +34,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MemberLogin } from "@/components/member-login";
 import { MemberApiError, memberApi } from "@/lib/member-client";
 import {
   fetchDistrictsFromApi,
@@ -311,26 +312,10 @@ export function MemberPortal() {
 
   if (!data)
     return (
-      <div className="member-portal-gate wrap">
-        <div className="portal-gate-card">
-          <span className="gate-icon-circle">
-            <ShieldCheck size={32} />
-          </span>
-          <p className="eyebrow">Portal Anggota Resmi</p>
-          <h2>Silakan Masuk Terlebih Dahulu</h2>
-          <p>
-            Akses kartu KTA digital, status sertifikasi BNSP, riwayat kredit SKP,
-            dan profil keanggotaan Anda tersimpan aman dan privat.
-          </p>
-          <div className="gate-action-buttons">
-            <Link className="button primary" href="/member/login">
-              Masuk ke Akun
-            </Link>
-            <Link className="button secondary" href="/join">
-              Daftar Anggota Baru
-            </Link>
-          </div>
-          {error && <p className="form-error mt-4">{error}</p>}
+      <div className="login-page-suite" style={{ minHeight: "65vh", padding: "1rem 0 3rem" }}>
+        <div className="login-ambient-glow" />
+        <div className="wrap login-page-inner">
+          <MemberLogin organizationName="APTI Indonesia" />
         </div>
       </div>
     );
