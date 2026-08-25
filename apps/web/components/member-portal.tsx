@@ -61,6 +61,10 @@ import {
   type WilayahDistrict,
   type WilayahVillage,
 } from "@/lib/indonesia-wilayah";
+import {
+  extractCoordinatesFromMapsUrl,
+  getCityCoordinates,
+} from "@/lib/geo-coordinates";
 import { MemberPortraitCard } from "./member-portrait-card";
 
 type PortalData = {
@@ -2048,6 +2052,18 @@ function MemberWorkshopPromo({
   );
   const [previewMode, setPreviewMode] = useState<"grid" | "mobile" | "compact" | "full">("grid");
 
+  const initialCoords = useMemo(() => {
+    if (existingMeta.latitude && existingMeta.longitude) {
+      return { lat: existingMeta.latitude, lng: existingMeta.longitude };
+    }
+    return getCityCoordinates(existingMeta.city || "Jakarta Selatan", existingMeta.province || "DKI Jakarta");
+  }, [existingMeta.latitude, existingMeta.longitude, existingMeta.city, existingMeta.province]);
+
+  const [latitude, setLatitude] = useState<number>(initialCoords.lat);
+  const [longitude, setLongitude] = useState<number>(initialCoords.lng);
+  const [isDetectingGps, setIsDetectingGps] = useState<boolean>(false);
+  const [gpsSource, setGpsSource] = useState<"auto" | "gps" | "maps">("auto");
+
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -2116,6 +2132,10 @@ function MemberWorkshopPromo({
       if (firstReg?.kodepos) {
         setPostalCode(firstReg.kodepos);
       }
+      const coords = getCityCoordinates(selectedReg, newProv);
+      setLatitude(coords.lat);
+      setLongitude(coords.lng);
+      setGpsSource("auto");
     }
   };
 
@@ -2123,11 +2143,46 @@ function MemberWorkshopPromo({
     setCity(newCity);
     setDistrict("");
     setVillage("");
+    const coords = getCityCoordinates(newCity, province);
+    setLatitude(coords.lat);
+    setLongitude(coords.lng);
+    setGpsSource("auto");
     const regs = getRegenciesByProvince(province);
     const foundReg = regs.find((r) => r.nama === newCity);
     if (foundReg?.kodepos) {
       setPostalCode(foundReg.kodepos);
     }
+  };
+
+  const handleGoogleMapsChange = (url: string) => {
+    setGoogleMapsUrl(url);
+    const coords = extractCoordinatesFromMapsUrl(url);
+    if (coords) {
+      setLatitude(coords.lat);
+      setLongitude(coords.lng);
+      setGpsSource("maps");
+    }
+  };
+
+  const handleDetectCurrentGps = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setError("Browser tidak mendukung sensor GPS.");
+      return;
+    }
+    setIsDetectingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLatitude(pos.coords.latitude);
+        setLongitude(pos.coords.longitude);
+        setGpsSource("gps");
+        setIsDetectingGps(false);
+      },
+      (err) => {
+        setIsDetectingGps(false);
+        setError(`Gagal membaca GPS: ${err.message}. Tetap menggunakan koordinat kota.`);
+      },
+      { timeout: 8000, enableHighAccuracy: true }
+    );
   };
 
   const operatingHoursSummary = useMemo(() => {
@@ -2167,6 +2222,8 @@ function MemberWorkshopPromo({
       village: village.trim(),
       postalCode: postalCode.trim(),
       address: address.trim(),
+      latitude,
+      longitude,
       phone: phone.trim(),
       whatsapp: whatsapp.trim(),
       website: website.trim(),
@@ -2400,6 +2457,33 @@ function MemberWorkshopPromo({
                 />
               </label>
             </div>
+
+            {/* Titik Koordinat GPS (Auto-Geocoded + 1-Click GPS Detector) */}
+            <div className="portal-gps-coordinate-box">
+              <div className="gps-coordinate-left">
+                <Compass size={18} className="text-sky-600" />
+                <div>
+                  <strong>Titik Koordinat GPS Usaha (Pencarian Terdekat)</strong>
+                  <p>
+                    Otomatis dihitung dari {city || province}:{" "}
+                    <code>{latitude.toFixed(4)}, {longitude.toFixed(4)}</code>{" "}
+                    {gpsSource === "gps" && <span className="gps-source-tag">📍 GPS Presisi</span>}
+                    {gpsSource === "maps" && <span className="gps-source-tag">🗺️ Google Maps</span>}
+                    {gpsSource === "auto" && <span className="gps-source-tag-auto">🏙️ Titik Kota</span>}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="button secondary btn-detect-portal-gps"
+                onClick={handleDetectCurrentGps}
+                disabled={isDetectingGps}
+                title="Gunakan posisi GPS perangkat Anda saat ini sebagai titik lokasi workshop"
+              >
+                <MapPin size={13} className={isDetectingGps ? "animate-spin" : ""} />
+                <span>{isDetectingGps ? "Membaca..." : "📍 Ambil Titik GPS Saya"}</span>
+              </button>
+            </div>
           </div>
 
           {/* Card 3: Kontak & Tautan Online */}
@@ -2438,7 +2522,7 @@ function MemberWorkshopPromo({
                 <input
                   type="text"
                   value={googleMapsUrl}
-                  onChange={(e) => setGoogleMapsUrl(e.target.value)}
+                  onChange={(e) => handleGoogleMapsChange(e.target.value)}
                   placeholder="https://maps.app.goo.gl/... atau nama jalan"
                 />
               </label>
