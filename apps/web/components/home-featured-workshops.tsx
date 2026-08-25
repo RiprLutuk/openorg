@@ -4,6 +4,8 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  Compass,
+  MapPin,
   Pause,
   Play,
   Shuffle,
@@ -34,6 +36,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0012",
     isPublished: true,
     rating: 4.95,
+    latitude: -6.2615,
+    longitude: 106.8106,
   },
   {
     id: "ws-2",
@@ -54,6 +58,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2026-0004",
     isPublished: true,
     rating: 4.98,
+    latitude: -6.1683,
+    longitude: 106.7589,
   },
   {
     id: "ws-3",
@@ -74,6 +80,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0038",
     isPublished: true,
     rating: 4.9,
+    latitude: -7.2575,
+    longitude: 112.7521,
   },
   {
     id: "ws-4",
@@ -94,6 +102,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0084",
     isPublished: true,
     rating: 4.88,
+    latitude: -6.9175,
+    longitude: 107.6191,
   },
   {
     id: "ws-5",
@@ -114,6 +124,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0105",
     isPublished: true,
     rating: 4.92,
+    latitude: 3.5952,
+    longitude: 98.6722,
   },
   {
     id: "ws-6",
@@ -134,6 +146,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2026-0006",
     isPublished: true,
     rating: 4.92,
+    latitude: -6.9667,
+    longitude: 110.4167,
   },
   {
     id: "ws-7",
@@ -153,6 +167,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0142",
     isPublished: true,
     rating: 4.91,
+    latitude: -5.1477,
+    longitude: 119.4327,
   },
   {
     id: "ws-8",
@@ -173,6 +189,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0177",
     isPublished: true,
     rating: 4.96,
+    latitude: -8.6705,
+    longitude: 115.2126,
   },
   {
     id: "ws-9",
@@ -192,6 +210,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0195",
     isPublished: true,
     rating: 4.9,
+    latitude: -7.7956,
+    longitude: 110.3695,
   },
   {
     id: "ws-10",
@@ -211,6 +231,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0210",
     isPublished: true,
     rating: 4.89,
+    latitude: -2.9761,
+    longitude: 104.7754,
   },
   {
     id: "ws-11",
@@ -231,6 +253,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0233",
     isPublished: true,
     rating: 4.94,
+    latitude: -1.2379,
+    longitude: 116.8289,
   },
   {
     id: "ws-12",
@@ -250,6 +274,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0256",
     isPublished: true,
     rating: 4.87,
+    latitude: -6.2383,
+    longitude: 106.9756,
   },
   {
     id: "ws-13",
@@ -269,6 +295,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0280",
     isPublished: true,
     rating: 4.93,
+    latitude: -6.1783,
+    longitude: 106.6319,
   },
   {
     id: "ws-14",
@@ -288,6 +316,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0301",
     isPublished: true,
     rating: 4.9,
+    latitude: -7.9666,
+    longitude: 112.6326,
   },
   {
     id: "ws-15",
@@ -307,6 +337,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0325",
     isPublished: true,
     rating: 4.89,
+    latitude: -7.5755,
+    longitude: 110.8243,
   },
   {
     id: "ws-16",
@@ -326,8 +358,25 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     memberNumber: "APTI-2024-0350",
     isPublished: true,
     rating: 4.95,
+    latitude: 1.1301,
+    longitude: 104.0529,
   },
 ];
+
+// Helper to compute Haversine distance in KM
+function computeDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 // Helper to shuffle array fairly
 function shuffleArray<T>(array: T[]): T[] {
@@ -339,17 +388,10 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-export function HomeFeaturedWorkshops() {
-  const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(NATIONAL_16_WORKSHOPS);
-  const [selectedCat, setSelectedCat] = useState<string>("all");
-  const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  // Shuffle on mount for fair randomized rotation ("tidak saling iri")
-  useEffect(() => {
-    try {
-      let combined = [...NATIONAL_16_WORKSHOPS];
+function getStoredWorkshops(): PublicWorkshopData[] {
+  try {
+    let combined = [...NATIONAL_16_WORKSHOPS];
+    if (typeof window !== "undefined") {
       const stored = localStorage.getItem("openorg_member_workshops_list");
       if (stored) {
         const parsed: PublicWorkshopData[] = JSON.parse(stored);
@@ -359,14 +401,108 @@ export function HomeFeaturedWorkshops() {
           combined = [...parsed, ...baseWithoutDuplicates];
         }
       }
+    }
+    return combined;
+  } catch {
+    return NATIONAL_16_WORKSHOPS;
+  }
+}
+
+export function HomeFeaturedWorkshops() {
+  const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(NATIONAL_16_WORKSHOPS);
+  const [selectedCat, setSelectedCat] = useState<string>("all");
+  const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [geoState, setGeoState] = useState<{
+    status: "idle" | "requesting" | "active" | "denied";
+    userLat?: number | undefined;
+    userLng?: number | undefined;
+    nearestCity?: string | undefined;
+  }>({ status: "idle" });
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Apply location sorting
+  const applyLocationSort = (lat: number, lng: number, baseList: PublicWorkshopData[]) => {
+    const withDistances: PublicWorkshopData[] = baseList.map((ws) => {
+      const wsLat = ws.latitude ?? -6.2;
+      const wsLng = ws.longitude ?? 106.8;
+      const distanceKm = computeDistanceKm(lat, lng, wsLat, wsLng);
+      return { ...ws, distanceKm };
+    });
+
+    withDistances.sort((a, b) => (a.distanceKm ?? 99999) - (b.distanceKm ?? 99999));
+    setWorkshops(withDistances);
+    setGeoState({
+      status: "active",
+      userLat: lat,
+      userLng: lng,
+      nearestCity: withDistances[0]?.city ?? undefined,
+    });
+  };
+
+  // Request browser geolocation on demand or on mount if permitted
+  const requestUserLocation = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setGeoState({ status: "denied" });
+      return;
+    }
+
+    setGeoState((prev) => ({ ...prev, status: "requesting" }));
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const combined = getStoredWorkshops();
+        applyLocationSort(latitude, longitude, combined);
+      },
+      (err) => {
+        console.warn("Geolocation permission not allowed or unavailable:", err.message);
+        setGeoState({ status: "denied" });
+        setWorkshops((prev) => shuffleArray(prev));
+      },
+      { timeout: 9000, enableHighAccuracy: false }
+    );
+  };
+
+  // Initial load: Try to use geolocation if already granted, otherwise fair random shuffle
+  useEffect(() => {
+    const combined = getStoredWorkshops();
+
+    if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: "geolocation" as PermissionName })
+        .then((permissionStatus) => {
+          if (permissionStatus.state === "granted") {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined);
+              },
+              () => {
+                setWorkshops(shuffleArray(combined));
+              }
+            );
+          } else {
+            // Default to fair randomized shuffle if not already allowed
+            setWorkshops(shuffleArray(combined));
+          }
+        })
+        .catch(() => {
+          setWorkshops(shuffleArray(combined));
+        });
+    } else {
       setWorkshops(shuffleArray(combined));
-    } catch {
-      setWorkshops(shuffleArray(NATIONAL_16_WORKSHOPS));
     }
   }, []);
 
   const handleShuffle = () => {
-    setWorkshops((prev) => shuffleArray(prev));
+    setGeoState({ status: "idle" });
+    const combined = getStoredWorkshops().map((w) => {
+      const copy: PublicWorkshopData = { ...w };
+      delete copy.distanceKm;
+      return copy;
+    });
+    setWorkshops(shuffleArray(combined));
   };
 
   const handleScroll = (direction: "left" | "right") => {
@@ -394,7 +530,6 @@ export function HomeFeaturedWorkshops() {
         const step = 370; // 1 card slide width + gap
 
         if (el.scrollLeft >= maxScroll - 15) {
-          // Seamlessly reset back to beginning
           el.scrollTo({ left: 0, behavior: "smooth" });
         } else {
           el.scrollBy({ left: step, behavior: "smooth" });
@@ -408,7 +543,7 @@ export function HomeFeaturedWorkshops() {
   return (
     <section className="section-space home-workshops-showcase-section">
       <div className="wrap">
-        {/* Section Heading: 100% Left Aligned, Identical to Pelatihan & Sertifikasi & Publikasi */}
+        {/* Section Heading: 100% Left Aligned */}
         <div className="section-heading">
           <Link href="/bengkel" className="eyebrow-cta-link">
             <Store size={13} className="text-sky-600" />
@@ -417,7 +552,13 @@ export function HomeFeaturedWorkshops() {
           </Link>
           <h2>Jaringan Bengkel &amp; Toko Mitra Anggota</h2>
           <p>
-            {workshops.length}+ bengkel AC resmi, klinik modul inverter &amp; penyedia suku cadang berlisensi di seluruh Indonesia.
+            {geoState.status === "active" ? (
+              <span className="ws-geo-active-text">
+                📍 Menampilkan bengkel &amp; toko terdekat dari lokasi Anda (Prioritas: {geoState.nearestCity || "Sekitar Anda"}).
+              </span>
+            ) : (
+              `${workshops.length}+ bengkel AC resmi, klinik modul inverter & penyedia suku cadang berlisensi di seluruh Indonesia.`
+            )}
           </p>
         </div>
 
@@ -438,12 +579,46 @@ export function HomeFeaturedWorkshops() {
                 className={`ws-cat-filter-btn ${selectedCat === cat ? "active" : ""}`}
                 onClick={() => setSelectedCat(cat)}
               >
-                {cat}
+                {cat.replace(/^Bengkel\s+/i, "").replace(/& Manifold Digital/i, "& Manifold")}
               </button>
             ))}
           </div>
 
           <div className="ws-carousel-controls-group">
+            {/* Geolocation Button */}
+            <button
+              type="button"
+              className={`btn-geo-location ${geoState.status === "active" ? "active" : ""}`}
+              onClick={requestUserLocation}
+              disabled={geoState.status === "requesting"}
+              title={
+                geoState.status === "active"
+                  ? "Lokasi aktif: Menampilkan bengkel terdekat"
+                  : "Deteksi lokasi saya untuk menampilkan bengkel terdekat"
+              }
+            >
+              <Compass size={13} className={geoState.status === "requesting" ? "animate-spin" : ""} />
+              <span>
+                {geoState.status === "active"
+                  ? "Terdekat Saya ✓"
+                  : geoState.status === "requesting"
+                  ? "Mencari..."
+                  : "Dekat Saya"}
+              </span>
+            </button>
+
+            {/* Fair Shuffle */}
+            <button
+              type="button"
+              className={`btn-shuffle-fair ${geoState.status === "idle" ? "active-shuffle" : ""}`}
+              onClick={handleShuffle}
+              title="Acak urutan tampilan agar rotasi promosi adil bagi semua anggota"
+            >
+              <Shuffle size={13} />
+              <span>Acak</span>
+            </button>
+
+            {/* Auto-Scroll Toggle */}
             <button
               type="button"
               className={`carousel-autoplay-btn ${isAutoPlay ? "active" : ""}`}
@@ -452,17 +627,7 @@ export function HomeFeaturedWorkshops() {
               aria-label="Toggle Auto-Scroll"
             >
               {isAutoPlay ? <Pause size={13} /> : <Play size={13} />}
-              <span>{isAutoPlay ? "Auto-Scroll" : "Jeda"}</span>
-            </button>
-
-            <button
-              type="button"
-              className="btn-shuffle-fair"
-              onClick={handleShuffle}
-              title="Acak urutan tampilan agar rotasi promosi adil bagi semua anggota"
-            >
-              <Shuffle size={13} />
-              <span>Rotasi Acak</span>
+              <span>{isAutoPlay ? "Auto" : "Jeda"}</span>
             </button>
 
             <div className="carousel-arrows-pair">

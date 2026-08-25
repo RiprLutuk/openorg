@@ -23908,12 +23908,60 @@ img {
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
 }
 
-/* Carousel Toolbar Controls Group */
+/* Geolocation & Controls Group */
 .ws-carousel-controls-group {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.ws-geo-active-text {
+  color: #0369a1;
+  font-weight: 650;
+}
+
+.btn-geo-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+  font-size: 12px;
+  font-weight: 750;
+  padding: 6.5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-geo-location:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: #0284c7;
+}
+
+.btn-geo-location.active {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+
+.ws-pill-distance {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  font-weight: 750;
+  color: #0369a1;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  border-radius: 5px;
+  padding: 2px 6px;
+  white-space: nowrap;
 }
 
 .carousel-autoplay-btn {

@@ -42,8 +42,11 @@ export interface PublicWorkshopData {
   ownerName: string;
   memberNumber: string;
   isPublished: boolean;
-  rating?: number;
-  completedJobs?: number;
+  rating?: number | undefined;
+  completedJobs?: number | undefined;
+  distanceKm?: number | undefined;
+  latitude?: number | undefined;
+  longitude?: number | undefined;
 }
 
 export function PublicWorkshopCard({
@@ -105,6 +108,19 @@ export function PublicWorkshopCard({
             </span>
           </span>
           <div className="ws-badge-group">
+            {workshop.distanceKm !== undefined && (
+              <span
+                className="ws-pill-distance"
+                title={`Jarak estimasi: ${workshop.distanceKm.toFixed(1)} km dari lokasi Anda`}
+              >
+                <MapPin size={10} className="text-sky-600 flex-shrink-0" />
+                <span>
+                  {workshop.distanceKm < 5
+                    ? "< 5 km"
+                    : `±${Math.round(workshop.distanceKm)} km`}
+                </span>
+              </span>
+            )}
             {is24h && <span className="ws-pill-24h">24 Jam</span>}
             <span className="ws-pill-verified" title="Mitra Resmi Terverifikasi">
               <ShieldCheck size={12} className="text-emerald-600 flex-shrink-0" />

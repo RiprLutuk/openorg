@@ -1,18 +1,13 @@
 "use client";
 
 import {
-  ArrowRight,
-  Clock,
+  Compass,
   Filter,
   MapPin,
-  MessageSquare,
-  Navigation,
   Search,
-  ShieldCheck,
   Shuffle,
   Sparkles,
   Store,
-  Wrench,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +15,20 @@ import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { NATIONAL_16_WORKSHOPS } from "@/components/home-featured-workshops";
 import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
+
+function computeDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
@@ -30,15 +39,10 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-function WorkshopsPageContent() {
-  const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(NATIONAL_16_WORKSHOPS);
-  const [search, setSearch] = useState("");
-  const [selectedProvince, setSelectedProvince] = useState("all");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-
-  useEffect(() => {
-    try {
-      let combined = [...NATIONAL_16_WORKSHOPS];
+function getStoredWorkshops(): PublicWorkshopData[] {
+  try {
+    let combined = [...NATIONAL_16_WORKSHOPS];
+    if (typeof window !== "undefined") {
       const stored = localStorage.getItem("openorg_member_workshops_list");
       if (stored) {
         const parsed: PublicWorkshopData[] = JSON.parse(stored);
@@ -48,100 +52,189 @@ function WorkshopsPageContent() {
           combined = [...parsed, ...baseWithoutDuplicates];
         }
       }
+    }
+    return combined;
+  } catch {
+    return NATIONAL_16_WORKSHOPS;
+  }
+}
+
+function WorkshopsPageContent() {
+  const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(NATIONAL_16_WORKSHOPS);
+  const [search, setSearch] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [geoState, setGeoState] = useState<{
+    status: "idle" | "requesting" | "active" | "denied";
+    userLat?: number | undefined;
+    userLng?: number | undefined;
+    nearestCity?: string | undefined;
+  }>({ status: "idle" });
+
+  const applyLocationSort = (lat: number, lng: number, baseList: PublicWorkshopData[]) => {
+    const withDistances: PublicWorkshopData[] = baseList.map((ws) => {
+      const wsLat = ws.latitude ?? -6.2;
+      const wsLng = ws.longitude ?? 106.8;
+      const distanceKm = computeDistanceKm(lat, lng, wsLat, wsLng);
+      return { ...ws, distanceKm };
+    });
+
+    withDistances.sort((a, b) => (a.distanceKm ?? 99999) - (b.distanceKm ?? 99999));
+    setWorkshops(withDistances);
+    setGeoState({
+      status: "active",
+      userLat: lat,
+      userLng: lng,
+      nearestCity: withDistances[0]?.city ?? undefined,
+    });
+  };
+
+  const requestUserLocation = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setGeoState({ status: "denied" });
+      return;
+    }
+
+    setGeoState((prev) => ({ ...prev, status: "requesting" }));
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        applyLocationSort(latitude, longitude, getStoredWorkshops());
+      },
+      (err) => {
+        console.warn("Geolocation permission not allowed or unavailable:", err.message);
+        setGeoState({ status: "denied" });
+        setWorkshops((prev) => shuffleArray(prev));
+      },
+      { timeout: 9000, enableHighAccuracy: false }
+    );
+  };
+
+  useEffect(() => {
+    const combined = getStoredWorkshops();
+
+    if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: "geolocation" as PermissionName })
+        .then((permissionStatus) => {
+          if (permissionStatus.state === "granted") {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined);
+              },
+              () => {
+                setWorkshops(shuffleArray(combined));
+              }
+            );
+          } else {
+            setWorkshops(shuffleArray(combined));
+          }
+        })
+        .catch(() => {
+          setWorkshops(shuffleArray(combined));
+        });
+    } else {
       setWorkshops(shuffleArray(combined));
-    } catch {
-      setWorkshops(shuffleArray(NATIONAL_16_WORKSHOPS));
     }
   }, []);
 
   const handleShuffle = () => {
-    setWorkshops((prev) => shuffleArray(prev));
+    setGeoState({ status: "idle" });
+    const combined = getStoredWorkshops().map((w) => {
+      const copy: PublicWorkshopData = { ...w };
+      delete copy.distanceKm;
+      return copy;
+    });
+    setWorkshops(shuffleArray(combined));
   };
 
   const provinces = Array.from(new Set(workshops.map((w) => w.province).filter(Boolean)));
   const categories = Array.from(new Set(workshops.map((w) => w.category).filter(Boolean)));
 
-  const filtered = workshops.filter((w) => {
+  const filtered = workshops.filter((ws) => {
     const matchSearch =
       !search ||
-      w.workshopName.toLowerCase().includes(search.toLowerCase()) ||
-      w.tagline.toLowerCase().includes(search.toLowerCase()) ||
-      w.city.toLowerCase().includes(search.toLowerCase()) ||
-      w.ownerName.toLowerCase().includes(search.toLowerCase()) ||
-      w.memberNumber.toLowerCase().includes(search.toLowerCase()) ||
-      w.services.some((s) => s.toLowerCase().includes(search.toLowerCase()));
+      ws.workshopName.toLowerCase().includes(search.toLowerCase()) ||
+      ws.city.toLowerCase().includes(search.toLowerCase()) ||
+      ws.province.toLowerCase().includes(search.toLowerCase()) ||
+      ws.ownerName.toLowerCase().includes(search.toLowerCase()) ||
+      ws.services.some((s) => s.toLowerCase().includes(search.toLowerCase()));
 
-    const matchProvince = selectedProvince === "all" || w.province === selectedProvince;
-    const matchCategory = selectedCategory === "all" || w.category === selectedCategory;
+    const matchProvince = selectedProvince === "all" || ws.province === selectedProvince;
+    const matchCategory = selectedCategory === "all" || ws.category === selectedCategory;
 
     return matchSearch && matchProvince && matchCategory;
   });
 
   return (
-    <div className="technicians-page-suite bengkel-page-suite">
-      {/* 1. Hero Header */}
-      <header className="tech-hero">
-        <div className="wrap hero-split-grid">
-          <div className="tech-hero-inner">
-            <div className="tech-hero-pill">
-              <Store size={14} color="#0284c7" />
-              <span>BURSA BENGKEL &amp; TOKO RESMI NASIONAL</span>
-            </div>
-
-            <h1 className="tech-hero-title">
-              Direktori Bengkel AC &amp; Toko Suku Cadang{" "}
-              <span className="text-gradient">Terverifikasi</span>
-            </h1>
-
-            <p className="tech-hero-lead">
-              Temukan {workshops.length}+ bengkel AC resmi, klinik modul inverter, dan penyedia suku cadang mitra anggota terdaftar di seluruh Indonesia.
-            </p>
+    <div className="technicians-directory-page">
+      <div className="technicians-hero-section">
+        <div className="wrap">
+          <div className="tech-hero-eyebrow">
+            <Store size={14} className="text-sky-600" />
+            <span>Bursa Usaha &amp; Mitra Terverifikasi</span>
           </div>
+          <h1>Direktori Bengkel AC &amp; Toko Mitra Resmi</h1>
+          <p>
+            Temukan bengkel pendingin resmi, klinik reparasi modul PCB inverter, dan distributor suku cadang terdaftar di seluruh wilayah Indonesia.
+          </p>
 
-          <div className="tech-hero-stats-panel">
-            <div className="hero-stat-box">
+          <div className="tech-hero-stats">
+            <div className="stat-pill">
               <strong>{workshops.length}+</strong>
-              <small>Bengkel &amp; Toko Resmi</small>
+              <span>Unit Usaha Terdaftar</span>
             </div>
-            <div className="hero-stat-box">
-              <strong>{provinces.length || 38}</strong>
-              <small>Cakupan Provinsi</small>
+            <div className="stat-pill">
+              <strong>{provinces.length}</strong>
+              <span>Provinsi Terjangkau</span>
             </div>
-            <div className="hero-stat-box">
+            <div className="stat-pill">
               <strong>100%</strong>
-              <small>KTA Anggota Sah</small>
+              <span>Teknisi Berlisensi</span>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* 2. Main Directory Suite */}
-      <main className="tech-directory-main section-space">
+      <div className="technicians-main-content">
         <div className="wrap">
-          {/* Search & Filter Bar */}
-          <div className="tech-controls-wrapper">
+          {/* Search & Filter Toolbar */}
+          <div className="tech-search-toolbar">
             <div className="tech-search-box">
               <Search size={18} className="search-icon" />
               <input
                 type="text"
-                placeholder="Cari nama bengkel, keahlian PCB/inverter, kota, atau nomor KTA..."
+                placeholder="Cari nama bengkel, toko, layanan, atau kota..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                aria-label="Cari bengkel atau toko"
+                className="tech-search-input"
               />
               {search && (
                 <button
                   type="button"
-                  className="search-clear-btn"
                   onClick={() => setSearch("")}
-                  aria-label="Bersihkan pencarian"
+                  className="search-clear-btn"
+                  aria-label="Hapus pencarian"
                 >
-                  <X size={14} />
+                  <X size={15} />
                 </button>
               )}
             </div>
 
-            <div className="tech-filters-group">
+            <div className="tech-filter-group">
+              {/* Geolocation Button */}
+              <button
+                type="button"
+                className={`tech-toggle-btn ${geoState.status === "active" ? "active" : ""}`}
+                onClick={requestUserLocation}
+                disabled={geoState.status === "requesting"}
+                title="Deteksi lokasi saya untuk menampilkan bengkel terdekat"
+              >
+                <Compass size={13} className={geoState.status === "requesting" ? "animate-spin" : ""} />
+                <span>{geoState.status === "active" ? "Lokasi Dekat ✓" : "Dekat Saya"}</span>
+              </button>
+
               {provinces.length > 0 && (
                 <select
                   value={selectedProvince}
@@ -228,24 +321,21 @@ function WorkshopsPageContent() {
             )}
           </div>
         </div>
-      </main>
+      </div>
 
       <DynamicBottomCta
-        guestTitle="Daftarkan Bengkel &amp; Toko Resmi Anda Sekarang"
-        guestDescription="Nikmati benefit promosi bursa direktori nasional, sertifikasi BNSP, dan akses jaringan kerja sama proyek."
-        guestPrimaryCta={{ label: "Gabung Jadi Anggota", href: "/join" }}
-        guestSecondaryCta={{ label: "Pelajari Regulasi", href: "/regulations" }}
-        memberTitle="Promosikan Bengkel &amp; Toko Anda ke Seluruh Indonesia"
-        memberDescription="Perbarui profil bengkel, titik maps, dan kontak WhatsApp Anda langsung melalui portal anggota."
-        memberPrimaryCta={{ label: "Kelola Iklan Bengkel", href: "/member" }}
+        guestTitle="Daftarkan Usaha Bengkel &amp; Toko Anda di Bursa Nasional"
+        guestDescription="Raih pelanggan baru dari seluruh Indonesia dengan kredibilitas lisensi dan sertifikasi kompetensi resmi organisasi."
+        guestPrimaryCta={{ label: "Daftar Jadi Anggota", href: "/join" }}
+        guestSecondaryCta={{ label: "Verifikasi Anggota Resmi", href: "/verify" }}
       />
     </div>
   );
 }
 
-export default function BengkelPage() {
+export default function WorkshopsPage() {
   return (
-    <Suspense fallback={<div className="wrap section-space"><p>Memuat direktori bengkel...</p></div>}>
+    <Suspense fallback={<div className="wrap" style={{ padding: "80px 0" }}>Memuat bursa bengkel &amp; toko...</div>}>
       <WorkshopsPageContent />
     </Suspense>
   );
