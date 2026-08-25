@@ -28,6 +28,7 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
+  MapPin,
   Menu,
   Network,
   Newspaper,
@@ -82,7 +83,9 @@ import {
   type CmsMembershipApplication,
   type CmsOrganization,
   type CmsPage,
+  type CmsProvince,
   type CmsPublicSettings,
+  type CmsRegency,
   type CmsRegulation,
   type CmsRevenueData,
   type CmsStatistic,
@@ -91,6 +94,10 @@ import {
   type CmsUnit,
   type CmsWorkingGroup,
   type DashboardData,
+  getWilayahProvinces,
+  getWilayahRegencies,
+  saveWilayahProvince,
+  saveWilayahRegency,
   type Session,
 } from "./api";
 
@@ -114,6 +121,7 @@ type Screen =
   | "workingGroups"
   | "lenders"
   | "statistics"
+  | "wilayah"
   | "appearance"
   | "settings";
 
@@ -155,6 +163,7 @@ const menu: Array<{
       { id: "workingGroups", label: "Working Groups (Pokja)", icon: Briefcase },
       { id: "lenders", label: "Lenders & Partners", icon: Landmark },
       { id: "statistics", label: "Industry Statistics", icon: BarChart3 },
+      { id: "wilayah", label: "Wilayah & Kodepos RI", icon: MapPin },
     ],
   },
   {
@@ -724,6 +733,7 @@ function Studio({ session }: { session: Session }) {
           {screen === "workingGroups" && <WorkingGroupsManager />}
           {screen === "lenders" && <LendersManager />}
           {screen === "statistics" && <StatisticsManager />}
+          {screen === "wilayah" && <WilayahManager />}
           {screen === "appearance" && <Appearance />}
           {screen === "settings" && <SettingsManager />}
         </main>
@@ -10281,6 +10291,365 @@ function StatisticsManager() {
           </tbody>
         </table>
       </section>
+    </>
+  );
+}
+
+function WilayahManager() {
+  const qc = useQueryClient();
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState<string>("31");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<"regencies" | "provinces">("regencies");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Partial<CmsRegency> | null>(null);
+
+  const { data: provData, isLoading: _loadingProv } = useQuery({
+    queryKey: ["cms-wilayah-provinces"],
+    queryFn: () => getWilayahProvinces(),
+  });
+
+  const { data: regData, isLoading: _loadingReg } = useQuery({
+    queryKey: ["cms-wilayah-regencies", selectedProvinceCode, searchQuery],
+    queryFn: () => getWilayahRegencies(selectedProvinceCode, searchQuery),
+  });
+
+  const provinces = provData?.data ?? [];
+  const regencies = regData?.data ?? [];
+  const selectedProvince = provinces.find((p) => p.kode === selectedProvinceCode);
+
+  const saveRegencyMut = useMutation({
+    mutationFn: (data: {
+      kode: string;
+      provinceKode: string;
+      nama: string;
+      ibukota?: string;
+      kodepos?: string;
+      kodeposRange?: string;
+    }) => saveWilayahRegency(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["cms-wilayah-regencies"] });
+      toast.success("Data wilayah kota/kabupaten berhasil disimpan ke database!");
+      setIsModalOpen(false);
+      setEditingItem(null);
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Gagal menyimpan wilayah.");
+    },
+  });
+
+  return (
+    <>
+      <header className="content-header">
+        <div>
+          <h1>Wilayah & Kode Pos Indonesia (Kepmendagri)</h1>
+          <p>
+            Master Data 38 Provinsi & 514 Kabupaten/Kota se-Indonesia tersimpan langsung di Database API untuk validasi alamat, cabang DPD/DPC, dan profil bengkel.
+          </p>
+        </div>
+        <div className="header-actions">
+          <button
+            type="button"
+            className="button primary"
+            onClick={() => {
+              setEditingItem({
+                kode: `${selectedProvinceCode}.`,
+                provinceKode: selectedProvinceCode,
+                nama: "",
+                ibukota: "",
+                kodepos: "",
+                kodeposRange: "",
+              });
+              setIsModalOpen(true);
+            }}
+          >
+            <Plus size={16} /> Tambah Kota/Kabupaten
+          </button>
+        </div>
+      </header>
+
+      <div className="tab-group" style={{ marginBottom: "20px" }}>
+        <button
+          type="button"
+          className={`tab-button ${activeTab === "regencies" ? "active" : ""}`}
+          onClick={() => setActiveTab("regencies")}
+        >
+          <Building2 size={16} /> Kabupaten & Kota ({regencies.length})
+        </button>
+        <button
+          type="button"
+          className={`tab-button ${activeTab === "provinces" ? "active" : ""}`}
+          onClick={() => setActiveTab("provinces")}
+        >
+          <Globe2 size={16} /> Daftar 38 Provinsi
+        </button>
+      </div>
+
+      {activeTab === "regencies" && (
+        <>
+          <section className="panel" style={{ marginBottom: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "16px" }}>
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                  PILIH PROVINSI:
+                </label>
+                <select
+                  value={selectedProvinceCode}
+                  onChange={(e) => setSelectedProvinceCode(e.target.value)}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                >
+                  {provinces.map((p) => (
+                    <option key={p.kode} value={p.kode}>
+                      [{p.kode}] {p.nama} (Ibukota: {p.ibukota})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                  CARI KOTA / KODEPOS:
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Ketik nama kota, ibukota, atau nomor kodepos..."
+                    style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="panel">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <h3 style={{ margin: 0, fontSize: "16px" }}>
+                Wilayah Provinsi {selectedProvince?.nama || "Indonesia"} ({regencies.length} Kab/Kota)
+              </h3>
+              <span className="badge" style={{ background: "#f0f9ff", color: "#0284c7", border: "1px solid #bae6fd" }}>
+                Kode Kemendagri: {selectedProvince?.kode} · Rentang Kode Pos: {selectedProvince?.kodeposRange}
+              </span>
+            </div>
+
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Kode Wilayah</th>
+                  <th>Nama Kabupaten / Kota</th>
+                  <th>Ibukota</th>
+                  <th>Kode Pos Utama</th>
+                  <th>Rentang Kode Pos</th>
+                  <th>Total Kodepos</th>
+                  <th className="actions-cell">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {regencies.map((r) => (
+                  <tr key={r.kode}>
+                    <td>
+                      <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
+                        {r.kode}
+                      </code>
+                    </td>
+                    <td>
+                      <strong>{r.nama}</strong>
+                    </td>
+                    <td>{r.ibukota || "—"}</td>
+                    <td>
+                      <span className="badge" style={{ background: "#ecfdf5", color: "#059669" }}>
+                        📮 {r.kodepos || "—"}
+                      </span>
+                    </td>
+                    <td>{r.kodeposRange || "—"}</td>
+                    <td>
+                      <small style={{ color: "#64748b" }}>
+                        {r.kodeposList?.length || 0} kelurahan
+                      </small>
+                    </td>
+                    <td className="actions-cell">
+                      <button
+                        type="button"
+                        className="icon-button"
+                        onClick={() => {
+                          setEditingItem(r);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        <Pencil size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {regencies.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="empty-cell">
+                      <Empty message="Tidak ada data kota/kabupaten yang cocok." />
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </section>
+        </>
+      )}
+
+      {activeTab === "provinces" && (
+        <section className="panel">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Kode</th>
+                <th>Nama Provinsi</th>
+                <th>Ibukota</th>
+                <th>Kode Pos Utama</th>
+                <th>Rentang Kode Pos Provinsi</th>
+                <th className="actions-cell">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {provinces.map((p) => (
+                <tr key={p.kode}>
+                  <td>
+                    <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
+                      {p.kode}
+                    </code>
+                  </td>
+                  <td>
+                    <strong>{p.nama}</strong>
+                  </td>
+                  <td>{p.ibukota}</td>
+                  <td>
+                    <span className="badge" style={{ background: "#ecfdf5", color: "#059669" }}>
+                      📮 {p.kodepos}
+                    </span>
+                  </td>
+                  <td>{p.kodeposRange}</td>
+                  <td className="actions-cell">
+                    <button
+                      type="button"
+                      className="button secondary small"
+                      onClick={() => {
+                        setSelectedProvinceCode(p.kode);
+                        setActiveTab("regencies");
+                      }}
+                    >
+                      Lihat Kota ({p.kode})
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
+      {isModalOpen && editingItem && (
+        <div className="modal-backdrop">
+          <div className="modal" style={{ maxWidth: "500px" }}>
+            <div className="modal-header">
+              <h3>{editingItem.kode && editingItem.nama ? "Edit Data Wilayah" : "Tambah Kota/Kabupaten"}</h3>
+              <button
+                type="button"
+                className="icon-button"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setEditingItem(null);
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!editingItem.kode || !editingItem.nama) {
+                  toast.error("Kode dan Nama wajib diisi.");
+                  return;
+                }
+                saveRegencyMut.mutate({
+                  kode: editingItem.kode,
+                  provinceKode: editingItem.provinceKode || selectedProvinceCode,
+                  nama: editingItem.nama,
+                  ibukota: editingItem.ibukota || "",
+                  kodepos: editingItem.kodepos || "",
+                  kodeposRange: editingItem.kodeposRange || "",
+                });
+              }}
+              style={{ display: "flex", flexDirection: "column", gap: "14px", padding: "16px 0" }}
+            >
+              <label>
+                Kode Wilayah (Kepmendagri) *
+                <input
+                  type="text"
+                  required
+                  value={editingItem.kode || ""}
+                  onChange={(e) => setEditingItem({ ...editingItem, kode: e.target.value })}
+                  placeholder="Contoh: 31.71"
+                />
+              </label>
+
+              <label>
+                Nama Kabupaten / Kota *
+                <input
+                  type="text"
+                  required
+                  value={editingItem.nama || ""}
+                  onChange={(e) => setEditingItem({ ...editingItem, nama: e.target.value })}
+                  placeholder="Contoh: Kota Surabaya"
+                />
+              </label>
+
+              <label>
+                Ibukota Wilayah
+                <input
+                  type="text"
+                  value={editingItem.ibukota || ""}
+                  onChange={(e) => setEditingItem({ ...editingItem, ibukota: e.target.value })}
+                  placeholder="Contoh: Surabaya"
+                />
+              </label>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <label>
+                  Kode Pos Utama
+                  <input
+                    type="text"
+                    value={editingItem.kodepos || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, kodepos: e.target.value })}
+                    placeholder="Contoh: 60111"
+                  />
+                </label>
+                <label>
+                  Rentang Kode Pos
+                  <input
+                    type="text"
+                    value={editingItem.kodeposRange || ""}
+                    onChange={(e) => setEditingItem({ ...editingItem, kodeposRange: e.target.value })}
+                    placeholder="Contoh: 60111 - 60299"
+                  />
+                </label>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" }}>
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setEditingItem(null);
+                  }}
+                >
+                  Batal
+                </button>
+                <button type="submit" className="button primary" disabled={saveRegencyMut.isPending}>
+                  {saveRegencyMut.isPending ? "Menyimpan..." : "Simpan ke Database API"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }

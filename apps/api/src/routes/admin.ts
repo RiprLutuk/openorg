@@ -1,5 +1,5 @@
 import { pageSectionsSchema, paginationSchema } from "@openorg/contracts";
-import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { db } from "../db/client";
@@ -9,6 +9,8 @@ import {
   contactSubmissions,
   contents,
   events,
+  indonesiaProvinces,
+  indonesiaRegencies,
   industryStatistics,
   lenderRegistries,
   memberApplications,
@@ -1322,5 +1324,136 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     const { id } = idParams.parse(request.params);
     await db.delete(lenderRegistries).where(eq(lenderRegistries.id, id));
     return { data: { success: true } };
+  });
+
+  // =========================================================================
+  // Admin Wilayah & Kodepos Indonesia (Kepmendagri)
+  // =========================================================================
+  app.get("/wilayah/provinces", async (request) => {
+    const query = z
+      .object({
+        search: z.string().optional(),
+      })
+      .parse(request.query);
+
+    const conditions = [];
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(indonesiaProvinces.nama, q),
+          ilike(indonesiaProvinces.ibukota, q),
+          ilike(indonesiaProvinces.kode, q),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(indonesiaProvinces)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(indonesiaProvinces.kode));
+
+    return { data: rows };
+  });
+
+  app.get("/wilayah/regencies", async (request) => {
+    const query = z
+      .object({
+        province: z.string().optional(),
+        search: z.string().optional(),
+      })
+      .parse(request.query);
+
+    const conditions = [];
+
+    if (query.province?.trim()) {
+      const p = query.province.trim();
+      conditions.push(
+        or(
+          eq(indonesiaRegencies.provinceKode, p),
+          ilike(indonesiaRegencies.provinceKode, p),
+        ),
+      );
+    }
+
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(indonesiaRegencies.nama, q),
+          ilike(indonesiaRegencies.ibukota, q),
+          ilike(indonesiaRegencies.kode, q),
+          ilike(indonesiaRegencies.kodepos, q),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(indonesiaRegencies)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(indonesiaRegencies.kode));
+
+    return { data: rows };
+  });
+
+  app.post("/wilayah/provinces", async (request, reply) => {
+    const provSchema = z.object({
+      kode: z.string().min(2).max(10),
+      nama: z.string().min(2).max(100),
+      ibukota: z.string().default(""),
+      kodepos: z.string().default(""),
+      kodeposRange: z.string().default(""),
+    });
+
+    const body = provSchema.parse(request.body);
+    const [row] = await db
+      .insert(indonesiaProvinces)
+      .values(body)
+      .onConflictDoUpdate({
+        target: indonesiaProvinces.kode,
+        set: {
+          nama: body.nama,
+          ibukota: body.ibukota,
+          kodepos: body.kodepos,
+          kodeposRange: body.kodeposRange,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    return reply.status(201).send({ data: row });
+  });
+
+  app.post("/wilayah/regencies", async (request, reply) => {
+    const regSchema = z.object({
+      kode: z.string().min(2).max(15),
+      provinceKode: z.string().min(2).max(10),
+      nama: z.string().min(2).max(150),
+      ibukota: z.string().default(""),
+      kodepos: z.string().default(""),
+      kodeposRange: z.string().default(""),
+      kodeposList: z.array(z.string()).default([]),
+    });
+
+    const body = regSchema.parse(request.body);
+    const [row] = await db
+      .insert(indonesiaRegencies)
+      .values(body)
+      .onConflictDoUpdate({
+        target: indonesiaRegencies.kode,
+        set: {
+          nama: body.nama,
+          ibukota: body.ibukota,
+          kodepos: body.kodepos,
+          kodeposRange: body.kodeposRange,
+          kodeposList: body.kodeposList,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    return reply.status(201).send({ data: row });
   });
 };

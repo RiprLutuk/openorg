@@ -1,4 +1,9 @@
-import type { PageSection, PublicSite } from "@openorg/contracts";
+import type {
+  PageSection,
+  PublicSite,
+  WilayahProvince,
+  WilayahRegency,
+} from "@openorg/contracts";
 
 const API_URL =
   process.env.INTERNAL_API_URL ??
@@ -189,4 +194,21 @@ export const getEvent = cache((slug: string) =>
 );
 export const getStructure = cache(() =>
   publicApi<PublicStructure>("/structure"),
+);
+
+export const getWilayahProvincesApi = cache((search?: string) =>
+  publicApi<WilayahProvince[]>(
+    `/wilayah/provinces${search ? `?search=${encodeURIComponent(search)}` : ""}`,
+  ),
+);
+
+export const getWilayahRegenciesApi = cache(
+  (province?: string, search?: string) => {
+    const params = new URLSearchParams();
+    if (province) params.set("province", province);
+    if (search) params.set("search", search);
+    return publicApi<WilayahRegency[]>(
+      `/wilayah/regencies${params.toString() ? `?${params.toString()}` : ""}`,
+    );
+  },
 );

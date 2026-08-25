@@ -553,3 +553,64 @@ export type CmsStatistic = {
   sortOrder: number;
   createdAt: string;
 };
+
+export type CmsProvince = {
+  kode: string;
+  nama: string;
+  ibukota: string;
+  kodepos: string;
+  kodeposRange: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CmsRegency = {
+  kode: string;
+  provinceKode: string;
+  nama: string;
+  ibukota: string;
+  kodepos: string;
+  kodeposRange: string;
+  kodeposList: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const getWilayahProvinces = (search?: string) =>
+  api<{ data: CmsProvince[] }>(
+    `/v1/admin/wilayah/provinces${search ? `?search=${encodeURIComponent(search)}` : ""}`,
+  );
+
+export const getWilayahRegencies = (province?: string, search?: string) => {
+  const params = new URLSearchParams();
+  if (province) params.set("province", province);
+  if (search) params.set("search", search);
+  const qs = params.toString() ? `?${params.toString()}` : "";
+  return api<{ data: CmsRegency[] }>(`/v1/admin/wilayah/regencies${qs}`);
+};
+
+export const saveWilayahProvince = (province: {
+  kode: string;
+  nama: string;
+  ibukota?: string;
+  kodepos?: string;
+  kodeposRange?: string;
+}) =>
+  api<{ data: CmsProvince }>("/v1/admin/wilayah/provinces", {
+    method: "POST",
+    body: JSON.stringify(province),
+  });
+
+export const saveWilayahRegency = (regency: {
+  kode: string;
+  provinceKode: string;
+  nama: string;
+  ibukota?: string;
+  kodepos?: string;
+  kodeposRange?: string;
+  kodeposList?: string[];
+}) =>
+  api<{ data: CmsRegency }>("/v1/admin/wilayah/regencies", {
+    method: "POST",
+    body: JSON.stringify(regency),
+  });
