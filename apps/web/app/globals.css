@@ -4695,31 +4695,21 @@ img {
   text-transform: uppercase;
 }
 
-.kta-security-chip {
-  padding: 3px 6px;
-  border-radius: 7px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border: 1px solid #bae6fd;
+.kta-luxury-badge {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08);
+  filter: drop-shadow(0 2px 5px rgba(2, 132, 199, 0.12));
+  transition: transform 0.2s ease;
+  cursor: pointer;
 }
 
-.kta-chip-hologram {
-  display: flex;
-  align-items: center;
-  gap: 3.5px;
+.kta-luxury-badge:hover {
+  transform: scale(1.05);
 }
 
-.kta-chip-shield-icon {
-  color: #0284c7;
-}
-
-.kta-chip-nfc-symbol {
-  color: #0369a1;
-  display: flex;
-  align-items: center;
+.kta-card-svg {
+  display: block;
 }
 
 .kta-card-body {

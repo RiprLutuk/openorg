@@ -212,17 +212,43 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
                       </small>
                     </div>
                   </div>
-                  <div className="kta-security-chip" title="Enkripsi Digital & Kredensial Resmi Anti-Pemalsuan">
-                    <div className="kta-chip-hologram">
-                      <ShieldCheck size={14} className="kta-chip-shield-icon" />
-                      <span className="kta-chip-nfc-symbol" title="NFC Contactless Digital Verification">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                          <path d="M8.5 16.5a5 5 0 0 1 0-9" />
-                          <path d="M12 19a8.5 8.5 0 0 1 0-14" />
-                          <path d="M15.5 21.5a12 12 0 0 1 0-19" />
-                        </svg>
-                      </span>
-                    </div>
+                  <div className="kta-luxury-badge" title="Digital Membership Pass">
+                    <svg
+                      width="32"
+                      height="21"
+                      viewBox="0 0 32 21"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="kta-card-svg"
+                    >
+                      <rect
+                        x="0.75"
+                        y="0.75"
+                        width="30.5"
+                        height="19.5"
+                        rx="3.5"
+                        fill="url(#ktaCardGrad)"
+                        stroke="#bae6fd"
+                        strokeWidth="1"
+                      />
+                      <path d="M0.75 6H31.25" stroke="#7dd3fc" strokeWidth="1" />
+                      <rect x="4" y="9" width="6" height="4.5" rx="1" fill="#0284c7" />
+                      <circle cx="25" cy="14.5" r="2.8" fill="#0284c7" fillOpacity="0.35" />
+                      <circle cx="22" cy="14.5" r="2.8" fill="#0369a1" fillOpacity="0.55" />
+                      <defs>
+                        <linearGradient
+                          id="ktaCardGrad"
+                          x1="0"
+                          y1="0"
+                          x2="32"
+                          y2="21"
+                          gradientUnits="userSpaceOnUse"
+                        >
+                          <stop stopColor="#f0f9ff" />
+                          <stop offset="1" stopColor="#e0f2fe" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
                   </div>
                 </div>
 
