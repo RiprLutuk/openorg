@@ -21566,7 +21566,7 @@ img {
   box-sizing: border-box;
 }
 
-.workshop-promo-form input[type="text"],
+.workshop-promo-form input[type="text"]:not(.search-box-input):not(.single-select-search-input),
 .workshop-promo-form select,
 .searchable-single-select-box,
 .searchable-multi-input-box {
