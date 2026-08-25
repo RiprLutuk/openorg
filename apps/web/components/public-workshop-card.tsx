@@ -111,31 +111,33 @@ export function PublicWorkshopCard({
   return (
     <>
       <article className={`public-workshop-card ${compact ? "compact" : ""}`}>
-        {/* 1. Header Badges */}
+        {/* 1. Header Badges: Clean 2-Pill Hierarchy */}
         <div className="ws-card-header">
-          <div className="ws-badge-group">
-            <span
-              className="ws-cat-pill truncate"
-              title={workshop.category}
-            >
-              {workshop.category.replace(/^Bengkel\s+/i, "")}
-            </span>
-            {is24h && <span className="ws-pill-24h">24 Jam</span>}
-            {workshop.distanceKm !== undefined && (
+          <span
+            className="ws-cat-pill"
+            title={workshop.category}
+          >
+            {workshop.category.replace(/^Bengkel\s+/i, "")}
+          </span>
+          <div className="ws-header-right-meta">
+            {workshop.distanceKm !== undefined ? (
               <span className="ws-pill-distance" title={`Jarak ke lokasi Anda: ±${workshop.distanceKm.toFixed(1)} km`}>
                 📍 {workshop.distanceKm < 1 ? "< 1 km" : `±${Math.round(workshop.distanceKm)} km`}
               </span>
+            ) : is24h ? (
+              <span className="ws-pill-24h">⚡ 24 Jam</span>
+            ) : (
+              <span className="ws-pill-verified">
+                <ShieldCheck size={12} />
+                <span>Mitra Resmi</span>
+              </span>
             )}
-          </div>
-          <div className="ws-verified-badge" title="Unit Usaha Mitra Resmi Anggota Berlisensi">
-            <ShieldCheck size={14} className="text-sky-600 flex-shrink-0" />
-            <span className="truncate">Mitra Resmi</span>
           </div>
         </div>
 
         {/* 2. Nama Bengkel & Tagline */}
         <div className="ws-title-section">
-          <h4 className="ws-name truncate" title={workshop.workshopName}>
+          <h4 className="ws-name" title={workshop.workshopName}>
             {workshop.workshopName}
           </h4>
           <p className="ws-tagline line-clamp-2" title={workshop.tagline}>
@@ -143,64 +145,51 @@ export function PublicWorkshopCard({
           </p>
         </div>
 
-        {/* 3. Meta: Lokasi & Jam Buka */}
-        <div className="ws-meta-row">
-          <div className="ws-meta-item truncate">
-            <MapPin size={13} className="text-slate-400 flex-shrink-0" />
-            <span className="truncate">
-              {workshop.city}, {workshop.province}
+        {/* 3. Sleek Unified Place & Hours Box */}
+        <div className="ws-card-place-info">
+          <a
+            href={mapsDirectUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ws-place-address-row"
+            title="Buka petunjuk arah di Google Maps"
+          >
+            <MapPin size={13} className="text-sky-600 flex-shrink-0" />
+            <span className="ws-place-address-text truncate">
+              {workshop.address || `${workshop.city}, ${workshop.province}`}
             </span>
-          </div>
-          <div className="ws-meta-item truncate">
-            <Clock size={13} className="text-slate-400 flex-shrink-0" />
+            <ExternalLink size={11} className="ws-place-maps-arrow flex-shrink-0" />
+          </a>
+          <div className="ws-place-time-row">
+            <Clock size={12} className="text-slate-400 flex-shrink-0" />
             <span className="truncate">{workshop.operatingHours}</span>
+            {is24h && <span className="ws-dot-badge-24h">· Siap 24 Jam</span>}
           </div>
         </div>
 
-        {/* 4. Styled Visual Map Card with Direct Navigation */}
-        <a
-          href={mapsDirectUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ws-map-banner"
-          title="Buka Navigasi Rute Google Maps"
-        >
-          <div className="ws-map-grid-pattern" />
-          <div className="ws-pin-pulse-box">
-            <MapPin size={16} />
-          </div>
-          <div className="ws-map-info-copy">
-            <span className="ws-addr-text truncate">{workshop.address || workshop.city}</span>
-            <span className="ws-nav-cta">
-              <Navigation size={11} />
-              <span>Buka Rute Maps</span>
-            </span>
-          </div>
-        </a>
-
-        {/* 5. Layanan Spesialisasi */}
+        {/* 4. Layanan Spesialisasi */}
         {workshop.services && workshop.services.length > 0 && (
           <div className="ws-services-cloud">
-            {workshop.services.slice(0, 2).map((srv) => (
+            {workshop.services.slice(0, 3).map((srv) => (
               <span key={srv} className="ws-service-tag truncate">
-                <Wrench size={11} className="text-sky-500 flex-shrink-0" />
+                <Wrench size={10} className="text-sky-500 flex-shrink-0" />
                 <span className="truncate">{srv}</span>
               </span>
             ))}
-            {workshop.services.length > 2 && (
+            {workshop.services.length > 3 && (
               <button
                 type="button"
                 className="ws-service-tag ws-more-tag"
                 onClick={() => setShowDetail(true)}
                 title="Lihat semua spesialisasi"
               >
-                +{workshop.services.length - 2} lagi
+                +{workshop.services.length - 3}
               </button>
             )}
           </div>
         )}
 
-        {/* 6. Footer: Owner KTA, Detail Button, & WhatsApp Action */}
+        {/* 5. Footer: Master Technician Profile & Contact Action CTAs */}
         <div className="ws-card-footer">
           <div className="ws-owner-block">
             <small className="ws-owner-label">Penanggung Jawab:</small>
@@ -220,7 +209,7 @@ export function PublicWorkshopCard({
               onClick={() => setShowDetail(true)}
               title="Lihat Detail Profil & Layanan Lengkap"
             >
-              <Info size={13} />
+              <Info size={12} />
               <span>Detail</span>
             </button>
             <a
@@ -230,7 +219,7 @@ export function PublicWorkshopCard({
               className="ws-btn-whatsapp"
               title="Chat & Order via WhatsApp"
             >
-              <MessageSquare size={13} />
+              <MessageSquare size={12} />
               <span>WhatsApp</span>
             </a>
           </div>
