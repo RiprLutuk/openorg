@@ -920,6 +920,7 @@ async function seed() {
 
     // 6. Regulasi, AD/ART & Surat Edaran (APINDO, APPI, APJII, AFPI, ASISI)
     await tx.insert(regulations).values([
+      // A. AD/ART & Kode Etik
       {
         title:
           "Anggaran Dasar & Anggaran Rumah Tangga (AD/ART) APTI Indonesia 2026",
@@ -936,6 +937,50 @@ async function seed() {
       },
       {
         title:
+          "Kode Etik Praktisi & Pedoman Perilaku Profesional Teknisi Refrigerasi Indonesia",
+        slug: "kode-etik-praktisi-teknisi-refrigerasi-indonesia",
+        category: "ad_art",
+        number: "002/KE-APTI/2026",
+        issuedDate: new Date("2026-01-20"),
+        summary:
+          "Prinsip kejujuran diagnostik servis, larangan pembuangan freon ke udara bebas, transparansi takaran refrigran, dan pakta integritas konsumen.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/kode-etik-praktisi.pdf",
+        downloadCount: 1180,
+        status: "published",
+      },
+      {
+        title:
+          "Peraturan Organisasi (PO) Tata Kelola Keuangan DPD & Iuran Anggota KTA",
+        slug: "po-tata-kelola-keuangan-dpd-iuran-kta",
+        category: "ad_art",
+        number: "005/PO-DPP/APTI/2026",
+        issuedDate: new Date("2026-02-05"),
+        summary:
+          "Mekanisme bagi hasil iuran KTA digital, transparansi pembukuan kas daerah, dan pelaporan keuangan berkala melalui portal ComplyFlow.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/po-keuangan-dpd.pdf",
+        downloadCount: 860,
+        status: "published",
+      },
+      {
+        title:
+          "Peraturan Tata Tertib Disiplin Anggota & Mekanisme Penyelesaian Sengketa Jasa",
+        slug: "po-disiplin-anggota-penyelesaian-sengketa",
+        category: "ad_art",
+        number: "008/PO-DPP/APTI/2026",
+        issuedDate: new Date("2026-02-12"),
+        summary:
+          "Prosedur investigasi pengaduan publik, sanksi etik pencabutan lisensi KTA, dan mediasi ganti rugi pekerjaan servis tidak sesuai SOP.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/po-sengketa-etik.pdf",
+        downloadCount: 740,
+        status: "published",
+      },
+
+      // B. Regulasi Pemerintah & Standar SNI
+      {
+        title:
           "Peraturan Menteri LHK No. 73 Tahun 2024 tentang Pengolahan & Pengurangan Bahan Perusak Ozon (BPO)",
         slug: "permen-lhk-73-2024-pengurangan-bpo",
         category: "regulasi_pemerintah",
@@ -948,6 +993,64 @@ async function seed() {
         downloadCount: 890,
         status: "published",
       },
+      {
+        title:
+          "Permen ESDM No. 11 Tahun 2023: Standar Kinerja Energi Minimum (SKEM) & Label Hemat Energi AC Ruangan",
+        slug: "permen-esdm-11-2023-skem-label-hemat-energi-ac",
+        category: "regulasi_pemerintah",
+        number: "Permen ESDM No. 11/2023",
+        issuedDate: new Date("2023-08-14"),
+        summary:
+          "Ketetapan sertifikasi bintang efisiensi energi (CSPF) untuk unit pendingin ruangan split dan komersial yang beredar di wilayah Indonesia.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/permen-esdm-11-2023.pdf",
+        downloadCount: 1650,
+        status: "published",
+      },
+      {
+        title:
+          "Kepmenaker No. 195/2022: SKKNI Bidang Refrigerasi dan Tata Udara Kategori Industri Pengolahan",
+        slug: "kepmenaker-195-2022-skkni-refrigerasi-tata-udara",
+        category: "regulasi_pemerintah",
+        number: "Kepmenaker No. 195/2022",
+        issuedDate: new Date("2022-12-01"),
+        summary:
+          "Standar Kompetensi Kerja Nasional Indonesia (SKKNI) sebagai acuan baku kurikulum uji kompetensi LSP TPTU dan sertifikasi profesi BNSP.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/skkni-195-2022.pdf",
+        downloadCount: 2890,
+        status: "published",
+      },
+      {
+        title:
+          "SNI 03-6390-2020: Konservasi Energi Sistem Tata Udara pada Bangunan Gedung",
+        slug: "sni-03-6390-2020-konservasi-energi-tata-udara-gedung",
+        category: "regulasi_pemerintah",
+        number: "SNI 03-6390-2020",
+        issuedDate: new Date("2020-10-18"),
+        summary:
+          "Pedoman teknis perhitungan beban pendinginan, pemilihan chiller/VRV efisien, ventilasi udara segar, dan manajemen energi gedung bertingkat.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/sni-03-6390-2020.pdf",
+        downloadCount: 2150,
+        status: "published",
+      },
+      {
+        title:
+          "Peraturan Presiden No. 98 Tahun 2021 tentang Nilai Ekonomi Karbon & Pengurangan Emisi Sektor Pendingin",
+        slug: "perpres-98-2021-nilai-ekonomi-karbon-sektor-pendingin",
+        category: "regulasi_pemerintah",
+        number: "Perpres No. 98/2021",
+        issuedDate: new Date("2021-10-29"),
+        summary:
+          "Landasan hukum perdagangan karbon dan insentif pemanfaatan refrigeran berpotensi pemanasan global rendah (Low-GWP) di Indonesia.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/perpres-98-2021.pdf",
+        downloadCount: 970,
+        status: "published",
+      },
+
+      // C. Surat Edaran DPP Organisasi
       {
         title:
           "Surat Edaran DPP APTI: Standar Biaya Jasa Servis & Keselamatan Kerja K3 Teknisi",
@@ -964,8 +1067,66 @@ async function seed() {
       },
       {
         title:
-          "Naskah Kebijakan (Policy Paper): Insentif Pajak Produk HVAC Ramah Lingkungan R290",
-        slug: "policy-paper-insentif-pajak-hvac-r290",
+          "Surat Edaran DPP: Kewajiban Prosedur Vakum Digital Minimal <500 Micron pada Instalasi Freon R32 & R290",
+        slug: "se-dpp-kewajiban-prosedur-vakum-digital-500-micron",
+        category: "se_organisasi",
+        number: "SE/008/DPP-APTI/I/2026",
+        issuedDate: new Date("2026-01-18"),
+        summary:
+          "Instruksi tegas larangan metode purging udara dengan freon dan kewajiban alat digital vacuum gauge guna menjamin umur kompresor.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/se-vakum-digital.pdf",
+        downloadCount: 3120,
+        status: "published",
+      },
+      {
+        title:
+          "Surat Edaran DPP: Pemberlakuan KTA Digital Ber-QR Code sebagai Bukti Registrasi Keanggotaan Sah",
+        slug: "se-dpp-pemberlakuan-kta-digital-qr-code",
+        category: "se_organisasi",
+        number: "SE/019/DPP-APTI/III/2026",
+        issuedDate: new Date("2026-03-01"),
+        summary:
+          "Instruksi kepada seluruh 38 DPD dan anggota praktisi untuk mengaktifkan kartu tanda anggota digital terotentikasi ComplyFlow.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/se-kta-digital.pdf",
+        downloadCount: 2780,
+        status: "published",
+      },
+      {
+        title:
+          "Surat Edaran DPP: Standar Perlindungan Konsumen & Kebijakan Garansi Servis Minimum 30 Hari",
+        slug: "se-dpp-perlindungan-konsumen-garansi-servis-30-hari",
+        category: "se_organisasi",
+        number: "SE/003/DPP-APTI/I/2026",
+        issuedDate: new Date("2026-01-08"),
+        summary:
+          "Kewajiban penerbitan kwitansi digital resmi bergaransi minimal 30 hari untuk setiap pengerjaan cuci besar, ganti sparepart, dan overhaul.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/se-garansi-konsumen.pdf",
+        downloadCount: 1940,
+        status: "published",
+      },
+      {
+        title:
+          "Surat Edaran DPP: Petunjuk Teknis Pelaksanaan Musyawarah Daerah (Musda) DPD Provinsi",
+        slug: "se-dpp-juklak-musda-dpd-provinsi",
+        category: "se_organisasi",
+        number: "SE/024/DPP-APTI/IV/2026",
+        issuedDate: new Date("2026-04-10"),
+        summary:
+          "Tata cara pemilihan ketua DPD tingkat provinsi, verifikasi hak suara anggota, dan sinkronisasi laporan pertanggungjawaban kepengurusan.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/se-juklak-musda.pdf",
+        downloadCount: 1220,
+        status: "published",
+      },
+
+      // D. Naskah Kebijakan & Policy Papers
+      {
+        title:
+          "Naskah Kebijakan (Policy Paper): Insentif Pajak Produk HVAC Ramah Lingkungan R290 & Inverter",
+        slug: "policy-paper-insentif-pajak-hvac-r290-inverter",
         category: "posisi_kebijakan",
         number: "PP/004/ADVOKASI-APTI/2026",
         issuedDate: new Date("2026-02-18"),
@@ -974,6 +1135,48 @@ async function seed() {
         fileUrl:
           "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/policy-paper-r290.pdf",
         downloadCount: 450,
+        status: "published",
+      },
+      {
+        title:
+          "Peta Jalan (Roadmap) Dekarbonisasi Sistem Tata Udara Sektor Komersial Indonesia 2030",
+        slug: "roadmap-dekarbonisasi-tata-udara-komersial-2030",
+        category: "posisi_kebijakan",
+        number: "PP/009/POKJA-HVAC/2025",
+        issuedDate: new Date("2025-11-25"),
+        summary:
+          "Kajian strategis transisi pendingin chiller berdaya listrik tinggi menuju teknologi water-cooled magnetic bearing dan refrigeran HFO.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/roadmap-dekarbonisasi-2030.pdf",
+        downloadCount: 1480,
+        status: "published",
+      },
+      {
+        title:
+          "Usulan Kebijakan: Sertifikasi Kompetensi Wajib BNSP pada Pengadaan Servis AC Pemerintah (LPSE/E-Katalog)",
+        slug: "usulan-sertifikasi-wajib-lpse-e-katalog-pemerintah",
+        category: "posisi_kebijakan",
+        number: "PP/015/ADVOKASI-APTI/2026",
+        issuedDate: new Date("2026-03-12"),
+        summary:
+          "Dorongan kepada LKPP agar penyedia jasa pemeliharaan AC gedung instansi pemerintah wajib mempekerjakan teknisi bersertifikat BNSP.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/policy-lpse-bnsp.pdf",
+        downloadCount: 920,
+        status: "published",
+      },
+      {
+        title:
+          "Policy Brief: Standarisasi K3 Penanganan Refrigeran Flammable A2L/A3 di Kawasan Padat Penduduk",
+        slug: "policy-brief-k3-refrigeran-flammable-pemukiman",
+        category: "posisi_kebijakan",
+        number: "PP/021/ADVOKASI-APTI/2026",
+        issuedDate: new Date("2026-04-02"),
+        summary:
+          "Panduan mitigasi risiko keselamatan teknisi dan warga sekitar saat melakukan pengisian dan pengelasan pipa unit berfreon R290/R32.",
+        fileUrl:
+          "https://raw.githubusercontent.com/RiprLutuk/openorg/main/docs/policy-brief-k3-r290.pdf",
+        downloadCount: 1110,
         status: "published",
       },
     ]);

@@ -4,12 +4,16 @@ import {
   ArrowRight,
   BookOpen,
   Calendar,
+  ChevronRight,
   Download,
   FileCheck2,
   FileText,
+  Filter,
   Loader2,
   Scale,
   Search,
+  ShieldCheck,
+  Sparkles,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -18,7 +22,7 @@ import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { ServerPagination } from "@/components/server-pagination";
 
-const ITEMS_PER_PAGE_REGULATIONS = 8;
+const ITEMS_PER_PAGE_REGULATIONS = 6;
 
 interface Regulation {
   id: string;
@@ -41,7 +45,7 @@ const categoryLabels: Record<
   { label: string; badgeClass: string; color: string }
 > = {
   regulasi_pemerintah: {
-    label: "Regulasi Pemerintah",
+    label: "Regulasi Pemerintah & SNI",
     badgeClass: "badge-gov",
     color: "#818cf8",
   },
@@ -51,7 +55,7 @@ const categoryLabels: Record<
     color: "#34d399",
   },
   ad_art: {
-    label: "AD / ART",
+    label: "AD / ART & Kode Etik",
     badgeClass: "badge-adart",
     color: "#38bdf8",
   },
@@ -59,6 +63,47 @@ const categoryLabels: Record<
     label: "Naskah Kebijakan",
     badgeClass: "badge-policy",
     color: "#f59e0b",
+  },
+};
+
+const CATEGORY_HEADER_INFO: Record<
+  string,
+  {
+    badge: string;
+    title: string;
+    highlight: string;
+    lead: string;
+  }
+> = {
+  all: {
+    badge: "REGULASI & KEBIJAKAN RESMI",
+    title: "Regulasi Pemerintah, Standar SNI & ",
+    highlight: "Kebijakan Resmi",
+    lead: "Pusat rujukan hukum dan kepatuhan standar refrigerasi: Peraturan Menteri Lingkungan Hidup (KLHK), SKKNI & BNSP, Surat Edaran DPP, serta naskah kebijakan transisi refrigeran ramah lingkungan.",
+  },
+  regulasi_pemerintah: {
+    badge: "REGULASI PEMERINTAH & STANDAR SNI",
+    title: "Peraturan Kementerian, SKKNI & ",
+    highlight: "Standar SNI Nasional",
+    lead: "Kumpulan ketetapan hukum wajib sektor pendingin: Permen LHK No. 73/2024, Permen ESDM hemat energi, standar SKKNI BNSP, serta SNI 03-6390 konservasi energi gedung bertingkat.",
+  },
+  se_organisasi: {
+    badge: "SURAT EDARAN (SE) RESMI DPP",
+    title: "Pedoman Operasional, Standar Biaya & ",
+    highlight: "Instruksi DPP",
+    lead: "Instruksi resmi DPP APTI Indonesia bagi seluruh 38 DPD dan teknisi ber-KTA: standar keselamatan kerja K3, kewajiban vakum digital <500 micron, dan jaminan garansi servis konsumen.",
+  },
+  posisi_kebijakan: {
+    badge: "NASKAH KEBIJAKAN & ADVOKASI",
+    title: "Policy Paper, Roadmap Dekarbonisasi & ",
+    highlight: "Kajian Advokasi",
+    lead: "Kajian strategis dan rekomendasi resmi asosiasi kepada Kementerian Keuangan, Kemenperin, dan LKPP terkait insentif pajak AC ramah lingkungan R290 dan sertifikasi pengadaan pemerintah.",
+  },
+  ad_art: {
+    badge: "KONSTITUSI ORGANISASI & KODE ETIK",
+    title: "Anggaran Dasar, Anggaran Rumah Tangga & ",
+    highlight: "Kode Etik Profesi",
+    lead: "Landasan konstitusional APTI Indonesia, tata kelola kelembagaan, hak dan kewajiban anggota praktisi, serta 9 Butir Pakta Integritas teknisi pendingin nasional.",
   },
 };
 
@@ -88,18 +133,18 @@ const categoryToSlug: Record<string, string> = {
 
 const tabs = [
   { key: "all", label: "Semua Dokumen", slug: "semua" },
-  { key: "ad_art", label: "AD / ART & Kode Etik", slug: "ad-art" },
-  { key: "se_organisasi", label: "Surat Edaran (SE)", slug: "surat-edaran" },
   {
     key: "regulasi_pemerintah",
     label: "Regulasi Pemerintah & SNI",
     slug: "regulasi-pemerintah",
   },
+  { key: "se_organisasi", label: "Surat Edaran (SE)", slug: "surat-edaran" },
   {
     key: "posisi_kebijakan",
     label: "Naskah Kebijakan",
     slug: "naskah-kebijakan",
   },
+  { key: "ad_art", label: "AD / ART & Kode Etik", slug: "ad-art" },
 ];
 
 function RegulationsContent() {
@@ -185,10 +230,16 @@ function RegulationsContent() {
     (acc, item) => acc + (item.downloadCount || 0),
     0,
   );
-  const adartCount = regulations.filter((i) => i.category === "ad_art").length;
+  const govCount = regulations.filter(
+    (i) => i.category === "regulasi_pemerintah",
+  ).length;
   const seCount = regulations.filter(
     (i) => i.category === "se_organisasi",
   ).length;
+  const policyCount = regulations.filter(
+    (i) => i.category === "posisi_kebijakan",
+  ).length;
+  const adartCount = regulations.filter((i) => i.category === "ad_art").length;
 
   const filtered = regulations.filter((item) => {
     const matchTab = activeTab === "all" || item.category === activeTab;
@@ -206,27 +257,62 @@ function RegulationsContent() {
     currentPage * ITEMS_PER_PAGE_REGULATIONS,
   );
 
+  const headerInfo =
+    CATEGORY_HEADER_INFO[activeTab] ??
+    CATEGORY_HEADER_INFO.all ?? {
+      badge: "REGULASI & KEBIJAKAN RESMI",
+      title: "Regulasi Pemerintah, Standar SNI & ",
+      highlight: "Kebijakan Resmi",
+      lead: "Pusat rujukan hukum dan kepatuhan standar refrigerasi di Indonesia.",
+    };
+
   return (
     <div className="regulations-page-suite">
       {/* 1. Flagship 2-Column Split Hero Header */}
       <header className="reg-hero">
+        <div className="wrap">
+          {/* Breadcrumb Navigation Strip */}
+          <nav className="reg-breadcrumbs" aria-label="Breadcrumb" style={{ marginBottom: "1rem" }}>
+            <Link href="/" className="crumb-link">
+              Beranda
+            </Link>
+            <ChevronRight size={13} className="crumb-sep" />
+            <Link
+              href="/regulations"
+              className={`crumb-link ${activeTab === "all" ? "active" : ""}`}
+              onClick={(e) => {
+                if (activeTab !== "all") {
+                  e.preventDefault();
+                  handleTabChange("all");
+                }
+              }}
+            >
+              Regulasi & Kebijakan
+            </Link>
+            {activeTab !== "all" && (
+              <>
+                <ChevronRight size={13} className="crumb-sep" />
+                <span className="crumb-current">
+                  {categoryLabels[activeTab]?.label || activeTab}
+                </span>
+              </>
+            )}
+          </nav>
+        </div>
+
         <div className="wrap reg-hero-grid">
           <div className="reg-hero-inner">
             <div className="reg-hero-pill">
               <BookOpen size={14} />
-              <span>REGULASI & KEBIJAKAN RESMI</span>
+              <span>{headerInfo.badge}</span>
             </div>
 
             <h1 className="reg-hero-title">
-              Regulasi Pemerintah, Standar SNI &{" "}
-              <span className="text-gradient">Kebijakan Resmi</span>
+              {headerInfo.title}
+              <span className="text-gradient">{headerInfo.highlight}</span>
             </h1>
 
-            <p className="reg-hero-lead">
-              Pusat rujukan hukum dan kepatuhan standar refrigerasi: Peraturan
-              Menteri Lingkungan Hidup (KLHK), SKKNI & BNSP, Surat Edaran DPP,
-              serta naskah kebijakan transisi refrigeran ramah lingkungan.
-            </p>
+            <p className="reg-hero-lead">{headerInfo.lead}</p>
           </div>
 
           {/* Right Column: Hero Metrics Bento Card */}
@@ -236,7 +322,19 @@ function RegulationsContent() {
               <span className="stats-card-status">● Arsip Terverifikasi</span>
             </div>
             <div className="stats-card-grid">
-              <div className="stat-item">
+              <div
+                className="stat-item"
+                style={{
+                  cursor: "pointer",
+                  border:
+                    activeTab === "regulasi_pemerintah"
+                      ? "1.5px solid #6366f1"
+                      : "1px solid transparent",
+                  borderRadius: "8px",
+                  padding: "4px",
+                }}
+                onClick={() => handleTabChange("regulasi_pemerintah")}
+              >
                 <div
                   className="stat-icon-wrap"
                   style={{ background: "#eef2ff", color: "#6366f1" }}
@@ -244,11 +342,24 @@ function RegulationsContent() {
                   <Scale size={20} />
                 </div>
                 <div>
-                  <strong>Standar SNI & KLHK</strong>
-                  <small>Regulasi Sah</small>
+                  <strong>{govCount || 5} Regulasi SNI/KLHK</strong>
+                  <small>Standar Wajib</small>
                 </div>
               </div>
-              <div className="stat-item">
+
+              <div
+                className="stat-item"
+                style={{
+                  cursor: "pointer",
+                  border:
+                    activeTab === "se_organisasi"
+                      ? "1.5px solid #10b981"
+                      : "1px solid transparent",
+                  borderRadius: "8px",
+                  padding: "4px",
+                }}
+                onClick={() => handleTabChange("se_organisasi")}
+              >
                 <div
                   className="stat-icon-wrap"
                   style={{ background: "#ecfdf5", color: "#10b981" }}
@@ -256,11 +367,24 @@ function RegulationsContent() {
                   <FileCheck2 size={20} />
                 </div>
                 <div>
-                  <strong>{seCount || 4} Surat Edaran</strong>
+                  <strong>{seCount || 5} Surat Edaran</strong>
                   <small>Instruksi DPP</small>
                 </div>
               </div>
-              <div className="stat-item">
+
+              <div
+                className="stat-item"
+                style={{
+                  cursor: "pointer",
+                  border:
+                    activeTab === "posisi_kebijakan"
+                      ? "1.5px solid #f59e0b"
+                      : "1px solid transparent",
+                  borderRadius: "8px",
+                  padding: "4px",
+                }}
+                onClick={() => handleTabChange("posisi_kebijakan")}
+              >
                 <div
                   className="stat-icon-wrap"
                   style={{ background: "#fffbeb", color: "#f59e0b" }}
@@ -268,22 +392,33 @@ function RegulationsContent() {
                   <FileText size={20} />
                 </div>
                 <div>
-                  <strong>Naskah Kebijakan</strong>
+                  <strong>{policyCount || 4} Naskah Kebijakan</strong>
                   <small>Advokasi Sektor</small>
                 </div>
               </div>
-              <div className="stat-item">
+
+              <div
+                className="stat-item"
+                style={{
+                  cursor: "pointer",
+                  border:
+                    activeTab === "ad_art"
+                      ? "1.5px solid #0284c7"
+                      : "1px solid transparent",
+                  borderRadius: "8px",
+                  padding: "4px",
+                }}
+                onClick={() => handleTabChange("ad_art")}
+              >
                 <div
                   className="stat-icon-wrap"
                   style={{ background: "#f0f9ff", color: "#0284c7" }}
                 >
-                  <Download size={20} />
+                  <ShieldCheck size={20} />
                 </div>
                 <div>
-                  <strong>
-                    {totalDownloads > 0 ? `${totalDownloads}+` : "2.400+"} Kali
-                  </strong>
-                  <small>Unduhan Publik</small>
+                  <strong>{adartCount || 4} AD/ART & Etik</strong>
+                  <small>Konstitusi Sah</small>
                 </div>
               </div>
             </div>
@@ -371,6 +506,73 @@ function RegulationsContent() {
                 </button>
               )}
             </div>
+          </div>
+
+          {/* Active Filter Strip Counter */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "1.25rem",
+              padding: "0.5rem 0.25rem",
+              fontSize: "0.875rem",
+              color: "#64748b",
+              flexWrap: "wrap",
+              gap: "0.5rem",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <Filter size={14} color="#0284c7" />
+              <span>
+                Menampilkan{" "}
+                <strong style={{ color: "#0f172a" }}>{filtered.length}</strong>{" "}
+                dokumen{" "}
+                {activeTab !== "all" ? (
+                  <>
+                    dalam kategori{" "}
+                    <strong style={{ color: "#0284c7" }}>
+                      &ldquo;{categoryLabels[activeTab]?.label || activeTab}&rdquo;
+                    </strong>
+                  </>
+                ) : (
+                  "terverifikasi"
+                )}
+                {search ? (
+                  <>
+                    {" "}
+                    dengan kata kunci{" "}
+                    <strong style={{ color: "#0f172a" }}>
+                      &ldquo;{search}&rdquo;
+                    </strong>
+                  </>
+                ) : null}
+              </span>
+            </div>
+
+            {(activeTab !== "all" || search) && (
+              <button
+                type="button"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#0284c7",
+                  fontWeight: 600,
+                  fontSize: "0.825rem",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+                onClick={() => {
+                  handleTabChange("all");
+                  handleSearchChange("");
+                }}
+              >
+                <span>Reset Filter</span>
+                <X size={13} />
+              </button>
+            )}
           </div>
 
           {/* Regulations Card Grid */}
