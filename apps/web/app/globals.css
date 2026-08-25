@@ -21301,14 +21301,30 @@ img {
 }
 
 .workshop-promo-form input[type="text"],
-.workshop-promo-form select,
+.workshop-promo-form select {
+  height: 38px;
+  min-height: 38px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #0f172a;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.15s ease;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
 .workshop-promo-form textarea {
   background: #f8fafc;
   border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  padding: 10px 14px;
+  border-radius: 8px;
+  padding: 8px 12px;
   color: #0f172a;
-  font-size: 13.5px;
+  font-size: 13px;
   outline: none;
   transition: all 0.15s ease;
   width: 100%;
@@ -21352,7 +21368,7 @@ img {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -21366,7 +21382,7 @@ img {
 }
 
 .searchable-multi-select-label {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #334155;
 }
@@ -21402,12 +21418,13 @@ img {
 .searchable-multi-input-box {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 44px;
+  gap: 8px;
+  height: 38px;
+  min-height: 38px;
   padding: 0 12px;
   background: #f8fafc;
   border: 1px solid #cbd5e1;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: text;
   transition: all 0.15s ease;
   width: 100%;
@@ -21430,11 +21447,12 @@ img {
   outline: none !important;
   box-shadow: none !important;
   background: transparent !important;
-  font-size: 13.5px !important;
+  font-size: 13px !important;
   color: #0f172a !important;
   width: 100% !important;
-  padding: 8px 0 !important;
+  padding: 0 !important;
   margin: 0 !important;
+  height: 36px !important;
 }
 
 .search-box-input::placeholder {
@@ -21693,16 +21711,23 @@ img {
   box-sizing: border-box;
 }
 
+.searchable-single-select-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
 .searchable-single-select-box {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  min-height: 44px;
-  padding: 10px 14px;
+  gap: 8px;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 12px;
   background: #f8fafc;
   border: 1px solid #cbd5e1;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
@@ -21725,7 +21750,7 @@ img {
 }
 
 .selected-value-text {
-  font-size: 13.5px;
+  font-size: 13px;
   color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
@@ -21734,6 +21759,7 @@ img {
 
 .selected-value-text.placeholder {
   color: #94a3b8;
+  font-size: 13px;
 }
 
 .searchable-single-select-dropdown {
