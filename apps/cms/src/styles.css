@@ -1605,6 +1605,198 @@ select:focus,
   gap: 20px;
 }
 
+/* Revenue & Invoices */
+.revenue-layout {
+  display: grid;
+  grid-template-columns: minmax(440px, 1.1fr) minmax(360px, 0.9fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.revenue-invoices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+  max-height: 700px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.revenue-invoices article {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.14s ease;
+}
+
+.revenue-invoices article:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.invoice-meta-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.invoice-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.invoice-header-row strong {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.invoice-meta-col span {
+  font-size: 12px;
+  color: #475569;
+}
+
+.invoice-amount-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.invoice-amount-col strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.invoice-amount-col small {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.revenue-products {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.revenue-products article {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.14s ease;
+}
+
+.revenue-products article:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.product-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.product-head-row strong {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.product-head-row b {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0284c7;
+}
+
+.product-meta-sub {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.product-benefit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 2px 8px;
+  border-radius: 6px;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.segment-list, .campaign-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.segment-list article, .campaign-list article {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.segment-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #0284c7;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.segment-info strong, .campaign-info strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.segment-info p, .campaign-info p {
+  font-size: 12px;
+  color: #64748b;
+  margin: 3px 0 6px;
+}
+
+.segment-info small, .campaign-info small {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0284c7;
+  background: #f0f9ff;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
 /* Academy & Continuous Learning */
 .academy-layout {
   display: grid;

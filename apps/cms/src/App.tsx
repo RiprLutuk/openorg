@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import html2canvas from "html2canvas";
 import {
   Activity,
+  AlertCircle,
   AlertTriangle,
   ArrowRight,
   Award,
@@ -33,6 +34,7 @@ import {
   History,
   ImagePlus,
   Inbox,
+  KeyRound,
   Landmark,
   LayoutDashboard,
   LayoutGrid,
@@ -9710,9 +9712,9 @@ function RevenueManager() {
   return (
     <>
       <PageHeading
-        eyebrow="Revenue & Engagement Hub"
-        title="From dues to durable relationships"
-        description="Issue auditable invoices, reconcile payments, unlock benefits, and prepare precisely segmented outreach."
+        eyebrow="Tata Kelola Finansial"
+        title="Keuangan & Iuran Anggota"
+        description="Kelola tagihan iuran tahunan, rekonsiliasi pembayaran, penerbitan hak akses KTA digital, dan pengelolaan segmen anggota."
         action={
           <div className="heading-actions">
             <button
@@ -9722,8 +9724,8 @@ function RevenueManager() {
                 setDialog(tab === "billing" ? "product" : "segment")
               }
             >
-              <Plus size={17} />{" "}
-              {tab === "billing" ? "New product" : "New segment"}
+              <Plus size={16} />{" "}
+              <span>{tab === "billing" ? "Tambah Produk" : "Tambah Segmen"}</span>
             </button>
             <button
               className="button primary"
@@ -9732,115 +9734,138 @@ function RevenueManager() {
                 setDialog(tab === "billing" ? "invoice" : "campaign")
               }
             >
-              <Plus size={17} />{" "}
-              {tab === "billing" ? "Issue invoice" : "New campaign"}
+              <Plus size={16} />{" "}
+              <span>{tab === "billing" ? "Terbitkan Tagihan" : "Buat Kampanye"}</span>
             </button>
           </div>
         }
       />
-      <div className="revenue-tabs" role="tablist">
+      <div className="segmented compliance-segmented" style={{ marginBottom: "20px" }}>
         <button
           type="button"
           className={tab === "billing" ? "active" : ""}
           onClick={() => setTab("billing")}
         >
-          Billing & benefits
+          Tagihan & Produk Iuran
         </button>
         <button
           type="button"
           className={tab === "engagement" ? "active" : ""}
           onClick={() => setTab("engagement")}
         >
-          Segments & campaigns
+          Segmen Anggota & Kampanye
         </button>
       </div>
       {tab === "billing" ? (
         <>
           <div className="governance-stats revenue-stats">
             <article>
-              <span>Outstanding</span>
-              <strong>{formatRevenueMoney(outstanding)}</strong>
-              <small>
-                {
-                  invoices.filter((item) =>
-                    ["open", "overdue"].includes(item.effectiveStatus),
-                  ).length
-                }{" "}
-                invoice(s) need action
-              </small>
+              <AlertCircle size={24} color="#e11d48" />
+              <div>
+                <strong>{formatRevenueMoney(outstanding)}</strong>
+                <small>
+                  {
+                    invoices.filter((item) =>
+                      ["open", "overdue"].includes(item.effectiveStatus),
+                    ).length
+                  }{" "}
+                  Tagihan Belum Lunas
+                </small>
+              </div>
             </article>
             <article>
-              <span>Collected</span>
-              <strong>{formatRevenueMoney(collected)}</strong>
-              <small>Confirmed ledger payments</small>
+              <CheckCircle2 size={24} color="#10b981" />
+              <div>
+                <strong>{formatRevenueMoney(collected)}</strong>
+                <small>Total Iuran Terkumpul</small>
+              </div>
             </article>
             <article>
-              <span>Active benefits</span>
-              <strong>{activeBenefits}</strong>
-              <small>Issued automatically after payment</small>
+              <KeyRound size={24} color="#0284c7" />
+              <div>
+                <strong>{activeBenefits}</strong>
+                <small>KTA & Hak Akses Aktif</small>
+              </div>
             </article>
           </div>
           <div className="revenue-layout">
             <section className="panel">
               <div className="panel-head">
                 <div>
-                  <span>Receivables</span>
-                  <h3>Invoice ledger</h3>
+                  <span className="eyebrow">Piutang & Mutasi</span>
+                  <h2>Buku Besar Tagihan (Invoice Ledger)</h2>
                 </div>
               </div>
               <div className="revenue-invoices">
                 {invoices.map((invoice) => (
                   <article key={invoice.id}>
-                    <div>
-                      <Status value={invoice.effectiveStatus} />
-                      <strong>{invoice.invoiceNumber}</strong>
+                    <div className="invoice-meta-col">
+                      <div className="invoice-header-row">
+                        <Status value={invoice.effectiveStatus} />
+                        <strong>{invoice.invoiceNumber}</strong>
+                      </div>
                       <span>
                         {invoice.member?.name ?? "Anggota"} ·{" "}
                         {invoice.member?.memberNumber ?? "—"}
                       </span>
                     </div>
-                    <div>
+                    <div className="invoice-amount-col">
                       <strong>{formatRevenueMoney(invoice.total || 0)}</strong>
-                      <span>Paid {formatRevenueMoney(invoice.paid || 0)}</span>
+                      <small>
+                        {invoice.paid && invoice.paid > 0
+                          ? `Terbayar: ${formatRevenueMoney(invoice.paid)}`
+                          : "Belum Dibayar"}
+                      </small>
+                      {invoice.status === "open" && (
+                        <button
+                          className="button small secondary"
+                          type="button"
+                          style={{ marginTop: "4px", fontSize: "11px", padding: "3px 8px" }}
+                          onClick={() => openPayment(invoice.id)}
+                        >
+                          Catat Pembayaran
+                        </button>
+                      )}
                     </div>
-                    {invoice.status === "open" && (
-                      <button
-                        className="button small secondary"
-                        type="button"
-                        onClick={() => openPayment(invoice.id)}
-                      >
-                        Record payment
-                      </button>
-                    )}
                   </article>
                 ))}
                 {!invoices.length && (
-                  <Empty message="Issue the first invoice to start the receivables ledger." />
+                  <Empty message="Belum ada tagihan faktur yang diterbitkan." />
                 )}
               </div>
             </section>
-            <section className="panel revenue-products">
+            <section className="panel revenue-products-panel">
               <div className="panel-head">
                 <div>
-                  <span>Reusable catalog</span>
-                  <h3>Products & benefit rules</h3>
+                  <span className="eyebrow">Katalog Layanan</span>
+                  <h2>Produk Iuran & Manfaat</h2>
                 </div>
               </div>
-              {products.map((product) => (
-                <article key={product.id}>
-                  <div>
-                    <strong>{product.name}</strong>
-                    <span>
+              <div className="revenue-products">
+                {products.map((product) => (
+                  <article key={product.id}>
+                    <div className="product-head-row">
+                      <strong>{product.name}</strong>
+                      <b>{formatRevenueMoney(product.price || 0)}</b>
+                    </div>
+                    <span className="product-meta-sub">
                       {product.code} ·{" "}
-                      {(product.billingInterval ?? "yearly").replace("_", " ")}
+                      {product.billingInterval === "annual"
+                        ? "Tahunan"
+                        : product.billingInterval === "one_time"
+                          ? "Sekali Bayar"
+                          : product.billingInterval === "monthly"
+                            ? "Bulanan"
+                            : "Periodik"}
                     </span>
-                  </div>
-                  <b>{formatRevenueMoney(product.price || 0)}</b>
-                  {product.entitlementLabel && (
-                    <small>Unlocks {product.entitlementLabel}</small>
-                  )}
-                </article>
-              ))}
+                    {product.entitlementLabel && (
+                      <span className="product-benefit-badge">
+                        🔓 Memberikan akses: {product.entitlementLabel}
+                      </span>
+                    )}
+                  </article>
+                ))}
+              </div>
             </section>
           </div>
         </>
@@ -9849,8 +9874,8 @@ function RevenueManager() {
           <section className="panel">
             <div className="panel-head">
               <div>
-                <span>Dynamic rules</span>
-                <h3>Audience segments</h3>
+                <span className="eyebrow">Kriteria Dinamis</span>
+                <h2>Segmen Penerima Pesan</h2>
               </div>
             </div>
             <div className="segment-list">
@@ -9859,9 +9884,9 @@ function RevenueManager() {
                   <span className="segment-icon">
                     <Users size={18} />
                   </span>
-                  <div>
+                  <div className="segment-info">
                     <strong>{segment.name}</strong>
-                    <p>{segment.description || "Reusable member audience"}</p>
+                    <p>{segment.description || "Segmen audiens anggota terstandarisasi"}</p>
                     <small>
                       {[
                         ...(segment.criteria?.membershipStatuses || []),
@@ -9869,59 +9894,57 @@ function RevenueManager() {
                         segment.criteria?.hasEntitlement,
                       ]
                         .filter(Boolean)
-                        .join(" · ") || "All members"}
+                        .join(" · ") || "Seluruh Anggota"}
                     </small>
                   </div>
                 </article>
               ))}
               {!segments.length && (
-                <Empty message="Create a segment from membership status, type, unit, or active benefit." />
+                <Empty message="Buat segmen berdasarkan status keanggotaan, tipe, wilayah DPD, atau manfaat aktif." />
               )}
             </div>
           </section>
           <section className="panel">
             <div className="panel-head">
               <div>
-                <span>Delivery workspace</span>
-                <h3>Campaign queue</h3>
+                <span className="eyebrow">Antrean Distribusi</span>
+                <h2>Kampanye & Pengumuman Massal</h2>
               </div>
             </div>
             <div className="campaign-list">
               {campaigns.map((campaign) => (
                 <article key={campaign.id}>
-                  <div>
-                    <Status value={campaign.status} />
-                    <strong>{campaign.name}</strong>
-                    <span>
-                      {campaign.channel} · {campaign.recipientCount ?? 0}{" "}
-                      recipient(s)
-                    </span>
+                  <div className="campaign-info">
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                      <Status value={campaign.status} />
+                      <strong>{campaign.name}</strong>
+                    </div>
+                    <small>
+                      Kanal: {campaign.channel.toUpperCase()} · {campaign.recipientCount ?? 0} Penerima
+                    </small>
                   </div>
                   {["draft", "scheduled"].includes(campaign.status) && (
                     <button
-                      className="button small secondary"
+                      className="button small primary"
                       type="button"
-                      disabled={action.isPending}
                       onClick={() =>
                         action.mutate({
-                          path: `/v1/admin/revenue/campaigns/${campaign.id}/queue`,
+                          path: `/v1/admin/revenue/campaigns/${campaign.id}/dispatch`,
                           body: {},
                         })
                       }
                     >
-                      Prepare queue
+                      Kirim Pesan
                     </button>
                   )}
                 </article>
               ))}
               {!campaigns.length && (
-                <Empty message="Create a campaign and materialize its recipient queue." />
+                <Empty message="Buat kampanye untuk mengirimkan notifikasi penagihan iuran atau pengumuman massal." />
               )}
             </div>
             <p className="delivery-note">
-              <ShieldCheck size={16} /> Queued means ready for an external
-              email, WhatsApp, SMS, or in-app adapter—not falsely marked as
-              delivered.
+              <ShieldCheck size={16} /> Pesan siap didistribusikan melalui WhatsApp Gateway, Email blast, atau notifikasi aplikasi resmi APTI.
             </p>
           </section>
         </div>
