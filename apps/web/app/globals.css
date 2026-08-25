@@ -24503,17 +24503,31 @@ img {
   animation: modalCardPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.ws-modal-mobile-handle-bar {
+  display: none;
+}
+
 .ws-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 14px 20px;
   border-bottom: 1px solid #f1f5f9;
   background: #f8fafc;
-  gap: 10px;
 }
 
-.ws-modal-header-badges {
+.ws-modal-header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.ws-modal-header-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.ws-modal-header-sub-row {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -24572,11 +24586,12 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   border: 1px solid transparent;
-  background: transparent;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   color: #64748b;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -24586,26 +24601,27 @@ img {
 .ws-modal-close-btn:hover {
   background: #fee2e2;
   color: #dc2626;
+  border-color: #fca5a5;
 }
 
 .ws-modal-scroll-body {
-  padding: 20px;
+  padding: 18px 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   scrollbar-width: thin;
 }
 
 .ws-modal-brand-hero {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 12px;
 }
 
 .ws-modal-brand-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   border: 1px solid #bae6fd;
@@ -24621,16 +24637,16 @@ img {
 }
 
 .ws-modal-title {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 850;
   color: #0f172a;
-  margin: 0 0 3px;
+  margin: 0 0 2px;
   line-height: 1.25;
   letter-spacing: -0.02em;
 }
 
 .ws-modal-tagline {
-  font-size: 12.5px;
+  font-size: 12px;
   color: #64748b;
   margin: 0;
   line-height: 1.4;
@@ -24640,23 +24656,23 @@ img {
 .ws-modal-bento-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 7px;
 }
 
 .ws-bento-tile {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: #f8fafc;
   border: 1px solid #f1f5f9;
-  border-radius: 12px;
-  padding: 10px 12px;
+  border-radius: 10px;
+  padding: 8px 10px;
 }
 
 .ws-bento-icon-box {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   display: flex;
@@ -24667,7 +24683,7 @@ img {
 
 .ws-bento-label {
   display: block;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   color: #94a3b8;
   text-transform: uppercase;
@@ -24678,23 +24694,23 @@ img {
 
 .ws-bento-value {
   display: block;
-  font-size: 12px;
+  font-size: 11.5px;
   color: #1e293b;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .ws-modal-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .ws-section-header-clean {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 800;
   color: #0f172a;
 }
@@ -24702,13 +24718,13 @@ img {
 .ws-modal-editorial-box {
   background: #f8fafc;
   border-left: 3px solid #0284c7;
-  border-radius: 4px 10px 10px 4px;
-  padding: 10px 14px;
+  border-radius: 3px 8px 8px 3px;
+  padding: 9px 12px;
 }
 
 .ws-modal-editorial-box p {
-  font-size: 12.5px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.55;
   color: #334155;
   margin: 0;
 }
@@ -24717,20 +24733,20 @@ img {
 .ws-modal-services-wrap {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
 }
 
 .ws-service-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 5px;
+  font-size: 11.5px;
   font-weight: 650;
   color: #0f172a;
   background: #f0f9ff;
   border: 1px solid #e0f2fe;
-  border-radius: 8px;
-  padding: 6px 10px;
+  border-radius: 7px;
+  padding: 5px 9px;
 }
 
 /* Map Card */
@@ -24738,11 +24754,11 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   border: 1px solid #bae6fd;
-  border-radius: 12px;
-  padding: 10px 14px;
+  border-radius: 11px;
+  padding: 9px 12px;
   flex-wrap: wrap;
 }
 
@@ -24751,16 +24767,16 @@ img {
   flex-direction: column;
   gap: 1px;
   flex: 1;
-  min-width: 180px;
+  min-width: 170px;
 }
 
 .ws-map-card-text strong {
-  font-size: 12.5px;
+  font-size: 12px;
   color: #0369a1;
 }
 
 .ws-map-card-text span {
-  font-size: 11.5px;
+  font-size: 11px;
   color: #475569;
 }
 
@@ -24768,9 +24784,9 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 750;
-  padding: 6px 12px;
+  padding: 5.5px 11px;
   border-radius: 7px;
   text-decoration: none;
   white-space: nowrap;
@@ -24781,24 +24797,24 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 10px 14px;
+  border-radius: 11px;
+  padding: 9px 12px;
   flex-wrap: wrap;
 }
 
 .ws-master-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
 }
 
 .ws-master-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   background: #e0f2fe;
   border: 1px solid #bae6fd;
   display: flex;
@@ -24814,29 +24830,29 @@ img {
 }
 
 .ws-master-role {
-  font-size: 10px;
+  font-size: 9.5px;
   color: #94a3b8;
   font-weight: 600;
   line-height: 1;
 }
 
 .ws-master-name {
-  font-size: 13px;
+  font-size: 12.5px;
   color: #0f172a;
   font-weight: 800;
   line-height: 1.2;
 }
 
 .ws-master-kta {
-  font-size: 11px;
+  font-size: 10.5px;
   color: #64748b;
 }
 
 .ws-btn-master-profile {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
-  padding: 5px 11px;
-  border-radius: 7px;
+  padding: 5px 10px;
+  border-radius: 6px;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -24846,21 +24862,27 @@ img {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 7px;
-  padding: 12px 20px;
+  gap: 6px;
+  padding: 10px 18px;
   border-top: 1px solid #f1f5f9;
   background: #f8fafc;
   flex-wrap: wrap;
 }
 
+.ws-modal-footer-sub-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .ws-btn-footer-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 12px;
+  gap: 4px;
+  font-size: 11.5px;
   font-weight: 700;
-  padding: 6.5px 12px;
-  border-radius: 8px;
+  padding: 6px 10px;
+  border-radius: 7px;
   text-decoration: none;
   background: #ffffff;
   border: 1px solid #cbd5e1;
@@ -24882,10 +24904,10 @@ img {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   border: 1px solid #059669 !important;
   color: #ffffff !important;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 750;
-  padding: 7px 15px;
-  border-radius: 8px;
+  padding: 6.5px 13px;
+  border-radius: 7px;
   text-decoration: none;
   box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
   transition: all 0.15s ease;
@@ -24896,18 +24918,115 @@ img {
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
 }
 
+/* ==========================================================================
+   Mobile Responsive Optimizations (< 640px)
+   ========================================================================== */
 @media (max-width: 640px) {
-  .ws-modal-bento-grid {
-    grid-template-columns: 1fr;
+  .ws-detail-modal-overlay {
+    padding: 0;
+    align-items: flex-end;
   }
 
+  .ws-detail-modal-card {
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    max-height: 88vh;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.35);
+  }
+
+  .ws-modal-mobile-handle-bar {
+    display: block;
+    width: 38px;
+    height: 4px;
+    border-radius: 9999px;
+    background: #cbd5e1;
+    margin: 8px auto 2px;
+    flex-shrink: 0;
+  }
+
+  .ws-modal-header {
+    padding: 8px 16px 10px;
+  }
+
+  .ws-modal-scroll-body {
+    padding: 12px 16px 14px;
+    gap: 11px;
+  }
+
+  .ws-modal-brand-hero {
+    gap: 10px;
+  }
+
+  .ws-modal-brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+  }
+
+  .ws-modal-title {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  .ws-modal-tagline {
+    font-size: 11px;
+  }
+
+  /* Keep 2x2 Grid compact on mobile */
+  .ws-modal-bento-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .ws-bento-tile {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .ws-bento-icon-box {
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+  }
+
+  .ws-bento-label {
+    font-size: 8.5px;
+    margin-bottom: 1px;
+  }
+
+  .ws-bento-value {
+    font-size: 10.5px;
+    line-height: 1.15;
+  }
+
+  /* Footer Stack */
   .ws-modal-footer {
-    justify-content: stretch;
+    padding: 8px 14px 12px;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ws-modal-footer-sub-actions {
+    width: 100%;
+    display: flex;
+    gap: 5px;
+  }
+
+  .ws-btn-footer-secondary {
+    flex: 1;
+    justify-content: center;
+    padding: 6px 4px;
+    font-size: 10.5px;
   }
 
   .ws-btn-footer-primary {
     width: 100%;
     justify-content: center;
+    font-size: 12px;
+    padding: 8px 12px;
   }
 }
 

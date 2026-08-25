@@ -249,34 +249,41 @@ export function PublicWorkshopCard({
           }}
         >
           <div className="ws-detail-modal-card" role="dialog" aria-modal="true">
+            {/* Mobile Sheet Drag Indicator */}
+            <div className="ws-modal-mobile-handle-bar" aria-hidden="true" />
+
             {/* Modal Top Bar */}
             <div className="ws-modal-header">
-              <div className="ws-modal-header-badges">
-                <span className="ws-modal-badge-verified">
-                  <ShieldCheck size={14} className="text-emerald-600" />
-                  <span>Mitra Resmi Terverifikasi</span>
-                </span>
-                <span className="ws-modal-badge-kta">
-                  NRA: <strong>{workshop.memberNumber}</strong>
-                </span>
-                {workshop.distanceKm !== undefined && (
-                  <span className="ws-modal-badge-distance">
-                    📍 {workshop.distanceKm < 1 ? "< 1 km dari lokasi Anda" : `±${Math.round(workshop.distanceKm)} km dari Anda`}
+              <div className="ws-modal-header-main">
+                <div className="ws-modal-header-top-row">
+                  <span className="ws-modal-badge-verified">
+                    <ShieldCheck size={13} className="text-emerald-600" />
+                    <span>Mitra Resmi Terverifikasi</span>
                   </span>
-                )}
-                <span className="ws-modal-badge-rating">
-                  <Star size={12} className="fill-amber-400 text-amber-400" />
-                  <span>{workshop.rating ? workshop.rating.toFixed(2) : "4.95"}</span>
-                </span>
+                  <button
+                    type="button"
+                    className="ws-modal-close-btn"
+                    onClick={() => setShowDetail(false)}
+                    aria-label="Tutup Dialog"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+                <div className="ws-modal-header-sub-row">
+                  <span className="ws-modal-badge-kta">
+                    NRA: <strong>{workshop.memberNumber}</strong>
+                  </span>
+                  {workshop.distanceKm !== undefined && (
+                    <span className="ws-modal-badge-distance">
+                      📍 {workshop.distanceKm < 1 ? "< 1 km" : `±${Math.round(workshop.distanceKm)} km`}
+                    </span>
+                  )}
+                  <span className="ws-modal-badge-rating">
+                    <Star size={11} className="fill-amber-400 text-amber-400" />
+                    <span>{workshop.rating ? workshop.rating.toFixed(2) : "4.95"}</span>
+                  </span>
+                </div>
               </div>
-              <button
-                type="button"
-                className="ws-modal-close-btn"
-                onClick={() => setShowDetail(false)}
-                aria-label="Tutup Dialog"
-              >
-                <X size={18} />
-              </button>
             </div>
 
             {/* Modal Scrollable Body */}
@@ -414,37 +421,39 @@ export function PublicWorkshopCard({
 
             {/* Modal Sticky Bottom Action Bar */}
             <div className="ws-modal-footer">
-              <button
-                type="button"
-                className="button secondary ws-btn-footer-secondary"
-                onClick={handleShare}
-                title="Bagikan Tautan Profil"
-              >
-                {copied ? <Check size={14} className="text-emerald-600" /> : <Share2 size={14} />}
-                <span>{copied ? "Tersalin!" : "Bagikan"}</span>
-              </button>
-
-              {cleanWebUrl && (
-                <a
-                  href={cleanWebUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              <div className="ws-modal-footer-sub-actions">
+                <button
+                  type="button"
                   className="button secondary ws-btn-footer-secondary"
+                  onClick={handleShare}
+                  title="Bagikan Tautan Profil"
                 >
-                  <Globe size={14} />
-                  <span>Website</span>
-                </a>
-              )}
+                  {copied ? <Check size={13} className="text-emerald-600" /> : <Share2 size={13} />}
+                  <span>{copied ? "Tersalin!" : "Bagikan"}</span>
+                </button>
 
-              {workshop.phone && (
-                <a
-                  href={`tel:${workshop.phone.replace(/\D/g, "")}`}
-                  className="button secondary ws-btn-footer-secondary"
-                >
-                  <Phone size={14} />
-                  <span>Telepon</span>
-                </a>
-              )}
+                {cleanWebUrl && (
+                  <a
+                    href={cleanWebUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="button secondary ws-btn-footer-secondary"
+                  >
+                    <Globe size={13} />
+                    <span>Website</span>
+                  </a>
+                )}
+
+                {workshop.phone && (
+                  <a
+                    href={`tel:${workshop.phone.replace(/\D/g, "")}`}
+                    className="button secondary ws-btn-footer-secondary"
+                  >
+                    <Phone size={13} />
+                    <span>Telepon</span>
+                  </a>
+                )}
+              </div>
 
               <a
                 href={waUrl}
