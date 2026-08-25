@@ -659,13 +659,13 @@ export default function ComplaintsPage() {
                     {/* SECTION 1: Identitas Pelapor */}
                     <div className="form-step-block">
                       <div className="form-step-badge">
-                        <span className="step-num-pill">1</span>
+                        <span className="step-num-pill">01</span>
                         <h4>Identitas Pelapor (Konsumen / Pemilik Unit)</h4>
                       </div>
 
                       <div className="form-field full-width">
                         <label htmlFor="complaint-name">
-                          Nama Lengkap Pelapor *
+                          Nama Lengkap Pelapor <span className="text-red-500">*</span>
                         </label>
                         <input
                           id="complaint-name"
@@ -680,7 +680,7 @@ export default function ComplaintsPage() {
                       <div className="form-two-col-grid">
                         <div className="form-field">
                           <label htmlFor="complaint-email">
-                            Alamat Email Aktif *
+                            Alamat Email Aktif <span className="text-red-500">*</span>
                           </label>
                           <input
                             id="complaint-email"
@@ -694,7 +694,7 @@ export default function ComplaintsPage() {
 
                         <div className="form-field">
                           <label htmlFor="complaint-phone">
-                            Nomor WhatsApp / HP *
+                            Nomor WhatsApp / HP <span className="text-red-500">*</span>
                           </label>
                           <input
                             id="complaint-phone"
@@ -711,14 +711,14 @@ export default function ComplaintsPage() {
                     {/* SECTION 2: Pihak Terlapor & Kategori Masalah */}
                     <div className="form-step-block">
                       <div className="form-step-badge">
-                        <span className="step-num-pill">2</span>
+                        <span className="step-num-pill">02</span>
                         <h4>Pihak Terlapor &amp; Kategori Masalah</h4>
                       </div>
 
                       <div className="form-two-col-grid">
                         <div className="form-field">
                           <label htmlFor="complaint-target-type">
-                            Jenis Pihak Terlapor *
+                            Jenis Pihak Terlapor <span className="text-red-500">*</span>
                           </label>
                           <select
                             id="complaint-target-type"
@@ -740,7 +740,7 @@ export default function ComplaintsPage() {
 
                         <div className="form-field">
                           <label htmlFor="complaint-target-id">
-                            Nomor KTA / Nama Terlapor *
+                            Nomor KTA / Nama Terlapor <span className="text-red-500">*</span>
                           </label>
                           <input
                             id="complaint-target-id"
@@ -754,7 +754,7 @@ export default function ComplaintsPage() {
 
                       <div className="form-field full-width">
                         <label htmlFor="complaint-category">
-                          Kategori Masalah Pengaduan *
+                          Kategori Masalah Pengaduan <span className="text-red-500">*</span>
                         </label>
                         <select
                           id="complaint-category"
@@ -784,13 +784,13 @@ export default function ComplaintsPage() {
                     {/* SECTION 3: Kronologi & Bukti */}
                     <div className="form-step-block">
                       <div className="form-step-badge">
-                        <span className="step-num-pill">3</span>
+                        <span className="step-num-pill">03</span>
                         <h4>Kronologi Kejadian &amp; Berkas Bukti</h4>
                       </div>
 
                       <div className="form-field full-width">
                         <label htmlFor="complaint-description">
-                          Uraian Lengkap Kejadian *
+                          Uraian Lengkap Kejadian <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           id="complaint-description"
@@ -805,10 +805,10 @@ export default function ComplaintsPage() {
                       <div className="form-field full-width">
                         <div className="evidence-upload-header">
                           <label htmlFor="complaint-evidence-input">
-                            Lampiran Bukti (Nota Fisik, Foto Unit AC, Chat WhatsApp)
+                            Lampiran Bukti (Nota Fisik, Foto AC, WhatsApp)
                           </label>
                           <span className="evidence-limit-pill">
-                            {evidenceFiles.length}/10 Berkas (Maks. 1 MB/berkas)
+                            {evidenceFiles.length}/10 Berkas (Maks 1MB)
                           </span>
                         </div>
 
@@ -830,12 +830,12 @@ export default function ComplaintsPage() {
                               <div className="evidence-icon-wrap">
                                 {isUploadingAny ? (
                                   <Loader2
-                                    size={20}
+                                    size={18}
                                     className="animate-spin text-sky-600"
                                   />
                                 ) : (
-                                  <Paperclip
-                                    size={20}
+                                  <UploadCloud
+                                    size={18}
                                     className="text-sky-600"
                                   />
                                 )}
@@ -844,15 +844,15 @@ export default function ComplaintsPage() {
                                 <strong>
                                   {isUploadingAny
                                     ? "Sedang mengunggah berkas..."
-                                    : "Pilih / Seret Foto & Dokumen Bukti"}
+                                    : "Unggah Foto / Dokumen Bukti"}
                                 </strong>
                                 <small>
-                                  Format: JPG, PNG, WebP, PDF &middot; Maks. 1 MB per berkas (Bisa tambah hingga 10 berkas)
+                                  Maks. 1 MB per berkas (JPG, PNG, WebP, PDF)
                                 </small>
                               </div>
                               <span className="btn-browse-evidence">
-                                <Plus size={13} />
-                                <span>Tambah Berkas</span>
+                                <Plus size={12} />
+                                <span>Pilih</span>
                               </span>
                             </label>
                           </div>
@@ -879,7 +879,7 @@ export default function ComplaintsPage() {
                                     />
                                   ) : (
                                     <FileText
-                                      size={20}
+                                      size={18}
                                       className="text-slate-600"
                                     />
                                   )}
@@ -919,7 +919,7 @@ export default function ComplaintsPage() {
                                   title="Hapus berkas ini"
                                   aria-label={`Hapus berkas ${f.name}`}
                                 >
-                                  <X size={14} />
+                                  <X size={13} />
                                 </button>
                               </div>
                             ))}
@@ -931,9 +931,8 @@ export default function ComplaintsPage() {
                     {/* SECTION 4: Keamanan Anti-Spam (Compact Code Token) */}
                     <div className="form-step-block security-compact-block">
                       <div className="form-step-badge">
-                        <span className="step-num-pill security-pill">4</span>
-                        <h4>Verifikasi Keamanan</h4>
-                        <span className="security-sub-badge">Human Check</span>
+                        <span className="step-num-pill security-pill">04</span>
+                        <h4>Verifikasi Anti-Spam</h4>
                       </div>
 
                       <div className="captcha-compact-row">
@@ -945,8 +944,8 @@ export default function ComplaintsPage() {
                             type="button"
                             className={`btn-refresh-captcha-mini ${isRotatingCaptcha ? "rotating" : ""}`}
                             onClick={generateCaptcha}
-                            title="Ganti pertanyaan keamanan"
-                            aria-label="Ganti pertanyaan keamanan"
+                            title="Ganti hitungan keamanan"
+                            aria-label="Ganti hitungan keamanan"
                           >
                             <RotateCw size={13} />
                           </button>
@@ -957,10 +956,12 @@ export default function ComplaintsPage() {
                           <input
                             id="captcha-answer"
                             type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             value={captchaInput}
                             onChange={(e) => setCaptchaInput(e.target.value)}
                             required
-                            placeholder="Ketik hasil angka..."
+                            placeholder="Ketik angka hasil..."
                             className="captcha-compact-input"
                           />
                         </div>
@@ -985,6 +986,10 @@ export default function ComplaintsPage() {
                           </>
                         )}
                       </button>
+                      <div className="form-privacy-note">
+                        <Lock size={12} className="text-slate-400" />
+                        <span>Data laporan dienkripsi &amp; dilindungi kerahasiaannya oleh Dewan Etik.</span>
+                      </div>
                     </div>
                   </form>
                 )}
