@@ -466,9 +466,9 @@ export type CmsComplaint = {
   complainantName: string;
   complainantEmail: string;
   complainantPhone: string | null;
-  targetType: "member" | "technician" | "lender" | "company";
+  targetType: string;
   targetIdentifier: string;
-  category: "kode_etik" | "layanan_teknisi" | "penagihan" | "sengketa";
+  category: string;
   description: string;
   evidenceFileUrl: string | null;
   status: "new" | "under_review" | "mediated" | "resolved" | "dismissed";

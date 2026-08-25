@@ -8995,11 +8995,18 @@ function RegulationsManager() {
 function ComplaintsManager() {
   const client = useQueryClient();
   const [selected, setSelected] = useState<CmsComplaint | null>(null);
+  const [notesInput, setNotesInput] = useState("");
 
   const query = useQuery({
     queryKey: ["complaints"],
     queryFn: () => api<{ data: CmsComplaint[] }>("/v1/admin/complaints"),
   });
+
+  useEffect(() => {
+    if (selected) {
+      setNotesInput(selected.responseNotes ?? "");
+    }
+  }, [selected]);
 
   const update = useMutation({
     mutationFn: ({
@@ -9016,7 +9023,7 @@ function ComplaintsManager() {
         body: JSON.stringify({ status, responseNotes: notes }),
       }),
     onSuccess: (res) => {
-      toast.success("Status pengaduan berhasil diperbarui.");
+      toast.success("Status & catatan pengaduan berhasil diperbarui.");
       setSelected(res.data);
       void client.invalidateQueries({ queryKey: ["complaints"] });
     },
@@ -9109,15 +9116,70 @@ function ComplaintsManager() {
                 <blockquote className="complaint-quote">
                   {selected.description}
                 </blockquote>
-                {selected.responseNotes && (
-                  <p>
-                    <strong>Catatan Tindak Lanjut:</strong>{" "}
-                    {selected.responseNotes}
-                  </p>
+
+                {/* Evidence Files Attachment Display */}
+                {selected.evidenceFileUrl && (
+                  <div style={{ marginTop: "14px", marginBottom: "14px" }}>
+                    <strong>Lampiran Bukti Pengaduan:</strong>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        flexWrap: "wrap",
+                        marginTop: "6px",
+                      }}
+                    >
+                      {(() => {
+                        try {
+                          const urls = JSON.parse(selected.evidenceFileUrl);
+                          if (Array.isArray(urls)) {
+                            return urls.map((u: string, idx: number) => (
+                              <a
+                                key={idx}
+                                href={u}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="button small ghost"
+                                style={{ display: "inline-flex", gap: "5px" }}
+                              >
+                                <span>📎 Bukti #{idx + 1}</span>
+                              </a>
+                            ));
+                          }
+                        } catch {
+                          // Fallback if raw single URL
+                        }
+                        return (
+                          <a
+                            href={selected.evidenceFileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="button small ghost"
+                            style={{ display: "inline-flex", gap: "5px" }}
+                          >
+                            <span>📎 Lihat Berkas Bukti</span>
+                          </a>
+                        );
+                      })()}
+                    </div>
+                  </div>
                 )}
+
+                <div style={{ marginTop: "16px" }}>
+                  <label className="field">
+                    <span>Catatan Resmi Dewan Etik / Hasil Mediasi:</span>
+                    <textarea
+                      rows={3}
+                      value={notesInput}
+                      onChange={(e) => setNotesInput(e.target.value)}
+                      placeholder="Tuliskan catatan tindak lanjut, berita acara mediasi, atau hasil verifikasi Dewan Etik..."
+                      style={{ width: "100%", marginTop: "4px" }}
+                    />
+                  </label>
+                </div>
               </div>
-              <div className="detail-actions">
-                <label className="field">
+              <div className="detail-actions" style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}>
+                <label className="field" style={{ flex: 1 }}>
                   <span>Ubah Status Penanganan:</span>
                   <select
                     value={selected.status}
@@ -9125,7 +9187,7 @@ function ComplaintsManager() {
                       update.mutate({
                         id: selected.id,
                         status: e.target.value as CmsComplaint["status"],
-                        notes: selected.responseNotes ?? undefined,
+                        notes: notesInput.trim() || undefined,
                       })
                     }
                   >
@@ -9138,6 +9200,20 @@ function ComplaintsManager() {
                     <option value="dismissed">Dismissed (Ditolak)</option>
                   </select>
                 </label>
+                <button
+                  type="button"
+                  className="button primary small"
+                  disabled={update.isPending}
+                  onClick={() =>
+                    update.mutate({
+                      id: selected.id,
+                      status: selected.status,
+                      notes: notesInput.trim() || undefined,
+                    })
+                  }
+                >
+                  {update.isPending ? "Menyimpan..." : "Simpan Catatan"}
+                </button>
               </div>
             </div>
           ) : (
