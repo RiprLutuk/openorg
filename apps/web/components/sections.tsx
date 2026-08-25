@@ -21,15 +21,16 @@ import { SmartImage } from "@/components/smart-image";
 import { getContents, getEvents } from "@/lib/api";
 
 export function SectionRenderer({
-  sections,
+  sections = [],
   organizationSlug,
 }: {
-  sections: PageSection[];
+  sections?: PageSection[] | null;
   organizationSlug: string;
 }) {
+  const safeSections = Array.isArray(sections) ? sections : [];
   return (
     <>
-      {sections.map((section) => (
+      {safeSections.map((section) => (
         <Section
           key={section.id}
           section={section}
