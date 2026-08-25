@@ -662,62 +662,42 @@ export default function ComplaintsPage() {
                       </div>
                     </div>
 
-                    {/* SECTION 4: Keamanan Anti-Spam & Verifikasi Manusia (Captcha) */}
-                    <div className="form-step-block security-step-block">
+                    {/* SECTION 4: Keamanan Anti-Spam (Compact Code Token) */}
+                    <div className="form-step-block security-compact-block">
                       <div className="form-step-badge">
                         <span className="step-num-pill security-pill">4</span>
-                        <h4>Verifikasi Keamanan Anti-Spam (Human Check)</h4>
+                        <h4>Verifikasi Keamanan</h4>
+                        <span className="security-sub-badge">Human Check</span>
                       </div>
 
-                      <div className="captcha-challenge-box">
-                        <div className="captcha-equation-row">
-                          <div className="captcha-prompt-group">
-                            <span className="captcha-hint-label">Berapa hasil dari:</span>
-                            <div className="captcha-math-display">
-                              <span>{captchaNum1}</span>
-                              <span className="math-operator">{captchaOp}</span>
-                              <span>{captchaNum2}</span>
-                              <span className="math-equals">=</span>
-                              <span className="math-qmark">?</span>
-                            </div>
-                          </div>
-
+                      <div className="captcha-compact-row">
+                        <div className="captcha-code-badge">
+                          <code className="captcha-mono-text">
+                            {captchaNum1} {captchaOp} {captchaNum2} = ?
+                          </code>
                           <button
                             type="button"
-                            className={`btn-refresh-captcha ${isRotatingCaptcha ? "rotating" : ""}`}
+                            className={`btn-refresh-captcha-mini ${isRotatingCaptcha ? "rotating" : ""}`}
                             onClick={generateCaptcha}
                             title="Ganti pertanyaan keamanan"
                             aria-label="Ganti pertanyaan keamanan"
                           >
-                            <RotateCw size={14} />
-                            <span>Ganti Soal</span>
+                            <RotateCw size={13} />
                           </button>
                         </div>
 
-                        <div className="captcha-input-group">
-                          <label htmlFor="captcha-answer">
-                            Tulis Jawaban Angka *
-                          </label>
-                          <div className="captcha-input-wrap">
-                            <Lock size={14} className="captcha-lock-icon" />
-                            <input
-                              id="captcha-answer"
-                              type="number"
-                              value={captchaInput}
-                              onChange={(e) => setCaptchaInput(e.target.value)}
-                              required
-                              placeholder="Ketik angka hasil hitungan..."
-                              className="captcha-input-field"
-                            />
-                          </div>
+                        <div className="captcha-input-wrap-mini">
+                          <Lock size={13} className="captcha-lock-icon-mini" />
+                          <input
+                            id="captcha-answer"
+                            type="number"
+                            value={captchaInput}
+                            onChange={(e) => setCaptchaInput(e.target.value)}
+                            required
+                            placeholder="Ketik hasil angka..."
+                            className="captcha-compact-input"
+                          />
                         </div>
-                      </div>
-
-                      <div className="anti-bot-trust-hint">
-                        <ShieldCheck size={14} className="text-emerald-600 flex-shrink-0" />
-                        <span>
-                          Sistem dilindungi verifikasi matematika anti-bot, honeypot guard, dan enkripsi data pelapor.
-                        </span>
                       </div>
                     </div>
 

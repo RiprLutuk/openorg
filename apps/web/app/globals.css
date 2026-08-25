@@ -16435,155 +16435,111 @@ img {
   box-shadow: 0 2px 10px rgba(2, 132, 199, 0.2);
 }
 
-/* Security Step & Captcha Challenge Block */
-.security-step-block {
-  background: #f0fdf4 !important;
-  border-color: #bbf7d0 !important;
+/* Security Step & Compact Code Token Captcha */
+.security-compact-block {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 12px 16px;
+  gap: 10px;
 }
 
-.step-num-pill.security-pill {
-  background: #16a34a !important;
+.security-sub-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #0284c7;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-.captcha-challenge-box {
-  background: #ffffff;
-  border: 1px solid #dcfce7;
-  border-radius: 12px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 1px 4px rgba(22, 163, 74, 0.05);
-}
-
-.captcha-equation-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.captcha-prompt-group {
+.captcha-compact-row {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.captcha-hint-label {
-  font-size: 12px;
-  font-weight: 650;
-  color: #166534;
-}
-
-.captcha-math-display {
+.captcha-code-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
-  background: #f8fafc;
+  background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  font-size: 16px;
-  font-weight: 800;
+  padding: 3px 6px 3px 10px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.captcha-mono-text {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13.5px;
+  font-weight: 500;
   color: #0f172a;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
-.captcha-math-display .math-operator {
-  color: #0284c7;
-  font-size: 18px;
-}
-
-.captcha-math-display .math-equals {
-  color: #64748b;
-}
-
-.captcha-math-display .math-qmark {
-  color: #16a34a;
-  font-weight: 900;
-}
-
-.btn-refresh-captcha {
+.btn-refresh-captcha-mini {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
-  border-radius: 7px;
-  padding: 5px 10px;
-  font-size: 11.5px;
-  font-weight: 650;
-  color: #0284c7;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
-.btn-refresh-captcha:hover {
+.btn-refresh-captcha-mini:hover {
   background: #0284c7;
   color: #ffffff;
   border-color: #0284c7;
 }
 
-.btn-refresh-captcha.rotating svg {
+.btn-refresh-captcha-mini.rotating svg {
   transform: rotate(180deg);
   transition: transform 0.3s ease;
 }
 
-.captcha-input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.captcha-input-group label {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #166534;
-}
-
-.captcha-input-wrap {
+.captcha-input-wrap-mini {
   position: relative;
   display: flex;
   align-items: center;
+  flex: 1;
+  min-width: 140px;
 }
 
-.captcha-lock-icon {
+.captcha-lock-icon-mini {
   position: absolute;
-  left: 12px;
+  left: 10px;
   color: #94a3b8;
   pointer-events: none;
 }
 
-.captcha-input-field {
-  height: 42px;
+.captcha-compact-input {
+  height: 34px;
   box-sizing: border-box;
-  border: 1px solid #86efac;
-  border-radius: 9px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   background: #ffffff;
-  padding: 0 14px 0 34px;
-  font-size: 14px;
-  font-weight: 700;
+  padding: 0 10px 0 28px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 500;
   color: #0f172a;
   outline: none;
   width: 100%;
   transition: all 0.15s ease;
 }
 
-.captcha-input-field:focus {
-  border-color: #16a34a;
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
-}
-
-.anti-bot-trust-hint {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 11px;
-  color: #166534;
-  font-weight: 550;
-  line-height: 1.4;
+.captcha-compact-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
 }
 
 /* Sidebar Guidance Card */
