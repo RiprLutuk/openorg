@@ -505,16 +505,22 @@ export default function CalculatorPage() {
                 <div className="calc-presets-bar">
                   <span className="presets-label">Pilih Ukuran Cepat:</span>
                   <div className="presets-chips-row">
-                    {ROOM_PRESETS.map((p) => (
-                      <button
-                        key={p.label}
-                        type="button"
-                        className="preset-chip"
-                        onClick={() => applyPreset(p)}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
+                    {ROOM_PRESETS.map((p) => {
+                      const isSelected =
+                        length === p.l &&
+                        width === p.w &&
+                        roomType === p.type;
+                      return (
+                        <button
+                          key={p.label}
+                          type="button"
+                          className={`preset-chip ${isSelected ? "active" : ""}`}
+                          onClick={() => applyPreset(p)}
+                        >
+                          <span className="preset-name">{p.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -523,7 +529,12 @@ export default function CalculatorPage() {
                   <div className="form-step-block">
                     <div className="form-step-badge">
                       <span className="step-num-pill">1</span>
-                      <h4>Dimensi Ruangan Fisik</h4>
+                      <div>
+                        <h4>Dimensi Ruangan Fisik</h4>
+                        <p className="step-desc">
+                          Ukuran panjang, lebar, dan tinggi plafon ruangan
+                        </p>
+                      </div>
                     </div>
 
                     <div className="calc-inputs-row-3">
@@ -539,7 +550,7 @@ export default function CalculatorPage() {
                             step="0.5"
                             value={length}
                             onChange={(e) =>
-                              setLength(Number(e.target.value) || 1)
+                              setLength(Math.max(1, Number(e.target.value) || 1))
                             }
                             aria-label="Panjang ruangan dalam meter"
                           />
@@ -559,7 +570,7 @@ export default function CalculatorPage() {
                             step="0.5"
                             value={width}
                             onChange={(e) =>
-                              setWidth(Number(e.target.value) || 1)
+                              setWidth(Math.max(1, Number(e.target.value) || 1))
                             }
                             aria-label="Lebar ruangan dalam meter"
                           />
@@ -579,12 +590,28 @@ export default function CalculatorPage() {
                             step="0.1"
                             value={height}
                             onChange={(e) =>
-                              setHeight(Number(e.target.value) || 2)
+                              setHeight(Math.max(2, Number(e.target.value) || 2))
                             }
                             aria-label="Tinggi plafon ruangan dalam meter"
                           />
                           <span>meter</span>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Live Dimension Summary Strip */}
+                    <div className="dim-summary-strip">
+                      <div className="dim-pill">
+                        <span className="dim-label">Luas:</span>
+                        <strong>{area.toFixed(1)} m²</strong>
+                      </div>
+                      <div className="dim-pill">
+                        <span className="dim-label">Volume:</span>
+                        <strong>{volume.toFixed(1)} m³</strong>
+                      </div>
+                      <div className="dim-pill">
+                        <span className="dim-label">Keliling:</span>
+                        <strong>{(2 * (length + width)).toFixed(1)} m</strong>
                       </div>
                     </div>
                   </div>
@@ -593,7 +620,12 @@ export default function CalculatorPage() {
                   <div className="form-step-block">
                     <div className="form-step-badge">
                       <span className="step-num-pill">2</span>
-                      <h4>Fungsi Ruangan & Paparan Sinar Matahari</h4>
+                      <div>
+                        <h4>Fungsi Ruangan & Paparan Sinar Matahari</h4>
+                        <p className="step-desc">
+                          Faktor beban orientasi dinding dan aktivitas ruangan
+                        </p>
+                      </div>
                     </div>
 
                     <div className="form-two-col-grid">
@@ -607,7 +639,7 @@ export default function CalculatorPage() {
                           className="form-select"
                         >
                           <option value="bedroom">
-                            Kamar Tidur (Normal - 500 BTU/m²)
+                            Kamar Tidur (Normal • 500 BTU/m²)
                           </option>
                           <option value="living">
                             Ruang Tamu / Keluarga (600 BTU/m²)
@@ -650,7 +682,12 @@ export default function CalculatorPage() {
                   <div className="form-step-block">
                     <div className="form-step-badge">
                       <span className="step-num-pill">3</span>
-                      <h4>Beban Tambahan Dalam Ruangan</h4>
+                      <div>
+                        <h4>Beban Tambahan Dalam Ruangan</h4>
+                        <p className="step-desc">
+                          Kalor panas tubuh penghuni dan beban perangkat aktif
+                        </p>
+                      </div>
                     </div>
 
                     <div className="form-two-col-grid">
@@ -665,7 +702,7 @@ export default function CalculatorPage() {
                             max="50"
                             value={occupants}
                             onChange={(e) =>
-                              setOccupants(Number(e.target.value) || 1)
+                              setOccupants(Math.max(1, Number(e.target.value) || 1))
                             }
                             aria-label="Jumlah penghuni rutin ruangan"
                           />
@@ -684,7 +721,7 @@ export default function CalculatorPage() {
                             max="30"
                             value={electronics}
                             onChange={(e) =>
-                              setElectronics(Number(e.target.value) || 0)
+                              setElectronics(Math.max(0, Number(e.target.value) || 0))
                             }
                             aria-label="Jumlah perangkat elektronik aktif"
                           />
@@ -699,49 +736,64 @@ export default function CalculatorPage() {
               {/* Result Recommendation Card (Right Column) */}
               <div className="calc-result-card">
                 <div className="calc-result-badge">
-                  <Sparkles size={16} />
-                  <span>REKOMENDASI STANDAR ASOSIASI</span>
+                  <Sparkles size={14} />
+                  <span>STANDAR REKOMENDASI ASOSIASI (SNI)</span>
                 </div>
 
                 <div className="calc-hero-pk">
-                  <small>Kapasitas AC Disarankan:</small>
-                  <h2>{recommendation.pk}</h2>
-                  <div className="calc-btu-chip">
-                    <Gauge size={14} />
-                    <span>
-                      {totalRawBtu.toLocaleString("id-ID")} BTU/h Diperlukan
-                    </span>
+                  <span className="pk-label">Kapasitas AC Disarankan:</span>
+                  <div className="pk-display-row">
+                    <h2 className="pk-main-value">{recommendation.pk}</h2>
+                  </div>
+                  <div className="pk-chips-wrap">
+                    <div className="calc-btu-chip primary">
+                      <Gauge size={13} />
+                      <span>
+                        {totalRawBtu.toLocaleString("id-ID")} BTU/h Beban Kalor
+                      </span>
+                    </div>
+                    <div className="calc-btu-chip secondary">
+                      <Wind size={13} />
+                      <span>Standar Unit: {recommendation.btuRating}</span>
+                    </div>
                   </div>
                 </div>
 
                 <div className="calc-specs-list">
                   <div className="calc-spec-item">
-                    <small>Luas & Volume Ruangan</small>
+                    <div className="spec-label-wrap">
+                      <Maximize2 size={14} className="spec-icon" />
+                      <span>Luas & Volume Ruangan</span>
+                    </div>
                     <strong>
                       {area.toFixed(1)} m² ({volume.toFixed(1)} m³)
                     </strong>
                   </div>
 
                   <div className="calc-spec-item">
-                    <small>Standar Output Unit AC</small>
-                    <strong>{recommendation.btuRating}</strong>
-                  </div>
-
-                  <div className="calc-spec-item">
-                    <small>Estimasi Daya AC Standar (Low Watt)</small>
+                    <div className="spec-label-wrap">
+                      <Zap size={14} className="spec-icon" />
+                      <span>Daya AC Standar (Low Watt)</span>
+                    </div>
                     <strong>{recommendation.wattEstimate}</strong>
                   </div>
 
-                  <div className="calc-spec-item">
-                    <small>Estimasi Daya AC Inverter (Hemat)</small>
-                    <strong style={{ color: "#16a34a" }}>
+                  <div className="calc-spec-item highlight-eco">
+                    <div className="spec-label-wrap">
+                      <Sparkles size={14} className="spec-icon" />
+                      <span>Daya AC Inverter (Hemat)</span>
+                    </div>
+                    <strong className="eco-val">
                       {recommendation.inverterWatt}
                     </strong>
                   </div>
 
-                  <div className="calc-spec-item">
-                    <small>Estimasi Biaya Listrik Bulanan (8 Jam/Hari)</small>
-                    <strong style={{ color: "#0284c7" }}>
+                  <div className="calc-spec-item highlight-cost">
+                    <div className="spec-label-wrap">
+                      <Gauge size={14} className="spec-icon" />
+                      <span>Estimasi Biaya Listrik Bulanan (8 Jam/Hari)</span>
+                    </div>
+                    <strong className="cost-val">
                       {recommendation.monthlyCost}
                     </strong>
                   </div>
@@ -749,7 +801,7 @@ export default function CalculatorPage() {
 
                 {/* Practical Advice Note */}
                 <div className="calc-advice-box">
-                  <Info size={18} color="#0284c7" />
+                  <Info size={18} className="advice-icon" />
                   <p>
                     {totalRawBtu > 18000
                       ? "Ruangan besar disarankan menggunakan 2 unit AC terpisah atau sistem Multi-Split agar distribusi hembusan dingin lebih merata."
@@ -759,12 +811,12 @@ export default function CalculatorPage() {
 
                 {/* Action CTA */}
                 <div className="calc-result-actions">
-                  <Link href="/technicians" className="calc-cta-btn">
+                  <Link href="/technicians" className="calc-cta-btn primary-btn">
                     <Users size={15} />
-                    <span>Cari Teknisi AC</span>
+                    <span>Cari Teknisi AC Berlisensi</span>
                     <ArrowRight size={14} />
                   </Link>
-                  <Link href="/bengkel" className="calc-cta-btn secondary" style={{ background: "#f0f9ff", color: "#0369a1", border: "1px solid #bae6fd" }}>
+                  <Link href="/technicians?tab=workshops" className="calc-cta-btn secondary-btn">
                     <Store size={15} />
                     <span>Bursa Bengkel & Toko Resmi</span>
                     <ArrowRight size={14} />
