@@ -16376,3 +16376,67 @@ export async function fetchRegenciesFromApi(
     return searchRegencies(search || "", province);
   }
 }
+
+export interface WilayahDistrict {
+  kode: string;
+  regencyKode: string;
+  provinceKode: string;
+  nama: string;
+}
+
+export interface WilayahVillage {
+  kode: string;
+  districtKode: string;
+  regencyKode: string;
+  provinceKode: string;
+  nama: string;
+  kodepos: string;
+}
+
+/**
+ * Fetch data kecamatan dari database backend REST API
+ */
+export async function fetchDistrictsFromApi(
+  regency?: string,
+  province?: string,
+  search?: string,
+): Promise<WilayahDistrict[]> {
+  try {
+    const params = new URLSearchParams();
+    if (regency) params.set("regency", regency);
+    if (province) params.set("province", province);
+    if (search) params.set("search", search);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const res = await fetch(`/api/v1/public/wilayah/districts${query}`);
+    if (!res.ok) throw new Error("Gagal mengambil data kecamatan dari database");
+    const json = await res.json();
+    return json.data || [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Fetch data kelurahan/desa dari database backend REST API
+ */
+export async function fetchVillagesFromApi(
+  district?: string,
+  regency?: string,
+  search?: string,
+  kodepos?: string,
+): Promise<WilayahVillage[]> {
+  try {
+    const params = new URLSearchParams();
+    if (district) params.set("district", district);
+    if (regency) params.set("regency", regency);
+    if (search) params.set("search", search);
+    if (kodepos) params.set("kodepos", kodepos);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    const res = await fetch(`/api/v1/public/wilayah/villages${query}`);
+    if (!res.ok) throw new Error("Gagal mengambil data kelurahan/desa dari database");
+    const json = await res.json();
+    return json.data || [];
+  } catch {
+    return [];
+  }
+}

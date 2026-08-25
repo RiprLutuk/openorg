@@ -36,9 +36,13 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MemberApiError, memberApi } from "@/lib/member-client";
 import {
+  fetchDistrictsFromApi,
+  fetchVillagesFromApi,
   findProvince,
   getProvinces,
   getRegenciesByProvince,
+  type WilayahDistrict,
+  type WilayahVillage,
 } from "@/lib/indonesia-wilayah";
 import { MemberPortraitCard } from "./member-portrait-card";
 
@@ -1318,6 +1322,10 @@ function MemberWorkshopPromo({
   );
   const [province, setProvince] = useState(existingMeta.province || "DKI Jakarta");
   const [city, setCity] = useState(existingMeta.city || "Kota Administrasi Jakarta Selatan");
+  const [district, setDistrict] = useState(existingMeta.district || "");
+  const [village, setVillage] = useState(existingMeta.village || "");
+  const [districtList, setDistrictList] = useState<WilayahDistrict[]>([]);
+  const [villageList, setVillageList] = useState<WilayahVillage[]>([]);
   const [postalCode, setPostalCode] = useState(
     existingMeta.postalCode || "12110",
   );
@@ -1374,6 +1382,29 @@ function MemberWorkshopPromo({
     }));
   }, [province]);
 
+  useEffect(() => {
+    const regs = getRegenciesByProvince(province);
+    const foundReg = regs.find((r) => r.nama === city);
+    if (foundReg?.kode) {
+      fetchDistrictsFromApi(foundReg.kode).then((dists) => {
+        setDistrictList(dists);
+      });
+    } else {
+      setDistrictList([]);
+    }
+  }, [province, city]);
+
+  useEffect(() => {
+    const foundDist = districtList.find((d) => d.nama === district);
+    if (foundDist?.kode) {
+      fetchVillagesFromApi(foundDist.kode).then((vils) => {
+        setVillageList(vils);
+      });
+    } else {
+      setVillageList([]);
+    }
+  }, [district, districtList]);
+
   const handleProvinceChange = (newProv: string) => {
     setProvince(newProv);
     const availableRegs = getRegenciesByProvince(newProv);
@@ -1381,6 +1412,8 @@ function MemberWorkshopPromo({
     if (!availableRegs.some((r) => r.nama === city)) {
       const selectedReg = firstReg?.nama || "";
       setCity(selectedReg);
+      setDistrict("");
+      setVillage("");
       if (firstReg?.kodepos) {
         setPostalCode(firstReg.kodepos);
       }
@@ -1389,10 +1422,25 @@ function MemberWorkshopPromo({
 
   const handleCityChange = (newCity: string) => {
     setCity(newCity);
+    setDistrict("");
+    setVillage("");
     const regs = getRegenciesByProvince(province);
     const foundReg = regs.find((r) => r.nama === newCity);
     if (foundReg?.kodepos) {
       setPostalCode(foundReg.kodepos);
+    }
+  };
+
+  const handleDistrictChange = (newDist: string) => {
+    setDistrict(newDist);
+    setVillage("");
+  };
+
+  const handleVillageChange = (newVil: string) => {
+    setVillage(newVil);
+    const foundVil = villageList.find((v) => v.nama === newVil);
+    if (foundVil?.kodepos) {
+      setPostalCode(foundVil.kodepos);
     }
   };
 
@@ -1412,6 +1460,8 @@ function MemberWorkshopPromo({
       category,
       city: city.trim(),
       province: province.trim(),
+      district: district.trim(),
+      village: village.trim(),
       postalCode: postalCode.trim(),
       address: address.trim(),
       phone: phone.trim(),
@@ -1571,6 +1621,41 @@ function MemberWorkshopPromo({
           </div>
 
           <div className="form-row-2">
+            <SearchableSingleSelect
+              label="Kecamatan"
+              placeholder={
+                districtList.length > 0
+                  ? `Pilih Kecamatan (${districtList.length} kecamatan)…`
+                  : "Pilih Kota/Kabupaten terlebih dahulu"
+              }
+              options={districtList.map((d) => ({
+                value: d.nama,
+                label: `Kec. ${d.nama}`,
+                sublabel: `Kode: ${d.kode}`,
+              }))}
+              value={district}
+              onChange={handleDistrictChange}
+              disabled={districtList.length === 0}
+            />
+            <SearchableSingleSelect
+              label="Kelurahan / Desa & Kode Pos"
+              placeholder={
+                villageList.length > 0
+                  ? `Pilih Kelurahan/Desa (${villageList.length} kelurahan)…`
+                  : "Pilih Kecamatan terlebih dahulu"
+              }
+              options={villageList.map((v) => ({
+                value: v.nama,
+                label: v.nama,
+                sublabel: `Kode Pos: ${v.kodepos || "—"} · Kode: ${v.kode}`,
+              }))}
+              value={village}
+              onChange={handleVillageChange}
+              disabled={villageList.length === 0}
+            />
+          </div>
+
+          <div className="form-row-2">
             <label>
               Alamat Lengkap Workshop / Toko *
               <input
@@ -1691,7 +1776,7 @@ function MemberWorkshopPromo({
             <div className="workshop-card-meta">
               <div className="meta-item">
                 <MapPin size={14} color="#64748b" />
-                <span>{city}, {province}</span>
+                <span>{[village, district, city, province].filter(Boolean).join(", ")}</span>
               </div>
               <div className="meta-item">
                 <Phone size={14} color="#64748b" />

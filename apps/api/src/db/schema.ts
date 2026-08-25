@@ -1160,19 +1160,101 @@ export const indonesiaRegencies = pgTable(
   ],
 );
 
+export const indonesiaDistricts = pgTable(
+  "indonesia_districts",
+  {
+    kode: varchar("kode", { length: 20 }).primaryKey(),
+    regencyKode: varchar("regency_kode", { length: 15 })
+      .notNull()
+      .references(() => indonesiaRegencies.kode, { onDelete: "cascade" }),
+    provinceKode: varchar("province_kode", { length: 10 })
+      .notNull()
+      .references(() => indonesiaProvinces.kode, { onDelete: "cascade" }),
+    nama: varchar("nama", { length: 150 }).notNull(),
+    ...timestamps,
+  },
+  (table) => [
+    index("idx_indonesia_districts_regency").on(table.regencyKode),
+    index("idx_indonesia_districts_province").on(table.provinceKode),
+    index("idx_indonesia_districts_nama").on(table.nama),
+  ],
+);
+
+export const indonesiaVillages = pgTable(
+  "indonesia_villages",
+  {
+    kode: varchar("kode", { length: 25 }).primaryKey(),
+    districtKode: varchar("district_kode", { length: 20 })
+      .notNull()
+      .references(() => indonesiaDistricts.kode, { onDelete: "cascade" }),
+    regencyKode: varchar("regency_kode", { length: 15 })
+      .notNull()
+      .references(() => indonesiaRegencies.kode, { onDelete: "cascade" }),
+    provinceKode: varchar("province_kode", { length: 10 })
+      .notNull()
+      .references(() => indonesiaProvinces.kode, { onDelete: "cascade" }),
+    nama: varchar("nama", { length: 150 }).notNull(),
+    kodepos: varchar("kodepos", { length: 10 }).notNull().default(""),
+    ...timestamps,
+  },
+  (table) => [
+    index("idx_indonesia_villages_district").on(table.districtKode),
+    index("idx_indonesia_villages_regency").on(table.regencyKode),
+    index("idx_indonesia_villages_nama").on(table.nama),
+    index("idx_indonesia_villages_kodepos").on(table.kodepos),
+  ],
+);
+
 // Relations definitions
 export const indonesiaProvincesRelations = relations(
   indonesiaProvinces,
   ({ many }) => ({
     regencies: many(indonesiaRegencies),
+    districts: many(indonesiaDistricts),
+    villages: many(indonesiaVillages),
   }),
 );
 
 export const indonesiaRegenciesRelations = relations(
   indonesiaRegencies,
-  ({ one }) => ({
+  ({ one, many }) => ({
     province: one(indonesiaProvinces, {
       fields: [indonesiaRegencies.provinceKode],
+      references: [indonesiaProvinces.kode],
+    }),
+    districts: many(indonesiaDistricts),
+    villages: many(indonesiaVillages),
+  }),
+);
+
+export const indonesiaDistrictsRelations = relations(
+  indonesiaDistricts,
+  ({ one, many }) => ({
+    regency: one(indonesiaRegencies, {
+      fields: [indonesiaDistricts.regencyKode],
+      references: [indonesiaRegencies.kode],
+    }),
+    province: one(indonesiaProvinces, {
+      fields: [indonesiaDistricts.provinceKode],
+      references: [indonesiaProvinces.kode],
+    }),
+    villages: many(indonesiaVillages),
+  }),
+);
+
+export const indonesiaVillagesRelations = relations(
+  indonesiaVillages,
+  ({ one }) => ({
+    district: one(indonesiaDistricts, {
+      fields: [indonesiaVillages.districtKode],
+      references: [indonesiaDistricts.kode],
+    }),
+    regency: one(indonesiaRegencies, {
+      fields: [indonesiaVillages.regencyKode],
+      references: [indonesiaRegencies.kode],
+    }),
+    province: one(indonesiaProvinces, {
+      fields: [indonesiaVillages.provinceKode],
       references: [indonesiaProvinces.kode],
     }),
   }),

@@ -9,8 +9,10 @@ import {
   contactSubmissions,
   contents,
   events,
+  indonesiaDistricts,
   indonesiaProvinces,
   indonesiaRegencies,
+  indonesiaVillages,
   industryStatistics,
   lenderRegistries,
   memberApplications,
@@ -1449,6 +1451,167 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
           kodepos: body.kodepos,
           kodeposRange: body.kodeposRange,
           kodeposList: body.kodeposList,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    return reply.status(201).send({ data: row });
+  });
+
+  app.get("/wilayah/districts", async (request) => {
+    const query = z
+      .object({
+        regency: z.string().optional(),
+        province: z.string().optional(),
+        search: z.string().optional(),
+        limit: z.coerce.number().int().min(1).max(500).default(200),
+      })
+      .parse(request.query);
+
+    const conditions = [];
+
+    if (query.regency?.trim()) {
+      const r = query.regency.trim();
+      conditions.push(
+        or(
+          eq(indonesiaDistricts.regencyKode, r),
+          ilike(indonesiaDistricts.regencyKode, r),
+        ),
+      );
+    }
+
+    if (query.province?.trim()) {
+      const p = query.province.trim();
+      conditions.push(
+        or(
+          eq(indonesiaDistricts.provinceKode, p),
+          ilike(indonesiaDistricts.provinceKode, p),
+        ),
+      );
+    }
+
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(indonesiaDistricts.nama, q),
+          ilike(indonesiaDistricts.kode, q),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(indonesiaDistricts)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(indonesiaDistricts.kode))
+      .limit(query.limit);
+
+    return { data: rows };
+  });
+
+  app.get("/wilayah/villages", async (request) => {
+    const query = z
+      .object({
+        district: z.string().optional(),
+        regency: z.string().optional(),
+        search: z.string().optional(),
+        kodepos: z.string().optional(),
+        limit: z.coerce.number().int().min(1).max(500).default(200),
+      })
+      .parse(request.query);
+
+    const conditions = [];
+
+    if (query.district?.trim()) {
+      const d = query.district.trim();
+      conditions.push(
+        or(
+          eq(indonesiaVillages.districtKode, d),
+          ilike(indonesiaVillages.districtKode, d),
+        ),
+      );
+    }
+
+    if (query.regency?.trim()) {
+      const r = query.regency.trim();
+      conditions.push(
+        or(
+          eq(indonesiaVillages.regencyKode, r),
+          ilike(indonesiaVillages.regencyKode, r),
+        ),
+      );
+    }
+
+    if (query.kodepos?.trim()) {
+      conditions.push(eq(indonesiaVillages.kodepos, query.kodepos.trim()));
+    }
+
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(indonesiaVillages.nama, q),
+          ilike(indonesiaVillages.kode, q),
+          ilike(indonesiaVillages.kodepos, q),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(indonesiaVillages)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(indonesiaVillages.kode))
+      .limit(query.limit);
+
+    return { data: rows };
+  });
+
+  app.post("/wilayah/districts", async (request, reply) => {
+    const distSchema = z.object({
+      kode: z.string().min(2).max(20),
+      regencyKode: z.string().min(2).max(15),
+      provinceKode: z.string().min(2).max(10),
+      nama: z.string().min(2).max(150),
+    });
+
+    const body = distSchema.parse(request.body);
+    const [row] = await db
+      .insert(indonesiaDistricts)
+      .values(body)
+      .onConflictDoUpdate({
+        target: indonesiaDistricts.kode,
+        set: {
+          nama: body.nama,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    return reply.status(201).send({ data: row });
+  });
+
+  app.post("/wilayah/villages", async (request, reply) => {
+    const vilSchema = z.object({
+      kode: z.string().min(2).max(25),
+      districtKode: z.string().min(2).max(20),
+      regencyKode: z.string().min(2).max(15),
+      provinceKode: z.string().min(2).max(10),
+      nama: z.string().min(2).max(150),
+      kodepos: z.string().default(""),
+    });
+
+    const body = vilSchema.parse(request.body);
+    const [row] = await db
+      .insert(indonesiaVillages)
+      .values(body)
+      .onConflictDoUpdate({
+        target: indonesiaVillages.kode,
+        set: {
+          nama: body.nama,
+          kodepos: body.kodepos,
           updatedAt: new Date(),
         },
       })

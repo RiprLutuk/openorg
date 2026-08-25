@@ -86,6 +86,8 @@ import {
   type CmsProvince,
   type CmsPublicSettings,
   type CmsRegency,
+  type CmsDistrict,
+  type CmsVillage,
   type CmsRegulation,
   type CmsRevenueData,
   type CmsStatistic,
@@ -96,8 +98,12 @@ import {
   type DashboardData,
   getWilayahProvinces,
   getWilayahRegencies,
+  getWilayahDistricts,
+  getWilayahVillages,
   saveWilayahProvince,
   saveWilayahRegency,
+  saveWilayahDistrict,
+  saveWilayahVillage,
   type Session,
 } from "./api";
 
@@ -10298,8 +10304,12 @@ function StatisticsManager() {
 function WilayahManager() {
   const qc = useQueryClient();
   const [selectedProvinceCode, setSelectedProvinceCode] = useState<string>("31");
+  const [selectedRegencyCode, setSelectedRegencyCode] = useState<string>("31.71");
+  const [selectedDistrictCode, setSelectedDistrictCode] = useState<string>("31.71.01");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"regencies" | "provinces">("regencies");
+  const [activeTab, setActiveTab] = useState<
+    "regencies" | "districts" | "villages" | "provinces"
+  >("regencies");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<CmsRegency> | null>(null);
 
@@ -10313,9 +10323,26 @@ function WilayahManager() {
     queryFn: () => getWilayahRegencies(selectedProvinceCode, searchQuery),
   });
 
+  const { data: distData, isLoading: _loadingDist } = useQuery({
+    queryKey: ["cms-wilayah-districts", selectedRegencyCode, searchQuery],
+    queryFn: () => getWilayahDistricts(selectedRegencyCode, undefined, searchQuery),
+    enabled: activeTab === "districts" || activeTab === "villages",
+  });
+
+  const { data: vilData, isLoading: _loadingVil } = useQuery({
+    queryKey: ["cms-wilayah-villages", selectedDistrictCode, searchQuery],
+    queryFn: () => getWilayahVillages(selectedDistrictCode, undefined, searchQuery),
+    enabled: activeTab === "villages",
+  });
+
   const provinces = provData?.data ?? [];
   const regencies = regData?.data ?? [];
+  const districts = distData?.data ?? [];
+  const villages = vilData?.data ?? [];
+
   const selectedProvince = provinces.find((p) => p.kode === selectedProvinceCode);
+  const selectedRegency = regencies.find((r) => r.kode === selectedRegencyCode);
+  const selectedDistrict = districts.find((d) => d.kode === selectedDistrictCode);
 
   const saveRegencyMut = useMutation({
     mutationFn: (data: {
@@ -10343,7 +10370,7 @@ function WilayahManager() {
         <div>
           <h1>Wilayah & Kode Pos Indonesia (Kepmendagri)</h1>
           <p>
-            Master Data 38 Provinsi & 514 Kabupaten/Kota se-Indonesia tersimpan langsung di Database API untuk validasi alamat, cabang DPD/DPC, dan profil bengkel.
+            Database Terpadu: 38 Provinsi, 514 Kab/Kota, 7.265 Kecamatan, dan 83.345 Desa/Kelurahan dengan Kode Pos Akurat se-Indonesia.
           </p>
         </div>
         <div className="header-actions">
@@ -10362,7 +10389,7 @@ function WilayahManager() {
               setIsModalOpen(true);
             }}
           >
-            <Plus size={16} /> Tambah Kota/Kabupaten
+            <Plus size={16} /> Tambah Data Wilayah
           </button>
         </div>
       </header>
@@ -10373,14 +10400,28 @@ function WilayahManager() {
           className={`tab-button ${activeTab === "regencies" ? "active" : ""}`}
           onClick={() => setActiveTab("regencies")}
         >
-          <Building2 size={16} /> Kabupaten & Kota ({regencies.length})
+          <Building2 size={16} /> Kab & Kota (514)
+        </button>
+        <button
+          type="button"
+          className={`tab-button ${activeTab === "districts" ? "active" : ""}`}
+          onClick={() => setActiveTab("districts")}
+        >
+          <Landmark size={16} /> Kecamatan (7.265)
+        </button>
+        <button
+          type="button"
+          className={`tab-button ${activeTab === "villages" ? "active" : ""}`}
+          onClick={() => setActiveTab("villages")}
+        >
+          <MapPin size={16} /> Desa & Kelurahan (83.345)
         </button>
         <button
           type="button"
           className={`tab-button ${activeTab === "provinces" ? "active" : ""}`}
           onClick={() => setActiveTab("provinces")}
         >
-          <Globe2 size={16} /> Daftar 38 Provinsi
+          <Globe2 size={16} /> Provinsi (38)
         </button>
       </div>
 
@@ -10394,7 +10435,9 @@ function WilayahManager() {
                 </label>
                 <select
                   value={selectedProvinceCode}
-                  onChange={(e) => setSelectedProvinceCode(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedProvinceCode(e.target.value);
+                  }}
                   style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
                 >
                   {provinces.map((p) => (
@@ -10409,15 +10452,13 @@ function WilayahManager() {
                 <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
                   CARI KOTA / KODEPOS:
                 </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Ketik nama kota, ibukota, atau nomor kodepos..."
-                    style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Ketik nama kota, ibukota, atau nomor kodepos..."
+                  style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                />
               </div>
             </div>
           </section>
@@ -10470,6 +10511,17 @@ function WilayahManager() {
                     <td className="actions-cell">
                       <button
                         type="button"
+                        className="button secondary small"
+                        style={{ marginRight: "6px" }}
+                        onClick={() => {
+                          setSelectedRegencyCode(r.kode);
+                          setActiveTab("districts");
+                        }}
+                      >
+                        Kecamatan
+                      </button>
+                      <button
+                        type="button"
                         className="icon-button"
                         onClick={() => {
                           setEditingItem(r);
@@ -10485,6 +10537,244 @@ function WilayahManager() {
                   <tr>
                     <td colSpan={7} className="empty-cell">
                       <Empty message="Tidak ada data kota/kabupaten yang cocok." />
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </section>
+        </>
+      )}
+
+      {activeTab === "districts" && (
+        <>
+          <section className="panel" style={{ marginBottom: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.5fr", gap: "16px" }}>
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                  1. PROVINSI:
+                </label>
+                <select
+                  value={selectedProvinceCode}
+                  onChange={(e) => {
+                    setSelectedProvinceCode(e.target.value);
+                  }}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                >
+                  {provinces.map((p) => (
+                    <option key={p.kode} value={p.kode}>
+                      [{p.kode}] {p.nama}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                  2. KABUPATEN / KOTA:
+                </label>
+                <select
+                  value={selectedRegencyCode}
+                  onChange={(e) => setSelectedRegencyCode(e.target.value)}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                >
+                  {regencies.map((r) => (
+                    <option key={r.kode} value={r.kode}>
+                      [{r.kode}] {r.nama}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                  CARI KECAMATAN:
+                </label>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Ketik nama atau kode kecamatan..."
+                  style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="panel">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <h3 style={{ margin: 0, fontSize: "16px" }}>
+                Daftar Kecamatan di {selectedRegency?.nama || "Wilayah Terpilih"} ({districts.length} Kecamatan)
+              </h3>
+              <span className="badge" style={{ background: "#f0fdf4", color: "#16a34a" }}>
+                Kode Kabupaten: {selectedRegencyCode}
+              </span>
+            </div>
+
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Kode Kecamatan</th>
+                  <th>Nama Kecamatan</th>
+                  <th>Kabupaten / Kota</th>
+                  <th>Provinsi</th>
+                  <th className="actions-cell">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {districts.map((d) => (
+                  <tr key={d.kode}>
+                    <td>
+                      <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
+                        {d.kode}
+                      </code>
+                    </td>
+                    <td>
+                      <strong>Kec. {d.nama}</strong>
+                    </td>
+                    <td>{selectedRegency?.nama || d.regencyKode}</td>
+                    <td>{selectedProvince?.nama || d.provinceKode}</td>
+                    <td className="actions-cell">
+                      <button
+                        type="button"
+                        className="button secondary small"
+                        onClick={() => {
+                          setSelectedDistrictCode(d.kode);
+                          setActiveTab("villages");
+                        }}
+                      >
+                        Lihat Desa/Kelurahan
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {districts.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="empty-cell">
+                      <Empty message="Tidak ada data kecamatan yang ditemukan." />
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </section>
+        </>
+      )}
+
+      {activeTab === "villages" && (
+        <>
+          <section className="panel" style={{ marginBottom: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1.5fr", gap: "12px" }}>
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                  1. PROVINSI:
+                </label>
+                <select
+                  value={selectedProvinceCode}
+                  onChange={(e) => setSelectedProvinceCode(e.target.value)}
+                  style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+                >
+                  {provinces.map((p) => (
+                    <option key={p.kode} value={p.kode}>
+                      {p.nama}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                  2. KAB/KOTA:
+                </label>
+                <select
+                  value={selectedRegencyCode}
+                  onChange={(e) => setSelectedRegencyCode(e.target.value)}
+                  style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+                >
+                  {regencies.map((r) => (
+                    <option key={r.kode} value={r.kode}>
+                      {r.nama}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                  3. KECAMATAN:
+                </label>
+                <select
+                  value={selectedDistrictCode}
+                  onChange={(e) => setSelectedDistrictCode(e.target.value)}
+                  style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+                >
+                  {districts.map((d) => (
+                    <option key={d.kode} value={d.kode}>
+                      {d.nama}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                  CARI DESA / KODEPOS:
+                </label>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Ketik nama kelurahan atau kode pos..."
+                  style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="panel">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <h3 style={{ margin: 0, fontSize: "16px" }}>
+                Daftar Desa / Kelurahan di Kec. {selectedDistrict?.nama || "Terpilih"} ({villages.length} Desa/Kelurahan)
+              </h3>
+              <span className="badge" style={{ background: "#fef3c7", color: "#b45309" }}>
+                Kode Kecamatan: {selectedDistrictCode}
+              </span>
+            </div>
+
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Kode Desa/Kelurahan</th>
+                  <th>Nama Desa / Kelurahan</th>
+                  <th>Kode Pos</th>
+                  <th>Kecamatan</th>
+                  <th>Kabupaten / Kota</th>
+                </tr>
+              </thead>
+              <tbody>
+                {villages.map((v) => (
+                  <tr key={v.kode}>
+                    <td>
+                      <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
+                        {v.kode}
+                      </code>
+                    </td>
+                    <td>
+                      <strong>{v.nama}</strong>
+                    </td>
+                    <td>
+                      <span className="badge" style={{ background: "#ecfdf5", color: "#059669" }}>
+                        📮 {v.kodepos || "—"}
+                      </span>
+                    </td>
+                    <td>{selectedDistrict?.nama || v.districtKode}</td>
+                    <td>{selectedRegency?.nama || v.regencyKode}</td>
+                  </tr>
+                ))}
+                {villages.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="empty-cell">
+                      <Empty message="Tidak ada data desa/kelurahan yang ditemukan." />
                     </td>
                   </tr>
                 )}

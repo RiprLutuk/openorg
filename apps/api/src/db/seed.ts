@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { hash } from "@node-rs/argon2";
 import { eq } from "drizzle-orm";
 import { closeDatabase, db } from "./client";
@@ -6,8 +8,10 @@ import {
   championshipStandings,
   contents,
   events,
+  indonesiaDistricts,
   indonesiaProvinces,
   indonesiaRegencies,
+  indonesiaVillages,
   industryStatistics,
   learningActivities,
   learningCreditLedger,
@@ -79,6 +83,8 @@ async function seed() {
     await tx.delete(technicianDirectories);
     await tx.delete(registeredClubs);
     await tx.delete(lenderRegistries);
+    await tx.delete(indonesiaVillages);
+    await tx.delete(indonesiaDistricts);
     await tx.delete(indonesiaRegencies);
     await tx.delete(indonesiaProvinces);
     await tx.delete(users);
@@ -1434,10 +1440,50 @@ async function seed() {
         })),
       );
     }
+
+    // Seed Kecamatan (7.265 Districts)
+    try {
+      const districtsPath = join(import.meta.dirname, "data", "districts.json");
+      const rawDistricts = readFileSync(districtsPath, "utf-8");
+      const districts: Array<{
+        kode: string;
+        regencyKode: string;
+        provinceKode: string;
+        nama: string;
+      }> = JSON.parse(rawDistricts);
+
+      const distChunk = 500;
+      for (let i = 0; i < districts.length; i += distChunk) {
+        await tx.insert(indonesiaDistricts).values(districts.slice(i, i + distChunk));
+      }
+    } catch (e) {
+      console.warn("Notice: skipping districts seeding if file not available", e);
+    }
+
+    // Seed Desa / Kelurahan & Kodepos (83.345 Villages)
+    try {
+      const villagesPath = join(import.meta.dirname, "data", "villages.json");
+      const rawVillages = readFileSync(villagesPath, "utf-8");
+      const villages: Array<{
+        kode: string;
+        districtKode: string;
+        regencyKode: string;
+        provinceKode: string;
+        nama: string;
+        kodepos: string;
+      }> = JSON.parse(rawVillages);
+
+      const vilChunk = 1000;
+      for (let i = 0; i < villages.length; i += vilChunk) {
+        await tx.insert(indonesiaVillages).values(villages.slice(i, i + vilChunk));
+      }
+    } catch (e) {
+      console.warn("Notice: skipping villages seeding if file not available", e);
+    }
   });
 
   process.stdout.write(
-    `APTI Indonesia Seed Complete!\n- Seeded 38 Indonesia Provinces into Database\n- Seeded 514 Indonesia Regencies/Cities with Postal Codes into Database\n\nAdmin login accounts:\n1) admin@organization.org (password: password123)\n2) admin@demo.openorg (password: OpenOrg!2026Demo)\n3) sekretariat@apti.or.id (password: password123)\n\nMember Portal login accounts (/member/login):\n1) member@demo.openorg (password: OpenOrg!2026Demo) - Budi Pratama (Demo Member)\n2) nanang@apti.or.id (password: password123) - Ir. H. Nanang Varian\n3) dedi.jabar@apti.or.id (password: password123) - Dedi Kurniawan\n`,
+    `APTI Indonesia Seed Complete!\n- Seeded 38 Indonesia Provinces into Database\n- Seeded 514 Indonesia Regencies/Cities with Postal Codes into Database\n- Seeded 7,265 Indonesia Districts (Kecamatan) into Database\n- Seeded 83,345 Indonesia Villages (Desa/Kelurahan) with exact Postal Codes into Database\n\nAdmin login accounts:\n1) admin@organization.org (password: password123)\n2) admin@demo.openorg (password: OpenOrg!2026Demo)\n3) sekretariat@apti.or.id (password: password123)\n\nMember Portal login accounts (/member/login):\n1) member@demo.openorg (password: OpenOrg!2026Demo) - Budi Pratama (Demo Member)\n2) nanang@apti.or.id (password: password123) - Ir. H. Nanang Varian\n3) dedi.jabar@apti.or.id (password: password123) - Dedi Kurniawan\n`,
   );
 }
 

@@ -614,3 +614,75 @@ export const saveWilayahRegency = (regency: {
     method: "POST",
     body: JSON.stringify(regency),
   });
+
+export type CmsDistrict = {
+  kode: string;
+  regencyKode: string;
+  provinceKode: string;
+  nama: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CmsVillage = {
+  kode: string;
+  districtKode: string;
+  regencyKode: string;
+  provinceKode: string;
+  nama: string;
+  kodepos: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const getWilayahDistricts = (
+  regency?: string,
+  province?: string,
+  search?: string,
+) => {
+  const params = new URLSearchParams();
+  if (regency) params.set("regency", regency);
+  if (province) params.set("province", province);
+  if (search) params.set("search", search);
+  const qs = params.toString() ? `?${params.toString()}` : "";
+  return api<{ data: CmsDistrict[] }>(`/v1/admin/wilayah/districts${qs}`);
+};
+
+export const getWilayahVillages = (
+  district?: string,
+  regency?: string,
+  search?: string,
+  kodepos?: string,
+) => {
+  const params = new URLSearchParams();
+  if (district) params.set("district", district);
+  if (regency) params.set("regency", regency);
+  if (search) params.set("search", search);
+  if (kodepos) params.set("kodepos", kodepos);
+  const qs = params.toString() ? `?${params.toString()}` : "";
+  return api<{ data: CmsVillage[] }>(`/v1/admin/wilayah/villages${qs}`);
+};
+
+export const saveWilayahDistrict = (district: {
+  kode: string;
+  regencyKode: string;
+  provinceKode: string;
+  nama: string;
+}) =>
+  api<{ data: CmsDistrict }>("/v1/admin/wilayah/districts", {
+    method: "POST",
+    body: JSON.stringify(district),
+  });
+
+export const saveWilayahVillage = (village: {
+  kode: string;
+  districtKode: string;
+  regencyKode: string;
+  provinceKode: string;
+  nama: string;
+  kodepos?: string;
+}) =>
+  api<{ data: CmsVillage }>("/v1/admin/wilayah/villages", {
+    method: "POST",
+    body: JSON.stringify(village),
+  });

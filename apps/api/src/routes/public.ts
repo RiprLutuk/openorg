@@ -8,8 +8,10 @@ import {
   contactSubmissions,
   contents,
   events,
+  indonesiaDistricts,
   indonesiaProvinces,
   indonesiaRegencies,
+  indonesiaVillages,
   industryStatistics,
   lenderRegistries,
   members,
@@ -667,6 +669,116 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     return { data: rows };
   });
 
+  app.get("/wilayah/districts", async (request) => {
+    const query = z
+      .object({
+        regency: z.string().optional(),
+        province: z.string().optional(),
+        search: z.string().optional(),
+        limit: z.coerce.number().int().min(1).max(500).default(200),
+      })
+      .parse(request.query);
+
+    const conditions = [];
+
+    if (query.regency?.trim()) {
+      const r = query.regency.trim();
+      conditions.push(
+        or(
+          eq(indonesiaDistricts.regencyKode, r),
+          ilike(indonesiaDistricts.regencyKode, r),
+        ),
+      );
+    }
+
+    if (query.province?.trim()) {
+      const p = query.province.trim();
+      conditions.push(
+        or(
+          eq(indonesiaDistricts.provinceKode, p),
+          ilike(indonesiaDistricts.provinceKode, p),
+        ),
+      );
+    }
+
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(indonesiaDistricts.nama, q),
+          ilike(indonesiaDistricts.kode, q),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(indonesiaDistricts)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(indonesiaDistricts.kode))
+      .limit(query.limit);
+
+    return { data: rows };
+  });
+
+  app.get("/wilayah/villages", async (request) => {
+    const query = z
+      .object({
+        district: z.string().optional(),
+        regency: z.string().optional(),
+        search: z.string().optional(),
+        kodepos: z.string().optional(),
+        limit: z.coerce.number().int().min(1).max(500).default(200),
+      })
+      .parse(request.query);
+
+    const conditions = [];
+
+    if (query.district?.trim()) {
+      const d = query.district.trim();
+      conditions.push(
+        or(
+          eq(indonesiaVillages.districtKode, d),
+          ilike(indonesiaVillages.districtKode, d),
+        ),
+      );
+    }
+
+    if (query.regency?.trim()) {
+      const r = query.regency.trim();
+      conditions.push(
+        or(
+          eq(indonesiaVillages.regencyKode, r),
+          ilike(indonesiaVillages.regencyKode, r),
+        ),
+      );
+    }
+
+    if (query.kodepos?.trim()) {
+      conditions.push(eq(indonesiaVillages.kodepos, query.kodepos.trim()));
+    }
+
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(indonesiaVillages.nama, q),
+          ilike(indonesiaVillages.kode, q),
+          ilike(indonesiaVillages.kodepos, q),
+        ),
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(indonesiaVillages)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(asc(indonesiaVillages.kode))
+      .limit(query.limit);
+
+    return { data: rows };
+  });
+
   app.get("/wilayah/kodepos/:kodepos", async (request) => {
     const params = z
       .object({
@@ -675,6 +787,20 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       .parse(request.params);
 
     const targetKodepos = params.kodepos.trim();
+
+    // Query villages matching postal code directly
+    const villageRows = await db
+      .select({
+        kode: indonesiaVillages.kode,
+        nama: indonesiaVillages.nama,
+        kodepos: indonesiaVillages.kodepos,
+        districtKode: indonesiaVillages.districtKode,
+        regencyKode: indonesiaVillages.regencyKode,
+        provinceKode: indonesiaVillages.provinceKode,
+      })
+      .from(indonesiaVillages)
+      .where(eq(indonesiaVillages.kodepos, targetKodepos))
+      .limit(20);
 
     // Query regency matching postal code
     const regencyRows = await db
@@ -689,6 +815,11 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       )
       .limit(10);
 
-    return { data: regencyRows };
+    return {
+      data: {
+        villages: villageRows,
+        regencies: regencyRows,
+      },
+    };
   });
 };
