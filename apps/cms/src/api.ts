@@ -147,17 +147,44 @@ export type CmsMembershipApplication = {
   reviewerNotes: string | null;
   consent: Record<string, unknown>;
   unitName: string | null;
+  profileCompleteness?: {
+    isComplete: boolean;
+    score: number;
+    totalMandatory: number;
+    percentage: number;
+    missingFields: string[];
+    completedFields: string[];
+    checklist?: Array<{
+      key: string;
+      label: string;
+      description: string;
+      isCompleted: boolean;
+      required: boolean;
+      value?: string | number | null;
+    }>;
+  } | null;
   member: {
     id: string;
     memberNumber: string;
     name: string;
     email: string | null;
     phone: string | null;
+    avatarUrl?: string | null;
+    nik?: string | null;
+    idCardUrl?: string | null;
+    jabatan?: string | null;
+    korwil?: string | null;
+    companyName?: string | null;
+    specialization?: string[];
+    businessInfo?: Record<string, unknown> | null;
+    emergencyContact?: Record<string, unknown> | null;
+    workExperienceYears?: number | string | null;
+    certifications?: Array<Record<string, unknown>>;
     address: string | null;
     biography: string | null;
     status: "applicant" | "pending" | "active" | "inactive" | "rejected";
     customFields: Record<string, unknown>;
-    socialLinks: Array<{ platform: string; url: string }>;
+    socialLinks?: Array<{ platform: string; url: string }>;
   };
 };
 

@@ -25,8 +25,8 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { Suspense, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { ServerPagination } from "@/components/server-pagination";
 
@@ -222,7 +222,10 @@ function ClubsContent() {
     return matchSearch && matchProvince && matchCategory;
   });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE_CLUBS));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filtered.length / ITEMS_PER_PAGE_CLUBS),
+  );
   const paginatedRows = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE_CLUBS,
     currentPage * ITEMS_PER_PAGE_CLUBS,
@@ -248,9 +251,9 @@ function ClubsContent() {
             </h1>
 
             <p className="tech-hero-lead">
-              Daftar resmi paguyuban bengkel, komunitas praktisi, dan klub profesi
-              pendingin yang memegang Tanda Klub Terdaftar (TKT) resmi di bawah
-              koordinasi Dewan Pimpinan Daerah (DPD).
+              Daftar resmi paguyuban bengkel, komunitas praktisi, dan klub
+              profesi pendingin yang memegang Tanda Klub Terdaftar (TKT) resmi
+              di bawah koordinasi Dewan Pimpinan Daerah (DPD).
             </p>
           </div>
 
@@ -264,7 +267,10 @@ function ClubsContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                  style={{
+                    background: "rgba(2, 132, 199, 0.12)",
+                    color: "#38bdf8",
+                  }}
                 >
                   <Flag size={20} />
                 </div>
@@ -276,7 +282,10 @@ function ClubsContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#34d399",
+                  }}
                 >
                   <Users size={20} />
                 </div>
@@ -288,7 +297,10 @@ function ClubsContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                  style={{
+                    background: "rgba(99, 102, 241, 0.12)",
+                    color: "#818cf8",
+                  }}
                 >
                   <Building2 size={20} />
                 </div>
@@ -300,7 +312,10 @@ function ClubsContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#f59e0b",
+                  }}
                 >
                   <ShieldCheck size={20} />
                 </div>

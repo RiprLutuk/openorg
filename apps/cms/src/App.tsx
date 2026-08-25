@@ -13,6 +13,7 @@ import {
   BookOpen,
   Briefcase,
   Building2,
+  Calculator,
   CalendarDays,
   CheckCircle2,
   ChevronDown,
@@ -22,7 +23,6 @@ import {
   Copy,
   CornerDownRight,
   Cpu,
-  Calculator,
   CreditCard,
   Download,
   Edit2,
@@ -86,6 +86,7 @@ import { toast } from "sonner";
 import {
   ApiError,
   api,
+  type CmsAdArt,
   type CmsChampionship,
   type CmsClub,
   type CmsComplaint,
@@ -93,6 +94,7 @@ import {
   type CmsCredentialField,
   type CmsCredentialRequirement,
   type CmsCredentialScheme,
+  type CmsDistrict,
   type CmsEvent,
   type CmsGovernanceData,
   type CmsLearningActivity,
@@ -102,42 +104,40 @@ import {
   type CmsMember,
   type CmsMemberCredential,
   type CmsMembershipApplication,
+  type CmsMilestone,
   type CmsOrganization,
   type CmsPage,
   type CmsProvince,
   type CmsPublicSettings,
+  type CmsRefrigerant,
   type CmsRegency,
-  type CmsDistrict,
-  type CmsVillage,
   type CmsRegulation,
   type CmsRevenueData,
   type CmsStatistic,
   type CmsSubmission,
   type CmsTechnician,
   type CmsUnit,
+  type CmsVillage,
   type CmsWorkingGroup,
-  type CmsAdArt,
-  type CmsMilestone,
-  type CmsRefrigerant,
   type DashboardData,
+  deleteAdArt,
+  deleteMilestone,
+  deleteRefrigerant,
+  getAdArtList,
+  getMilestonesList,
+  getRefrigerantsList,
+  getWilayahDistricts,
   getWilayahProvinces,
   getWilayahRegencies,
-  getWilayahDistricts,
   getWilayahVillages,
+  type Session,
+  saveAdArt,
+  saveMilestone,
+  saveRefrigerant,
+  saveWilayahDistrict,
   saveWilayahProvince,
   saveWilayahRegency,
-  saveWilayahDistrict,
   saveWilayahVillage,
-  getAdArtList,
-  saveAdArt,
-  deleteAdArt,
-  getMilestonesList,
-  saveMilestone,
-  deleteMilestone,
-  getRefrigerantsList,
-  saveRefrigerant,
-  deleteRefrigerant,
-  type Session,
 } from "./api";
 
 type Screen =
@@ -199,7 +199,11 @@ const menu: Array<{
     items: [
       { id: "adArt", label: "AD/ART & Kode Etik", icon: Scale },
       { id: "milestones", label: "Sejarah & Profil", icon: Sparkles },
-      { id: "refrigerants", label: "Katalog Freon & Kalkulator", icon: Calculator },
+      {
+        id: "refrigerants",
+        label: "Katalog Freon & Kalkulator",
+        icon: Calculator,
+      },
       { id: "regulations", label: "Regulations & Legal", icon: FileText },
       { id: "complaints", label: "Complaints & Ethics", icon: ShieldAlert },
       { id: "technicians", label: "Technicians Directory", icon: Wrench },
@@ -384,7 +388,10 @@ export function TablePagination({
       <div className="pagination-info">
         <span className="pagination-text">
           <span className="pagination-text-full">Menampilkan </span>
-          <strong>{startItem}–{endItem}</strong> dari <strong>{totalItems}</strong> data
+          <strong>
+            {startItem}–{endItem}
+          </strong>{" "}
+          dari <strong>{totalItems}</strong> data
         </span>
         {onPageSizeChange && (
           <div className="page-size-selector">
@@ -432,7 +439,9 @@ export function TablePagination({
               const showEllipsis = prev && p - prev > 1;
               return (
                 <span key={p} className="page-number-wrap">
-                  {showEllipsis && <span className="pagination-ellipsis">…</span>}
+                  {showEllipsis && (
+                    <span className="pagination-ellipsis">…</span>
+                  )}
                   <button
                     type="button"
                     className={`pagination-number ${currentPage === p ? "active" : ""}`}
@@ -477,7 +486,11 @@ export function App() {
       !session.data?.data;
 
     if (isAuth) return <Login />;
-    return <FatalError message={session.error?.message || "Koneksi ke server terputus."} />;
+    return (
+      <FatalError
+        message={session.error?.message || "Koneksi ke server terputus."}
+      />
+    );
   }
   return <Studio session={session.data.data} />;
 }
@@ -928,7 +941,8 @@ function ExecutiveReportModal({
           <div>
             <h2>Laporan Kinerja & Pertanggungjawaban Eksekutif</h2>
             <p>
-              Dokumen resmi rekapitulasi data organisasi siap cetak / ekspor ke PDF.
+              Dokumen resmi rekapitulasi data organisasi siap cetak / ekspor ke
+              PDF.
             </p>
           </div>
           <div style={{ display: "flex", gap: "8px" }}>
@@ -1013,7 +1027,8 @@ function ExecutiveReportModal({
                   <td>Teknisi Terverifikasi & BNSP</td>
                   <td>
                     <strong>
-                      {data?.counts.technicians ?? data?.counts.members ?? 0} Teknisi
+                      {data?.counts.technicians ?? data?.counts.members ?? 0}{" "}
+                      Teknisi
                     </strong>
                   </td>
                   <td>Tersertifikasi Kompetensi & Standar Keselamatan</td>
@@ -1043,7 +1058,8 @@ function ExecutiveReportModal({
                   <td>Halaman Publik & Publikasi Warta</td>
                   <td>
                     <strong>
-                      {(data?.counts.pages ?? 0) + (data?.counts.contents ?? 0)} Rilis
+                      {(data?.counts.pages ?? 0) + (data?.counts.contents ?? 0)}{" "}
+                      Rilis
                     </strong>
                   </td>
                   <td>Portal Publikasi & Media Informasi Resmi</td>
@@ -1333,7 +1349,11 @@ function Dashboard({
       {/* Visual Analytics & Charts Section */}
       <div
         className="dashboard-grid"
-        style={{ gridTemplateColumns: "1.2fr 0.8fr", gap: "16px", marginBottom: "20px" }}
+        style={{
+          gridTemplateColumns: "1.2fr 0.8fr",
+          gap: "16px",
+          marginBottom: "20px",
+        }}
       >
         {/* Chart 1: Monthly Growth Trends */}
         <div className="chart-card">
@@ -1368,7 +1388,9 @@ function Dashboard({
                 <span className="grid-label">{maxMonthVal}</span>
               </div>
               <div className="grid-line">
-                <span className="grid-label">{Math.round(maxMonthVal / 2)}</span>
+                <span className="grid-label">
+                  {Math.round(maxMonthVal / 2)}
+                </span>
               </div>
               <div className="grid-line">
                 <span className="grid-label">0</span>
@@ -1517,30 +1539,34 @@ function Dashboard({
             </span>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {(data?.trainingData?.eventsList || [
-              {
-                title: "Sertifikasi Teknisi RAC Level 1 BNSP",
-                date: "28 Agu 2026",
-                capacity: 60,
-                participants: 58,
-                fillRate: 97,
-              },
-              {
-                title: "Workshop Retrofit Hidrokarbon R290 Ramah Lingkungan",
-                date: "05 Sep 2026",
-                capacity: 40,
-                participants: 36,
-                fillRate: 90,
-              },
-              {
-                title: "Masterclass Inverter Multi-Split VRV/VRF",
-                date: "18 Sep 2026",
-                capacity: 50,
-                participants: 45,
-                fillRate: 90,
-              },
-            ]).map((ev) => (
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            {(
+              data?.trainingData?.eventsList || [
+                {
+                  title: "Sertifikasi Teknisi RAC Level 1 BNSP",
+                  date: "28 Agu 2026",
+                  capacity: 60,
+                  participants: 58,
+                  fillRate: 97,
+                },
+                {
+                  title: "Workshop Retrofit Hidrokarbon R290 Ramah Lingkungan",
+                  date: "05 Sep 2026",
+                  capacity: 40,
+                  participants: 36,
+                  fillRate: 90,
+                },
+                {
+                  title: "Masterclass Inverter Multi-Split VRV/VRF",
+                  date: "18 Sep 2026",
+                  capacity: 50,
+                  participants: 45,
+                  fillRate: 90,
+                },
+              ]
+            ).map((ev) => (
               <div className="training-event-row" key={ev.title}>
                 <div className="training-meta-top">
                   <span className="training-title">{ev.title}</span>
@@ -1620,12 +1646,18 @@ function Dashboard({
           </div>
 
           <div className="distribution-list">
-            {(data?.complaintsData?.categories || [
-              { name: "Kode Etik Keanggotaan", count: 2, percentage: 40 },
-              { name: "Standar Keselamatan (K3)", count: 1, percentage: 25 },
-              { name: "Layanan Konsumen & Sengketa", count: 1, percentage: 20 },
-              { name: "Validasi Sertifikat / KTA", count: 1, percentage: 15 },
-            ]).map((cat) => (
+            {(
+              data?.complaintsData?.categories || [
+                { name: "Kode Etik Keanggotaan", count: 2, percentage: 40 },
+                { name: "Standar Keselamatan (K3)", count: 1, percentage: 25 },
+                {
+                  name: "Layanan Konsumen & Sengketa",
+                  count: 1,
+                  percentage: 20,
+                },
+                { name: "Validasi Sertifikat / KTA", count: 1, percentage: 15 },
+              ]
+            ).map((cat) => (
               <div className="dist-item" key={cat.name}>
                 <div className="dist-meta">
                   <span style={{ fontSize: "12px", color: "#334155" }}>
@@ -1654,14 +1686,14 @@ function Dashboard({
       </div>
 
       {/* Visual Analytics Row 3: Audit Trail & Security Timeline */}
-      <div
-        className="chart-card"
-        style={{ marginBottom: "20px" }}
-      >
+      <div className="chart-card" style={{ marginBottom: "20px" }}>
         <div className="chart-header">
           <div>
             <h3>Audit Trail & Integritas Mutasi Data Sistem</h3>
-            <p>Log kepatuhan forensik, otorisasi sesi administrator, dan jejak audit waktu-nyata (ISO-8601)</p>
+            <p>
+              Log kepatuhan forensik, otorisasi sesi administrator, dan jejak
+              audit waktu-nyata (ISO-8601)
+            </p>
           </div>
           <div className="stat-pill-group" style={{ margin: 0 }}>
             <span className="stat-pill info">
@@ -1679,22 +1711,45 @@ function Dashboard({
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "16px",
+          }}
+        >
           <div>
-            <div style={{ fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "8px" }}>
+            <div
+              style={{
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#475569",
+                marginBottom: "8px",
+              }}
+            >
               Sebaran Mutasi Berdasarkan Entitas
             </div>
             <div className="distribution-list">
-              {(data?.auditLogsData?.byResource || [
-                { name: "Anggota & KTA", count: 18, color: "#0284c7" },
-                { name: "Publikasi & Warta", count: 10, color: "#10b981" },
-                { name: "Agenda Pelatihan", count: 6, color: "#8b5cf6" },
-                { name: "Tata Kelola & Wilayah", count: 6, color: "#f59e0b" },
-              ]).map((res) => (
+              {(
+                data?.auditLogsData?.byResource || [
+                  { name: "Anggota & KTA", count: 18, color: "#0284c7" },
+                  { name: "Publikasi & Warta", count: 10, color: "#10b981" },
+                  { name: "Agenda Pelatihan", count: 6, color: "#8b5cf6" },
+                  { name: "Tata Kelola & Wilayah", count: 6, color: "#f59e0b" },
+                ]
+              ).map((res) => (
                 <div className="dist-item" key={res.name}>
                   <div className="dist-meta">
-                    <span style={{ fontSize: "12px", fontWeight: 600 }}>{res.name}</span>
-                    <span style={{ fontSize: "11.5px", fontWeight: 700, color: res.color }}>
+                    <span style={{ fontSize: "12px", fontWeight: 600 }}>
+                      {res.name}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "11.5px",
+                        fontWeight: 700,
+                        color: res.color,
+                      }}
+                    >
                       {res.count} Aktivitas
                     </span>
                   </div>
@@ -1713,33 +1768,44 @@ function Dashboard({
           </div>
 
           <div>
-            <div style={{ fontSize: "12px", fontWeight: 700, color: "#475569", marginBottom: "8px" }}>
+            <div
+              style={{
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#475569",
+                marginBottom: "8px",
+              }}
+            >
               Timeline Audit Terkini
             </div>
             <div className="audit-timeline">
-              {(data?.auditLogsData?.recentActivities || [
-                {
-                  id: "1",
-                  action: "VERIFIKASI_KTA",
-                  resourceType: "members",
-                  createdAt: new Date().toISOString(),
-                },
-                {
-                  id: "2",
-                  action: "UPDATE_AD_ART",
-                  resourceType: "governance",
-                  createdAt: new Date(Date.now() - 3600000).toISOString(),
-                },
-                {
-                  id: "3",
-                  action: "PUBLISH_WARTA",
-                  resourceType: "contents",
-                  createdAt: new Date(Date.now() - 7200000).toISOString(),
-                },
-              ]).map((log) => (
+              {(
+                data?.auditLogsData?.recentActivities || [
+                  {
+                    id: "1",
+                    action: "VERIFIKASI_KTA",
+                    resourceType: "members",
+                    createdAt: new Date().toISOString(),
+                  },
+                  {
+                    id: "2",
+                    action: "UPDATE_AD_ART",
+                    resourceType: "governance",
+                    createdAt: new Date(Date.now() - 3600000).toISOString(),
+                  },
+                  {
+                    id: "3",
+                    action: "PUBLISH_WARTA",
+                    resourceType: "contents",
+                    createdAt: new Date(Date.now() - 7200000).toISOString(),
+                  },
+                ]
+              ).map((log) => (
                 <div className="audit-item" key={log.id}>
                   <span className="audit-action-tag">{log.action}</span>
-                  <span className="audit-resource">Entitas: {log.resourceType}</span>
+                  <span className="audit-resource">
+                    Entitas: {log.resourceType}
+                  </span>
                   <span className="audit-time">
                     {new Date(log.createdAt).toLocaleTimeString("id-ID", {
                       hour: "2-digit",
@@ -1767,7 +1833,9 @@ function Dashboard({
           <div className="chart-header">
             <div>
               <h3>Teknisi Berprestasi & Hall of Fame Kejuaraan</h3>
-              <p>Peringkat kompetensi tertinggi & penilaian kepuasan konsumen</p>
+              <p>
+                Peringkat kompetensi tertinggi & penilaian kepuasan konsumen
+              </p>
             </div>
             <button
               type="button"
@@ -1779,38 +1847,40 @@ function Dashboard({
           </div>
 
           <div className="performer-list">
-            {(data?.topPerformers?.championshipRankings || [
-              {
-                id: "1",
-                rank: 1,
-                participantName: "Bambang Pamungkas",
-                unitName: "DPD Jawa Timur",
-                category: "Refrigeration Skill Level 3",
-                points: 985,
-                achievements:
-                  "Juara 1 Nasional - Medali Emas Uji Vakum & Retrofit R290",
-              },
-              {
-                id: "2",
-                rank: 2,
-                participantName: "Hendro Wijaya",
-                unitName: "DPD Jawa Barat",
-                category: "VRV/VRF Multi-Split Master",
-                points: 960,
-                achievements:
-                  "Juara 2 Nasional - Medali Perak Troubleshooting Inverter",
-              },
-              {
-                id: "3",
-                rank: 3,
-                participantName: "Agus Setiawan",
-                unitName: "DPD DKI Jakarta",
-                category: "Cold Storage Specialist",
-                points: 940,
-                achievements:
-                  "Juara 3 Nasional - Medali Perunggu Efisiensi Termal",
-              },
-            ]).map((p, idx) => {
+            {(
+              data?.topPerformers?.championshipRankings || [
+                {
+                  id: "1",
+                  rank: 1,
+                  participantName: "Bambang Pamungkas",
+                  unitName: "DPD Jawa Timur",
+                  category: "Refrigeration Skill Level 3",
+                  points: 985,
+                  achievements:
+                    "Juara 1 Nasional - Medali Emas Uji Vakum & Retrofit R290",
+                },
+                {
+                  id: "2",
+                  rank: 2,
+                  participantName: "Hendro Wijaya",
+                  unitName: "DPD Jawa Barat",
+                  category: "VRV/VRF Multi-Split Master",
+                  points: 960,
+                  achievements:
+                    "Juara 2 Nasional - Medali Perak Troubleshooting Inverter",
+                },
+                {
+                  id: "3",
+                  rank: 3,
+                  participantName: "Agus Setiawan",
+                  unitName: "DPD DKI Jakarta",
+                  category: "Cold Storage Specialist",
+                  points: 940,
+                  achievements:
+                    "Juara 3 Nasional - Medali Perunggu Efisiensi Termal",
+                },
+              ]
+            ).map((p, idx) => {
               const medalClass =
                 idx === 0
                   ? "gold"
@@ -1822,11 +1892,19 @@ function Dashboard({
               return (
                 <div className="performer-item" key={p.id}>
                   <div className={`medal-badge ${medalClass}`}>
-                    {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : idx + 1}
+                    {idx === 0
+                      ? "🥇"
+                      : idx === 1
+                        ? "🥈"
+                        : idx === 2
+                          ? "🥉"
+                          : idx + 1}
                   </div>
                   <div className="performer-details">
                     <div className="performer-name-row">
-                      <span className="performer-name">{p.participantName}</span>
+                      <span className="performer-name">
+                        {p.participantName}
+                      </span>
                       {p.unitName && (
                         <span className="tag-badge">{p.unitName}</span>
                       )}
@@ -1837,7 +1915,10 @@ function Dashboard({
                     </div>
                   </div>
                   <div className="performer-score">
-                    <Trophy size={13} style={{ display: "inline", marginRight: "4px" }} />
+                    <Trophy
+                      size={13}
+                      style={{ display: "inline", marginRight: "4px" }}
+                    />
                     {p.points} Poin
                   </div>
                 </div>
@@ -1863,28 +1944,30 @@ function Dashboard({
           </div>
 
           <div className="watchlist-list">
-            {(data?.complianceWatchlist || [
-              {
-                id: "1",
-                ticketNumber: "CMP-202608-001",
-                targetIdentifier: "Bengkel AC Berkah (Non-KTA)",
-                category: "Pelanggaran SOP Keselamatan Refrigeran",
-                status: "under_review",
-                description:
-                  "Pelepasan refrigeran langsung ke udara tanpa recovery unit",
-                createdAt: new Date().toISOString(),
-              },
-              {
-                id: "2",
-                ticketNumber: "CMP-202608-002",
-                targetIdentifier: "Teknisi Mitra (KTA Pending)",
-                category: "Sengketa Garansi Layanan",
-                status: "mediated",
-                description:
-                  "Keterlambatan penyelesaian komplain unit chiller komersial",
-                createdAt: new Date(Date.now() - 86400000).toISOString(),
-              },
-            ]).map((item) => (
+            {(
+              data?.complianceWatchlist || [
+                {
+                  id: "1",
+                  ticketNumber: "CMP-202608-001",
+                  targetIdentifier: "Bengkel AC Berkah (Non-KTA)",
+                  category: "Pelanggaran SOP Keselamatan Refrigeran",
+                  status: "under_review",
+                  description:
+                    "Pelepasan refrigeran langsung ke udara tanpa recovery unit",
+                  createdAt: new Date().toISOString(),
+                },
+                {
+                  id: "2",
+                  ticketNumber: "CMP-202608-002",
+                  targetIdentifier: "Teknisi Mitra (KTA Pending)",
+                  category: "Sengketa Garansi Layanan",
+                  status: "mediated",
+                  description:
+                    "Keterlambatan penyelesaian komplain unit chiller komersial",
+                  createdAt: new Date(Date.now() - 86400000).toISOString(),
+                },
+              ]
+            ).map((item) => (
               <div className="watchlist-item" key={item.id}>
                 <div className="watchlist-head">
                   <div className="watchlist-target">
@@ -1909,7 +1992,11 @@ function Dashboard({
       {/* Dual Activity Feed Grid */}
       <div
         className="dashboard-grid"
-        style={{ gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}
+        style={{
+          gridTemplateColumns: "1fr 1fr",
+          gap: "16px",
+          marginBottom: "24px",
+        }}
       >
         {/* Left Feed: Recent Content */}
         <section className="panel" style={{ margin: 0 }}>
@@ -2301,7 +2388,8 @@ function PageEditor({
     const presets: Record<string, Record<string, unknown>> = {
       hero: {
         title: "Headline Utama Halaman Organisasi",
-        description: "Jelaskan tujuan strategis dan poin penting bagi pengunjung.",
+        description:
+          "Jelaskan tujuan strategis dan poin penting bagi pengunjung.",
         alignment: "left",
         panelTitle: "Pusat Layanan Organisasi",
         highlights: [
@@ -2354,12 +2442,30 @@ function PageEditor({
     PageSection["type"],
     { label: string; desc: string }
   > = {
-    hero: { label: "Hero Banner", desc: "Headline utama, highlight & proof points" },
-    richText: { label: "Teks Lengkap (Rich Text)", desc: "Narasi bebas, HTML, artikel panjang" },
-    features: { label: "Fitur & Program", desc: "Kartu pilar program atau keunggulan" },
-    stats: { label: "Statistik & Angka", desc: "Metrik pencapaian angka kunci" },
-    contentFeed: { label: "Warta & Berita", desc: "Feed artikel warta otomatis" },
-    organizationChart: { label: "Struktur Pengurus", desc: "Bagan pimpinan & unit kerja" },
+    hero: {
+      label: "Hero Banner",
+      desc: "Headline utama, highlight & proof points",
+    },
+    richText: {
+      label: "Teks Lengkap (Rich Text)",
+      desc: "Narasi bebas, HTML, artikel panjang",
+    },
+    features: {
+      label: "Fitur & Program",
+      desc: "Kartu pilar program atau keunggulan",
+    },
+    stats: {
+      label: "Statistik & Angka",
+      desc: "Metrik pencapaian angka kunci",
+    },
+    contentFeed: {
+      label: "Warta & Berita",
+      desc: "Feed artikel warta otomatis",
+    },
+    organizationChart: {
+      label: "Struktur Pengurus",
+      desc: "Bagan pimpinan & unit kerja",
+    },
     cta: { label: "Call to Action (CTA)", desc: "Blok ajakan aksi & konversi" },
     contact: { label: "Formulir Kontak", desc: "Form pesan & lokasi kantor" },
   };
@@ -2419,7 +2525,8 @@ function PageEditor({
             onClick={() => save.mutate()}
             disabled={save.isPending}
           >
-            <Save size={17} /> {save.isPending ? "Menyimpan…" : "Simpan Halaman"}
+            <Save size={17} />{" "}
+            {save.isPending ? "Menyimpan…" : "Simpan Halaman"}
           </button>
         </div>
       </div>
@@ -2436,7 +2543,9 @@ function PageEditor({
             <div className="empty-canvas">
               <Sparkles size={28} />
               <h3>Susun Halaman Ini dengan Menambahkan Section</h3>
-              <p>Pilih jenis blok konten dari pustaka komponen di sisi kanan.</p>
+              <p>
+                Pilih jenis blok konten dari pustaka komponen di sisi kanan.
+              </p>
             </div>
           )}
           {sections.map((section, index) => (
@@ -4547,7 +4656,9 @@ function CredentialQueue() {
     if (!selected) return;
     const notes = String(new FormData(form).get("notes") ?? "").trim();
     if (decision !== "verify" && !notes) {
-      setError("Wajib mengisi alasan/catatan sebelum menolak atau mencabut kredensial.");
+      setError(
+        "Wajib mengisi alasan/catatan sebelum menolak atau mencabut kredensial.",
+      );
       return;
     }
     verify.mutate({ credential: selected, decision, form });
@@ -4697,13 +4808,23 @@ function CredentialQueue() {
                 Tingkat Validitas Verifikasi
                 <select
                   name="verificationLevel"
-                  defaultValue={selected.scheme?.minimumVerificationLevel ?? "document_checked"}
+                  defaultValue={
+                    selected.scheme?.minimumVerificationLevel ??
+                    "document_checked"
+                  }
                 >
-                  <option value="document_checked">Pemeriksaan Fisik Dokumen (Document Checked)</option>
-                  <option value="issuer_confirmed">Konfirmasi Langsung LSP / Penerbit (Issuer Confirmed)</option>
-                  <option value="api_verified">Terverifikasi API Resmi BNSP / Pemerintah (API Verified)</option>
+                  <option value="document_checked">
+                    Pemeriksaan Fisik Dokumen (Document Checked)
+                  </option>
+                  <option value="issuer_confirmed">
+                    Konfirmasi Langsung LSP / Penerbit (Issuer Confirmed)
+                  </option>
+                  <option value="api_verified">
+                    Terverifikasi API Resmi BNSP / Pemerintah (API Verified)
+                  </option>
                   <option value="cryptographically_verified">
-                    Tanda Tangan Digital / Kriptografis (Cryptographically Verified)
+                    Tanda Tangan Digital / Kriptografis (Cryptographically
+                    Verified)
                   </option>
                 </select>
               </label>
@@ -4773,12 +4894,23 @@ function CredentialQueue() {
             }}
           >
             <div>
-              <ShieldCheck size={36} color="#cbd5e1" style={{ margin: "0 auto 10px" }} />
-              <h3 style={{ color: "#475569", fontSize: "15px", marginBottom: "4px" }}>
+              <ShieldCheck
+                size={36}
+                color="#cbd5e1"
+                style={{ margin: "0 auto 10px" }}
+              />
+              <h3
+                style={{
+                  color: "#475569",
+                  fontSize: "15px",
+                  marginBottom: "4px",
+                }}
+              >
                 Pilih Kredensial Teknisi
               </h3>
               <p style={{ fontSize: "12.5px" }}>
-                Klik sertifikat teknisi pada daftar di sebelah kiri untuk melihat rincian bukti dan menentukan status keabsahan.
+                Klik sertifikat teknisi pada daftar di sebelah kiri untuk
+                melihat rincian bukti dan menentukan status keabsahan.
               </p>
             </div>
           </div>
@@ -4827,7 +4959,9 @@ function CredentialSchemes() {
               <span>
                 <ShieldCheck size={19} />
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
                 <Status value={scheme.isActive ? "active" : "inactive"} />
                 <button
                   type="button"
@@ -5476,7 +5610,9 @@ function AcademyManager() {
                           : activity.deliveryMode === "hybrid"
                             ? "Hybrid"
                             : "Mandiri (Self-paced)"}
-                      {activity.creditAmount ? ` · ${activity.creditAmount} SKP` : ""}
+                      {activity.creditAmount
+                        ? ` · ${activity.creditAmount} SKP`
+                        : ""}
                     </small>
                     <strong>{activity.title}</strong>
                     <span>
@@ -5511,7 +5647,9 @@ function AcademyManager() {
                     })}
                   </p>
                 </div>
-                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <div
+                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
+                >
                   <button
                     type="button"
                     className="button subtle"
@@ -5526,7 +5664,9 @@ function AcademyManager() {
                     title="Hapus Kegiatan Pelatihan"
                     aria-label="Hapus Kegiatan Pelatihan"
                     onClick={() => {
-                      if (confirm(`Hapus kegiatan pelatihan "${selected.title}"?`)) {
+                      if (
+                        confirm(`Hapus kegiatan pelatihan "${selected.title}"?`)
+                      ) {
                         deleteActivity.mutate(selected.id);
                       }
                     }}
@@ -5547,7 +5687,9 @@ function AcademyManager() {
                     <article key={item.id}>
                       <span className="roster-avatar">{initials}</span>
                       <div className="roster-info">
-                        <strong>{item.member?.name ?? "Anggota Teknisi"}</strong>
+                        <strong>
+                          {item.member?.name ?? "Anggota Teknisi"}
+                        </strong>
                         <small>
                           {item.member?.memberNumber ?? "—"} ·{" "}
                           {item.status === "confirmed"
@@ -5565,7 +5707,9 @@ function AcademyManager() {
                               key={status}
                               data-status={status}
                               className={
-                                item.attendance?.status === status ? "active" : ""
+                                item.attendance?.status === status
+                                  ? "active"
+                                  : ""
                               }
                               disabled={
                                 selected.status === "completed" ||
@@ -5593,7 +5737,11 @@ function AcademyManager() {
                           aria-label={`Keluarkan ${item.member?.name ?? "peserta"}`}
                           style={{ marginLeft: "4px" }}
                           onClick={() => {
-                            if (confirm(`Hapus ${item.member?.name ?? "peserta"} dari daftar kegiatan?`)) {
+                            if (
+                              confirm(
+                                `Hapus ${item.member?.name ?? "peserta"} dari daftar kegiatan?`,
+                              )
+                            ) {
                               deleteEnrollment.mutate(item.id);
                             }
                           }}
@@ -5612,7 +5760,8 @@ function AcademyManager() {
                 <div>
                   <strong>Selesaikan Kegiatan & Terbitkan SKP</strong>
                   <small>
-                    Hanya peserta berstatus Hadir atau Terlambat yang akan menerima entri kredit SKP resmi.
+                    Hanya peserta berstatus Hadir atau Terlambat yang akan
+                    menerima entri kredit SKP resmi.
                   </small>
                 </div>
                 <button
@@ -5920,7 +6069,8 @@ function GovernanceManager() {
       toast.success("Unit organisasi berhasil dihapus.");
       void client.invalidateQueries({ queryKey: ["governance-overview"] });
     },
-    onError: (reason: Error) => toast.error(`Gagal menghapus unit: ${reason.message}`),
+    onError: (reason: Error) =>
+      toast.error(`Gagal menghapus unit: ${reason.message}`),
   });
 
   const deletePosition = useMutation({
@@ -5930,7 +6080,8 @@ function GovernanceManager() {
       toast.success("Posisi jabatan berhasil dihapus.");
       void client.invalidateQueries({ queryKey: ["governance-overview"] });
     },
-    onError: (reason: Error) => toast.error(`Gagal menghapus posisi: ${reason.message}`),
+    onError: (reason: Error) =>
+      toast.error(`Gagal menghapus posisi: ${reason.message}`),
   });
 
   if (query.isLoading) return <PageLoading />;
@@ -6029,7 +6180,9 @@ function GovernanceManager() {
                         : unit.type === "regional"
                           ? "Tingkat Provinsi / DPD"
                           : "Tingkat Daerah / Korwil"}{" "}
-                      {parent ? `· Bagian dari ${parent.name}` : "· Unit Induk Pusat"}
+                      {parent
+                        ? `· Bagian dari ${parent.name}`
+                        : "· Unit Induk Pusat"}
                     </small>
                     <p>{unitPositions.length} Posisi Jabatan Dikonfigurasi</p>
                   </div>
@@ -6090,21 +6243,24 @@ function GovernanceManager() {
                     <small>{unit?.name ?? "Unit Tidak Ditentukan"}</small>
                     <strong>{position.title}</strong>
                     <p>
-                      {position.description ?? "Belum ada rincian uraian tugas/mandat."}
+                      {position.description ??
+                        "Belum ada rincian uraian tugas/mandat."}
                     </p>
                   </div>
                   <div className="office-holder">
                     {active ? (
                       <>
-                        <div className="office-holder-avatar">
-                          {initials}
-                        </div>
+                        <div className="office-holder-avatar">{initials}</div>
                         <div className="office-holder-info">
-                          <strong>{active.member?.name ?? "Nama Pengurus"}</strong>
+                          <strong>
+                            {active.member?.name ?? "Nama Pengurus"}
+                          </strong>
                           <small>
-                            {active.member?.memberNumber ?? "KTA-APTI-PENDING"}
+                            {active.member?.memberNumber ?? "APTI-00.2026.00000"}
                             {active.startsAt
-                              ? ` · Menjabat sejak ${new Date(active.startsAt).toLocaleDateString("id-ID", {
+                              ? ` · Menjabat sejak ${new Date(
+                                  active.startsAt,
+                                ).toLocaleDateString("id-ID", {
                                   day: "numeric",
                                   month: "short",
                                   year: "numeric",
@@ -6119,7 +6275,11 @@ function GovernanceManager() {
                           aria-label={`Akhiri masa tugas ${active.member?.name}`}
                           disabled={endAppointment.isPending}
                           onClick={() => {
-                            if (confirm(`Akhiri masa tugas ${active.member?.name} untuk jabatan ${position.title}?`)) {
+                            if (
+                              confirm(
+                                `Akhiri masa tugas ${active.member?.name} untuk jabatan ${position.title}?`,
+                              )
+                            ) {
                               endAppointment.mutate(active.id);
                             }
                           }}
@@ -6128,7 +6288,9 @@ function GovernanceManager() {
                         </button>
                       </>
                     ) : (
-                      <span className="vacant">Posisi Lowong (Belum ada pejabat)</span>
+                      <span className="vacant">
+                        Posisi Lowong (Belum ada pejabat)
+                      </span>
                     )}
                     <button
                       type="button"
@@ -6136,7 +6298,9 @@ function GovernanceManager() {
                       title={`Hapus posisi ${position.title}`}
                       aria-label={`Hapus ${position.title}`}
                       onClick={() => {
-                        if (confirm(`Hapus posisi jabatan "${position.title}"?`)) {
+                        if (
+                          confirm(`Hapus posisi jabatan "${position.title}"?`)
+                        ) {
                           deletePosition.mutate(position.id);
                         }
                       }}
@@ -6589,9 +6753,39 @@ function ApplicationsManager() {
                       data-status={item.status}
                     />
                     <span>
-                      <strong>{memberName}</strong>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <strong>{memberName}</strong>
+                        {item.profileCompleteness?.isComplete ? (
+                          <span
+                            style={{
+                              fontSize: "10px",
+                              background: "#dcfce7",
+                              color: "#15803d",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              fontWeight: 600,
+                            }}
+                          >
+                            ✓ Lengkap
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              fontSize: "10px",
+                              background: "#fef3c7",
+                              color: "#b45309",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              fontWeight: 600,
+                            }}
+                          >
+                            {item.profileCompleteness?.percentage ?? 0}%
+                          </span>
+                        )}
+                      </div>
                       <small>
                         {item.unitName ?? "Dewan Pimpinan Pusat (DPP)"}
+                        {item.member?.korwil ? ` · ${item.member.korwil}` : ""}
                       </small>
                       <p>
                         {memberEmail} ·{" "}
@@ -6629,22 +6823,273 @@ function ApplicationsManager() {
           {selected ? (
             <>
               <div className="panel-head">
-                <div>
-                  <span className="eyebrow">Detail Berkas Permohonan</span>
-                  <h2>
-                    {selected.member?.name ??
-                      (selected as any).fullName ??
-                      "Pemohon"}
-                  </h2>
-                  <p>
-                    {selected.member?.memberNumber ?? "REG-PENDING"} ·{" "}
-                    {selected.unitName ?? "Dewan Pimpinan Pusat (DPP)"}
-                  </p>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  {selected.member?.avatarUrl ? (
+                    <img
+                      src={selected.member.avatarUrl}
+                      alt={selected.member.name}
+                      style={{
+                        width: "56px",
+                        height: "56px",
+                        borderRadius: "12px",
+                        objectFit: "cover",
+                        border: "2px solid #e2e8f0",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "56px",
+                        height: "56px",
+                        borderRadius: "12px",
+                        background: "#f1f5f9",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#94a3b8",
+                        fontWeight: 700,
+                        fontSize: "20px",
+                      }}
+                    >
+                      {(selected.member?.name || "A")[0]}
+                    </div>
+                  )}
+                  <div>
+                    <span className="eyebrow">Detail Berkas Permohonan</span>
+                    <h2>
+                      {selected.member?.name ??
+                        (selected as any).fullName ??
+                        "Pemohon"}
+                    </h2>
+                    <p>
+                      {selected.member?.memberNumber ?? "REG-PENDING"} ·{" "}
+                      {selected.unitName ?? "Dewan Pimpinan Pusat (DPP)"}
+                      {selected.member?.korwil ? ` (${selected.member.korwil})` : ""}
+                    </p>
+                  </div>
                 </div>
                 <Status value={selected.status} />
               </div>
 
+              {/* Profile Completeness Checklist Box */}
+              <div
+                style={{
+                  background: selected.profileCompleteness?.isComplete
+                    ? "#f0fdf4"
+                    : "#fffbeb",
+                  border: `1px solid ${
+                    selected.profileCompleteness?.isComplete
+                      ? "#bbf7d0"
+                      : "#fde68a"
+                  }`,
+                  borderRadius: "10px",
+                  padding: "14px 16px",
+                  marginBottom: "16px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <strong
+                    style={{
+                      color: selected.profileCompleteness?.isComplete
+                        ? "#15803d"
+                        : "#b45309",
+                      fontSize: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    {selected.profileCompleteness?.isComplete ? (
+                      <>
+                        <BadgeCheck size={18} /> Berkas Syarat Lengkap (100%)
+                      </>
+                    ) : (
+                      <>
+                        <AlertTriangle size={18} /> Kelengkapan Berkas:{" "}
+                        {selected.profileCompleteness?.percentage ?? 0}%
+                      </>
+                    )}
+                  </strong>
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: selected.profileCompleteness?.isComplete
+                        ? "#166534"
+                        : "#92400e",
+                    }}
+                  >
+                    {selected.profileCompleteness?.score ?? 0} dari{" "}
+                    {selected.profileCompleteness?.totalMandatory ?? 7} Syarat
+                    Terpenuhi
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                    gap: "8px",
+                    fontSize: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      color: selected.member?.avatarUrl ? "#15803d" : "#dc2626",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {selected.member?.avatarUrl ? "✓" : "✗"} Foto Profil Resmi
+                  </div>
+                  <div
+                    style={{
+                      color: selected.member?.nik ? "#15803d" : "#dc2626",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {selected.member?.nik ? "✓" : "✗"} NIK:{" "}
+                    {selected.member?.nik || "Belum ada"}
+                  </div>
+                  <div
+                    style={{
+                      color: selected.member?.idCardUrl ? "#15803d" : "#dc2626",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {selected.member?.idCardUrl ? "✓" : "✗"} Berkas KTP/SIM
+                  </div>
+                  <div
+                    style={{
+                      color: selected.member?.jabatan ? "#15803d" : "#dc2626",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {selected.member?.jabatan ? "✓" : "✗"} Jabatan:{" "}
+                    {selected.member?.jabatan || "Belum ada"}
+                  </div>
+                  <div
+                    style={{
+                      color: selected.unitName ? "#15803d" : "#dc2626",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {selected.unitName ? "✓" : "✗"} DPD Pengampu
+                  </div>
+                  <div
+                    style={{
+                      color: selected.member?.korwil ? "#15803d" : "#dc2626",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {selected.member?.korwil ? "✓" : "✗"} Korwil:{" "}
+                    {selected.member?.korwil || "Belum ada"}
+                  </div>
+                  <div
+                    style={{
+                      color:
+                        selected.member?.companyName &&
+                        selected.member?.specialization?.length
+                          ? "#15803d"
+                          : "#dc2626",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {selected.member?.companyName &&
+                    selected.member?.specialization?.length
+                      ? "✓"
+                      : "✗"}{" "}
+                    Info & Spesialisasi Usaha
+                  </div>
+                </div>
+              </div>
+
+              {/* ID Card / KTP & Business Preview */}
+              {selected.member?.idCardUrl && (
+                <div
+                  style={{
+                    background: "#f8fafc",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "8px",
+                    padding: "12px 14px",
+                    marginBottom: "14px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "14px",
+                  }}
+                >
+                  <img
+                    src={selected.member.idCardUrl}
+                    alt="KTP / SIM"
+                    style={{
+                      width: "80px",
+                      height: "50px",
+                      borderRadius: "6px",
+                      objectFit: "cover",
+                      border: "1px solid #cbd5e1",
+                    }}
+                  />
+                  <div>
+                    <strong style={{ fontSize: "13px", color: "#1e293b" }}>
+                      Dokumen KTP / SIM Resmi Terlampir
+                    </strong>
+                    <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#64748b" }}>
+                      NIK: <strong>{selected.member.nik || "—"}</strong>
+                    </p>
+                    <a
+                      href={selected.member.idCardUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        fontSize: "12px",
+                        color: "#0284c7",
+                        fontWeight: 600,
+                        textDecoration: "underline",
+                        display: "inline-block",
+                        marginTop: "3px",
+                      }}
+                    >
+                      Buka Dokumen Lengkap ↗
+                    </a>
+                  </div>
+                </div>
+              )}
+
               <dl>
+                <div>
+                  <dt>Jabatan Organisasi</dt>
+                  <dd>
+                    <strong>
+                      {selected.member?.jabatan || "Anggota Teknisi"}
+                    </strong>
+                  </dd>
+                </div>
+                <div>
+                  <dt>DPD & Korwil</dt>
+                  <dd>
+                    {selected.unitName ?? "DPP"}
+                    {selected.member?.korwil ? ` · ${selected.member.korwil}` : ""}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Nama Bengkel / Usaha</dt>
+                  <dd>{selected.member?.companyName || "—"}</dd>
+                </div>
+                <div>
+                  <dt>Spesialisasi Pendingin</dt>
+                  <dd>
+                    {Array.isArray(selected.member?.specialization) &&
+                    selected.member.specialization.length > 0
+                      ? selected.member.specialization.join(", ")
+                      : "—"}
+                  </dd>
+                </div>
                 <div>
                   <dt>Alamat Email</dt>
                   <dd>
@@ -6666,6 +7111,14 @@ function ApplicationsManager() {
                   </dd>
                 </div>
                 <div>
+                  <dt>Pengalaman Kerja</dt>
+                  <dd>
+                    {selected.member?.workExperienceYears
+                      ? `${selected.member.workExperienceYears} Tahun`
+                      : "—"}
+                  </dd>
+                </div>
+                <div>
                   <dt>Tanggal Diajukan</dt>
                   <dd>
                     {new Date(
@@ -6675,16 +7128,6 @@ function ApplicationsManager() {
                     ).toLocaleString("id-ID")}
                   </dd>
                 </div>
-                {Object.entries(
-                  selected.member?.customFields ??
-                    (selected as any).payload ??
-                    {},
-                ).map(([key, value]) => (
-                  <div key={key}>
-                    <dt>{key.replace(/_/g, " ")}</dt>
-                    <dd>{String(value || "—")}</dd>
-                  </div>
-                ))}
               </dl>
 
               {selected.rejectionReason && (
@@ -6698,7 +7141,9 @@ function ApplicationsManager() {
                     marginBottom: "12px",
                   }}
                 >
-                  <strong style={{ color: "#dc2626" }}>Alasan Penolakan:</strong>
+                  <strong style={{ color: "#dc2626" }}>
+                    Alasan Penolakan:
+                  </strong>
                   <p style={{ margin: "4px 0 0", color: "#991b1b" }}>
                     {selected.rejectionReason}
                   </p>
@@ -6716,7 +7161,9 @@ function ApplicationsManager() {
                     marginBottom: "12px",
                   }}
                 >
-                  <strong style={{ color: "#0284c7" }}>Catatan Reviewer:</strong>
+                  <strong style={{ color: "#0284c7" }}>
+                    Catatan Reviewer:
+                  </strong>
                   <p style={{ margin: "4px 0 0", color: "#0369a1" }}>
                     {selected.reviewerNotes}
                   </p>
@@ -6728,6 +7175,30 @@ function ApplicationsManager() {
                 selected.status === "rejected") && (
                 <form className="review-form">
                   {error && <div className="alert error">{error}</div>}
+
+                  {!selected.profileCompleteness?.isComplete && (
+                    <div
+                      style={{
+                        background: "#fffbeb",
+                        border: "1px solid #fde68a",
+                        color: "#92400e",
+                        padding: "10px 12px",
+                        borderRadius: "6px",
+                        fontSize: "12px",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <strong>⚠️ Berkas Wajib Belum Lengkap:</strong>
+                      <p style={{ margin: "2px 0 0" }}>
+                        Pemohon belum melengkapi:{" "}
+                        {selected.profileCompleteness?.missingFields?.join(
+                          ", ",
+                        ) || "Data Wajib"}
+                        . Tombol persetujuan dinonaktifkan hingga syarat dipenuhi.
+                      </p>
+                    </div>
+                  )}
+
                   <label>
                     Catatan Verifikasi Internal
                     <textarea
@@ -6771,7 +7242,15 @@ function ApplicationsManager() {
                     <button
                       type="button"
                       className="button primary"
-                      disabled={review.isPending}
+                      disabled={
+                        review.isPending ||
+                        !selected.profileCompleteness?.isComplete
+                      }
+                      title={
+                        !selected.profileCompleteness?.isComplete
+                          ? "Lengkapi semua berkas wajib sebelum menyetujui"
+                          : undefined
+                      }
                       onClick={(event) => {
                         const form = event.currentTarget.form;
                         if (form) submitReview(form, "approve");
@@ -6805,8 +7284,15 @@ function ApplicationsManager() {
                     <strong style={{ color: "#065f46", fontSize: "14px" }}>
                       Keanggotaan Telah Disetujui
                     </strong>
-                    <p style={{ margin: "2px 0 0", color: "#047857", fontSize: "12px" }}>
-                      Nomor KTA Digital dan kredensial resmi telah diterbitkan aktif untuk anggota ini.
+                    <p
+                      style={{
+                        margin: "2px 0 0",
+                        color: "#047857",
+                        fontSize: "12px",
+                      }}
+                    >
+                      Nomor KTA Digital dan kredensial resmi telah diterbitkan
+                      aktif untuk anggota ini.
                     </p>
                   </div>
                 </div>
@@ -6971,7 +7457,9 @@ function KtaCardModal({
 
   const orgName = cardData?.organization.name ?? "APTI INDONESIA";
   const dpdText =
-    cardData?.member.unitName ?? member.unitName ?? "Dewan Pimpinan Pusat (DPP)";
+    cardData?.member.unitName ??
+    member.unitName ??
+    "Dewan Pimpinan Pusat (DPP)";
   const positionText =
     (cardData?.member as { positionName?: string })?.positionName ??
     (member as { positionName?: string })?.positionName ??
@@ -7709,7 +8197,7 @@ function KtaVerificationModal({ onClose }: { onClose: () => void }) {
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="Masukkan No. KTA (cth: KTA-APTI-DPP-001)..."
+              placeholder="Masukkan No. KTA (cth: APTI-00.2018.00001)..."
               style={{ flex: 1 }}
               required
             />
@@ -7957,9 +8445,7 @@ function MembersManager() {
               placeholder="Search name or KTA number…"
             />
           </label>
-          <span className="result-count">
-            {items.length} members
-          </span>
+          <span className="result-count">{items.length} members</span>
         </div>
         <div className="data-table">
           <div className="table-row members-row table-head">
@@ -8439,7 +8925,8 @@ function InboxManager() {
       void client.invalidateQueries({ queryKey: ["submissions"] });
       void client.invalidateQueries({ queryKey: ["dashboard"] });
     },
-    onError: (err: Error) => toast.error(`Gagal menghapus pesan: ${err.message}`),
+    onError: (err: Error) =>
+      toast.error(`Gagal menghapus pesan: ${err.message}`),
   });
   const items = query.data?.data ?? [];
   return (
@@ -8506,10 +8993,15 @@ function InboxManager() {
             <>
               <div className="panel-head">
                 <div>
-                  <span className="eyebrow">{selected.subject || selected.formName || "Formulir Kontak Publik"}</span>
+                  <span className="eyebrow">
+                    {selected.subject ||
+                      selected.formName ||
+                      "Formulir Kontak Publik"}
+                  </span>
                   <h2>{submissionTitle(selected)}</h2>
                   <p>
-                    Diterima pada {new Date(selected.createdAt).toLocaleDateString("id-ID", {
+                    Diterima pada{" "}
+                    {new Date(selected.createdAt).toLocaleDateString("id-ID", {
                       weekday: "long",
                       day: "numeric",
                       month: "long",
@@ -8522,46 +9014,143 @@ function InboxManager() {
                 <Status value={selected.status} />
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px", margin: "16px 0" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", background: "#f8fafc", padding: "14px", borderRadius: "8px", border: "1px solid var(--line)" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "16px",
+                  margin: "16px 0",
+                }}
+              >
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "12px",
+                    background: "#f8fafc",
+                    padding: "14px",
+                    borderRadius: "8px",
+                    border: "1px solid var(--line)",
+                  }}
+                >
                   <div>
-                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Email Pengirim</span>
-                    <p style={{ margin: "2px 0 0", fontSize: "13px", fontWeight: 600, color: "#0f172a" }}>{selected.email || "—"}</p>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        color: "#64748b",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Email Pengirim
+                    </span>
+                    <p
+                      style={{
+                        margin: "2px 0 0",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        color: "#0f172a",
+                      }}
+                    >
+                      {selected.email || "—"}
+                    </p>
                   </div>
                   <div>
-                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Nomor Telepon / WhatsApp</span>
-                    <p style={{ margin: "2px 0 0", fontSize: "13px", fontWeight: 600, color: "#0f172a" }}>{selected.phone || "—"}</p>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        color: "#64748b",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Nomor Telepon / WhatsApp
+                    </span>
+                    <p
+                      style={{
+                        margin: "2px 0 0",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        color: "#0f172a",
+                      }}
+                    >
+                      {selected.phone || "—"}
+                    </p>
                   </div>
                 </div>
 
                 {selected.subject && (
                   <div>
-                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Perihal / Topik</span>
-                    <h3 style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 700, color: "#0f172a" }}>{selected.subject}</h3>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        color: "#64748b",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Perihal / Topik
+                    </span>
+                    <h3
+                      style={{
+                        margin: "4px 0 0",
+                        fontSize: "15px",
+                        fontWeight: 700,
+                        color: "#0f172a",
+                      }}
+                    >
+                      {selected.subject}
+                    </h3>
                   </div>
                 )}
 
                 <div>
-                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Isi Pesan Masuk</span>
-                  <div style={{ margin: "6px 0 0", padding: "16px", background: "#ffffff", border: "1px solid var(--line)", borderRadius: "8px", fontSize: "13.5px", lineHeight: "1.6", color: "#1e293b", whiteSpace: "pre-wrap" }}>
-                    {selected.message || (selected.payload && (selected.payload.message as string || selected.payload.description as string)) || "—"}
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: "#64748b",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Isi Pesan Masuk
+                  </span>
+                  <div
+                    style={{
+                      margin: "6px 0 0",
+                      padding: "16px",
+                      background: "#ffffff",
+                      border: "1px solid var(--line)",
+                      borderRadius: "8px",
+                      fontSize: "13.5px",
+                      lineHeight: "1.6",
+                      color: "#1e293b",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {selected.message ||
+                      (selected.payload &&
+                        ((selected.payload.message as string) ||
+                          (selected.payload.description as string))) ||
+                      "—"}
                   </div>
                 </div>
 
-                {selected.payload && Object.keys(selected.payload).length > 0 && (
-                  <dl style={{ marginTop: "10px" }}>
-                    {Object.entries(selected.payload).map(([key, value]) => (
-                      <div key={key}>
-                        <dt>{key.replace(/_/g, " ")}</dt>
-                        <dd>
-                          {typeof value === "string"
-                            ? value
-                            : JSON.stringify(value)}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
+                {selected.payload &&
+                  Object.keys(selected.payload).length > 0 && (
+                    <dl style={{ marginTop: "10px" }}>
+                      {Object.entries(selected.payload).map(([key, value]) => (
+                        <div key={key}>
+                          <dt>{key.replace(/_/g, " ")}</dt>
+                          <dd>
+                            {typeof value === "string"
+                              ? value
+                              : JSON.stringify(value)}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
               </div>
 
               <div className="submission-actions">
@@ -8572,7 +9161,11 @@ function InboxManager() {
                   aria-label="Hapus Pesan Masuk"
                   disabled={remove.isPending}
                   onClick={() => {
-                    if (confirm(`Hapus pesan dari "${submissionTitle(selected)}"?`)) {
+                    if (
+                      confirm(
+                        `Hapus pesan dari "${submissionTitle(selected)}"?`,
+                      )
+                    ) {
                       remove.mutate(selected.id);
                     }
                   }}
@@ -8626,7 +9219,10 @@ function InboxManager() {
 function submissionTitle(item: CmsSubmission) {
   return (
     item.name ||
-    (item.payload && (item.payload.name as string || item.payload.full_name as string || item.payload.email as string)) ||
+    (item.payload &&
+      ((item.payload.name as string) ||
+        (item.payload.full_name as string) ||
+        (item.payload.email as string))) ||
     item.email ||
     "Pengirim Anonim"
   );
@@ -8636,7 +9232,9 @@ function submissionPreview(item: CmsSubmission) {
   const message =
     item.message ||
     item.subject ||
-    (item.payload && (item.payload.message as string || item.payload.description as string));
+    (item.payload &&
+      ((item.payload.message as string) ||
+        (item.payload.description as string)));
   return typeof message === "string"
     ? message.slice(0, 110)
     : "Buka untuk melihat isi pesan";
@@ -9948,8 +10546,7 @@ function RevenueManager() {
     onError: (reason: Error) => setError(reason.message),
   });
   const remove = useMutation({
-    mutationFn: ({ path }: { path: string }) =>
-      api(path, { method: "DELETE" }),
+    mutationFn: ({ path }: { path: string }) => api(path, { method: "DELETE" }),
     onSuccess: () => {
       toast.success("Item berhasil dihapus.");
       void client.invalidateQueries({ queryKey: ["revenue-overview"] });
@@ -10073,7 +10670,9 @@ function RevenueManager() {
               }
             >
               <Plus size={16} />{" "}
-              <span>{tab === "billing" ? "Tambah Produk" : "Tambah Segmen"}</span>
+              <span>
+                {tab === "billing" ? "Tambah Produk" : "Tambah Segmen"}
+              </span>
             </button>
             <button
               className="button primary"
@@ -10083,12 +10682,17 @@ function RevenueManager() {
               }
             >
               <Plus size={16} />{" "}
-              <span>{tab === "billing" ? "Terbitkan Tagihan" : "Buat Kampanye"}</span>
+              <span>
+                {tab === "billing" ? "Terbitkan Tagihan" : "Buat Kampanye"}
+              </span>
             </button>
           </div>
         }
       />
-      <div className="segmented compliance-segmented" style={{ marginBottom: "20px" }}>
+      <div
+        className="segmented compliance-segmented"
+        style={{ marginBottom: "20px" }}
+      >
         <button
           type="button"
           className={tab === "billing" ? "active" : ""}
@@ -10164,7 +10768,14 @@ function RevenueManager() {
                           ? `Terbayar: ${formatRevenueMoney(invoice.paid)}`
                           : "Belum Dibayar"}
                       </small>
-                      <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end", marginTop: "6px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "6px",
+                          justifyContent: "flex-end",
+                          marginTop: "6px",
+                        }}
+                      >
                         {invoice.status === "open" && (
                           <button
                             className="icon-button success"
@@ -10182,8 +10793,14 @@ function RevenueManager() {
                           title="Hapus / Batalkan Tagihan"
                           aria-label={`Hapus ${invoice.invoiceNumber}`}
                           onClick={() => {
-                            if (confirm(`Hapus faktur tagihan ${invoice.invoiceNumber}?`)) {
-                              remove.mutate({ path: `/v1/admin/revenue/invoices/${invoice.id}` });
+                            if (
+                              confirm(
+                                `Hapus faktur tagihan ${invoice.invoiceNumber}?`,
+                              )
+                            ) {
+                              remove.mutate({
+                                path: `/v1/admin/revenue/invoices/${invoice.id}`,
+                              });
                             }
                           }}
                         >
@@ -10210,7 +10827,13 @@ function RevenueManager() {
                   <article key={product.id}>
                     <div className="product-head-row">
                       <strong>{product.name}</strong>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
                         <b>{formatRevenueMoney(product.price || 0)}</b>
                         <button
                           type="button"
@@ -10218,8 +10841,12 @@ function RevenueManager() {
                           title={`Hapus produk ${product.name}`}
                           aria-label={`Hapus ${product.name}`}
                           onClick={() => {
-                            if (confirm(`Hapus produk iuran "${product.name}"?`)) {
-                              remove.mutate({ path: `/v1/admin/revenue/products/${product.id}` });
+                            if (
+                              confirm(`Hapus produk iuran "${product.name}"?`)
+                            ) {
+                              remove.mutate({
+                                path: `/v1/admin/revenue/products/${product.id}`,
+                              });
                             }
                           }}
                         >
@@ -10265,7 +10892,10 @@ function RevenueManager() {
                   </span>
                   <div className="segment-info">
                     <strong>{segment.name}</strong>
-                    <p>{segment.description || "Segmen audiens anggota terstandarisasi"}</p>
+                    <p>
+                      {segment.description ||
+                        "Segmen audiens anggota terstandarisasi"}
+                    </p>
                     <small>
                       {[
                         ...(segment.criteria?.membershipStatuses || []),
@@ -10283,7 +10913,9 @@ function RevenueManager() {
                     aria-label={`Hapus ${segment.name}`}
                     onClick={() => {
                       if (confirm(`Hapus segmen audiens "${segment.name}"?`)) {
-                        remove.mutate({ path: `/v1/admin/revenue/segments/${segment.id}` });
+                        remove.mutate({
+                          path: `/v1/admin/revenue/segments/${segment.id}`,
+                        });
                       }
                     }}
                   >
@@ -10307,12 +10939,20 @@ function RevenueManager() {
               {campaigns.map((campaign) => (
                 <article key={campaign.id}>
                   <div className="campaign-info">
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        marginBottom: "4px",
+                      }}
+                    >
                       <Status value={campaign.status} />
                       <strong>{campaign.name}</strong>
                     </div>
                     <small>
-                      Kanal: {campaign.channel.toUpperCase()} · {campaign.recipientCount ?? 0} Penerima
+                      Kanal: {campaign.channel.toUpperCase()} ·{" "}
+                      {campaign.recipientCount ?? 0} Penerima
                     </small>
                   </div>
                   {["draft", "scheduled"].includes(campaign.status) && (
@@ -10336,7 +10976,9 @@ function RevenueManager() {
               )}
             </div>
             <p className="delivery-note">
-              <ShieldCheck size={16} /> Pesan siap didistribusikan melalui WhatsApp Gateway, Email blast, atau notifikasi aplikasi resmi APTI.
+              <ShieldCheck size={16} /> Pesan siap didistribusikan melalui
+              WhatsApp Gateway, Email blast, atau notifikasi aplikasi resmi
+              APTI.
             </p>
           </section>
         </div>
@@ -10678,7 +11320,9 @@ function RegulationsManager() {
   const [category, setCategory] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [editingItem, setEditingItem] = useState<Partial<CmsRegulation> | null>(null);
+  const [editingItem, setEditingItem] = useState<Partial<CmsRegulation> | null>(
+    null,
+  );
 
   const query = useQuery({
     queryKey: ["regulations"],
@@ -10761,7 +11405,11 @@ function RegulationsManager() {
       {editingItem && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>{editingItem.id ? "Edit Dokumen Regulasi" : "Tambah Dokumen Regulasi Baru"}</h3>
+            <h3>
+              {editingItem.id
+                ? "Edit Dokumen Regulasi"
+                : "Tambah Dokumen Regulasi Baru"}
+            </h3>
             <button
               type="button"
               className="icon-button"
@@ -10824,7 +11472,13 @@ function RegulationsManager() {
               <input
                 type="date"
                 name="issuedDate"
-                defaultValue={editingItem.issuedDate ? new Date(editingItem.issuedDate).toISOString().slice(0, 10) : ""}
+                defaultValue={
+                  editingItem.issuedDate
+                    ? new Date(editingItem.issuedDate)
+                        .toISOString()
+                        .slice(0, 10)
+                    : ""
+                }
               />
             </label>
             <label className="field">
@@ -10857,7 +11511,8 @@ function RegulationsManager() {
                 className="button primary"
                 disabled={save.isPending}
               >
-                <Save size={16} /> {editingItem.id ? "Perbarui Regulasi" : "Simpan Regulasi"}
+                <Save size={16} />{" "}
+                {editingItem.id ? "Perbarui Regulasi" : "Simpan Regulasi"}
               </button>
             </div>
           </form>
@@ -10913,7 +11568,13 @@ function RegulationsManager() {
                 <td>{item.number || "—"}</td>
                 <td>{item.downloadCount}x</td>
                 <td className="actions-cell">
-                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "6px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     <button
                       type="button"
                       className="icon-button"
@@ -11093,7 +11754,9 @@ function ComplaintsManager() {
                       : ""}
                   </small>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
                   <Status value={selected.status} />
                   <button
                     type="button"
@@ -11101,7 +11764,11 @@ function ComplaintsManager() {
                     title="Hapus Tiket Pengaduan"
                     aria-label="Hapus Tiket Pengaduan"
                     onClick={() => {
-                      if (confirm(`Hapus tiket pengaduan #${selected.ticketNumber}?`)) {
+                      if (
+                        confirm(
+                          `Hapus tiket pengaduan #${selected.ticketNumber}?`,
+                        )
+                      ) {
                         remove.mutate(selected.id);
                       }
                     }}
@@ -11187,7 +11854,10 @@ function ComplaintsManager() {
                   </label>
                 </div>
               </div>
-              <div className="detail-actions" style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}>
+              <div
+                className="detail-actions"
+                style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}
+              >
                 <label className="field" style={{ flex: 1 }}>
                   <span>Ubah Status Penanganan:</span>
                   <select
@@ -11242,7 +11912,9 @@ function ComplaintsManager() {
 function TechniciansManager() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
-  const [editingItem, setEditingItem] = useState<Partial<CmsTechnician> | null>(null);
+  const [editingItem, setEditingItem] = useState<Partial<CmsTechnician> | null>(
+    null,
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -11333,7 +12005,11 @@ function TechniciansManager() {
       {editingItem && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>{editingItem.id ? "Edit Data Teknisi" : "Pendaftaran Teknisi Baru ke Direktori"}</h3>
+            <h3>
+              {editingItem.id
+                ? "Edit Data Teknisi"
+                : "Pendaftaran Teknisi Baru ke Direktori"}
+            </h3>
             <button
               type="button"
               className="icon-button"
@@ -11384,7 +12060,9 @@ function TechniciansManager() {
               <span>Kualifikasi / Level Keahlian</span>
               <input
                 name="skillLevel"
-                defaultValue={editingItem.skillLevel ?? "Level 3 Residensial & Split"}
+                defaultValue={
+                  editingItem.skillLevel ?? "Level 3 Residensial & Split"
+                }
               />
             </label>
             <label className="field">
@@ -11423,10 +12101,7 @@ function TechniciansManager() {
             </label>
             <label className="field">
               <span>Rating (1.0 - 5.0)</span>
-              <input
-                name="rating"
-                defaultValue={editingItem.rating ?? "4.9"}
-              />
+              <input name="rating" defaultValue={editingItem.rating ?? "4.9"} />
             </label>
             <div className="form-actions col-span-2">
               <button
@@ -11441,7 +12116,8 @@ function TechniciansManager() {
                 className="button primary"
                 disabled={save.isPending}
               >
-                <Save size={16} /> {editingItem.id ? "Perbarui Teknisi" : "Simpan Teknisi"}
+                <Save size={16} />{" "}
+                {editingItem.id ? "Perbarui Teknisi" : "Simpan Teknisi"}
               </button>
             </div>
           </form>
@@ -11485,7 +12161,13 @@ function TechniciansManager() {
                 <td>{item.workshopName || "—"}</td>
                 <td>⭐ {item.rating ?? "4.9"}</td>
                 <td className="actions-cell">
-                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "6px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     <button
                       type="button"
                       className="icon-button"
@@ -11501,7 +12183,9 @@ function TechniciansManager() {
                       title="Hapus Teknisi dari Direktori"
                       aria-label={`Hapus ${item.name}`}
                       onClick={() => {
-                        if (confirm(`Hapus teknisi ${item.name} dari direktori?`))
+                        if (
+                          confirm(`Hapus teknisi ${item.name} dari direktori?`)
+                        )
                           remove.mutate(item.id);
                       }}
                     >
@@ -11614,7 +12298,11 @@ function ClubsManager() {
       {editingItem && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>{editingItem.id ? "Edit Registrasi Klub (TKT)" : "Pendaftaran Klub Baru (TKT)"}</h3>
+            <h3>
+              {editingItem.id
+                ? "Edit Registrasi Klub (TKT)"
+                : "Pendaftaran Klub Baru (TKT)"}
+            </h3>
             <button
               type="button"
               className="icon-button"
@@ -11699,7 +12387,8 @@ function ClubsManager() {
                 className="button primary"
                 disabled={save.isPending}
               >
-                <Save size={16} /> {editingItem.id ? "Perbarui Klub" : "Simpan Klub"}
+                <Save size={16} />{" "}
+                {editingItem.id ? "Perbarui Klub" : "Simpan Klub"}
               </button>
             </div>
           </form>
@@ -11730,7 +12419,13 @@ function ClubsManager() {
                 <td>{item.chairName || "—"}</td>
                 <td>{item.activeMembers} Anggota</td>
                 <td className="actions-cell">
-                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "6px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     <button
                       type="button"
                       className="icon-button"
@@ -11860,7 +12555,11 @@ function ChampionshipsManager() {
       {(isCreating || editingItem) && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>{editingItem ? "Edit Peringkat & Skor Kejuaraan" : "Input Peringkat & Skor Kejuaraan"}</h3>
+            <h3>
+              {editingItem
+                ? "Edit Peringkat & Skor Kejuaraan"
+                : "Input Peringkat & Skor Kejuaraan"}
+            </h3>
             <button
               type="button"
               className="icon-button"
@@ -11998,7 +12697,13 @@ function ChampionshipsManager() {
                 <td>⭐ {item.points} Pts</td>
                 <td>{item.achievements || "—"}</td>
                 <td className="actions-cell">
-                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "6px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     <button
                       type="button"
                       className="icon-button"
@@ -12017,7 +12722,11 @@ function ChampionshipsManager() {
                       title="Hapus Skor Kontestan"
                       aria-label={`Hapus ${item.participantName}`}
                       onClick={() => {
-                        if (confirm(`Hapus skor kontestan ${item.participantName}?`))
+                        if (
+                          confirm(
+                            `Hapus skor kontestan ${item.participantName}?`,
+                          )
+                        )
                           remove.mutate(item.id);
                       }}
                     >
@@ -12131,7 +12840,11 @@ function WorkingGroupsManager() {
       {(isCreating || editingItem) && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>{editingItem ? "Edit Kelompok Kerja / Pokja" : "Pembentukan Pokja / Komite Baru"}</h3>
+            <h3>
+              {editingItem
+                ? "Edit Kelompok Kerja / Pokja"
+                : "Pembentukan Pokja / Komite Baru"}
+            </h3>
             <button
               type="button"
               className="icon-button"
@@ -12173,7 +12886,9 @@ function WorkingGroupsManager() {
               <span>Kategori Pokja</span>
               <input
                 name="category"
-                defaultValue={editingItem?.category ?? "Standardisasi & Sertifikasi"}
+                defaultValue={
+                  editingItem?.category ?? "Standardisasi & Sertifikasi"
+                }
               />
             </label>
             <label className="field">
@@ -12209,7 +12924,8 @@ function WorkingGroupsManager() {
                 className="button primary"
                 disabled={save.isPending}
               >
-                <Save size={16} /> {editingItem ? "Update Pokja" : "Simpan Pokja"}
+                <Save size={16} />{" "}
+                {editingItem ? "Update Pokja" : "Simpan Pokja"}
               </button>
             </div>
           </form>
@@ -12243,7 +12959,13 @@ function WorkingGroupsManager() {
                 <td>{item.chairName || "—"}</td>
                 <td>{item.memberCount} Anggota</td>
                 <td className="actions-cell">
-                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "6px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     <button
                       type="button"
                       className="icon-button"
@@ -12262,7 +12984,8 @@ function WorkingGroupsManager() {
                       title="Hapus Pokja"
                       aria-label={`Hapus ${item.name}`}
                       onClick={() => {
-                        if (confirm(`Hapus pokja ${item.name}?`)) remove.mutate(item.id);
+                        if (confirm(`Hapus pokja ${item.name}?`))
+                          remove.mutate(item.id);
                       }}
                     >
                       <Trash2 size={15} />
@@ -12307,13 +13030,10 @@ function LendersManager() {
   const save = useMutation({
     mutationFn: (data: Record<string, unknown>) => {
       if (editingItem) {
-        return api<{ data: CmsLender }>(
-          `/v1/admin/lenders/${editingItem.id}`,
-          {
-            method: "PATCH",
-            body: JSON.stringify(data),
-          },
-        );
+        return api<{ data: CmsLender }>(`/v1/admin/lenders/${editingItem.id}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
       }
       return api<{ data: CmsLender }>("/v1/admin/lenders", {
         method: "POST",
@@ -12375,7 +13095,11 @@ function LendersManager() {
       {(isCreating || editingItem) && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>{editingItem ? "Edit Registrasi Fintech / Pembiayaan" : "Registrasi Entitas Fintech / Pembiayaan"}</h3>
+            <h3>
+              {editingItem
+                ? "Edit Registrasi Fintech / Pembiayaan"
+                : "Registrasi Entitas Fintech / Pembiayaan"}
+            </h3>
             <button
               type="button"
               className="icon-button"
@@ -12435,7 +13159,9 @@ function LendersManager() {
               <span>Sektor / Jenis Layanan</span>
               <input
                 name="sectorType"
-                defaultValue={editingItem?.sectorType ?? "P2P Lending Produktif UMKM"}
+                defaultValue={
+                  editingItem?.sectorType ?? "P2P Lending Produktif UMKM"
+                }
               />
             </label>
             <label className="field col-span-2">
@@ -12462,7 +13188,8 @@ function LendersManager() {
                 className="button primary"
                 disabled={save.isPending}
               >
-                <Save size={16} /> {editingItem ? "Update Mitra" : "Simpan Mitra"}
+                <Save size={16} />{" "}
+                {editingItem ? "Update Mitra" : "Simpan Mitra"}
               </button>
             </div>
           </form>
@@ -12491,7 +13218,13 @@ function LendersManager() {
                 </td>
                 <td>{item.sectorType}</td>
                 <td className="actions-cell">
-                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "6px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     <button
                       type="button"
                       className="icon-button"
@@ -12624,7 +13357,11 @@ function StatisticsManager() {
       {(isCreating || editingItem) && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>{editingItem ? "Edit Metrik Indikator" : "Tambah Metrik Indikator Baru"}</h3>
+            <h3>
+              {editingItem
+                ? "Edit Metrik Indikator"
+                : "Tambah Metrik Indikator Baru"}
+            </h3>
             <button
               type="button"
               className="icon-button"
@@ -12742,7 +13479,8 @@ function StatisticsManager() {
                 className="button primary"
                 disabled={save.isPending}
               >
-                <Save size={16} /> {editingItem ? "Update Metrik" : "Simpan Metrik"}
+                <Save size={16} />{" "}
+                {editingItem ? "Update Metrik" : "Simpan Metrik"}
               </button>
             </div>
           </form>
@@ -12777,7 +13515,13 @@ function StatisticsManager() {
                   <span className="badge">{item.category}</span> · {item.period}
                 </td>
                 <td className="actions-cell">
-                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "6px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     <button
                       type="button"
                       className="icon-button"
@@ -12829,15 +13573,20 @@ function StatisticsManager() {
 
 function WilayahManager() {
   const qc = useQueryClient();
-  const [selectedProvinceCode, setSelectedProvinceCode] = useState<string>("31");
-  const [selectedRegencyCode, setSelectedRegencyCode] = useState<string>("31.71");
-  const [selectedDistrictCode, setSelectedDistrictCode] = useState<string>("31.71.01");
+  const [selectedProvinceCode, setSelectedProvinceCode] =
+    useState<string>("31");
+  const [selectedRegencyCode, setSelectedRegencyCode] =
+    useState<string>("31.71");
+  const [selectedDistrictCode, setSelectedDistrictCode] =
+    useState<string>("31.71.01");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<
     "regencies" | "districts" | "villages" | "provinces"
   >("regencies");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<Partial<CmsRegency> | null>(null);
+  const [editingItem, setEditingItem] = useState<Partial<CmsRegency> | null>(
+    null,
+  );
 
   const [regPage, setRegPage] = useState(1);
   const [regPageSize, setRegPageSize] = useState(15);
@@ -12860,13 +13609,15 @@ function WilayahManager() {
 
   const { data: distData, isLoading: _loadingDist } = useQuery({
     queryKey: ["cms-wilayah-districts", selectedRegencyCode, searchQuery],
-    queryFn: () => getWilayahDistricts(selectedRegencyCode, undefined, searchQuery),
+    queryFn: () =>
+      getWilayahDistricts(selectedRegencyCode, undefined, searchQuery),
     enabled: activeTab === "districts" || activeTab === "villages",
   });
 
   const { data: vilData, isLoading: _loadingVil } = useQuery({
     queryKey: ["cms-wilayah-villages", selectedDistrictCode, searchQuery],
-    queryFn: () => getWilayahVillages(selectedDistrictCode, undefined, searchQuery),
+    queryFn: () =>
+      getWilayahVillages(selectedDistrictCode, undefined, searchQuery),
     enabled: activeTab === "villages",
   });
 
@@ -12875,9 +13626,13 @@ function WilayahManager() {
   const districts = distData?.data ?? [];
   const villages = vilData?.data ?? [];
 
-  const selectedProvince = provinces.find((p) => p.kode === selectedProvinceCode);
+  const selectedProvince = provinces.find(
+    (p) => p.kode === selectedProvinceCode,
+  );
   const selectedRegency = regencies.find((r) => r.kode === selectedRegencyCode);
-  const selectedDistrict = districts.find((d) => d.kode === selectedDistrictCode);
+  const selectedDistrict = districts.find(
+    (d) => d.kode === selectedDistrictCode,
+  );
 
   const saveRegencyMut = useMutation({
     mutationFn: (data: {
@@ -12890,12 +13645,16 @@ function WilayahManager() {
     }) => saveWilayahRegency(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["cms-wilayah-regencies"] });
-      toast.success("Data wilayah kota/kabupaten berhasil disimpan ke database!");
+      toast.success(
+        "Data wilayah kota/kabupaten berhasil disimpan ke database!",
+      );
       setIsModalOpen(false);
       setEditingItem(null);
     },
     onError: (err) => {
-      toast.error(err instanceof Error ? err.message : "Gagal menyimpan wilayah.");
+      toast.error(
+        err instanceof Error ? err.message : "Gagal menyimpan wilayah.",
+      );
     },
   });
 
@@ -12905,7 +13664,8 @@ function WilayahManager() {
         <div>
           <h1>Wilayah & Kode Pos Indonesia (Kepmendagri)</h1>
           <p>
-            Database Terpadu: 38 Provinsi, 514 Kab/Kota, 7.265 Kecamatan, dan 83.345 Desa/Kelurahan dengan Kode Pos Akurat se-Indonesia.
+            Database Terpadu: 38 Provinsi, 514 Kab/Kota, 7.265 Kecamatan, dan
+            83.345 Desa/Kelurahan dengan Kode Pos Akurat se-Indonesia.
           </p>
         </div>
         <div className="header-actions">
@@ -12963,9 +13723,23 @@ function WilayahManager() {
       {activeTab === "regencies" && (
         <>
           <section className="panel" style={{ marginBottom: "16px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "16px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1.5fr",
+                gap: "16px",
+              }}
+            >
               <div>
-                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                <label
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "#64748b",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
                   PILIH PROVINSI:
                 </label>
                 <select
@@ -12973,7 +13747,12 @@ function WilayahManager() {
                   onChange={(e) => {
                     setSelectedProvinceCode(e.target.value);
                   }}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                  }}
                 >
                   {provinces.map((p) => (
                     <option key={p.kode} value={p.kode}>
@@ -12984,7 +13763,15 @@ function WilayahManager() {
               </div>
 
               <div>
-                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                <label
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "#64748b",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
                   CARI KOTA / KODEPOS:
                 </label>
                 <input
@@ -12992,19 +13779,40 @@ function WilayahManager() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Ketik nama kota, ibukota, atau nomor kodepos..."
-                  style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px 14px",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                  }}
                 />
               </div>
             </div>
           </section>
 
           <section className="panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "16px",
+              }}
+            >
               <h3 style={{ margin: 0, fontSize: "16px" }}>
-                Wilayah Provinsi {selectedProvince?.nama || "Indonesia"} ({regencies.length} Kab/Kota)
+                Wilayah Provinsi {selectedProvince?.nama || "Indonesia"} (
+                {regencies.length} Kab/Kota)
               </h3>
-              <span className="badge" style={{ background: "#f0f9ff", color: "#0284c7", border: "1px solid #bae6fd" }}>
-                Kode Kemendagri: {selectedProvince?.kode} · Rentang Kode Pos: {selectedProvince?.kodeposRange}
+              <span
+                className="badge"
+                style={{
+                  background: "#f0f9ff",
+                  color: "#0284c7",
+                  border: "1px solid #bae6fd",
+                }}
+              >
+                Kode Kemendagri: {selectedProvince?.kode} · Rentang Kode Pos:{" "}
+                {selectedProvince?.kodeposRange}
               </span>
             </div>
 
@@ -13021,58 +13829,76 @@ function WilayahManager() {
                 </tr>
               </thead>
               <tbody>
-                {regencies.slice((regPage - 1) * regPageSize, regPage * regPageSize).map((r) => (
-                  <tr key={r.kode}>
-                    <td>
-                      <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
-                        {r.kode}
-                      </code>
-                    </td>
-                    <td>
-                      <strong>{r.nama}</strong>
-                    </td>
-                    <td>{r.ibukota || "—"}</td>
-                    <td>
-                      <span className="badge" style={{ background: "#ecfdf5", color: "#059669" }}>
-                        📮 {r.kodepos || "—"}
-                      </span>
-                    </td>
-                    <td>{r.kodeposRange || "—"}</td>
-                    <td>
-                      <small style={{ color: "#64748b" }}>
-                        {r.kodeposList?.length || 0} kelurahan
-                      </small>
-                    </td>
-                    <td className="actions-cell">
-                      <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
-                        <button
-                          type="button"
-                          className="icon-button"
-                          title="Lihat Daftar Kecamatan"
-                          aria-label={`Kecamatan di ${r.nama}`}
-                          onClick={() => {
-                            setSelectedRegencyCode(r.kode);
-                            setActiveTab("districts");
+                {regencies
+                  .slice((regPage - 1) * regPageSize, regPage * regPageSize)
+                  .map((r) => (
+                    <tr key={r.kode}>
+                      <td>
+                        <code
+                          style={{
+                            background: "#f1f5f9",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            fontWeight: "600",
                           }}
                         >
-                          <ChevronRight size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          className="icon-button"
-                          title="Edit Kabupaten/Kota"
-                          aria-label={`Edit ${r.nama}`}
-                          onClick={() => {
-                            setEditingItem(r);
-                            setIsModalOpen(true);
+                          {r.kode}
+                        </code>
+                      </td>
+                      <td>
+                        <strong>{r.nama}</strong>
+                      </td>
+                      <td>{r.ibukota || "—"}</td>
+                      <td>
+                        <span
+                          className="badge"
+                          style={{ background: "#ecfdf5", color: "#059669" }}
+                        >
+                          📮 {r.kodepos || "—"}
+                        </span>
+                      </td>
+                      <td>{r.kodeposRange || "—"}</td>
+                      <td>
+                        <small style={{ color: "#64748b" }}>
+                          {r.kodeposList?.length || 0} kelurahan
+                        </small>
+                      </td>
+                      <td className="actions-cell">
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "6px",
+                            justifyContent: "flex-end",
                           }}
                         >
-                          <Pencil size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <button
+                            type="button"
+                            className="icon-button"
+                            title="Lihat Daftar Kecamatan"
+                            aria-label={`Kecamatan di ${r.nama}`}
+                            onClick={() => {
+                              setSelectedRegencyCode(r.kode);
+                              setActiveTab("districts");
+                            }}
+                          >
+                            <ChevronRight size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            className="icon-button"
+                            title="Edit Kabupaten/Kota"
+                            aria-label={`Edit ${r.nama}`}
+                            onClick={() => {
+                              setEditingItem(r);
+                              setIsModalOpen(true);
+                            }}
+                          >
+                            <Pencil size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 {regencies.length === 0 && (
                   <tr>
                     <td colSpan={7} className="empty-cell">
@@ -13097,9 +13923,23 @@ function WilayahManager() {
       {activeTab === "districts" && (
         <>
           <section className="panel" style={{ marginBottom: "16px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.5fr", gap: "16px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1.5fr",
+                gap: "16px",
+              }}
+            >
               <div>
-                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                <label
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "#64748b",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
                   1. PROVINSI:
                 </label>
                 <select
@@ -13107,7 +13947,12 @@ function WilayahManager() {
                   onChange={(e) => {
                     setSelectedProvinceCode(e.target.value);
                   }}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                  }}
                 >
                   {provinces.map((p) => (
                     <option key={p.kode} value={p.kode}>
@@ -13118,13 +13963,26 @@ function WilayahManager() {
               </div>
 
               <div>
-                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                <label
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "#64748b",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
                   2. KABUPATEN / KOTA:
                 </label>
                 <select
                   value={selectedRegencyCode}
                   onChange={(e) => setSelectedRegencyCode(e.target.value)}
-                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                  }}
                 >
                   {regencies.map((r) => (
                     <option key={r.kode} value={r.kode}>
@@ -13135,7 +13993,15 @@ function WilayahManager() {
               </div>
 
               <div>
-                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                <label
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "#64748b",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
                   CARI KECAMATAN:
                 </label>
                 <input
@@ -13143,18 +14009,35 @@ function WilayahManager() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Ketik nama atau kode kecamatan..."
-                  style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px 14px",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                  }}
                 />
               </div>
             </div>
           </section>
 
           <section className="panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "16px",
+              }}
+            >
               <h3 style={{ margin: 0, fontSize: "16px" }}>
-                Daftar Kecamatan di {selectedRegency?.nama || "Wilayah Terpilih"} ({districts.length} Kecamatan)
+                Daftar Kecamatan di{" "}
+                {selectedRegency?.nama || "Wilayah Terpilih"} (
+                {districts.length} Kecamatan)
               </h3>
-              <span className="badge" style={{ background: "#f0fdf4", color: "#16a34a" }}>
+              <span
+                className="badge"
+                style={{ background: "#f0fdf4", color: "#16a34a" }}
+              >
                 Kode Kabupaten: {selectedRegencyCode}
               </span>
             </div>
@@ -13170,34 +14053,43 @@ function WilayahManager() {
                 </tr>
               </thead>
               <tbody>
-                {districts.slice((distPage - 1) * distPageSize, distPage * distPageSize).map((d) => (
-                  <tr key={d.kode}>
-                    <td>
-                      <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
-                        {d.kode}
-                      </code>
-                    </td>
-                    <td>
-                      <strong>Kec. {d.nama}</strong>
-                    </td>
-                    <td>{selectedRegency?.nama || d.regencyKode}</td>
-                    <td>{selectedProvince?.nama || d.provinceKode}</td>
-                    <td className="actions-cell">
-                      <button
-                        type="button"
-                        className="icon-button"
-                        title="Lihat Daftar Desa / Kelurahan"
-                        aria-label={`Desa/Kelurahan di Kec. ${d.nama}`}
-                        onClick={() => {
-                          setSelectedDistrictCode(d.kode);
-                          setActiveTab("villages");
-                        }}
-                      >
-                        <ChevronRight size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {districts
+                  .slice((distPage - 1) * distPageSize, distPage * distPageSize)
+                  .map((d) => (
+                    <tr key={d.kode}>
+                      <td>
+                        <code
+                          style={{
+                            background: "#f1f5f9",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          {d.kode}
+                        </code>
+                      </td>
+                      <td>
+                        <strong>Kec. {d.nama}</strong>
+                      </td>
+                      <td>{selectedRegency?.nama || d.regencyKode}</td>
+                      <td>{selectedProvince?.nama || d.provinceKode}</td>
+                      <td className="actions-cell">
+                        <button
+                          type="button"
+                          className="icon-button"
+                          title="Lihat Daftar Desa / Kelurahan"
+                          aria-label={`Desa/Kelurahan di Kec. ${d.nama}`}
+                          onClick={() => {
+                            setSelectedDistrictCode(d.kode);
+                            setActiveTab("villages");
+                          }}
+                        >
+                          <ChevronRight size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 {districts.length === 0 && (
                   <tr>
                     <td colSpan={5} className="empty-cell">
@@ -13222,9 +14114,23 @@ function WilayahManager() {
       {activeTab === "villages" && (
         <>
           <section className="panel" style={{ marginBottom: "16px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1.5fr", gap: "12px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 1.5fr",
+                gap: "12px",
+              }}
+            >
               <div>
-                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                <label
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "#64748b",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
                   1. PROVINSI:
                 </label>
                 <select
@@ -13233,7 +14139,12 @@ function WilayahManager() {
                     setSelectedProvinceCode(e.target.value);
                     setVillPage(1);
                   }}
-                  style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "6px",
+                    border: "1px solid #cbd5e1",
+                  }}
                 >
                   {provinces.map((p) => (
                     <option key={p.kode} value={p.kode}>
@@ -13244,7 +14155,15 @@ function WilayahManager() {
               </div>
 
               <div>
-                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                <label
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "#64748b",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
                   2. KAB/KOTA:
                 </label>
                 <select
@@ -13253,7 +14172,12 @@ function WilayahManager() {
                     setSelectedRegencyCode(e.target.value);
                     setVillPage(1);
                   }}
-                  style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "6px",
+                    border: "1px solid #cbd5e1",
+                  }}
                 >
                   {regencies.map((r) => (
                     <option key={r.kode} value={r.kode}>
@@ -13264,7 +14188,15 @@ function WilayahManager() {
               </div>
 
               <div>
-                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                <label
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "#64748b",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
                   3. KECAMATAN:
                 </label>
                 <select
@@ -13273,7 +14205,12 @@ function WilayahManager() {
                     setSelectedDistrictCode(e.target.value);
                     setVillPage(1);
                   }}
-                  style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "6px",
+                    border: "1px solid #cbd5e1",
+                  }}
                 >
                   {districts.map((d) => (
                     <option key={d.kode} value={d.kode}>
@@ -13284,7 +14221,15 @@ function WilayahManager() {
               </div>
 
               <div>
-                <label style={{ fontSize: "12px", fontWeight: "600", color: "#64748b", display: "block", marginBottom: "6px" }}>
+                <label
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "#64748b",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
                   CARI DESA / KODEPOS:
                 </label>
                 <input
@@ -13295,18 +14240,35 @@ function WilayahManager() {
                     setVillPage(1);
                   }}
                   placeholder="Ketik nama kelurahan atau kode pos..."
-                  style={{ width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: "6px",
+                    border: "1px solid #cbd5e1",
+                  }}
                 />
               </div>
             </div>
           </section>
 
           <section className="panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "16px",
+              }}
+            >
               <h3 style={{ margin: 0, fontSize: "16px" }}>
-                Daftar Desa / Kelurahan di Kec. {selectedDistrict?.nama || "Terpilih"} ({villages.length} Desa/Kelurahan)
+                Daftar Desa / Kelurahan di Kec.{" "}
+                {selectedDistrict?.nama || "Terpilih"} ({villages.length}{" "}
+                Desa/Kelurahan)
               </h3>
-              <span className="badge" style={{ background: "#fef3c7", color: "#b45309" }}>
+              <span
+                className="badge"
+                style={{ background: "#fef3c7", color: "#b45309" }}
+              >
                 Kode Kecamatan: {selectedDistrictCode}
               </span>
             </div>
@@ -13322,25 +14284,37 @@ function WilayahManager() {
                 </tr>
               </thead>
               <tbody>
-                {villages.slice((villPage - 1) * villPageSize, villPage * villPageSize).map((v) => (
-                  <tr key={v.kode}>
-                    <td>
-                      <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
-                        {v.kode}
-                      </code>
-                    </td>
-                    <td>
-                      <strong>{v.nama}</strong>
-                    </td>
-                    <td>
-                      <span className="badge" style={{ background: "#ecfdf5", color: "#059669" }}>
-                        📮 {v.kodepos || "—"}
-                      </span>
-                    </td>
-                    <td>{selectedDistrict?.nama || v.districtKode}</td>
-                    <td>{selectedRegency?.nama || v.regencyKode}</td>
-                  </tr>
-                ))}
+                {villages
+                  .slice((villPage - 1) * villPageSize, villPage * villPageSize)
+                  .map((v) => (
+                    <tr key={v.kode}>
+                      <td>
+                        <code
+                          style={{
+                            background: "#f1f5f9",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          {v.kode}
+                        </code>
+                      </td>
+                      <td>
+                        <strong>{v.nama}</strong>
+                      </td>
+                      <td>
+                        <span
+                          className="badge"
+                          style={{ background: "#ecfdf5", color: "#059669" }}
+                        >
+                          📮 {v.kodepos || "—"}
+                        </span>
+                      </td>
+                      <td>{selectedDistrict?.nama || v.districtKode}</td>
+                      <td>{selectedRegency?.nama || v.regencyKode}</td>
+                    </tr>
+                  ))}
                 {villages.length === 0 && (
                   <tr>
                     <td colSpan={5} className="empty-cell">
@@ -13376,39 +14350,51 @@ function WilayahManager() {
               </tr>
             </thead>
             <tbody>
-              {provinces.slice((provPage - 1) * provPageSize, provPage * provPageSize).map((p) => (
-                <tr key={p.kode}>
-                  <td>
-                    <code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>
-                      {p.kode}
-                    </code>
-                  </td>
-                  <td>
-                    <strong>{p.nama}</strong>
-                  </td>
-                  <td>{p.ibukota}</td>
-                  <td>
-                    <span className="badge" style={{ background: "#ecfdf5", color: "#059669" }}>
-                      📮 {p.kodepos}
-                    </span>
-                  </td>
-                  <td>{p.kodeposRange}</td>
-                  <td className="actions-cell">
-                    <button
-                      type="button"
-                      className="icon-button"
-                      title={`Lihat Daftar Kabupaten/Kota di ${p.nama}`}
-                      aria-label={`Kabupaten/Kota di ${p.nama}`}
-                      onClick={() => {
-                        setSelectedProvinceCode(p.kode);
-                        setActiveTab("regencies");
-                      }}
-                    >
-                      <ChevronRight size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {provinces
+                .slice((provPage - 1) * provPageSize, provPage * provPageSize)
+                .map((p) => (
+                  <tr key={p.kode}>
+                    <td>
+                      <code
+                        style={{
+                          background: "#f1f5f9",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        {p.kode}
+                      </code>
+                    </td>
+                    <td>
+                      <strong>{p.nama}</strong>
+                    </td>
+                    <td>{p.ibukota}</td>
+                    <td>
+                      <span
+                        className="badge"
+                        style={{ background: "#ecfdf5", color: "#059669" }}
+                      >
+                        📮 {p.kodepos}
+                      </span>
+                    </td>
+                    <td>{p.kodeposRange}</td>
+                    <td className="actions-cell">
+                      <button
+                        type="button"
+                        className="icon-button"
+                        title={`Lihat Daftar Kabupaten/Kota di ${p.nama}`}
+                        aria-label={`Kabupaten/Kota di ${p.nama}`}
+                        onClick={() => {
+                          setSelectedProvinceCode(p.kode);
+                          setActiveTab("regencies");
+                        }}
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
           <TablePagination
@@ -13426,7 +14412,11 @@ function WilayahManager() {
         <div className="modal-backdrop">
           <div className="modal" style={{ maxWidth: "500px" }}>
             <div className="modal-header">
-              <h3>{editingItem.kode && editingItem.nama ? "Edit Data Wilayah" : "Tambah Kota/Kabupaten"}</h3>
+              <h3>
+                {editingItem.kode && editingItem.nama
+                  ? "Edit Data Wilayah"
+                  : "Tambah Kota/Kabupaten"}
+              </h3>
               <button
                 type="button"
                 className="icon-button"
@@ -13447,14 +14437,20 @@ function WilayahManager() {
                 }
                 saveRegencyMut.mutate({
                   kode: editingItem.kode,
-                  provinceKode: editingItem.provinceKode || selectedProvinceCode,
+                  provinceKode:
+                    editingItem.provinceKode || selectedProvinceCode,
                   nama: editingItem.nama,
                   ibukota: editingItem.ibukota || "",
                   kodepos: editingItem.kodepos || "",
                   kodeposRange: editingItem.kodeposRange || "",
                 });
               }}
-              style={{ display: "flex", flexDirection: "column", gap: "14px", padding: "16px 0" }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+                padding: "16px 0",
+              }}
             >
               <label>
                 Kode Wilayah (Kepmendagri) *
@@ -13462,7 +14458,9 @@ function WilayahManager() {
                   type="text"
                   required
                   value={editingItem.kode || ""}
-                  onChange={(e) => setEditingItem({ ...editingItem, kode: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, kode: e.target.value })
+                  }
                   placeholder="Contoh: 31.71"
                 />
               </label>
@@ -13473,7 +14471,9 @@ function WilayahManager() {
                   type="text"
                   required
                   value={editingItem.nama || ""}
-                  onChange={(e) => setEditingItem({ ...editingItem, nama: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, nama: e.target.value })
+                  }
                   placeholder="Contoh: Kota Surabaya"
                 />
               </label>
@@ -13483,18 +14483,31 @@ function WilayahManager() {
                 <input
                   type="text"
                   value={editingItem.ibukota || ""}
-                  onChange={(e) => setEditingItem({ ...editingItem, ibukota: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, ibukota: e.target.value })
+                  }
                   placeholder="Contoh: Surabaya"
                 />
               </label>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "12px",
+                }}
+              >
                 <label>
                   Kode Pos Utama
                   <input
                     type="text"
                     value={editingItem.kodepos || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, kodepos: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        kodepos: e.target.value,
+                      })
+                    }
                     placeholder="Contoh: 60111"
                   />
                 </label>
@@ -13503,13 +14516,25 @@ function WilayahManager() {
                   <input
                     type="text"
                     value={editingItem.kodeposRange || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, kodeposRange: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        kodeposRange: e.target.value,
+                      })
+                    }
                     placeholder="Contoh: 60111 - 60299"
                   />
                 </label>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "10px",
+                  marginTop: "10px",
+                }}
+              >
                 <button
                   type="button"
                   className="button secondary"
@@ -13520,8 +14545,14 @@ function WilayahManager() {
                 >
                   Batal
                 </button>
-                <button type="submit" className="button primary" disabled={saveRegencyMut.isPending}>
-                  {saveRegencyMut.isPending ? "Menyimpan..." : "Simpan ke Database API"}
+                <button
+                  type="submit"
+                  className="button primary"
+                  disabled={saveRegencyMut.isPending}
+                >
+                  {saveRegencyMut.isPending
+                    ? "Menyimpan..."
+                    : "Simpan ke Database API"}
                 </button>
               </div>
             </form>
@@ -13540,7 +14571,9 @@ function AdArtManager() {
   const [docFilter, setDocFilter] = useState<string>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [editingItem, setEditingItem] = useState<Partial<CmsAdArt> | null>(null);
+  const [editingItem, setEditingItem] = useState<Partial<CmsAdArt> | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
@@ -13556,7 +14589,8 @@ function AdArtManager() {
       setIsModalOpen(false);
       setEditingItem(null);
     },
-    onError: (err: any) => toast.error(err.message || "Gagal menyimpan dokumen AD/ART"),
+    onError: (err: any) =>
+      toast.error(err.message || "Gagal menyimpan dokumen AD/ART"),
   });
 
   const deleteMutation = useMutation({
@@ -13565,11 +14599,13 @@ function AdArtManager() {
       toast.success("Dokumen berhasil dihapus.");
       void queryClient.invalidateQueries({ queryKey: ["admin_ad_art"] });
     },
-    onError: (err: any) => toast.error(err.message || "Gagal menghapus dokumen"),
+    onError: (err: any) =>
+      toast.error(err.message || "Gagal menghapus dokumen"),
   });
 
   const items = data?.data || [];
-  const filteredItems = docFilter === "ALL" ? items : items.filter((d) => d.docType === docFilter);
+  const filteredItems =
+    docFilter === "ALL" ? items : items.filter((d) => d.docType === docFilter);
   const paginatedItems = filteredItems.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
@@ -13709,7 +14745,13 @@ function AdArtManager() {
                 </td>
                 <td style={{ textAlign: "center" }}>{item.sortOrder}</td>
                 <td style={{ textAlign: "right" }}>
-                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "6px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     <button
                       type="button"
                       className="icon-button"
@@ -13728,7 +14770,9 @@ function AdArtManager() {
                       title="Hapus Bab Dokumen"
                       aria-label={`Hapus ${item.chapterNumber}`}
                       onClick={() => {
-                        if (confirm(`Hapus ${item.chapterNumber}: ${item.title}?`)) {
+                        if (
+                          confirm(`Hapus ${item.chapterNumber}: ${item.title}?`)
+                        ) {
                           deleteMutation.mutate(item.id);
                         }
                       }}
@@ -13741,7 +14785,14 @@ function AdArtManager() {
             ))}
             {filteredItems.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ textAlign: "center", padding: "30px", color: "#64748b" }}>
+                <td
+                  colSpan={7}
+                  style={{
+                    textAlign: "center",
+                    padding: "30px",
+                    color: "#64748b",
+                  }}
+                >
                   Belum ada dokumen yang sesuai filter.
                 </td>
               </tr>
@@ -13759,9 +14810,16 @@ function AdArtManager() {
 
       {isModalOpen && editingItem && (
         <div className="modal-backdrop">
-          <div className="modal-content" style={{ maxWidth: "720px", maxHeight: "85vh", overflowY: "auto" }}>
+          <div
+            className="modal-content"
+            style={{ maxWidth: "720px", maxHeight: "85vh", overflowY: "auto" }}
+          >
             <div className="modal-header">
-              <h3>{editingItem.id ? "Edit Bab Dokumen" : "Tambah Bab Dokumen Baru"}</h3>
+              <h3>
+                {editingItem.id
+                  ? "Edit Bab Dokumen"
+                  : "Tambah Bab Dokumen Baru"}
+              </h3>
               <button
                 type="button"
                 className="icon-button"
@@ -13778,14 +14836,30 @@ function AdArtManager() {
                 e.preventDefault();
                 saveMutation.mutate(editingItem);
               }}
-              style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "14px" }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+                marginTop: "14px",
+              }}
             >
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  gap: "12px",
+                }}
+              >
                 <label>
                   Tipe Dokumen
                   <select
                     value={editingItem.docType || "AD"}
-                    onChange={(e) => setEditingItem({ ...editingItem, docType: e.target.value as any })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        docType: e.target.value as any,
+                      })
+                    }
                   >
                     <option value="AD">Anggaran Dasar (AD)</option>
                     <option value="ART">Anggaran Rumah Tangga (ART)</option>
@@ -13798,7 +14872,12 @@ function AdArtManager() {
                     type="text"
                     required
                     value={editingItem.chapterNumber || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, chapterNumber: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        chapterNumber: e.target.value,
+                      })
+                    }
                     placeholder="BAB I / Butir 1"
                   />
                 </label>
@@ -13807,7 +14886,12 @@ function AdArtManager() {
                   <input
                     type="number"
                     value={editingItem.sortOrder ?? 0}
-                    onChange={(e) => setEditingItem({ ...editingItem, sortOrder: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        sortOrder: Number(e.target.value),
+                      })
+                    }
                   />
                 </label>
               </div>
@@ -13818,7 +14902,9 @@ function AdArtManager() {
                   type="text"
                   required
                   value={editingItem.title || ""}
-                  onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, title: e.target.value })
+                  }
                   placeholder="Contoh: Nama, Waktu, Asas & Kedudukan"
                 />
               </label>
@@ -13828,15 +14914,33 @@ function AdArtManager() {
                 <textarea
                   rows={2}
                   value={editingItem.summary || ""}
-                  onChange={(e) => setEditingItem({ ...editingItem, summary: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, summary: e.target.value })
+                  }
                   placeholder="Ringkasan isi bab untuk panduan cepat anggota..."
                 />
               </label>
 
-              <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "14px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                  <h4 style={{ margin: 0 }}>Daftar Pasal / Butir Ketentuan ({editingItem.articles?.length || 0})</h4>
-                  <button type="button" className="button secondary" onClick={handleAddArticle}>
+              <div
+                style={{ borderTop: "1px solid #e2e8f0", paddingTop: "14px" }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <h4 style={{ margin: 0 }}>
+                    Daftar Pasal / Butir Ketentuan (
+                    {editingItem.articles?.length || 0})
+                  </h4>
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={handleAddArticle}
+                  >
                     <Plus size={14} /> Tambah Pasal
                   </button>
                 </div>
@@ -13852,7 +14956,14 @@ function AdArtManager() {
                       background: "#f8fafc",
                     }}
                   >
-                    <div style={{ display: "grid", gridTemplateColumns: "140px 1fr 40px", gap: "10px", marginBottom: "8px" }}>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "140px 1fr 40px",
+                        gap: "10px",
+                        marginBottom: "8px",
+                      }}
+                    >
                       <input
                         type="text"
                         value={art.articleNumber}
@@ -13860,8 +14971,14 @@ function AdArtManager() {
                           const updated = [...(editingItem.articles || [])];
                           const target = updated[artIdx];
                           if (target) {
-                            updated[artIdx] = { ...target, articleNumber: e.target.value };
-                            setEditingItem({ ...editingItem, articles: updated });
+                            updated[artIdx] = {
+                              ...target,
+                              articleNumber: e.target.value,
+                            };
+                            setEditingItem({
+                              ...editingItem,
+                              articles: updated,
+                            });
                           }
                         }}
                         placeholder="Pasal 1"
@@ -13873,8 +14990,14 @@ function AdArtManager() {
                           const updated = [...(editingItem.articles || [])];
                           const target = updated[artIdx];
                           if (target) {
-                            updated[artIdx] = { ...target, title: e.target.value };
-                            setEditingItem({ ...editingItem, articles: updated });
+                            updated[artIdx] = {
+                              ...target,
+                              title: e.target.value,
+                            };
+                            setEditingItem({
+                              ...editingItem,
+                              articles: updated,
+                            });
                           }
                         }}
                         placeholder="Judul Pasal"
@@ -13900,9 +15023,14 @@ function AdArtManager() {
                           if (target) {
                             updated[artIdx] = {
                               ...target,
-                              clauses: e.target.value.split("\n").filter(Boolean),
+                              clauses: e.target.value
+                                .split("\n")
+                                .filter(Boolean),
                             };
-                            setEditingItem({ ...editingItem, articles: updated });
+                            setEditingItem({
+                              ...editingItem,
+                              articles: updated,
+                            });
                           }
                         }}
                         placeholder="(1) Ketentuan pertama...&#10;(2) Ketentuan kedua..."
@@ -13913,7 +15041,14 @@ function AdArtManager() {
                 ))}
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "14px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "10px",
+                  marginTop: "14px",
+                }}
+              >
                 <button
                   type="button"
                   className="button secondary"
@@ -13924,7 +15059,11 @@ function AdArtManager() {
                 >
                   Batal
                 </button>
-                <button type="submit" className="button primary" disabled={saveMutation.isPending}>
+                <button
+                  type="submit"
+                  className="button primary"
+                  disabled={saveMutation.isPending}
+                >
                   {saveMutation.isPending ? "Menyimpan..." : "Simpan Dokumen"}
                 </button>
               </div>
@@ -13943,7 +15082,9 @@ function MilestonesManager() {
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [editingItem, setEditingItem] = useState<Partial<CmsMilestone> | null>(null);
+  const [editingItem, setEditingItem] = useState<Partial<CmsMilestone> | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
@@ -13959,7 +15100,8 @@ function MilestonesManager() {
       setIsModalOpen(false);
       setEditingItem(null);
     },
-    onError: (err: any) => toast.error(err.message || "Gagal menyimpan data sejarah"),
+    onError: (err: any) =>
+      toast.error(err.message || "Gagal menyimpan data sejarah"),
   });
 
   const deleteMutation = useMutation({
@@ -13968,7 +15110,8 @@ function MilestonesManager() {
       toast.success("Tonggak sejarah berhasil dihapus.");
       void queryClient.invalidateQueries({ queryKey: ["admin_milestones"] });
     },
-    onError: (err: any) => toast.error(err.message || "Gagal menghapus data sejarah"),
+    onError: (err: any) =>
+      toast.error(err.message || "Gagal menghapus data sejarah"),
   });
 
   const items = data?.data || [];
@@ -14033,17 +15176,35 @@ function MilestonesManager() {
                 </td>
                 <td>
                   <div style={{ fontWeight: 600 }}>{item.title}</div>
-                  <div style={{ color: "#64748b", fontSize: "12px", marginTop: "2px" }}>
+                  <div
+                    style={{
+                      color: "#64748b",
+                      fontSize: "12px",
+                      marginTop: "2px",
+                    }}
+                  >
                     {item.description}
                   </div>
                 </td>
                 <td>
-                  <span className="badge secondary">{item.highlight || "—"}</span>
+                  <span className="badge secondary">
+                    {item.highlight || "—"}
+                  </span>
                 </td>
                 <td>
-                  <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                  <div
+                    style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}
+                  >
                     {item.tags?.map((t, idx) => (
-                      <span key={idx} style={{ fontSize: "11px", background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px" }}>
+                      <span
+                        key={idx}
+                        style={{
+                          fontSize: "11px",
+                          background: "#f1f5f9",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                        }}
+                      >
                         #{t}
                       </span>
                     ))}
@@ -14051,7 +15212,13 @@ function MilestonesManager() {
                 </td>
                 <td style={{ textAlign: "center" }}>{item.sortOrder}</td>
                 <td style={{ textAlign: "right" }}>
-                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "6px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     <button
                       type="button"
                       className="icon-button"
@@ -14070,7 +15237,11 @@ function MilestonesManager() {
                       title="Hapus Tonggak Sejarah"
                       aria-label={`Hapus ${item.year} ${item.title}`}
                       onClick={() => {
-                        if (confirm(`Hapus sejarah tahun ${item.year}: ${item.title}?`)) {
+                        if (
+                          confirm(
+                            `Hapus sejarah tahun ${item.year}: ${item.title}?`,
+                          )
+                        ) {
                           deleteMutation.mutate(item.id);
                         }
                       }}
@@ -14096,7 +15267,11 @@ function MilestonesManager() {
         <div className="modal-backdrop">
           <div className="modal-content" style={{ maxWidth: "600px" }}>
             <div className="modal-header">
-              <h3>{editingItem.id ? "Edit Tonggak Sejarah" : "Tambah Tonggak Sejarah Baru"}</h3>
+              <h3>
+                {editingItem.id
+                  ? "Edit Tonggak Sejarah"
+                  : "Tambah Tonggak Sejarah Baru"}
+              </h3>
               <button
                 type="button"
                 className="icon-button"
@@ -14113,16 +15288,29 @@ function MilestonesManager() {
                 e.preventDefault();
                 saveMutation.mutate(editingItem);
               }}
-              style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "14px" }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+                marginTop: "14px",
+              }}
             >
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 2fr",
+                  gap: "12px",
+                }}
+              >
                 <label>
                   Tahun *
                   <input
                     type="text"
                     required
                     value={editingItem.year || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, year: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({ ...editingItem, year: e.target.value })
+                    }
                     placeholder="Contoh: 2026"
                   />
                 </label>
@@ -14132,7 +15320,9 @@ function MilestonesManager() {
                     type="text"
                     required
                     value={editingItem.phase || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, phase: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({ ...editingItem, phase: e.target.value })
+                    }
                     placeholder="Contoh: Fase Modernisasi Digital"
                   />
                 </label>
@@ -14144,7 +15334,9 @@ function MilestonesManager() {
                   type="text"
                   required
                   value={editingItem.title || ""}
-                  onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, title: e.target.value })
+                  }
                   placeholder="Contoh: Peluncuran KTA Digital & Sertifikasi BNSP"
                 />
               </label>
@@ -14155,18 +15347,34 @@ function MilestonesManager() {
                   rows={4}
                   required
                   value={editingItem.description || ""}
-                  onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({
+                      ...editingItem,
+                      description: e.target.value,
+                    })
+                  }
                   placeholder="Jelaskan momentum dan capaian organisasi pada fase ini..."
                 />
               </label>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "12px",
+                }}
+              >
                 <label>
                   Highlight Badge Label
                   <input
                     type="text"
                     value={editingItem.highlight || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, highlight: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        highlight: e.target.value,
+                      })
+                    }
                     placeholder="Contoh: Transformasi Digital"
                   />
                 </label>
@@ -14175,7 +15383,12 @@ function MilestonesManager() {
                   <input
                     type="number"
                     value={editingItem.sortOrder ?? 0}
-                    onChange={(e) => setEditingItem({ ...editingItem, sortOrder: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        sortOrder: Number(e.target.value),
+                      })
+                    }
                   />
                 </label>
               </div>
@@ -14198,7 +15411,14 @@ function MilestonesManager() {
                 />
               </label>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "14px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "10px",
+                  marginTop: "14px",
+                }}
+              >
                 <button
                   type="button"
                   className="button secondary"
@@ -14209,7 +15429,11 @@ function MilestonesManager() {
                 >
                   Batal
                 </button>
-                <button type="submit" className="button primary" disabled={saveMutation.isPending}>
+                <button
+                  type="submit"
+                  className="button primary"
+                  disabled={saveMutation.isPending}
+                >
                   {saveMutation.isPending ? "Menyimpan..." : "Simpan Sejarah"}
                 </button>
               </div>
@@ -14228,7 +15452,8 @@ function RefrigerantsManager() {
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [editingItem, setEditingItem] = useState<Partial<CmsRefrigerant> | null>(null);
+  const [editingItem, setEditingItem] =
+    useState<Partial<CmsRefrigerant> | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
@@ -14244,7 +15469,8 @@ function RefrigerantsManager() {
       setIsModalOpen(false);
       setEditingItem(null);
     },
-    onError: (err: any) => toast.error(err.message || "Gagal menyimpan spesifikasi"),
+    onError: (err: any) =>
+      toast.error(err.message || "Gagal menyimpan spesifikasi"),
   });
 
   const deleteMutation = useMutation({
@@ -14337,8 +15563,18 @@ function RefrigerantsManager() {
                   <span
                     className="badge"
                     style={{
-                      background: item.gwp < 100 ? "#10b9811a" : item.gwp < 1000 ? "#38bdf81a" : "#f59e0b1a",
-                      color: item.gwp < 100 ? "#10b981" : item.gwp < 1000 ? "#0284c7" : "#f59e0b",
+                      background:
+                        item.gwp < 100
+                          ? "#10b9811a"
+                          : item.gwp < 1000
+                            ? "#38bdf81a"
+                            : "#f59e0b1a",
+                      color:
+                        item.gwp < 100
+                          ? "#10b981"
+                          : item.gwp < 1000
+                            ? "#0284c7"
+                            : "#f59e0b",
                     }}
                   >
                     {item.gwp}
@@ -14351,7 +15587,13 @@ function RefrigerantsManager() {
                   <span style={{ fontSize: "12px" }}>{item.statusKlhk}</span>
                 </td>
                 <td style={{ textAlign: "right" }}>
-                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "6px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     <button
                       type="button"
                       className="icon-button"
@@ -14394,9 +15636,16 @@ function RefrigerantsManager() {
 
       {isModalOpen && editingItem && (
         <div className="modal-backdrop">
-          <div className="modal-content" style={{ maxWidth: "680px", maxHeight: "85vh", overflowY: "auto" }}>
+          <div
+            className="modal-content"
+            style={{ maxWidth: "680px", maxHeight: "85vh", overflowY: "auto" }}
+          >
             <div className="modal-header">
-              <h3>{editingItem.id ? "Edit Spesifikasi Freon" : "Tambah Spesifikasi Freon Baru"}</h3>
+              <h3>
+                {editingItem.id
+                  ? "Edit Spesifikasi Freon"
+                  : "Tambah Spesifikasi Freon Baru"}
+              </h3>
               <button
                 type="button"
                 className="icon-button"
@@ -14413,16 +15662,29 @@ function RefrigerantsManager() {
                 e.preventDefault();
                 saveMutation.mutate(editingItem);
               }}
-              style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "14px" }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "14px",
+                marginTop: "14px",
+              }}
             >
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 2fr",
+                  gap: "12px",
+                }}
+              >
                 <label>
                   Kode Refrigeran *
                   <input
                     type="text"
                     required
                     value={editingItem.code || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, code: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({ ...editingItem, code: e.target.value })
+                    }
                     placeholder="Contoh: R32 / R410A"
                   />
                 </label>
@@ -14432,19 +15694,32 @@ function RefrigerantsManager() {
                     type="text"
                     required
                     value={editingItem.name || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({ ...editingItem, name: e.target.value })
+                    }
                     placeholder="Contoh: R-32 (Difluoromethane)"
                   />
                 </label>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  gap: "12px",
+                }}
+              >
                 <label>
                   Rumus Kimia
                   <input
                     type="text"
                     value={editingItem.chemicalFormula || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, chemicalFormula: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        chemicalFormula: e.target.value,
+                      })
+                    }
                     placeholder="CH₂F₂"
                   />
                 </label>
@@ -14453,7 +15728,12 @@ function RefrigerantsManager() {
                   <input
                     type="text"
                     value={editingItem.refrigerantType || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, refrigerantType: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        refrigerantType: e.target.value,
+                      })
+                    }
                     placeholder="HFC Murni / HC Alami"
                   />
                 </label>
@@ -14462,19 +15742,35 @@ function RefrigerantsManager() {
                   <input
                     type="text"
                     value={editingItem.oilType || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, oilType: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        oilType: e.target.value,
+                      })
+                    }
                     placeholder="Synthetic POE / PAG"
                   />
                 </label>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "12px",
+                }}
+              >
                 <label>
                   Rentang Tekanan Suction (Rendah)
                   <input
                     type="text"
                     value={editingItem.suctionPsi || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, suctionPsi: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        suctionPsi: e.target.value,
+                      })
+                    }
                     placeholder="115 - 135 PSI"
                   />
                 </label>
@@ -14483,19 +15779,35 @@ function RefrigerantsManager() {
                   <input
                     type="text"
                     value={editingItem.dischargePsi || ""}
-                    onChange={(e) => setEditingItem({ ...editingItem, dischargePsi: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        dischargePsi: e.target.value,
+                      })
+                    }
                     placeholder="320 - 380 PSI"
                   />
                 </label>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  gap: "12px",
+                }}
+              >
                 <label>
                   Nilai GWP (Pemanasan Global)
                   <input
                     type="number"
                     value={editingItem.gwp ?? 0}
-                    onChange={(e) => setEditingItem({ ...editingItem, gwp: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        gwp: Number(e.target.value),
+                      })
+                    }
                   />
                 </label>
                 <label>
@@ -14503,7 +15815,9 @@ function RefrigerantsManager() {
                   <input
                     type="text"
                     value={editingItem.odp || "0"}
-                    onChange={(e) => setEditingItem({ ...editingItem, odp: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({ ...editingItem, odp: e.target.value })
+                    }
                   />
                 </label>
                 <label>
@@ -14511,7 +15825,12 @@ function RefrigerantsManager() {
                   <input
                     type="text"
                     value={editingItem.safetyClass || "A1"}
-                    onChange={(e) => setEditingItem({ ...editingItem, safetyClass: e.target.value })}
+                    onChange={(e) =>
+                      setEditingItem({
+                        ...editingItem,
+                        safetyClass: e.target.value,
+                      })
+                    }
                     placeholder="A1 / A2L / A3"
                   />
                 </label>
@@ -14522,7 +15841,12 @@ function RefrigerantsManager() {
                 <input
                   type="text"
                   value={editingItem.statusKlhk || ""}
-                  onChange={(e) => setEditingItem({ ...editingItem, statusKlhk: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({
+                      ...editingItem,
+                      statusKlhk: e.target.value,
+                    })
+                  }
                   placeholder="Legal & Didukung (Transisi Hijau)"
                 />
               </label>
@@ -14532,7 +15856,12 @@ function RefrigerantsManager() {
                 <input
                   type="text"
                   value={editingItem.recommendedUse || ""}
-                  onChange={(e) => setEditingItem({ ...editingItem, recommendedUse: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({
+                      ...editingItem,
+                      recommendedUse: e.target.value,
+                    })
+                  }
                   placeholder="AC Split Inverter, VRV Komersial, dll."
                 />
               </label>
@@ -14542,12 +15871,24 @@ function RefrigerantsManager() {
                 <textarea
                   rows={3}
                   value={editingItem.description || ""}
-                  onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({
+                      ...editingItem,
+                      description: e.target.value,
+                    })
+                  }
                   placeholder="Karakteristik perpindahan panas dan panduan pengisian..."
                 />
               </label>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "14px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "10px",
+                  marginTop: "14px",
+                }}
+              >
                 <button
                   type="button"
                   className="button secondary"
@@ -14558,8 +15899,14 @@ function RefrigerantsManager() {
                 >
                   Batal
                 </button>
-                <button type="submit" className="button primary" disabled={saveMutation.isPending}>
-                  {saveMutation.isPending ? "Menyimpan..." : "Simpan Spesifikasi"}
+                <button
+                  type="submit"
+                  className="button primary"
+                  disabled={saveMutation.isPending}
+                >
+                  {saveMutation.isPending
+                    ? "Menyimpan..."
+                    : "Simpan Spesifikasi"}
                 </button>
               </div>
             </form>

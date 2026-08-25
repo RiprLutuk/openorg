@@ -36,8 +36,8 @@ import {
 import Link from "next/link";
 import { Suspense, useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
-import { SmartImage } from "@/components/smart-image";
 import { ServerPagination } from "@/components/server-pagination";
+import { SmartImage } from "@/components/smart-image";
 
 const EVENTS_PER_PAGE = 6;
 
@@ -335,10 +335,7 @@ function EventsPageContent() {
   const totalPages = Math.ceil(catalogEvents.length / EVENTS_PER_PAGE) || 1;
   const safeCurrentPage = Math.min(currentPage, totalPages);
   const startIndex = (safeCurrentPage - 1) * EVENTS_PER_PAGE;
-  const endIndex = Math.min(
-    startIndex + EVENTS_PER_PAGE,
-    catalogEvents.length,
-  );
+  const endIndex = Math.min(startIndex + EVENTS_PER_PAGE, catalogEvents.length);
   const paginatedEvents = catalogEvents.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
@@ -385,7 +382,9 @@ function EventsPageContent() {
           {/* Right Column: Key Academy Stats Bento Card */}
           <div className="hero-stats-bento-card">
             <div className="stats-card-header">
-              <span className="stats-card-badge">Pusat Sertifikasi & Diklat</span>
+              <span className="stats-card-badge">
+                Pusat Sertifikasi & Diklat
+              </span>
               <span className="stats-card-status">● Terakreditasi BNSP</span>
             </div>
             <div className="stats-card-grid">
@@ -618,8 +617,7 @@ function EventsPageContent() {
                         </span>
                         <span className="quota-percent">
                           {Math.round(
-                            (featuredEvent.enrolled /
-                              featuredEvent.capacity) *
+                            (featuredEvent.enrolled / featuredEvent.capacity) *
                               100,
                           )}
                           %

@@ -53,7 +53,7 @@ export function InteractiveBentoServices() {
                     <div className="mini-avatar">AN</div>
                     <div className="mini-identity">
                       <strong>Ahmad Nurhadi, S.T.</strong>
-                      <small>KTA-2026-09142 · Teknisi Utama</small>
+                      <small>APTI-32.2026.00142 · Teknisi Utama</small>
                     </div>
                   </div>
                   <div className="mini-kta-side">
@@ -102,7 +102,9 @@ export function InteractiveBentoServices() {
               {/* Visual Micro-Widget: Clean Competency Progress Meter */}
               <div className="bento-widget-skp">
                 <div className="skp-progress-header">
-                  <span className="skp-progress-title">Target Resertifikasi CPD</span>
+                  <span className="skp-progress-title">
+                    Target Resertifikasi CPD
+                  </span>
                   <strong className="skp-progress-stat">
                     18 / 25 SKP <small>(72%)</small>
                   </strong>
@@ -199,13 +201,17 @@ export function InteractiveBentoServices() {
                   </div>
                   <div className="audit-details">
                     <div className="audit-meta-header">
-                      <span className="audit-title">Kredensial BNSP Terdaftar</span>
+                      <span className="audit-title">
+                        Kredensial BNSP Terdaftar
+                      </span>
                       <span className="audit-status-badge">
                         <CheckCircle2 size={11} /> Sah
                       </span>
                     </div>
                     <strong className="audit-hash">CERT-BNSP-2026-0941</strong>
-                    <span className="audit-sub">Audit Real-time · SHA-256 Valid</span>
+                    <span className="audit-sub">
+                      Audit Real-time · SHA-256 Valid
+                    </span>
                   </div>
                 </div>
               </div>

@@ -43,9 +43,9 @@ export interface CredentialDossier {
 }
 
 const SAMPLE_DATABASE: Record<string, CredentialDossier> = {
-  "APTI-2026-0004": {
+  "APTI-31.2026.00004": {
     type: "kta",
-    code: "APTI-2026-0004",
+    code: "APTI-31.2026.00004",
     name: "Budi Kurniawan",
     schemeOrCategory: "Level 4 Komersial & Inverter VRV",
     region: "DPD DKI Jakarta (Jakarta Selatan)",
@@ -60,9 +60,9 @@ const SAMPLE_DATABASE: Record<string, CredentialDossier> = {
     directoryHref: "/technicians?q=Budi+Kurniawan",
     bnspCertified: true,
   },
-  "APTI-2026-0005": {
+  "APTI-32.2026.00005": {
     type: "kta",
-    code: "APTI-2026-0005",
+    code: "APTI-32.2026.00005",
     name: "Agus Pratama",
     schemeOrCategory: "Level 3 Residensial & Split",
     region: "DPD Jawa Barat (Kota Bandung)",
@@ -77,13 +77,13 @@ const SAMPLE_DATABASE: Record<string, CredentialDossier> = {
     directoryHref: "/technicians?q=Agus+Pratama",
     bnspCertified: true,
   },
-  "APTI-2026-0006": {
+  "APTI-35.2026.00006": {
     type: "kta",
-    code: "APTI-2026-0006",
+    code: "APTI-35.2026.00006",
     name: "Dewi Lestari",
     schemeOrCategory: "Level 4 Chiller & Cold Storage",
-    region: "DPD Jawa Tengah (Kota Semarang)",
-    workshopOrOrg: "Semarang Industrial HVAC",
+    region: "DPD Jawa Timur (Kota Surabaya)",
+    workshopOrOrg: "Surabaya Industrial HVAC",
     issuedDate: "20 Maret 2024",
     expiryDate: "31 Desember 2027",
     status: "Aktif & Terverifikasi Sah",
@@ -92,6 +92,40 @@ const SAMPLE_DATABASE: Record<string, CredentialDossier> = {
     phone: "6281311223344",
     rating: "4.92",
     directoryHref: "/technicians?q=Dewi+Lestari",
+    bnspCertified: true,
+  },
+  "APTI-32.2020.00142": {
+    type: "kta",
+    code: "APTI-32.2020.00142",
+    name: "Dedi Kurniawan, S.Pd",
+    schemeOrCategory: "Level 4 Teknisi Senior Inverter & VRV/VRF",
+    region: "DPD Jawa Barat (Kota Bandung)",
+    workshopOrOrg: "Jabar Aircon Service",
+    issuedDate: "20 Agustus 2020",
+    expiryDate: "31 Desember 2027",
+    status: "Aktif & Terverifikasi Sah",
+    issuer: "DPP APTI Indonesia",
+    trustLevel: "Level 4 · Master Specialist HVAC",
+    phone: "6281577889900",
+    rating: "4.98",
+    directoryHref: "/technicians?q=Dedi+Kurniawan",
+    bnspCertified: true,
+  },
+  "APTI-00.2026.00007": {
+    type: "kta",
+    code: "APTI-00.2026.00007",
+    name: "Budi Pratama (Demo Member)",
+    schemeOrCategory: "Teknisi Pendingin Residensial & Komersial",
+    region: "DPP Pusat",
+    workshopOrOrg: "Demo Cool Engineering",
+    issuedDate: "01 Januari 2026",
+    expiryDate: "31 Desember 2027",
+    status: "Aktif & Terverifikasi Sah",
+    issuer: "DPP APTI Indonesia",
+    trustLevel: "Anggota Terdaftar Sah",
+    phone: "6281299887766",
+    rating: "4.90",
+    directoryHref: "/technicians?q=Budi+Pratama",
     bnspCertified: true,
   },
   "BNSP-HVAC-9081": {
@@ -394,7 +428,7 @@ export function InteractiveCredentialChecker({ orgName }: { orgName: string }) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={
               activeType === "kta"
-                ? "Masukkan No. KTA (misal: APTI-2026-0004)..."
+                ? "Masukkan No. KTA (misal: APTI-31.2026.00004)..."
                 : activeType === "bnsp"
                   ? "Masukkan No. Sertifikat (misal: BNSP-HVAC-9081)..."
                   : activeType === "club"

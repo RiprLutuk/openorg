@@ -1,9 +1,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { hash } from "@node-rs/argon2";
+import {
+  ALL_INDONESIA_REGENCIES,
+  INDONESIA_PROVINCES,
+} from "@openorg/contracts";
 import { eq } from "drizzle-orm";
 import { closeDatabase, db } from "./client";
-import { ALL_INDONESIA_REGENCIES, INDONESIA_PROVINCES } from "@openorg/contracts";
 import {
   adArtDocuments,
   championshipStandings,
@@ -444,7 +447,7 @@ async function seed() {
         .values([
           {
             unitId: dppUnit.id,
-            memberNumber: "KTA-APTI-DPP-001",
+            memberNumber: "APTI-00.2018.00001",
             name: "Ir. H. Nanang Varian Supriadi",
             email: "nanang@apti.or.id",
             phone: "+6281290001980",
@@ -458,7 +461,7 @@ async function seed() {
           },
           {
             unitId: dppUnit.id,
-            memberNumber: "KTA-APTI-DPP-002",
+            memberNumber: "APTI-00.2019.00002",
             name: "M. Ridwan Syah, ST",
             email: "ridwan@apti.or.id",
             phone: "+6281388991100",
@@ -472,7 +475,7 @@ async function seed() {
           },
           {
             unitId: dpdJabar.id,
-            memberNumber: "KTA-APTI-JABAR-0142",
+            memberNumber: "APTI-32.2020.00142",
             name: "Dedi Kurniawan, S.Pd",
             email: "dedi.jabar@apti.or.id",
             phone: "+6281577889900",
@@ -486,7 +489,7 @@ async function seed() {
           },
           {
             unitId: dpdJatim.id,
-            memberNumber: "KTA-APTI-JATIM-0285",
+            memberNumber: "APTI-35.2021.00285",
             name: "H. Eko Susilo, MT",
             email: "eko.jatim@apti.or.id",
             phone: "+6281233445566",
@@ -558,7 +561,7 @@ async function seed() {
           .insert(members)
           .values({
             unitId: dppUnit.id,
-            memberNumber: "KTA-APTI-DEMO-007",
+            memberNumber: "APTI-00.2026.00007",
             name: "Budi Pratama (Demo Member)",
             email: "member@demo.openorg",
             phone: "+6281299887766",
@@ -1384,7 +1387,8 @@ async function seed() {
         unitName: "DPD Kalimantan Timur",
         points: 300,
         rank: 11,
-        achievements: "Finalis Uji Praktik Wiring Kelistrikan 3-Phase Kompresor",
+        achievements:
+          "Finalis Uji Praktik Wiring Kelistrikan 3-Phase Kompresor",
       },
       {
         seasonYear: 2026,
@@ -2281,10 +2285,15 @@ async function seed() {
 
       const distChunk = 500;
       for (let i = 0; i < districts.length; i += distChunk) {
-        await tx.insert(indonesiaDistricts).values(districts.slice(i, i + distChunk));
+        await tx
+          .insert(indonesiaDistricts)
+          .values(districts.slice(i, i + distChunk));
       }
     } catch (e) {
-      console.warn("Notice: skipping districts seeding if file not available", e);
+      console.warn(
+        "Notice: skipping districts seeding if file not available",
+        e,
+      );
     }
 
     // Seed Desa / Kelurahan & Kodepos (83.345 Villages)
@@ -2302,10 +2311,15 @@ async function seed() {
 
       const vilChunk = 1000;
       for (let i = 0; i < villages.length; i += vilChunk) {
-        await tx.insert(indonesiaVillages).values(villages.slice(i, i + vilChunk));
+        await tx
+          .insert(indonesiaVillages)
+          .values(villages.slice(i, i + vilChunk));
       }
     } catch (e) {
-      console.warn("Notice: skipping villages seeding if file not available", e);
+      console.warn(
+        "Notice: skipping villages seeding if file not available",
+        e,
+      );
     }
 
     // Seed AD/ART & Kode Etik Dokumen Organisasi
@@ -2523,7 +2537,8 @@ async function seed() {
         statusKlhk: "Legal & Didukung (Transisi Hijau)",
         description:
           "Refrigeran generasi baru dengan efisiensi termal tinggi, potensi pemanasan global (GWP) 68% lebih rendah dari R410A.",
-        recommendedUse: "AC Split Residensial, Inverter Modern, Light Commercial",
+        recommendedUse:
+          "AC Split Residensial, Inverter Modern, Light Commercial",
         sortOrder: 1,
       },
       {
@@ -2574,7 +2589,8 @@ async function seed() {
         statusKlhk: "Legal",
         description:
           "Standar industri pendingin otomotif dan kulkas rumah tangga dengan rentang operasi tekanan sedang.",
-        recommendedUse: "AC Mobil, Kulkas Rumah Tangga, Water Dispenser, Chiller",
+        recommendedUse:
+          "AC Mobil, Kulkas Rumah Tangga, Water Dispenser, Chiller",
         sortOrder: 4,
       },
       {

@@ -162,7 +162,10 @@ export function JoinPageInteractive({ site }: JoinPageProps) {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                  style={{
+                    background: "rgba(2, 132, 199, 0.12)",
+                    color: "#38bdf8",
+                  }}
                 >
                   <FileCheck size={20} />
                 </div>
@@ -174,7 +177,10 @@ export function JoinPageInteractive({ site }: JoinPageProps) {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#34d399",
+                  }}
                 >
                   <CreditCard size={20} />
                 </div>
@@ -186,7 +192,10 @@ export function JoinPageInteractive({ site }: JoinPageProps) {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                  style={{
+                    background: "rgba(99, 102, 241, 0.12)",
+                    color: "#818cf8",
+                  }}
                 >
                   <Award size={20} />
                 </div>
@@ -198,7 +207,10 @@ export function JoinPageInteractive({ site }: JoinPageProps) {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#f59e0b",
+                  }}
                 >
                   <Users size={20} />
                 </div>
@@ -309,15 +321,10 @@ export function JoinPageInteractive({ site }: JoinPageProps) {
                 </div>
 
                 {/* Requirements Quick Checklist */}
-                <div
-                  className="join-steps-card"
-                  style={{ background: "#f8fafc" }}
-                >
-                  <div className="steps-card-head" style={{ marginBottom: 16 }}>
+                <div className="join-steps-card">
+                  <div className="steps-card-head">
                     <span className="step-tag">Persiapan Berkas</span>
-                    <h3 style={{ fontSize: "16.5px" }}>
-                      Dokumen yang Perlu Disiapkan
-                    </h3>
+                    <h3>Dokumen yang Perlu Disiapkan</h3>
                   </div>
                   <ul
                     style={{

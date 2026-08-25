@@ -1,6 +1,6 @@
+import { eq } from "drizzle-orm";
 import { db } from "./client";
 import { credentialSchemes, memberCredentials, members } from "./schema";
-import { eq } from "drizzle-orm";
 
 async function seedCredentials() {
   console.log("Seeding credential schemes & member credentials...");
@@ -19,14 +19,30 @@ async function seedCredentials() {
       renewalGracePeriodDays: 30,
       jsonSchema: {
         fields: [
-          { key: "noRegistrasi", label: "No. Registrasi BNSP", type: "text", required: true },
-          { key: "skemaKompetensi", label: "Skema Sertifikasi", type: "text", required: true },
-          { key: "lembagaLsp", label: "Nama LSP Penerbit", type: "text", required: true },
+          {
+            key: "noRegistrasi",
+            label: "No. Registrasi BNSP",
+            type: "text",
+            required: true,
+          },
+          {
+            key: "skemaKompetensi",
+            label: "Skema Sertifikasi",
+            type: "text",
+            required: true,
+          },
+          {
+            key: "lembagaLsp",
+            label: "Nama LSP Penerbit",
+            type: "text",
+            required: true,
+          },
         ],
       },
       metadata: {
         category: "Kompetensi Nasional (BNSP)",
-        issuerName: "Badan Nasional Sertifikasi Profesi (BNSP / LSP Elektronika)",
+        issuerName:
+          "Badan Nasional Sertifikasi Profesi (BNSP / LSP Elektronika)",
         validityMonths: 36,
         description:
           "Sertifikasi standar kompetensi kerja nasional Indonesia (SKKNI) bidang refrigerasi dan tata udara domestik tingkat teknisi mandiri.",
@@ -41,8 +57,18 @@ async function seedCredentials() {
       renewalGracePeriodDays: 60,
       jsonSchema: {
         fields: [
-          { key: "jenisRefrigerant", label: "Refrigerant Diuji", type: "text", required: true },
-          { key: "standarK3", label: "Dasar Regulasi K3", type: "text", required: true },
+          {
+            key: "jenisRefrigerant",
+            label: "Refrigerant Diuji",
+            type: "text",
+            required: true,
+          },
+          {
+            key: "standarK3",
+            label: "Dasar Regulasi K3",
+            type: "text",
+            required: true,
+          },
         ],
       },
       metadata: {
@@ -62,8 +88,18 @@ async function seedCredentials() {
       renewalGracePeriodDays: 30,
       jsonSchema: {
         fields: [
-          { key: "kapasitasMaksimal", label: "Kapasitas Unit Chiller", type: "text", required: true },
-          { key: "spesialisasiSistem", label: "Water/Air Cooled", type: "text", required: true },
+          {
+            key: "kapasitasMaksimal",
+            label: "Kapasitas Unit Chiller",
+            type: "text",
+            required: true,
+          },
+          {
+            key: "spesialisasiSistem",
+            label: "Water/Air Cooled",
+            type: "text",
+            required: true,
+          },
         ],
       },
       metadata: {
@@ -83,8 +119,18 @@ async function seedCredentials() {
       renewalGracePeriodDays: 30,
       jsonSchema: {
         fields: [
-          { key: "oemBrand", label: "Principal / Brand", type: "text", required: true },
-          { key: "levelSertifikasi", label: "Tingkat Keahlian", type: "text", required: true },
+          {
+            key: "oemBrand",
+            label: "Principal / Brand",
+            type: "text",
+            required: true,
+          },
+          {
+            key: "levelSertifikasi",
+            label: "Tingkat Keahlian",
+            type: "text",
+            required: true,
+          },
         ],
       },
       metadata: {
@@ -104,8 +150,18 @@ async function seedCredentials() {
       renewalGracePeriodDays: 90,
       jsonSchema: {
         fields: [
-          { key: "noSio", label: "Nomor SIO Kemnaker", type: "text", required: true },
-          { key: "teganganOperasi", label: "Batas Tegangan Kerja", type: "text", required: true },
+          {
+            key: "noSio",
+            label: "Nomor SIO Kemnaker",
+            type: "text",
+            required: true,
+          },
+          {
+            key: "teganganOperasi",
+            label: "Batas Tegangan Kerja",
+            type: "text",
+            required: true,
+          },
         ],
       },
       metadata: {
@@ -123,7 +179,10 @@ async function seedCredentials() {
     if (existing) {
       schemeMap.set(item.code, existing.id);
     } else {
-      const [inserted] = await db.insert(credentialSchemes).values(item).returning();
+      const [inserted] = await db
+        .insert(credentialSchemes)
+        .values(item)
+        .returning();
       if (inserted) {
         schemeMap.set(item.code, inserted.id);
       }
@@ -135,8 +194,9 @@ async function seedCredentials() {
   const findMember = (emailOrName: string) =>
     allMembers.find(
       (m) =>
-        (m.email && m.email.toLowerCase().includes(emailOrName.toLowerCase())) ||
-        m.name.toLowerCase().includes(emailOrName.toLowerCase())
+        (m.email &&
+          m.email.toLowerCase().includes(emailOrName.toLowerCase())) ||
+        m.name.toLowerCase().includes(emailOrName.toLowerCase()),
     );
 
   const heri = findMember("rizqy.pratama85") || findMember("Heri Riski Anto");
@@ -299,7 +359,8 @@ async function seedCredentials() {
       expiresAt: new Date("2028-08-10T08:00:00Z"),
       payload: {
         jenisRefrigerant: "R32 Flammable",
-        alasanPenolakan: "Hasil scan sertifikat buram dan nomor registrasi tidak ditemukan di database LSP.",
+        alasanPenolakan:
+          "Hasil scan sertifikat buram dan nomor registrasi tidak ditemukan di database LSP.",
       },
     },
   ].filter(Boolean);
@@ -314,7 +375,9 @@ async function seedCredentials() {
 
     if (!existing.length) {
       await db.insert(memberCredentials).values(cred as any);
-      console.log(`Inserted credential: ${cred.credentialNumber} (${cred.status})`);
+      console.log(
+        `Inserted credential: ${cred.credentialNumber} (${cred.status})`,
+      );
     }
   }
 

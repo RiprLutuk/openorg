@@ -48,6 +48,22 @@ export async function buildApp() {
   });
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+  app.addContentTypeParser(
+    "application/json",
+    { parseAs: "string" },
+    (req, body, done) => {
+      if (!body || (typeof body === "string" && body.trim().length === 0)) {
+        done(null, {});
+        return;
+      }
+      try {
+        const json = JSON.parse(body as string);
+        done(null, json);
+      } catch (err) {
+        done(err as Error, undefined);
+      }
+    },
+  );
   registerErrorHandler(app);
   await app.register(cookie);
   await app.register(multipart, {

@@ -21,8 +21,8 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { ServerPagination } from "@/components/server-pagination";
 
@@ -165,7 +165,10 @@ function WorkingGroupsContent() {
     return matchCategory && matchSearch;
   });
 
-  const totalPages = Math.max(1, Math.ceil(filteredGroups.length / ITEMS_PER_PAGE_POKJA));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredGroups.length / ITEMS_PER_PAGE_POKJA),
+  );
   const paginatedRows = filteredGroups.slice(
     (currentPage - 1) * ITEMS_PER_PAGE_POKJA,
     currentPage * ITEMS_PER_PAGE_POKJA,
@@ -196,9 +199,9 @@ function WorkingGroupsContent() {
 
             <p className="tech-hero-lead">
               Wadah kolaborasi tenaga ahli, praktisi senior, dan perwakilan
-              pengurus dalam merumuskan standar kompetensi SKKNI, naskah advokasi
-              regulasi refrigeran ramah lingkungan, serta penegakan etika profesi
-              nasional.
+              pengurus dalam merumuskan standar kompetensi SKKNI, naskah
+              advokasi regulasi refrigeran ramah lingkungan, serta penegakan
+              etika profesi nasional.
             </p>
           </div>
 
@@ -212,7 +215,10 @@ function WorkingGroupsContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                  style={{
+                    background: "rgba(2, 132, 199, 0.12)",
+                    color: "#38bdf8",
+                  }}
                 >
                   <ShieldCheck size={20} />
                 </div>
@@ -224,7 +230,10 @@ function WorkingGroupsContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#34d399",
+                  }}
                 >
                   <Landmark size={20} />
                 </div>
@@ -236,7 +245,10 @@ function WorkingGroupsContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                  style={{
+                    background: "rgba(99, 102, 241, 0.12)",
+                    color: "#818cf8",
+                  }}
                 >
                   <FileCheck2 size={20} />
                 </div>
@@ -248,7 +260,10 @@ function WorkingGroupsContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#f59e0b",
+                  }}
                 >
                   <Scale size={20} />
                 </div>
@@ -543,7 +558,14 @@ export default function WorkingGroupsPage() {
   return (
     <Suspense
       fallback={
-        <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div
+          style={{
+            minHeight: "60vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <p style={{ color: "#64748b" }}>Memuat direktori kelompok kerja...</p>
         </div>
       }

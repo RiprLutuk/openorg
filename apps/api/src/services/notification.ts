@@ -303,7 +303,9 @@ export async function sendApplicationApprovedNotification(
 
   // 1. Send Email via Resend
   await sendEmailMessage(email, emailSubject, emailHtml).catch((err) => {
-    process.stderr.write(`[Notification Error] Failed to send approval email: ${String(err)}\n`);
+    process.stderr.write(
+      `[Notification Error] Failed to send approval email: ${String(err)}\n`,
+    );
   });
 
   // 2. Send WhatsApp message via WAHA if phone is provided

@@ -64,7 +64,10 @@ export default async function StructurePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                  style={{
+                    background: "rgba(2, 132, 199, 0.12)",
+                    color: "#38bdf8",
+                  }}
                 >
                   <Building2 size={20} />
                 </div>
@@ -76,7 +79,10 @@ export default async function StructurePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#34d399",
+                  }}
                 >
                   <Network size={20} />
                 </div>
@@ -88,7 +94,10 @@ export default async function StructurePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                  style={{
+                    background: "rgba(99, 102, 241, 0.12)",
+                    color: "#818cf8",
+                  }}
                 >
                   <UserRoundCheck size={20} />
                 </div>
@@ -100,7 +109,10 @@ export default async function StructurePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#f59e0b",
+                  }}
                 >
                   <ShieldCheck size={20} />
                 </div>

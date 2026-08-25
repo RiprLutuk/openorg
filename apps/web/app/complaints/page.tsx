@@ -42,7 +42,13 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, useEffect, useState, useRef, useCallback } from "react";
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 
 // High-clarity character set omitting confusing glyphs (0, O, 1, I, l)
@@ -239,7 +245,8 @@ export default function ComplaintsPage() {
   const generateCaptcha = useCallback(() => {
     setIsRotatingCaptcha(true);
     const newCode = generateRandomCode(5);
-    const newSalt = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    const newSalt =
+      Math.random().toString(36).slice(2) + Date.now().toString(36);
     const newHash = computeCaptchaHash(newCode, newSalt);
 
     setCaptchaSalt(newSalt);
@@ -263,9 +270,15 @@ export default function ComplaintsPage() {
       humanInteractionsRef.current += 1;
     };
 
-    window.addEventListener("mousemove", handleHumanInteraction, { passive: true });
-    window.addEventListener("touchstart", handleHumanInteraction, { passive: true });
-    window.addEventListener("keydown", handleHumanInteraction, { passive: true });
+    window.addEventListener("mousemove", handleHumanInteraction, {
+      passive: true,
+    });
+    window.addEventListener("touchstart", handleHumanInteraction, {
+      passive: true,
+    });
+    window.addEventListener("keydown", handleHumanInteraction, {
+      passive: true,
+    });
 
     return () => {
       window.removeEventListener("mousemove", handleHumanInteraction);
@@ -597,8 +610,8 @@ export default function ComplaintsPage() {
             <p className="tech-hero-lead">
               Kanal resmi penegakan standar mutu dan perlindungan konsumen.
               Sampaikan laporan kendala servis teknisi ber-KTA, klaim garansi
-              pengerjaan, atau dugaan pelanggaran kode etik secara transparan dan
-              terukur.
+              pengerjaan, atau dugaan pelanggaran kode etik secara transparan
+              dan terukur.
             </p>
           </div>
 
@@ -612,7 +625,10 @@ export default function ComplaintsPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#0284c7" }}
+                  style={{
+                    background: "rgba(2, 132, 199, 0.12)",
+                    color: "#0284c7",
+                  }}
                 >
                   <Clock size={18} />
                 </div>
@@ -624,7 +640,10 @@ export default function ComplaintsPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#16a34a" }}
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#16a34a",
+                  }}
                 >
                   <Gavel size={18} />
                 </div>
@@ -636,7 +655,10 @@ export default function ComplaintsPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#6366f1" }}
+                  style={{
+                    background: "rgba(99, 102, 241, 0.12)",
+                    color: "#6366f1",
+                  }}
                 >
                   <ShieldCheck size={18} />
                 </div>
@@ -648,7 +670,10 @@ export default function ComplaintsPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#d97706" }}
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#d97706",
+                  }}
                 >
                   <Lock size={18} />
                 </div>
@@ -796,7 +821,9 @@ export default function ComplaintsPage() {
                       }}
                       aria-hidden="true"
                     >
-                      <label htmlFor="hp-website-url">Website URL (Leave blank)</label>
+                      <label htmlFor="hp-website-url">
+                        Website URL (Leave blank)
+                      </label>
                       <input
                         id="hp-website-url"
                         type="text"
@@ -815,7 +842,8 @@ export default function ComplaintsPage() {
 
                       <div className="form-field full-width">
                         <label htmlFor="complaint-name">
-                          Nama Lengkap Pelapor <span className="text-red-500">*</span>
+                          Nama Lengkap Pelapor{" "}
+                          <span className="text-red-500">*</span>
                         </label>
                         <input
                           id="complaint-name"
@@ -830,7 +858,8 @@ export default function ComplaintsPage() {
                       <div className="form-two-col-grid">
                         <div className="form-field">
                           <label htmlFor="complaint-email">
-                            Alamat Email Aktif <span className="text-red-500">*</span>
+                            Alamat Email Aktif{" "}
+                            <span className="text-red-500">*</span>
                           </label>
                           <input
                             id="complaint-email"
@@ -844,7 +873,8 @@ export default function ComplaintsPage() {
 
                         <div className="form-field">
                           <label htmlFor="complaint-phone">
-                            Nomor WhatsApp / HP <span className="text-red-500">*</span>
+                            Nomor WhatsApp / HP{" "}
+                            <span className="text-red-500">*</span>
                           </label>
                           <input
                             id="complaint-phone"
@@ -868,7 +898,8 @@ export default function ComplaintsPage() {
                       <div className="form-two-col-grid">
                         <div className="form-field">
                           <label htmlFor="complaint-target-type">
-                            Jenis Pihak Terlapor <span className="text-red-500">*</span>
+                            Jenis Pihak Terlapor{" "}
+                            <span className="text-red-500">*</span>
                           </label>
                           <select
                             id="complaint-target-type"
@@ -890,7 +921,8 @@ export default function ComplaintsPage() {
 
                         <div className="form-field">
                           <label htmlFor="complaint-target-id">
-                            Nomor KTA / Nama Terlapor <span className="text-red-500">*</span>
+                            Nomor KTA / Nama Terlapor{" "}
+                            <span className="text-red-500">*</span>
                           </label>
                           <input
                             id="complaint-target-id"
@@ -904,7 +936,8 @@ export default function ComplaintsPage() {
 
                       <div className="form-field full-width">
                         <label htmlFor="complaint-category">
-                          Kategori Masalah Pengaduan <span className="text-red-500">*</span>
+                          Kategori Masalah Pengaduan{" "}
+                          <span className="text-red-500">*</span>
                         </label>
                         <select
                           id="complaint-category"
@@ -913,13 +946,15 @@ export default function ComplaintsPage() {
                           className="form-select"
                         >
                           <option value="Klaim Garansi Servis & Pengerjaan Ulang">
-                            Klaim Garansi Servis (Unit Tidak Dingin Kembali &lt;30 Hari)
+                            Klaim Garansi Servis (Unit Tidak Dingin Kembali
+                            &lt;30 Hari)
                           </option>
                           <option value="Dugaan Malpraktik & Kerusakan Unit">
                             Dugaan Malpraktik / Pipa Patah / Kompresor Rusak
                           </option>
                           <option value="Kecurangan Takaran Freon & Biaya">
-                            Kecurangan Takaran Freon / Tidak Sesuai Nota Kwitansi
+                            Kecurangan Takaran Freon / Tidak Sesuai Nota
+                            Kwitansi
                           </option>
                           <option value="Pelanggaran Kode Etik & Perilaku">
                             Pelanggaran Kode Etik / Perilaku Tidak Sopan
@@ -940,7 +975,8 @@ export default function ComplaintsPage() {
 
                       <div className="form-field full-width">
                         <label htmlFor="complaint-description">
-                          Uraian Lengkap Kejadian <span className="text-red-500">*</span>
+                          Uraian Lengkap Kejadian{" "}
+                          <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           id="complaint-description"
@@ -1125,7 +1161,8 @@ export default function ComplaintsPage() {
                         </div>
                       </div>
                       <small className="captcha-subtext">
-                        Ketik 5 karakter huruf/angka pada gambar di atas untuk memastikan Anda bukan bot/AI otomatis.
+                        Ketik 5 karakter huruf/angka pada gambar di atas untuk
+                        memastikan Anda bukan bot/AI otomatis.
                       </small>
                     </div>
 
@@ -1149,7 +1186,10 @@ export default function ComplaintsPage() {
                       </button>
                       <div className="form-privacy-note">
                         <Lock size={12} className="text-slate-400" />
-                        <span>Data laporan dienkripsi &amp; dilindungi kerahasiaannya oleh Dewan Etik.</span>
+                        <span>
+                          Data laporan dienkripsi &amp; dilindungi
+                          kerahasiaannya oleh Dewan Etik.
+                        </span>
                       </div>
                     </div>
                   </form>
@@ -1172,7 +1212,8 @@ export default function ComplaintsPage() {
                       <strong>Garansi Servis Min. 30 Hari</strong>
                       <p>
                         Setiap teknisi pemegang KTA sah wajib memberikan garansi
-                        pengerjaan minimum 30 hari untuk servis freon dan las pipa.
+                        pengerjaan minimum 30 hari untuk servis freon dan las
+                        pipa.
                       </p>
                     </div>
                   </li>
@@ -1331,7 +1372,8 @@ export default function ComplaintsPage() {
                     <div className="track-detail-item">
                       <small>Pihak yang Dilaporkan</small>
                       <strong>
-                        {trackResult.targetIdentifier} ({trackResult.targetType})
+                        {trackResult.targetIdentifier} ({trackResult.targetType}
+                        )
                       </strong>
                     </div>
 

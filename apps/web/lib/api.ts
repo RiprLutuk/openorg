@@ -217,7 +217,9 @@ export const getAdArtApi = cache((docType?: string, search?: string) => {
   const params = new URLSearchParams();
   if (docType) params.set("type", docType);
   if (search) params.set("search", search);
-  return publicApi<any[]>(`/ad-art${params.toString() ? `?${params.toString()}` : ""}`);
+  return publicApi<any[]>(
+    `/ad-art${params.toString() ? `?${params.toString()}` : ""}`,
+  );
 });
 
 export const getMilestonesApi = cache(() => {

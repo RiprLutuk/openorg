@@ -58,7 +58,8 @@ export function MemberLogin({
 
           <h3>Ruang Kerja Anggota</h3>
           <p className="login-side-lead">
-            Akun Anda terhubung dengan verifikasi identitas resmi {organizationName}.
+            Akun Anda terhubung dengan verifikasi identitas resmi{" "}
+            {organizationName}.
           </p>
 
           {/* Mini Holographic KTA Card */}
@@ -69,8 +70,12 @@ export function MemberLogin({
             </div>
             <div className="mini-kta-body">
               <span className="mini-kta-org">{organizationName}</span>
-              <h4 className="mini-kta-name">{member?.name || "Nama Anggota"}</h4>
-              <p className="mini-kta-num">{member?.memberNumber || "KTA-APTI-DEMO-007"}</p>
+              <h4 className="mini-kta-name">
+                {member?.name || "Nama Anggota"}
+              </h4>
+              <p className="mini-kta-num">
+                {member?.memberNumber || "APTI-00.2026.00007"}
+              </p>
             </div>
             <div className="mini-kta-foot">
               <span>Status: Terverifikasi</span>
@@ -91,10 +96,13 @@ export function MemberLogin({
               {member?.name?.charAt(0) || "A"}
             </div>
             <div>
-              <span className="active-welcome-eyebrow">Selamat Datang Kembali</span>
+              <span className="active-welcome-eyebrow">
+                Selamat Datang Kembali
+              </span>
               <h2 className="active-member-title">{member?.name}</h2>
               <p className="active-member-sub">
-                No. Registrasi: <strong>{member?.memberNumber || "KTA-APTI-DEMO-007"}</strong>
+                No. Registrasi:{" "}
+                <strong>{member?.memberNumber || "APTI-00.2026.00007"}</strong>
               </p>
             </div>
           </div>
@@ -118,7 +126,9 @@ export function MemberLogin({
               </div>
               <div className="bento-text">
                 <strong>Kartu KTA Digital</strong>
-                <small>Lihat kartu ber-QR Code untuk verifikasi pelanggan</small>
+                <small>
+                  Lihat kartu ber-QR Code untuk verifikasi pelanggan
+                </small>
               </div>
               <ArrowRight size={16} className="bento-arrow" />
             </Link>
@@ -144,7 +154,9 @@ export function MemberLogin({
               disabled={loggingOut}
             >
               <LogOut size={15} />
-              <span>{loggingOut ? "Memproses Keluar…" : "Keluar & Ganti Akun"}</span>
+              <span>
+                {loggingOut ? "Memproses Keluar…" : "Keluar & Ganti Akun"}
+              </span>
             </button>
 
             <Link href="/member" className="button primary btn-goto-portal">

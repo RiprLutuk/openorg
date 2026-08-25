@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import {
+  INDONESIA_PROVINCES,
   findProvince,
   pageSectionsSchema,
   paginationSchema,
@@ -53,6 +54,23 @@ const contentQuery = paginationSchema.extend({
 });
 
 export const publicRoutes: FastifyPluginAsync = async (app) => {
+  app.addHook("onSend", async (request, reply) => {
+    if (request.method === "GET" && !reply.hasHeader("cache-control")) {
+      const url = request.url;
+      if (url.includes("/wilayah")) {
+        reply.header(
+          "Cache-Control",
+          "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400",
+        );
+      } else {
+        reply.header(
+          "Cache-Control",
+          "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
+        );
+      }
+    }
+  });
+
   app.get("/site", async () => {
     const [settings] = await db
       .select()
@@ -296,6 +314,15 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     if (!event)
       throw new AppError(404, "EVENT_NOT_FOUND", "Event was not found.");
     return { data: event };
+  });
+
+  app.get("/units", async () => {
+    const units = await db
+      .select()
+      .from(organizationUnits)
+      .where(eq(organizationUnits.isActive, true))
+      .orderBy(asc(organizationUnits.sortOrder));
+    return { data: units };
   });
 
   app.get("/structure", async () => {
@@ -1005,7 +1032,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
           eq(indonesiaRegencies.provinceKode, provCode),
           eq(indonesiaRegencies.provinceKode, p),
           ilike(indonesiaRegencies.provinceKode, p),
-          sql`${indonesiaRegencies.provinceKode} IN (SELECT kode FROM indonesia_provinces WHERE nama ILIKE ${'%' + p + '%'})`,
+          sql`${indonesiaRegencies.provinceKode} IN (SELECT kode FROM indonesia_provinces WHERE nama ILIKE ${"%" + p + "%"})`,
         ),
       );
     }
@@ -1052,7 +1079,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         or(
           eq(indonesiaDistricts.regencyKode, r),
           ilike(indonesiaDistricts.regencyKode, r),
-          sql`${indonesiaDistricts.regencyKode} IN (SELECT kode FROM indonesia_regencies WHERE nama ILIKE ${'%' + cleanR + '%'} OR nama ILIKE ${'%' + r + '%'})`,
+          sql`${indonesiaDistricts.regencyKode} IN (SELECT kode FROM indonesia_regencies WHERE nama ILIKE ${"%" + cleanR + "%"} OR nama ILIKE ${"%" + r + "%"})`,
         ),
       );
     }
@@ -1066,7 +1093,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
           eq(indonesiaDistricts.provinceKode, provCode),
           eq(indonesiaDistricts.provinceKode, p),
           ilike(indonesiaDistricts.provinceKode, p),
-          sql`${indonesiaDistricts.provinceKode} IN (SELECT kode FROM indonesia_provinces WHERE nama ILIKE ${'%' + p + '%'})`,
+          sql`${indonesiaDistricts.provinceKode} IN (SELECT kode FROM indonesia_provinces WHERE nama ILIKE ${"%" + p + "%"})`,
         ),
       );
     }
@@ -1111,7 +1138,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         or(
           eq(indonesiaVillages.districtKode, d),
           ilike(indonesiaVillages.districtKode, d),
-          sql`${indonesiaVillages.districtKode} IN (SELECT kode FROM indonesia_districts WHERE nama ILIKE ${'%' + cleanD + '%'} OR nama ILIKE ${'%' + d + '%'})`,
+          sql`${indonesiaVillages.districtKode} IN (SELECT kode FROM indonesia_districts WHERE nama ILIKE ${"%" + cleanD + "%"} OR nama ILIKE ${"%" + d + "%"})`,
         ),
       );
     }
@@ -1125,7 +1152,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         or(
           eq(indonesiaVillages.regencyKode, r),
           ilike(indonesiaVillages.regencyKode, r),
-          sql`${indonesiaVillages.regencyKode} IN (SELECT kode FROM indonesia_regencies WHERE nama ILIKE ${'%' + cleanR + '%'} OR nama ILIKE ${'%' + r + '%'})`,
+          sql`${indonesiaVillages.regencyKode} IN (SELECT kode FROM indonesia_regencies WHERE nama ILIKE ${"%" + cleanR + "%"} OR nama ILIKE ${"%" + r + "%"})`,
         ),
       );
     }
@@ -1199,6 +1226,328 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
+  app.get("/wilayah/reverse-geocode", async (request) => {
+    const query = z
+      .object({
+        latitude: z.coerce.number().min(-90).max(90),
+        longitude: z.coerce.number().min(-180).max(180),
+      })
+      .parse(request.query);
+
+    const lat = query.latitude;
+    const lon = query.longitude;
+
+    let raw: {
+      road?: string;
+      village?: string;
+      district?: string;
+      city?: string;
+      state?: string;
+      postcode?: string;
+      displayName?: string;
+    } | null = null;
+
+    // 1. Try Photon (Komoot)
+    try {
+      const pRes = await fetch(
+        `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`,
+        { headers: { "Accept-Language": "id" } },
+      );
+      if (pRes.ok) {
+        const pData = (await pRes.json()) as any;
+        const p = pData?.features?.[0]?.properties;
+        if (p) {
+          raw = {
+            road: p.name || p.street || "",
+            village: p.district || p.suburb || "",
+            district: p.locality || p.county || "",
+            city: p.city || "",
+            state: p.state || "",
+            postcode: p.postcode || "",
+            displayName: [p.name, p.district, p.city, p.state, p.postcode]
+              .filter(Boolean)
+              .join(", "),
+          };
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    // 2. Fallback to BigDataCloud
+    if (!raw || !raw.state) {
+      try {
+        const bdcRes = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=id`,
+        );
+        if (bdcRes.ok) {
+          const bdc = (await bdcRes.json()) as any;
+          const admin = bdc.localityInfo?.administrative || [];
+          raw = {
+            road: bdc.locality || "",
+            village: admin[5]?.name || admin[4]?.name || "",
+            district: admin[4]?.name || admin[3]?.name || "",
+            city: bdc.city || admin[3]?.name || "",
+            state:
+              admin.find((a: any) =>
+                INDONESIA_PROVINCES.some((p) =>
+                  a.name.toLowerCase().includes(p.nama.toLowerCase()),
+                ),
+              )?.name ||
+              bdc.principalSubdivision ||
+              "",
+            postcode: bdc.postcode || "",
+            displayName: [bdc.locality, bdc.city, bdc.principalSubdivision]
+              .filter(Boolean)
+              .join(", "),
+          };
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    // 3. Fallback to Nominatim OSM with proper User-Agent
+    if (!raw || !raw.state) {
+      try {
+        const nomRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
+          {
+            headers: {
+              "User-Agent": "OpenOrg-Membership/1.0 (contact@openorg.id)",
+              "Accept-Language": "id",
+            },
+          },
+        );
+        if (nomRes.ok) {
+          const nom = (await nomRes.json()) as any;
+          const a = nom.address || {};
+          raw = {
+            road: [a.road, a.house_number].filter(Boolean).join(", "),
+            village:
+              a.neighbourhood || a.quarter || a.hamlet || a.village || "",
+            district: a.suburb || a.district || a.city_district || "",
+            city: a.city || a.county || a.town || a.regency || "",
+            state: a.state || a.province || a.region || "",
+            postcode: a.postcode || "",
+            displayName: nom.display_name || "",
+          };
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    if (!raw || (!raw.state && !raw.city)) {
+      throw new AppError(
+        404,
+        "GEOCODE_FAILED",
+        "Lokasi tidak dapat diterjemahkan secara otomatis.",
+      );
+    }
+
+    // Match Province in DB
+    const allProvinces = await db.select().from(indonesiaProvinces);
+    const rawText = `${raw.displayName || ""} ${raw.road || ""} ${raw.village || ""} ${raw.district || ""} ${raw.city || ""} ${raw.state || ""}`.toLowerCase();
+
+    let matchedProvince = allProvinces.find((p) => {
+      const pName = p.nama.toLowerCase();
+      return (
+        rawText.includes(pName) ||
+        (raw?.state && raw.state.toLowerCase().includes(pName))
+      );
+    });
+
+    if (!matchedProvince) {
+      matchedProvince = allProvinces.find((p) =>
+        p.nama
+          .toLowerCase()
+          .split(" ")
+          .some((part) => part.length > 3 && rawText.includes(part)),
+      );
+    }
+
+    if (!matchedProvince) {
+      return {
+        data: {
+          latitude: lat,
+          longitude: lon,
+          raw,
+          province: null,
+          regency: null,
+          district: null,
+          village: null,
+          postalCode: raw.postcode || "",
+          road: raw.road || "",
+          regencies: [],
+          districts: [],
+          villages: [],
+        },
+      };
+    }
+
+    // Regencies in Province
+    const regList = await db
+      .select()
+      .from(indonesiaRegencies)
+      .where(eq(indonesiaRegencies.provinceKode, matchedProvince.kode));
+
+    // Intelligent Regency Matching with Priority Scoring:
+    const scoredRegencies = regList.map((r) => {
+      const rFull = r.nama.toLowerCase().trim();
+      let score = 0;
+
+      const isKota = rFull.startsWith("kota ");
+      const isKab = rFull.startsWith("kabupaten ");
+      const baseName = rFull
+        .replace(/^(kabupaten|kota adm\.|kota administrasi|kota|kab\.)\s+/i, "")
+        .trim();
+
+      if (raw?.city && raw.city.toLowerCase().trim() === rFull) score += 100;
+      if (rawText.includes(rFull)) score += 75;
+
+      if (rawText.includes(baseName)) {
+        score += 30;
+        if (
+          isKota &&
+          (rawText.includes("kota " + baseName) ||
+            (raw?.city && raw.city.toLowerCase().includes(baseName)))
+        ) {
+          score += 50;
+        }
+        if (
+          isKab &&
+          (rawText.includes("kabupaten " + baseName) ||
+            (raw?.city && raw.city.toLowerCase().includes("kabupaten")))
+        ) {
+          score += 35;
+        }
+
+        // Directional modifiers
+        if (rawText.includes("selatan") && !rFull.includes("selatan")) score -= 30;
+        if (!rawText.includes("selatan") && rFull.includes("selatan")) score -= 30;
+        if (rawText.includes("barat") && !rFull.includes("barat")) score -= 30;
+        if (!rawText.includes("barat") && rFull.includes("barat")) score -= 30;
+        if (rawText.includes("timur") && !rFull.includes("timur")) score -= 30;
+        if (!rawText.includes("timur") && rFull.includes("timur")) score -= 30;
+        if (rawText.includes("utara") && !rFull.includes("utara")) score -= 30;
+        if (!rawText.includes("utara") && rFull.includes("utara")) score -= 30;
+      }
+
+      return { regency: r, score };
+    });
+
+    scoredRegencies.sort((a, b) => b.score - a.score);
+    const matchedRegency =
+      scoredRegencies[0]?.score && scoredRegencies[0].score > 0
+        ? scoredRegencies[0].regency
+        : regList[0];
+
+    // Districts in Regency
+    let distList: (typeof indonesiaDistricts.$inferSelect)[] = [];
+    let matchedDistrict: (typeof indonesiaDistricts.$inferSelect) | undefined;
+    if (matchedRegency) {
+      distList = await db
+        .select()
+        .from(indonesiaDistricts)
+        .where(eq(indonesiaDistricts.regencyKode, matchedRegency.kode));
+
+      const scoredDistricts = distList.map((d) => {
+        const dName = d.nama.toLowerCase().trim();
+        let score = 0;
+        if (
+          raw?.district &&
+          (dName === raw.district.toLowerCase() ||
+            raw.district.toLowerCase().includes(dName))
+        ) {
+          score += 100;
+        }
+        if (rawText.includes(dName)) score += 60;
+        return { district: d, score };
+      });
+
+      scoredDistricts.sort((a, b) => b.score - a.score);
+      matchedDistrict =
+        scoredDistricts[0]?.score && scoredDistricts[0].score > 0
+          ? scoredDistricts[0].district
+          : undefined;
+    }
+
+    // Villages in District
+    let villList: (typeof indonesiaVillages.$inferSelect)[] = [];
+    let matchedVillage: (typeof indonesiaVillages.$inferSelect) | undefined;
+    if (matchedDistrict) {
+      villList = await db
+        .select()
+        .from(indonesiaVillages)
+        .where(eq(indonesiaVillages.districtKode, matchedDistrict.kode));
+
+      const scoredVillages = villList.map((v) => {
+        const vName = v.nama.toLowerCase().trim();
+        let score = 0;
+        if (
+          raw?.village &&
+          (vName === raw.village.toLowerCase() ||
+            raw.village.toLowerCase().includes(vName))
+        ) {
+          score += 100;
+        }
+        if (rawText.includes(vName)) score += 60;
+        return { village: v, score };
+      });
+
+      scoredVillages.sort((a, b) => b.score - a.score);
+      matchedVillage =
+        scoredVillages[0]?.score && scoredVillages[0].score > 0
+          ? scoredVillages[0].village
+          : undefined;
+    }
+
+    // If village not matched yet, try matching village directly in regency by name/postcode
+    if (!matchedVillage && raw?.village && matchedRegency) {
+      const [vDirect] = await db
+        .select()
+        .from(indonesiaVillages)
+        .where(
+          and(
+            eq(indonesiaVillages.regencyKode, matchedRegency.kode),
+            ilike(indonesiaVillages.nama, `%${raw.village.trim()}%`),
+          ),
+        )
+        .limit(1);
+
+      if (vDirect) {
+        matchedVillage = vDirect;
+        if (!matchedDistrict) {
+          matchedDistrict = distList.find(
+            (d) => d.kode === vDirect.districtKode,
+          );
+        }
+      }
+    }
+
+    return {
+      data: {
+        latitude: lat,
+        longitude: lon,
+        raw,
+        province: matchedProvince,
+        regency: matchedRegency,
+        district: matchedDistrict || null,
+        village: matchedVillage || null,
+        postalCode:
+          matchedVillage?.kodepos ||
+          raw?.postcode ||
+          matchedRegency?.kodepos ||
+          "",
+        road: raw?.road || "",
+        regencies: regList,
+        districts: distList,
+        villages: villList,
+      },
+    };
+  });
+
   // =========================================================================
   // AD/ART & Kode Etik Organisasi Public API
   // =========================================================================
@@ -1229,7 +1578,10 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       .select()
       .from(adArtDocuments)
       .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(asc(adArtDocuments.sortOrder), asc(adArtDocuments.chapterNumber));
+      .orderBy(
+        asc(adArtDocuments.sortOrder),
+        asc(adArtDocuments.chapterNumber),
+      );
 
     return { data: rows };
   });
@@ -1241,7 +1593,10 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     const rows = await db
       .select()
       .from(organizationMilestones)
-      .orderBy(asc(organizationMilestones.sortOrder), asc(organizationMilestones.year));
+      .orderBy(
+        asc(organizationMilestones.sortOrder),
+        asc(organizationMilestones.year),
+      );
 
     return { data: rows };
   };
@@ -1273,7 +1628,10 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       .select()
       .from(refrigerantSpecifications)
       .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(asc(refrigerantSpecifications.sortOrder), asc(refrigerantSpecifications.code));
+      .orderBy(
+        asc(refrigerantSpecifications.sortOrder),
+        asc(refrigerantSpecifications.code),
+      );
 
     return { data: rows };
   };

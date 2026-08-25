@@ -152,21 +152,27 @@ export default async function VisionMissionPage() {
             <p className="tech-hero-lead">
               Fondasi cita-cita jangka panjang, pedoman etika profesi pendingin,
               dan cetak biru dedikasi organisasi dalam mewujudkan ekosistem tata
-              udara yang berdaya saing global, berintegritas tinggi, dan lestari.
+              udara yang berdaya saing global, berintegritas tinggi, dan
+              lestari.
             </p>
           </div>
 
           {/* Right Column: Strategic Pillar Bento Card */}
           <div className="hero-stats-bento-card">
             <div className="stats-card-header">
-              <span className="stats-card-badge">Pilar Dedikasi Catur Dharma</span>
+              <span className="stats-card-badge">
+                Pilar Dedikasi Catur Dharma
+              </span>
               <span className="stats-card-status">● Agenda 2030</span>
             </div>
             <div className="stats-card-grid">
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                  style={{
+                    background: "rgba(2, 132, 199, 0.12)",
+                    color: "#38bdf8",
+                  }}
                 >
                   <Target size={20} />
                 </div>
@@ -178,7 +184,10 @@ export default async function VisionMissionPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#34d399",
+                  }}
                 >
                   <ShieldCheck size={20} />
                 </div>
@@ -190,7 +199,10 @@ export default async function VisionMissionPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                  style={{
+                    background: "rgba(99, 102, 241, 0.12)",
+                    color: "#818cf8",
+                  }}
                 >
                   <Leaf size={20} />
                 </div>
@@ -202,7 +214,10 @@ export default async function VisionMissionPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#f59e0b",
+                  }}
                 >
                   <Award size={20} />
                 </div>

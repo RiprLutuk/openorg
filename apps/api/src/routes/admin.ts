@@ -489,9 +489,13 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       db
         .select({ value: sql<number>`count(*)::int` })
         .from(members)
-        .where(or(eq(members.status, "pending"), eq(members.status, "applicant"))),
+        .where(
+          or(eq(members.status, "pending"), eq(members.status, "applicant")),
+        ),
       db.select({ value: sql<number>`count(*)::int` }).from(events),
-      db.select({ value: sql<number>`count(*)::int` }).from(technicianDirectories),
+      db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(technicianDirectories),
       db.select({ value: sql<number>`count(*)::int` }).from(registeredClubs),
       db.select({ value: sql<number>`count(*)::int` }).from(publicComplaints),
       db
@@ -653,7 +657,8 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       "Des",
     ];
     const now = new Date();
-    const monthlyGrowth: { month: string; count: number; active: number }[] = [];
+    const monthlyGrowth: { month: string; count: number; active: number }[] =
+      [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const label = `${monthNames[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
@@ -721,7 +726,8 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         {
           name: "Validasi Sertifikat / KTA",
           count: Math.max(
-            complaintsList.filter((c) => c.category === "verifikasi_kta").length,
+            complaintsList.filter((c) => c.category === "verifikasi_kta")
+              .length,
             1,
           ),
           percentage: 15,
@@ -786,43 +792,60 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     // Compute Audit Logs analytics
     const auditLogsTotal = auditLogsTotalCount[0]?.value ?? 0;
     const resourceDistribution = [
-      { name: "Anggota & KTA", count: Math.max(Math.round(auditLogsTotal * 0.45), 18), color: "#0284c7" },
-      { name: "Publikasi & Warta", count: Math.max(Math.round(auditLogsTotal * 0.25), 10), color: "#10b981" },
-      { name: "Agenda Pelatihan", count: Math.max(Math.round(auditLogsTotal * 0.15), 6), color: "#8b5cf6" },
-      { name: "Tata Kelola & Wilayah", count: Math.max(Math.round(auditLogsTotal * 0.15), 6), color: "#f59e0b" },
+      {
+        name: "Anggota & KTA",
+        count: Math.max(Math.round(auditLogsTotal * 0.45), 18),
+        color: "#0284c7",
+      },
+      {
+        name: "Publikasi & Warta",
+        count: Math.max(Math.round(auditLogsTotal * 0.25), 10),
+        color: "#10b981",
+      },
+      {
+        name: "Agenda Pelatihan",
+        count: Math.max(Math.round(auditLogsTotal * 0.15), 6),
+        color: "#8b5cf6",
+      },
+      {
+        name: "Tata Kelola & Wilayah",
+        count: Math.max(Math.round(auditLogsTotal * 0.15), 6),
+        color: "#f59e0b",
+      },
     ];
 
     const auditLogsData = {
       total: auditLogsTotal > 0 ? auditLogsTotal : 40,
       todayCount: Math.max(Math.round(auditLogsTotal * 0.2), 8),
       byResource: resourceDistribution,
-      recentActivities: auditLogsRecentList.length > 0
-        ? auditLogsRecentList.map((a) => ({
-            id: a.id,
-            action: a.action,
-            resourceType: a.resourceType,
-            createdAt: a.createdAt.toISOString(),
-          }))
-        : [
-            {
-              id: "1",
-              action: "VERIFIKASI_KTA",
-              resourceType: "members",
-              createdAt: new Date().toISOString(),
-            },
-            {
-              id: "2",
-              action: "UPDATE_AD_ART",
-              resourceType: "governance",
-              createdAt: new Date(Date.now() - 3600000).toISOString(),
-            },
-            {
-              id: "3",
-              action: "PUBLISH_WARTA",
-              resourceType: "contents",
-              createdAt: new Date(Date.now() - 7200000).toISOString(),
-            },
-          ],
+      recentActivities:
+        auditLogsRecentList.length > 0
+          ? auditLogsRecentList.map((a) => ({
+              id: a.id,
+              action: a.action,
+              resourceType: a.resourceType,
+              createdAt: a.createdAt.toISOString(),
+            }))
+          : [
+              {
+                id: "1",
+                action: "VERIFIKASI_KTA",
+                resourceType: "members",
+                createdAt: new Date().toISOString(),
+              },
+              {
+                id: "2",
+                action: "UPDATE_AD_ART",
+                resourceType: "governance",
+                createdAt: new Date(Date.now() - 3600000).toISOString(),
+              },
+              {
+                id: "3",
+                action: "PUBLISH_WARTA",
+                resourceType: "contents",
+                createdAt: new Date(Date.now() - 7200000).toISOString(),
+              },
+            ],
     };
 
     // Top Performers (Kejuaraan & Rating Tinggi)
@@ -1504,7 +1527,11 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         .where(eq(contactSubmissions.id, id))
         .returning();
       if (!updated)
-        throw new AppError(404, "SUBMISSION_NOT_FOUND", "Pesan tidak ditemukan.");
+        throw new AppError(
+          404,
+          "SUBMISSION_NOT_FOUND",
+          "Pesan tidak ditemukan.",
+        );
       return { data: updated };
     },
   );
@@ -1519,7 +1546,11 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         .where(eq(contactSubmissions.id, id))
         .returning();
       if (!deleted)
-        throw new AppError(404, "SUBMISSION_NOT_FOUND", "Pesan tidak ditemukan.");
+        throw new AppError(
+          404,
+          "SUBMISSION_NOT_FOUND",
+          "Pesan tidak ditemukan.",
+        );
       return { data: { success: true } };
     },
   );
@@ -1573,12 +1604,14 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     const { id } = idParams.parse(request.params);
     const updateSchema = z.object({
       title: z.string().min(2).max(220).optional(),
-      category: z.enum([
-        "regulasi_pemerintah",
-        "se_organisasi",
-        "ad_art",
-        "posisi_kebijakan",
-      ]).optional(),
+      category: z
+        .enum([
+          "regulasi_pemerintah",
+          "se_organisasi",
+          "ad_art",
+          "posisi_kebijakan",
+        ])
+        .optional(),
       number: z.string().max(120).optional(),
       issuedDate: z.string().optional(),
       fileUrl: z.string().max(2048).optional(),
@@ -1596,7 +1629,11 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       .where(eq(regulations.id, id))
       .returning();
     if (!row)
-      throw new AppError(404, "REGULATION_NOT_FOUND", "Dokumen regulasi tidak ditemukan.");
+      throw new AppError(
+        404,
+        "REGULATION_NOT_FOUND",
+        "Dokumen regulasi tidak ditemukan.",
+      );
     return { data: row };
   });
 
@@ -1654,7 +1691,11 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       .where(eq(publicComplaints.id, id))
       .returning();
     if (!deleted)
-      throw new AppError(404, "COMPLAINT_NOT_FOUND", "Pengaduan tidak ditemukan.");
+      throw new AppError(
+        404,
+        "COMPLAINT_NOT_FOUND",
+        "Pengaduan tidak ditemukan.",
+      );
     return { data: { success: true } };
   });
 
@@ -1706,7 +1747,11 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       .where(eq(championshipStandings.id, id))
       .returning();
     if (!row)
-      throw new AppError(404, "CHAMPIONSHIP_NOT_FOUND", "Data kejuaraan tidak ditemukan.");
+      throw new AppError(
+        404,
+        "CHAMPIONSHIP_NOT_FOUND",
+        "Data kejuaraan tidak ditemukan.",
+      );
     return { data: row };
   });
 
@@ -1765,7 +1810,11 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       .where(eq(industryStatistics.id, id))
       .returning();
     if (!row)
-      throw new AppError(404, "STATISTIC_NOT_FOUND", "Data statistik tidak ditemukan.");
+      throw new AppError(
+        404,
+        "STATISTIC_NOT_FOUND",
+        "Data statistik tidak ditemukan.",
+      );
     return { data: row };
   });
 
@@ -1830,7 +1879,11 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       .where(eq(technicianDirectories.id, id))
       .returning();
     if (!row)
-      throw new AppError(404, "TECHNICIAN_NOT_FOUND", "Data teknisi tidak ditemukan.");
+      throw new AppError(
+        404,
+        "TECHNICIAN_NOT_FOUND",
+        "Data teknisi tidak ditemukan.",
+      );
     return { data: row };
   });
 
@@ -1996,7 +2049,11 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       .where(eq(lenderRegistries.id, id))
       .returning();
     if (!row)
-      throw new AppError(404, "LENDER_NOT_FOUND", "Data lender/mitra tidak ditemukan.");
+      throw new AppError(
+        404,
+        "LENDER_NOT_FOUND",
+        "Data lender/mitra tidak ditemukan.",
+      );
     return { data: row };
   });
 
@@ -2305,7 +2362,10 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     const rows = await db
       .select()
       .from(adArtDocuments)
-      .orderBy(asc(adArtDocuments.sortOrder), asc(adArtDocuments.chapterNumber));
+      .orderBy(
+        asc(adArtDocuments.sortOrder),
+        asc(adArtDocuments.chapterNumber),
+      );
     return { data: rows };
   });
 
@@ -2355,7 +2415,10 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     const rows = await db
       .select()
       .from(organizationMilestones)
-      .orderBy(asc(organizationMilestones.sortOrder), asc(organizationMilestones.year));
+      .orderBy(
+        asc(organizationMilestones.sortOrder),
+        asc(organizationMilestones.year),
+      );
     return { data: rows };
   });
 
@@ -2380,13 +2443,18 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         .returning();
       return reply.send({ data: row });
     }
-    const [row] = await db.insert(organizationMilestones).values(body).returning();
+    const [row] = await db
+      .insert(organizationMilestones)
+      .values(body)
+      .returning();
     return reply.status(201).send({ data: row });
   });
 
   app.delete("/milestones/:id", async (request) => {
     const { id } = idParams.parse(request.params);
-    await db.delete(organizationMilestones).where(eq(organizationMilestones.id, id));
+    await db
+      .delete(organizationMilestones)
+      .where(eq(organizationMilestones.id, id));
     return { data: { success: true } };
   });
 
@@ -2397,7 +2465,10 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     const rows = await db
       .select()
       .from(refrigerantSpecifications)
-      .orderBy(asc(refrigerantSpecifications.sortOrder), asc(refrigerantSpecifications.code));
+      .orderBy(
+        asc(refrigerantSpecifications.sortOrder),
+        asc(refrigerantSpecifications.code),
+      );
     return { data: rows };
   });
 
@@ -2442,7 +2513,9 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
 
   app.delete("/refrigerants/:id", async (request) => {
     const { id } = idParams.parse(request.params);
-    await db.delete(refrigerantSpecifications).where(eq(refrigerantSpecifications.id, id));
+    await db
+      .delete(refrigerantSpecifications)
+      .where(eq(refrigerantSpecifications.id, id));
     return { data: { success: true } };
   });
 };

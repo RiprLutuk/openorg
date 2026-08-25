@@ -187,9 +187,7 @@ export function InteractiveStructurePreview({ structure }: Props) {
                             description: pos.description ?? null,
                           }
                         : null,
-                      unit: unit
-                        ? { name: unit.name, type: unit.type }
-                        : null,
+                      unit: unit ? { name: unit.name, type: unit.type } : null,
                       startsAt: item.assignment.startsAt,
                       endsAt: item.assignment.endsAt,
                     })
@@ -255,7 +253,9 @@ export function InteractiveStructurePreview({ structure }: Props) {
                       title="Klik untuk menyalin nomor KTA"
                     >
                       <QrCode size={12} />
-                      <span className="leader-kta-code">{item.member.memberNumber}</span>
+                      <span className="leader-kta-code">
+                        {item.member.memberNumber}
+                      </span>
                       {copiedKta === item.member.memberNumber ? (
                         <span className="copy-indicator success">
                           <Check size={11} />

@@ -527,23 +527,28 @@ function AdArtContent() {
 
             <p className="tech-hero-lead">
               Konstitusi pokok resmi yang disahkan melalui Musyawarah Nasional
-              (Munas) sebagai pedoman tata kelola keorganisasian, hak & kewajiban
-              anggota, wewenang kepengurusan DPP/DPD, serta 9 Butir Pakta
-              Integritas Profesi Pendingin Indonesia.
+              (Munas) sebagai pedoman tata kelola keorganisasian, hak &
+              kewajiban anggota, wewenang kepengurusan DPP/DPD, serta 9 Butir
+              Pakta Integritas Profesi Pendingin Indonesia.
             </p>
           </div>
 
           {/* Right Column: Hero Metrics Bento Card */}
           <div className="hero-stats-bento-card">
             <div className="stats-card-header">
-              <span className="stats-card-badge">Legalitas & Konstitusi Munas</span>
+              <span className="stats-card-badge">
+                Legalitas & Konstitusi Munas
+              </span>
               <span className="stats-card-status">● Berlaku Sah</span>
             </div>
             <div className="stats-card-grid">
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                  style={{
+                    background: "rgba(2, 132, 199, 0.12)",
+                    color: "#38bdf8",
+                  }}
                 >
                   <Landmark size={20} />
                 </div>
@@ -555,7 +560,10 @@ function AdArtContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#34d399",
+                  }}
                 >
                   <FileCheck2 size={20} />
                 </div>
@@ -567,7 +575,10 @@ function AdArtContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                  style={{
+                    background: "rgba(99, 102, 241, 0.12)",
+                    color: "#818cf8",
+                  }}
                 >
                   <ShieldCheck size={20} />
                 </div>
@@ -579,7 +590,10 @@ function AdArtContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#f59e0b",
+                  }}
                 >
                   <Users size={20} />
                 </div>

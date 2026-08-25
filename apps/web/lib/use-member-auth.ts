@@ -47,17 +47,28 @@ export function checkMemberAuth(force = false) {
     return Promise.resolve(null);
   }
 
-  inFlightAuthPromise = memberApi<{ data: { member: LoggedInMember } }>(
-    "/v1/member/session",
-  )
+  inFlightAuthPromise = memberApi<{
+    data: { member: LoggedInMember | null };
+  }>("/v1/member/session")
     .then((res) => {
-      try {
-        localStorage.setItem("openorg_member_logged_in", "1");
-      } catch {
-        // Storage access blocked
+      const activeMember = res?.data?.member ?? null;
+      if (activeMember) {
+        try {
+          localStorage.setItem("openorg_member_logged_in", "1");
+        } catch {
+          // Storage access blocked
+        }
+      } else {
+        try {
+          localStorage.removeItem("openorg_member_logged_in");
+          document.cookie =
+            "openorg_member_active=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        } catch {
+          // Storage access blocked
+        }
       }
-      notify(res.data.member);
-      return res.data.member;
+      notify(activeMember);
+      return activeMember;
     })
     .catch(() => {
       try {

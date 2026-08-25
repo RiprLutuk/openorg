@@ -38,9 +38,13 @@ async function proxy(
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
-  const body = ["GET", "HEAD"].includes(request.method)
+  const rawBody = ["GET", "HEAD"].includes(request.method)
     ? undefined
     : await request.arrayBuffer();
+  const body = rawBody && rawBody.byteLength > 0 ? rawBody : undefined;
+  if (!body) {
+    headers.delete("content-type");
+  }
   const upstream = await fetch(target, {
     method: request.method,
     headers,

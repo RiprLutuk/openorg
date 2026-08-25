@@ -19,8 +19,18 @@ export default async function MemberVerifyEmailPage() {
       <div className="wrap login-page-inner">
         <Suspense
           fallback={
-            <div className="modern-login-split-card" style={{ minHeight: "400px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <p style={{ color: "#64748b", fontWeight: 600 }}>Memuat validasi keanggotaan…</p>
+            <div
+              className="modern-login-split-card"
+              style={{
+                minHeight: "400px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <p style={{ color: "#64748b", fontWeight: 600 }}>
+                Memuat validasi keanggotaan…
+              </p>
             </div>
           }
         >

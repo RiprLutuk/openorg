@@ -51,24 +51,51 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { MemberLogin } from "@/components/member-login";
-import { MemberApiError, memberApi } from "@/lib/member-client";
+import {
+  extractCoordinatesFromMapsUrl,
+  getCityCoordinates,
+} from "@/lib/geo-coordinates";
 import {
   fetchDistrictsFromApi,
   fetchVillagesFromApi,
   findProvince,
   getProvinces,
   getRegenciesByProvince,
+  type WilayahRegency,
   type WilayahDistrict,
   type WilayahVillage,
 } from "@/lib/indonesia-wilayah";
-import {
-  extractCoordinatesFromMapsUrl,
-  getCityCoordinates,
-} from "@/lib/geo-coordinates";
+import { MemberApiError, memberApi } from "@/lib/member-client";
 import { MemberPortraitCard } from "./member-portrait-card";
+
+import { MemberProfileVerification } from "./member-profile-verification";
+
+type ProfileCompleteness = {
+  isComplete: boolean;
+  score: number;
+  totalMandatory: number;
+  percentage: number;
+  missingFields: string[];
+  completedFields: string[];
+  checklist?: Array<{
+    key: string;
+    label: string;
+    description: string;
+    isCompleted: boolean;
+    required: boolean;
+    value?: string | number | null;
+  }>;
+};
 
 type PortalData = {
   member: {
@@ -78,6 +105,8 @@ type PortalData = {
     phone: string | null;
     memberNumber: string;
     avatarUrl: string | null;
+    unitId?: string | null;
+    unitName?: string | null;
     address: string | null;
     biography: string | null;
     joinedAt: string | null;
@@ -85,6 +114,7 @@ type PortalData = {
     companyName?: string | null;
     metadata?: Record<string, unknown> | null;
   };
+  profileCompleteness?: ProfileCompleteness | null;
   application: {
     status: string;
     submittedAt: string;
@@ -233,7 +263,31 @@ function getMemberDisplayName(fullName?: string | null): string {
   for (const part of parts) {
     const lower = part.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
     if (
-      !["ir", "dr", "drs", "dra", "h", "hj", "prof", "kh", "st", "se", "sh", "skm", "spd", "mt", "mm", "phd", "msc", "bsc", "bba", "mba", "s", "pt", "cv"].includes(lower) &&
+      ![
+        "ir",
+        "dr",
+        "drs",
+        "dra",
+        "h",
+        "hj",
+        "prof",
+        "kh",
+        "st",
+        "se",
+        "sh",
+        "skm",
+        "spd",
+        "mt",
+        "mm",
+        "phd",
+        "msc",
+        "bsc",
+        "bba",
+        "mba",
+        "s",
+        "pt",
+        "cv",
+      ].includes(lower) &&
       !part.endsWith(".") &&
       part.length > 1
     ) {
@@ -241,11 +295,14 @@ function getMemberDisplayName(fullName?: string | null): string {
     }
   }
   const first = parts[0];
-  return (first ? first.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "") : "") || "Anggota";
+  return (
+    (first ? first.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "") : "") || "Anggota"
+  );
 }
 
 export type MemberPortalTab =
   | "overview"
+  | "profile"
   | "workshop"
   | "credentials"
   | "learning"
@@ -293,6 +350,7 @@ export function MemberPortal() {
 
   const rawTab = searchParams?.get("tab");
   const activeTab: MemberPortalTab =
+    rawTab === "profile" ||
     rawTab === "workshop" ||
     rawTab === "credentials" ||
     rawTab === "learning" ||
@@ -333,6 +391,10 @@ export function MemberPortal() {
       })),
     ])
       .then(([session, credentials, learningData, billingData]) => {
+        if (!session.data.member) {
+          setUnauthorized(true);
+          return;
+        }
         setData(session.data);
         setCompliance(credentials.data);
         setLearning(learningData.data);
@@ -392,7 +454,10 @@ export function MemberPortal() {
 
   if (!data)
     return (
-      <div className="login-page-suite" style={{ minHeight: "65vh", padding: "1rem 0 3rem" }}>
+      <div
+        className="login-page-suite"
+        style={{ minHeight: "65vh", padding: "1rem 0 3rem" }}
+      >
         <div className="login-ambient-glow" />
         <div className="wrap login-page-inner">
           <MemberLogin organizationName="APTI Indonesia" />
@@ -404,7 +469,8 @@ export function MemberPortal() {
   const memberFirstName = getMemberDisplayName(data.member.name);
 
   // Derived metadata for counters and indicators
-  const workshopAd = (data.member.metadata as Record<string, unknown> | null)?.workshopAd as
+  const workshopAd = (data.member.metadata as Record<string, unknown> | null)
+    ?.workshopAd as
     | {
         workshopName?: string;
         tagline?: string;
@@ -418,7 +484,8 @@ export function MemberPortal() {
   const learningEnrollmentsCount = learning?.enrollments?.length ?? 0;
   const learningBalanceHours =
     Math.round(
-      ((learning?.balances?.reduce((acc, b) => acc + b.amount, 0) ?? 0) / 100) * 10
+      ((learning?.balances?.reduce((acc, b) => acc + b.amount, 0) ?? 0) / 100) *
+        10,
     ) / 10;
   const invoicesCount = billing?.invoices?.length ?? 0;
 
@@ -452,13 +519,21 @@ export function MemberPortal() {
             <div className="identity-title-row">
               <h2>Halo, {memberFirstName}</h2>
               <span className={`portal-status-pill ${applicationStatus}`}>
-                ● {applicationStatus === "active" ? "Anggota Aktif" : applicationStatus === "pending" ? "Menunggu Verifikasi" : applicationStatus.replace("_", " ")}
+                ●{" "}
+                {applicationStatus === "active"
+                  ? "Anggota Aktif"
+                  : applicationStatus === "pending"
+                    ? "Menunggu Verifikasi"
+                    : applicationStatus.replace("_", " ")}
               </span>
             </div>
             <p className="member-sub-info">
               <span>{data.organization.name}</span>
               <span>·</span>
-              <span>KTA: <strong>{data.member.memberNumber || "Dalam Proses"}</strong></span>
+              <span>
+                KTA:{" "}
+                <strong>{data.member.memberNumber || "Dalam Proses"}</strong>
+              </span>
               {data.member.email && (
                 <>
                   <span>·</span>
@@ -484,7 +559,9 @@ export function MemberPortal() {
               ) : (
                 <Mail size={14} />
               )}
-              <span>{resendPending ? "Mengirimkan…" : "Kirim Email Verifikasi"}</span>
+              <span>
+                {resendPending ? "Mengirimkan…" : "Kirim Email Verifikasi"}
+              </span>
             </button>
           )}
           <button
@@ -502,13 +579,24 @@ export function MemberPortal() {
       {!data.emailVerified && (
         <div className="email-unverified-alert">
           <div className="alert-copy">
-            <strong>⚠️ Email Akun Belum Diverifikasi ({data.member.email || "Email Anggota"})</strong>
+            <strong>
+              ⚠️ Email Akun Belum Diverifikasi (
+              {data.member.email || "Email Anggota"})
+            </strong>
             <p>
               Untuk mengamankan akun dan mengaktifkan penuh QR Code KTA Digital,
-              silakan klik tombol di samping untuk mengirimkan tautan verifikasi ke email Anda.
+              silakan klik tombol di samping untuk mengirimkan tautan verifikasi
+              ke email Anda.
             </p>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              flexWrap: "wrap",
+            }}
+          >
             <button
               type="button"
               className="button primary verify-btn"
@@ -546,6 +634,34 @@ export function MemberPortal() {
         >
           <CreditCard size={15} />
           <span>Ringkasan & KTA</span>
+        </button>
+
+        <button
+          type="button"
+          className={`segmented-tab-btn ${activeTab === "profile" ? "active" : ""}`}
+          onClick={() => handleTabChange("profile")}
+        >
+          <UserRound size={15} />
+          <span>Profil & Berkas</span>
+          {data.profileCompleteness ? (
+            data.profileCompleteness.isComplete ? (
+              <span
+                className="tab-pill-badge live"
+                style={{ background: "#dcfce7", color: "#15803d" }}
+              >
+                Lengkap
+              </span>
+            ) : (
+              <span
+                className="tab-pill-badge"
+                style={{ background: "#fef3c7", color: "#b45309" }}
+              >
+                {data.profileCompleteness.percentage}%
+              </span>
+            )
+          ) : (
+            <span className="tab-pill-badge">Wajib</span>
+          )}
         </button>
 
         <button
@@ -603,6 +719,42 @@ export function MemberPortal() {
       <div className="portal-tab-content-area">
         {activeTab === "overview" && (
           <div className="tab-pane-fade-in">
+            {/* Incomplete Profile Callout Banner */}
+            {data.profileCompleteness && !data.profileCompleteness.isComplete && (
+              <div className="member-profile-incomplete-banner">
+                <div className="banner-icon-side">
+                  <AlertTriangle size={24} color="#d97706" />
+                </div>
+                <div className="banner-copy-side">
+                  <div className="banner-copy-title-row">
+                    <strong>
+                      Profil & Berkas Verifikasi Belum Lengkap (
+                      {data.profileCompleteness.percentage}%)
+                    </strong>
+                    <span className="banner-warning-tag">Perlu Tindakan</span>
+                  </div>
+                  <p>
+                    Lengkapi Foto Profil Resmi, NIK 16 digit, Upload KTP/SIM, Jabatan, DPD Pengampu, Korwil, dan Informasi Usaha agar permohonan keanggotaan Anda dapat disetujui & diterbitkan KTA resminya oleh Pengurus DPD.
+                  </p>
+                  <div className="banner-missing-tags">
+                    {data.profileCompleteness.missingFields.map((field) => (
+                      <span key={field} className="missing-tag-chip">
+                        ❌ {field}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="button primary btn-complete-profile"
+                  onClick={() => handleTabChange("profile")}
+                >
+                  <UserRound size={15} />
+                  <span>Lengkapi Berkas Sekarang →</span>
+                </button>
+              </div>
+            )}
+
             {/* Quick Metrics Grid */}
             <div className="member-overview-metrics-grid">
               <div
@@ -619,7 +771,9 @@ export function MemberPortal() {
                   <small>KTA Digital Resmi</small>
                   <strong>{data.member.memberNumber || "Dalam Proses"}</strong>
                   <span className="metric-subtext">
-                    {data.emailVerified ? "Terverifikasi & Aktif" : "Perlu Verifikasi"}
+                    {data.emailVerified
+                      ? "Terverifikasi & Aktif"
+                      : "Perlu Verifikasi"}
                   </span>
                 </div>
                 <ChevronRight size={14} className="metric-arrow" />
@@ -634,7 +788,9 @@ export function MemberPortal() {
                 </div>
                 <div className="metric-content">
                   <small>Iklan Workshop / Toko</small>
-                  <strong>{isAdLive ? "Tayang di Direktori" : "Belum Ditayangkan"}</strong>
+                  <strong>
+                    {isAdLive ? "Tayang di Direktori" : "Belum Ditayangkan"}
+                  </strong>
                   <span className="metric-subtext">
                     {workshopAd?.workshopName || "Atur Iklan Bengkel →"}
                   </span>
@@ -690,8 +846,8 @@ export function MemberPortal() {
                       <p className="eyebrow">KTA Digital Resmi</p>
                       <h2>Kartu Tanda Anggota (KTA) Digital</h2>
                       <p>
-                        Kartu anggota resmi berstandar ID Card. Download kartu (PNG)
-                        atau scan QR Code untuk verifikasi keaslian.
+                        Kartu anggota resmi berstandar ID Card. Download kartu
+                        (PNG) atau scan QR Code untuk verifikasi keaslian.
                       </p>
                     </div>
                   </div>
@@ -702,12 +858,18 @@ export function MemberPortal() {
                         <MemberPortraitCard
                           member={{
                             name: data.member.name,
-                            memberNumber: data.member.memberNumber || data.card.code,
+                            memberNumber:
+                              data.member.memberNumber || data.card.code,
                             avatarUrl: data.member.avatarUrl,
-                            unitName: (data.member as { unitName?: string }).unitName || "Dewan Pimpinan Pusat (DPP)",
+                            unitName:
+                              (data.member as { unitName?: string }).unitName ||
+                              "Dewan Pimpinan Pusat (DPP)",
                             positionName:
-                              (data.member as { positionName?: string }).positionName ||
-                              (data.member.status === "active" ? "ANGGOTA RESMI" : "PEMOHON"),
+                              (data.member as { positionName?: string })
+                                .positionName ||
+                              (data.member.status === "active"
+                                ? "ANGGOTA RESMI"
+                                : "PEMOHON"),
                             status: data.member.status,
                           }}
                           card={data.card}
@@ -725,9 +887,9 @@ export function MemberPortal() {
                         </span>
                         <h3>Verifikasi Email Diperlukan</h3>
                         <p>
-                          Untuk memastikan keaslian data keanggotaan dan mengaktifkan
-                          QR Code verifikasi publik Anda, silakan lakukan verifikasi
-                          alamat email terlebih dahulu.
+                          Untuk memastikan keaslian data keanggotaan dan
+                          mengaktifkan QR Code verifikasi publik Anda, silakan
+                          lakukan verifikasi alamat email terlebih dahulu.
                         </p>
                         <div className="lock-overlay-actions">
                           <button
@@ -768,12 +930,18 @@ export function MemberPortal() {
                       <MemberPortraitCard
                         member={{
                           name: data.member.name,
-                          memberNumber: data.member.memberNumber || data.card.code,
+                          memberNumber:
+                            data.member.memberNumber || data.card.code,
                           avatarUrl: data.member.avatarUrl,
-                          unitName: (data.member as { unitName?: string }).unitName || "Dewan Pimpinan Pusat (DPP)",
+                          unitName:
+                            (data.member as { unitName?: string }).unitName ||
+                            "Dewan Pimpinan Pusat (DPP)",
                           positionName:
-                            (data.member as { positionName?: string }).positionName ||
-                            (data.member.status === "active" ? "ANGGOTA RESMI" : "PEMOHON"),
+                            (data.member as { positionName?: string })
+                              .positionName ||
+                            (data.member.status === "active"
+                              ? "ANGGOTA RESMI"
+                              : "PEMOHON"),
                           status: data.member.status,
                         }}
                         card={data.card}
@@ -788,8 +956,8 @@ export function MemberPortal() {
                   <div>
                     <h2>Kartu KTA Sedang Diproses</h2>
                     <p>
-                      KTA Digital akan otomatis terbit setelah verifikasi email dan
-                      persetujuan berkas keanggotaan oleh DPP/DPD.
+                      KTA Digital akan otomatis terbit setelah verifikasi email
+                      dan persetujuan berkas keanggotaan oleh DPP/DPD.
                     </p>
                   </div>
                 </section>
@@ -797,7 +965,10 @@ export function MemberPortal() {
             </div>
 
             {/* Profile and Verification Timeline Details */}
-            <div className="member-dashboard-grid" style={{ marginTop: "24px" }}>
+            <div
+              className="member-dashboard-grid"
+              style={{ marginTop: "24px" }}
+            >
               <section className="portal-panel profile-panel">
                 <div className="portal-panel-head">
                   <span>
@@ -812,7 +983,13 @@ export function MemberPortal() {
                   {data.member.status === "active" ? (
                     <div>
                       <dt>Nomor KTA Resmi</dt>
-                      <dd style={{ fontFamily: "monospace", fontWeight: 750, color: "#0284c7" }}>
+                      <dd
+                        style={{
+                          fontFamily: "monospace",
+                          fontWeight: 750,
+                          color: "#0284c7",
+                        }}
+                      >
                         {data.member.memberNumber}
                       </dd>
                     </div>
@@ -821,9 +998,33 @@ export function MemberPortal() {
                       <div>
                         <dt>No. Registrasi Pengajuan</dt>
                         <dd>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                            <span style={{ fontFamily: "monospace", fontWeight: 750 }}>{data.member.memberNumber}</span>
-                            <span style={{ fontSize: "11px", background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a", padding: "2px 6px", borderRadius: "4px", fontWeight: 650 }}>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontFamily: "monospace",
+                                fontWeight: 750,
+                              }}
+                            >
+                              {data.member.memberNumber}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: "11px",
+                                background: "#fef3c7",
+                                color: "#92400e",
+                                border: "1px solid #fde68a",
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                                fontWeight: 650,
+                              }}
+                            >
                               Menunggu Review Pengurus
                             </span>
                           </span>
@@ -831,7 +1032,13 @@ export function MemberPortal() {
                       </div>
                       <div>
                         <dt>Nomor KTA Resmi</dt>
-                        <dd style={{ color: "#64748b", fontStyle: "italic", fontSize: "13px" }}>
+                        <dd
+                          style={{
+                            color: "#64748b",
+                            fontStyle: "italic",
+                            fontSize: "13px",
+                          }}
+                        >
                           Belum Diterbitkan (Diterbitkan setelah disetujui)
                         </dd>
                       </div>
@@ -871,7 +1078,9 @@ export function MemberPortal() {
                     <span />
                     Email Terverifikasi
                   </li>
-                  <li className={applicationStatus === "active" ? "complete" : ""}>
+                  <li
+                    className={applicationStatus === "active" ? "complete" : ""}
+                  >
                     <span />
                     Verifikasi Berkas Organisasi
                   </li>
@@ -882,11 +1091,22 @@ export function MemberPortal() {
                 </ol>
                 {data.application?.rejectionReason && (
                   <p className="application-feedback">
-                    <strong>Catatan Peninjauan:</strong> {data.application.rejectionReason}
+                    <strong>Catatan Peninjauan:</strong>{" "}
+                    {data.application.rejectionReason}
                   </p>
                 )}
               </section>
             </div>
+          </div>
+        )}
+
+        {activeTab === "profile" && (
+          <div className="tab-pane-fade-in">
+            <MemberProfileVerification
+              member={data.member}
+              completeness={data.profileCompleteness}
+              onReload={loadPortal}
+            />
           </div>
         )}
 
@@ -949,7 +1169,8 @@ function MemberBilling({ data }: { data: BillingData }) {
           <p className="eyebrow">Iuran & Manfaat</p>
           <h2>Catatan Iuran & Manfaat Anggota</h2>
           <p>
-            Pantau tagihan resmi, status pembayaran iuran tahunan, dan hak benefit keanggotaan aktif Anda.
+            Pantau tagihan resmi, status pembayaran iuran tahunan, dan hak
+            benefit keanggotaan aktif Anda.
           </p>
         </div>
       </div>
@@ -973,14 +1194,22 @@ function MemberBilling({ data }: { data: BillingData }) {
               <ReceiptText size={18} />
               <strong>Daftar Tagihan & Iuran</strong>
             </div>
-            <small>{outstanding.length > 0 ? `${outstanding.length} menunggu pembayaran` : "Semua Lunas"}</small>
+            <small>
+              {outstanding.length > 0
+                ? `${outstanding.length} menunggu pembayaran`
+                : "Semua Lunas"}
+            </small>
           </div>
           <div className="member-invoice-list">
             {data.invoices.map((invoice) => (
               <article key={invoice.id}>
                 <div>
                   <span className={`billing-status ${invoice.effectiveStatus}`}>
-                    {invoice.effectiveStatus === "paid" ? "Lunas" : invoice.effectiveStatus === "pending" ? "Menunggu" : invoice.effectiveStatus}
+                    {invoice.effectiveStatus === "paid"
+                      ? "Lunas"
+                      : invoice.effectiveStatus === "pending"
+                        ? "Menunggu"
+                        : invoice.effectiveStatus}
                   </span>
                   <strong>{invoice.invoiceNumber}</strong>
                   <small>
@@ -1021,7 +1250,10 @@ function MemberBilling({ data }: { data: BillingData }) {
                 <div>
                   <strong>{item.label}</strong>
                   <small>
-                    {item.effectiveStatus === "active" ? "Aktif" : item.effectiveStatus} ·{" "}
+                    {item.effectiveStatus === "active"
+                      ? "Aktif"
+                      : item.effectiveStatus}{" "}
+                    ·{" "}
                     {item.endsAt
                       ? `s/d ${formatDate(item.endsAt)}`
                       : "Berlaku Permanen"}
@@ -1031,7 +1263,8 @@ function MemberBilling({ data }: { data: BillingData }) {
             ))}
             {!data.entitlements.length && (
               <p className="learning-empty">
-                Daftar manfaat keanggotaan akan otomatis tampil di sini setelah iuran diverifikasi.
+                Daftar manfaat keanggotaan akan otomatis tampil di sini setelah
+                iuran diverifikasi.
               </p>
             )}
           </div>
@@ -1064,13 +1297,28 @@ function MemberLearning({
 }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const enrolledIds = new Set(data.enrollments.map((item) => item.activityId));
-  const available = data.catalog.filter((item) => !enrolledIds.has(item.id));
+  const [showAllCatalog, setShowAllCatalog] = useState(false);
+
+  const enrolledIds = useMemo(() => {
+    return new Set(
+      data.enrollments
+        .filter((item) => item.status !== "cancelled")
+        .map((item) => item.activityId || item.activity?.id),
+    );
+  }, [data.enrollments]);
+
+  const available = useMemo(() => {
+    return data.catalog.filter((item) => !enrolledIds.has(item.id));
+  }, [data.catalog, enrolledIds]);
+
   const enroll = async (activityId: string) => {
     if (!emailVerified) {
-      setError("Wajib verifikasi email terlebih dahulu untuk mendaftar pelatihan.");
+      toast.warning(
+        "Wajib verifikasi email terlebih dahulu untuk mendaftar pelatihan.",
+      );
       return;
     }
+    const act = data.catalog.find((a) => a.id === activityId);
     setPendingId(activityId);
     setError("");
     try {
@@ -1078,13 +1326,86 @@ function MemberLearning({
         method: "POST",
         body: "{}",
       });
+      toast.success(
+        `Berhasil mendaftar ke agenda: "${act?.title || "Pelatihan"}"`,
+      );
       onReload();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Pendaftaran pelatihan gagal.");
+      const msg =
+        reason instanceof Error
+          ? reason.message
+          : "Pendaftaran pelatihan gagal.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setPendingId(null);
     }
   };
+
+  const renderStatusBadge = (status: string, attendanceStatus?: string) => {
+    const s = (status || "").toLowerCase();
+    if (s === "registered" || s === "enrolled") {
+      return (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "3px",
+            color: "#0284c7",
+            background: "#e0f2fe",
+            padding: "1px 6px",
+            borderRadius: "4px",
+            fontWeight: "600",
+            fontSize: "10px",
+          }}
+        >
+          ✓ Terdaftar
+        </span>
+      );
+    }
+    if (s === "waitlisted") {
+      return (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "3px",
+            color: "#d97706",
+            background: "#fef3c7",
+            padding: "1px 6px",
+            borderRadius: "4px",
+            fontWeight: "600",
+            fontSize: "10px",
+          }}
+        >
+          ⏳ Antrean (Kapasitas Penuh)
+        </span>
+      );
+    }
+    if (s === "attended" || s === "completed") {
+      return (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "3px",
+            color: "#16a34a",
+            background: "#dcfce7",
+            padding: "1px 6px",
+            borderRadius: "4px",
+            fontWeight: "600",
+            fontSize: "10px",
+          }}
+        >
+          ✓ Selesai
+        </span>
+      );
+    }
+    return <span style={{ fontSize: "10px", color: "#64748b" }}>{status}</span>;
+  };
+
+  const displayedCatalog = showAllCatalog ? available : available.slice(0, 4);
+
   return (
     <section className="portal-learning-section">
       <div className="portal-section-heading">
@@ -1198,18 +1519,34 @@ function MemberLearning({
                 </span>
                 <div>
                   <strong>{item.activity.title}</strong>
-                  <small>
-                    {item.status === "enrolled" ? "Terdaftar" : item.status}
-                    {item.attendance ? ` · ${item.attendance.status}` : ""}
-                    {item.scheme
-                      ? ` · ${item.activity.creditAmount} ${item.scheme.unitLabel}`
-                      : ""}
-                  </small>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      marginTop: "3px",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {renderStatusBadge(item.status, item.attendance?.status)}
+                    {item.attendance ? (
+                      <small style={{ margin: 0 }}>
+                        · {item.attendance.status}
+                      </small>
+                    ) : null}
+                    {item.scheme ? (
+                      <small style={{ margin: 0 }}>
+                        · {item.activity.creditAmount} {item.scheme.unitLabel}
+                      </small>
+                    ) : null}
+                  </div>
                 </div>
               </article>
             ))}
             {!data.enrollments.length && (
-              <p className="learning-empty">Belum ada agenda pelatihan yang diikuti.</p>
+              <p className="learning-empty">
+                Belum ada agenda pelatihan yang diikuti.
+              </p>
             )}
           </div>
         </div>
@@ -1219,10 +1556,10 @@ function MemberLearning({
               <Plus size={18} />
               <strong>Katalog Agenda Buka</strong>
             </div>
-            <small>{available.length} tersedia</small>
+            <small>{available.length} belum diikuti</small>
           </div>
           <div className="member-learning-list catalog-list">
-            {available.slice(0, 4).map((activity) => (
+            {displayedCatalog.map((activity) => (
               <article key={activity.id}>
                 <span className="learning-calendar">
                   <strong>{new Date(activity.startsAt).getDate()}</strong>
@@ -1246,7 +1583,11 @@ function MemberLearning({
                   className={`button ${!emailVerified ? "btn-gated-locked" : ""}`}
                   disabled={pendingId === activity.id || !emailVerified}
                   onClick={() => emailVerified && enroll(activity.id)}
-                  title={!emailVerified ? "Verifikasi email untuk mendaftar" : undefined}
+                  title={
+                    !emailVerified
+                      ? "Verifikasi email untuk mendaftar"
+                      : undefined
+                  }
                 >
                   {!emailVerified ? (
                     <span className="btn-locked-chip">
@@ -1262,9 +1603,52 @@ function MemberLearning({
               </article>
             ))}
             {!available.length && (
-              <p className="learning-empty">
-                Belum ada agenda pelatihan baru yang dibuka.
-              </p>
+              <div
+                style={{
+                  padding: "32px 16px",
+                  textAlign: "center",
+                  color: "#64748b",
+                }}
+              >
+                <CheckCircle2
+                  size={26}
+                  style={{ color: "#16a34a", margin: "0 auto 8px" }}
+                />
+                <p
+                  style={{
+                    margin: "0 0 4px",
+                    fontWeight: "700",
+                    color: "#0f172a",
+                    fontSize: "13px",
+                  }}
+                >
+                  Semua Agenda Telah Anda Ikuti!
+                </p>
+                <small style={{ fontSize: "11.5px", color: "#64748b" }}>
+                  Tidak ada agenda pelatihan baru yang tersisa untuk didaftar
+                  saat ini.
+                </small>
+              </div>
+            )}
+            {available.length > 4 && (
+              <div
+                style={{
+                  padding: "10px 0",
+                  textAlign: "center",
+                  borderTop: "1px solid #f1f5f9",
+                }}
+              >
+                <button
+                  type="button"
+                  className="button secondary"
+                  style={{ fontSize: "11px", padding: "4px 12px" }}
+                  onClick={() => setShowAllCatalog((prev) => !prev)}
+                >
+                  {showAllCatalog
+                    ? "Tampilkan 4 Agenda Terdekat"
+                    : `Lihat Semua Agenda (${available.length} Tersedia)`}
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -1539,16 +1923,18 @@ function SearchableMultiSelect({
               >
                 <Plus size={14} className="add-icon" />
                 <span>
-                  Tambahkan <strong>&quot;{search.trim()}&quot;</strong> sebagai keahlian khusus
+                  Tambahkan <strong>&quot;{search.trim()}&quot;</strong> sebagai
+                  keahlian khusus
                 </span>
               </div>
             )}
 
-            {filteredOptions.length === 0 && (!allowCustom || !search.trim()) && (
-              <div className="dropdown-empty-row">
-                Tidak ada layanan yang cocok dengan kata kunci.
-              </div>
-            )}
+            {filteredOptions.length === 0 &&
+              (!allowCustom || !search.trim()) && (
+                <div className="dropdown-empty-row">
+                  Tidak ada layanan yang cocok dengan kata kunci.
+                </div>
+              )}
           </div>
         </div>
       )}
@@ -1597,7 +1983,11 @@ function SearchableMultiSelect({
 interface SearchableSingleSelectProps {
   label: string;
   placeholder?: string;
-  options: Array<{ value: string; label: string; sublabel?: string | undefined }>;
+  options: Array<{
+    value: string;
+    label: string;
+    sublabel?: string | undefined;
+  }>;
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
@@ -1641,7 +2031,7 @@ function SearchableSingleSelect({
     return options.filter(
       (opt) =>
         opt.label.toLowerCase().includes(q) ||
-        (opt.sublabel && opt.sublabel.toLowerCase().includes(q))
+        (opt.sublabel && opt.sublabel.toLowerCase().includes(q)),
     );
   }, [options, search]);
 
@@ -1748,13 +2138,62 @@ export interface DaySchedule {
 }
 
 const DEFAULT_DAILY_SCHEDULE: DaySchedule[] = [
-  { day: "Senin", shortDay: "Sen", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-  { day: "Selasa", shortDay: "Sel", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-  { day: "Rabu", shortDay: "Rab", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-  { day: "Kamis", shortDay: "Kam", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-  { day: "Jumat", shortDay: "Jum", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-  { day: "Sabtu", shortDay: "Sab", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-  { day: "Minggu", shortDay: "Min", isOpen: false, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+  {
+    day: "Senin",
+    shortDay: "Sen",
+    isOpen: true,
+    openTime: "08:00",
+    closeTime: "18:00",
+    is24Hours: false,
+  },
+  {
+    day: "Selasa",
+    shortDay: "Sel",
+    isOpen: true,
+    openTime: "08:00",
+    closeTime: "18:00",
+    is24Hours: false,
+  },
+  {
+    day: "Rabu",
+    shortDay: "Rab",
+    isOpen: true,
+    openTime: "08:00",
+    closeTime: "18:00",
+    is24Hours: false,
+  },
+  {
+    day: "Kamis",
+    shortDay: "Kam",
+    isOpen: true,
+    openTime: "08:00",
+    closeTime: "18:00",
+    is24Hours: false,
+  },
+  {
+    day: "Jumat",
+    shortDay: "Jum",
+    isOpen: true,
+    openTime: "08:00",
+    closeTime: "18:00",
+    is24Hours: false,
+  },
+  {
+    day: "Sabtu",
+    shortDay: "Sab",
+    isOpen: true,
+    openTime: "08:00",
+    closeTime: "18:00",
+    is24Hours: false,
+  },
+  {
+    day: "Minggu",
+    shortDay: "Min",
+    isOpen: false,
+    openTime: "08:00",
+    closeTime: "18:00",
+    is24Hours: false,
+  },
 ];
 
 export function formatScheduleSummary(
@@ -1864,23 +2303,121 @@ function DailyScheduleBuilder({
     let updated: DaySchedule[] = [];
     if (type === "workshop") {
       updated = [
-        { day: "Senin", shortDay: "Sen", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-        { day: "Selasa", shortDay: "Sel", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-        { day: "Rabu", shortDay: "Rab", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-        { day: "Kamis", shortDay: "Kam", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-        { day: "Jumat", shortDay: "Jum", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-        { day: "Sabtu", shortDay: "Sab", isOpen: true, openTime: "08:00", closeTime: "18:00", is24Hours: false },
-        { day: "Minggu", shortDay: "Min", isOpen: false, openTime: "08:00", closeTime: "18:00", is24Hours: false },
+        {
+          day: "Senin",
+          shortDay: "Sen",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "18:00",
+          is24Hours: false,
+        },
+        {
+          day: "Selasa",
+          shortDay: "Sel",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "18:00",
+          is24Hours: false,
+        },
+        {
+          day: "Rabu",
+          shortDay: "Rab",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "18:00",
+          is24Hours: false,
+        },
+        {
+          day: "Kamis",
+          shortDay: "Kam",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "18:00",
+          is24Hours: false,
+        },
+        {
+          day: "Jumat",
+          shortDay: "Jum",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "18:00",
+          is24Hours: false,
+        },
+        {
+          day: "Sabtu",
+          shortDay: "Sab",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "18:00",
+          is24Hours: false,
+        },
+        {
+          day: "Minggu",
+          shortDay: "Min",
+          isOpen: false,
+          openTime: "08:00",
+          closeTime: "18:00",
+          is24Hours: false,
+        },
       ];
     } else if (type === "office") {
       updated = [
-        { day: "Senin", shortDay: "Sen", isOpen: true, openTime: "08:00", closeTime: "17:00", is24Hours: false },
-        { day: "Selasa", shortDay: "Sel", isOpen: true, openTime: "08:00", closeTime: "17:00", is24Hours: false },
-        { day: "Rabu", shortDay: "Rab", isOpen: true, openTime: "08:00", closeTime: "17:00", is24Hours: false },
-        { day: "Kamis", shortDay: "Kam", isOpen: true, openTime: "08:00", closeTime: "17:00", is24Hours: false },
-        { day: "Jumat", shortDay: "Jum", isOpen: true, openTime: "08:00", closeTime: "17:00", is24Hours: false },
-        { day: "Sabtu", shortDay: "Sab", isOpen: false, openTime: "08:00", closeTime: "15:00", is24Hours: false },
-        { day: "Minggu", shortDay: "Min", isOpen: false, openTime: "08:00", closeTime: "15:00", is24Hours: false },
+        {
+          day: "Senin",
+          shortDay: "Sen",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "17:00",
+          is24Hours: false,
+        },
+        {
+          day: "Selasa",
+          shortDay: "Sel",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "17:00",
+          is24Hours: false,
+        },
+        {
+          day: "Rabu",
+          shortDay: "Rab",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "17:00",
+          is24Hours: false,
+        },
+        {
+          day: "Kamis",
+          shortDay: "Kam",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "17:00",
+          is24Hours: false,
+        },
+        {
+          day: "Jumat",
+          shortDay: "Jum",
+          isOpen: true,
+          openTime: "08:00",
+          closeTime: "17:00",
+          is24Hours: false,
+        },
+        {
+          day: "Sabtu",
+          shortDay: "Sab",
+          isOpen: false,
+          openTime: "08:00",
+          closeTime: "15:00",
+          is24Hours: false,
+        },
+        {
+          day: "Minggu",
+          shortDay: "Min",
+          isOpen: false,
+          openTime: "08:00",
+          closeTime: "15:00",
+          is24Hours: false,
+        },
       ];
     } else if (type === "everyday") {
       updated = schedule.map((d) => ({
@@ -1976,11 +2513,16 @@ function DailyScheduleBuilder({
       {/* Emergency 24H Callout Readiness Card */}
       <div className="emergency-callout-box">
         <div className="emergency-callout-info">
-          <AlertTriangle size={18} color="#b45309" className="flex-shrink-0 mt-0.5" />
+          <AlertTriangle
+            size={18}
+            color="#b45309"
+            className="flex-shrink-0 mt-0.5"
+          />
           <div>
             <strong>Kesiapan Layanan Darurat 24 Jam (Emergency Callout)</strong>
             <small>
-              Aktifkan jika workshop Anda menerima panggilan darurat malam/hari libur (bocor freon, chiller mati, dsb).
+              Aktifkan jika workshop Anda menerima panggilan darurat malam/hari
+              libur (bocor freon, chiller mati, dsb).
             </small>
           </div>
         </div>
@@ -2067,7 +2609,9 @@ function DailyScheduleBuilder({
                   )}
                 </>
               ) : (
-                <span className="day-closed-msg">Tutup / Libur Operasional</span>
+                <span className="day-closed-msg">
+                  Tutup / Libur Operasional
+                </span>
               )}
             </div>
           </div>
@@ -2141,19 +2685,27 @@ function MemberWorkshopPromo({
   onResendVerification?: () => void;
   resendPending?: boolean;
 }) {
-  const existingMeta = (member.metadata?.workshopAd as Record<string, any>) || {};
+  const existingMeta =
+    (member.metadata?.workshopAd as Record<string, any>) || {};
 
   const [workshopName, setWorkshopName] = useState(
-    existingMeta.workshopName || member.companyName || `Bengkel Pendingin ${getMemberDisplayName(member.name)}`,
+    existingMeta.workshopName ||
+      member.companyName ||
+      `Bengkel Pendingin ${getMemberDisplayName(member.name)}`,
   );
   const [tagline, setTagline] = useState(
-    existingMeta.tagline || "Solusi Tata Udara Profesional, Berlisensi & Bergaransi",
+    existingMeta.tagline ||
+      "Solusi Tata Udara Profesional, Berlisensi & Bergaransi",
   );
   const [category, setCategory] = useState(
     existingMeta.category || WORKSHOP_CATEGORIES[0],
   );
-  const [province, setProvince] = useState(existingMeta.province || "DKI Jakarta");
-  const [city, setCity] = useState(existingMeta.city || "Kota Administrasi Jakarta Selatan");
+  const [province, setProvince] = useState(
+    existingMeta.province || "DKI Jakarta",
+  );
+  const [city, setCity] = useState(
+    existingMeta.city || "Kota Administrasi Jakarta Selatan",
+  );
   const [district, setDistrict] = useState(existingMeta.district || "");
   const [village, setVillage] = useState(existingMeta.village || "");
   const [districtList, setDistrictList] = useState<WilayahDistrict[]>([]);
@@ -2162,15 +2714,17 @@ function MemberWorkshopPromo({
     existingMeta.postalCode || "12110",
   );
   const [address, setAddress] = useState(
-    existingMeta.address || member.address || "Jl. Raya Workshop Pendingin No. 18",
+    existingMeta.address ||
+      member.address ||
+      "Jl. Raya Workshop Pendingin No. 18",
   );
-  const [phone, setPhone] = useState(existingMeta.phone || member.phone || "0812-3456-7890");
+  const [phone, setPhone] = useState(
+    existingMeta.phone || member.phone || "0812-3456-7890",
+  );
   const [whatsapp, setWhatsapp] = useState(
     existingMeta.whatsapp || member.phone || "0812-3456-7890",
   );
-  const [website, setWebsite] = useState(
-    existingMeta.website || "",
-  );
+  const [website, setWebsite] = useState(existingMeta.website || "");
   const [googleMapsUrl, setGoogleMapsUrl] = useState(
     existingMeta.googleMapsUrl || "",
   );
@@ -2195,19 +2749,30 @@ function MemberWorkshopPromo({
   const [isPublished, setIsPublished] = useState<boolean>(
     existingMeta.isPublished ?? true,
   );
-  const [previewMode, setPreviewMode] = useState<"grid" | "mobile" | "compact" | "full">("grid");
+  const [previewMode, setPreviewMode] = useState<
+    "grid" | "mobile" | "compact" | "full"
+  >("grid");
 
   const initialCoords = useMemo(() => {
     if (existingMeta.latitude && existingMeta.longitude) {
       return { lat: existingMeta.latitude, lng: existingMeta.longitude };
     }
-    return getCityCoordinates(existingMeta.city || "Jakarta Selatan", existingMeta.province || "DKI Jakarta");
-  }, [existingMeta.latitude, existingMeta.longitude, existingMeta.city, existingMeta.province]);
+    return getCityCoordinates(
+      existingMeta.city || "Jakarta Selatan",
+      existingMeta.province || "DKI Jakarta",
+    );
+  }, [
+    existingMeta.latitude,
+    existingMeta.longitude,
+    existingMeta.city,
+    existingMeta.province,
+  ]);
 
   const [latitude, setLatitude] = useState<number>(initialCoords.lat);
   const [longitude, setLongitude] = useState<number>(initialCoords.lng);
   const [isDetectingGps, setIsDetectingGps] = useState<boolean>(false);
   const [gpsSource, setGpsSource] = useState<"auto" | "gps" | "maps">("auto");
+  const [locationSuccessMsg, setLocationSuccessMsg] = useState<string | null>(null);
 
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -2283,6 +2848,7 @@ function MemberWorkshopPromo({
     setLatitude(coords.lat);
     setLongitude(coords.lng);
     setGpsSource("auto");
+    setLocationSuccessMsg(null);
   };
 
   const handleCityChange = (newCity: string) => {
@@ -2293,6 +2859,7 @@ function MemberWorkshopPromo({
     setLatitude(coords.lat);
     setLongitude(coords.lng);
     setGpsSource("auto");
+    setLocationSuccessMsg(null);
     const regs = getRegenciesByProvince(province);
     const foundReg = regs.find((r) => r.nama === newCity);
     if (foundReg?.kodepos) {
@@ -2312,23 +2879,115 @@ function MemberWorkshopPromo({
 
   const handleDetectCurrentGps = () => {
     if (typeof window === "undefined" || !navigator.geolocation) {
-      setError("Browser tidak mendukung sensor GPS.");
+      toast.error("Browser Anda tidak mendukung sensor GPS.");
       return;
     }
     setIsDetectingGps(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLatitude(pos.coords.latitude);
-        setLongitude(pos.coords.longitude);
+    setLocationSuccessMsg(null);
+    setError("");
+
+    const performReverseGeocode = async (lat: number, lng: number) => {
+      try {
+        setLatitude(lat);
+        setLongitude(lng);
         setGpsSource("gps");
+
+        const res = await fetch(
+          `/api/v1/public/wilayah/reverse-geocode?latitude=${lat}&longitude=${lng}`,
+        );
+        if (!res.ok) {
+          throw new Error("Gagal mengambil informasi wilayah dari server.");
+        }
+        const json = await res.json();
+        const payload = json.data;
+
+        if (!payload || !payload.province) {
+          toast.warning(
+            `Koordinat GPS terdeteksi (${lat.toFixed(4)}, ${lng.toFixed(4)}), silakan pilih wilayah secara manual.`,
+          );
+          return;
+        }
+
+        const matchedProvince = payload.province;
+        const matchedRegency = payload.regency;
+        const matchedDistrict = payload.district;
+        const matchedVillage = payload.village;
+
+        const distList: WilayahDistrict[] = payload.districts || [];
+        const villList: WilayahVillage[] = payload.villages || [];
+
+        if (matchedProvince?.nama) {
+          setProvince(matchedProvince.nama);
+        }
+        if (matchedRegency?.nama) {
+          setCity(matchedRegency.nama);
+        }
+        if (distList.length > 0) {
+          setDistrictList(distList);
+        }
+        if (matchedDistrict?.nama) {
+          setDistrict(matchedDistrict.nama);
+        }
+        if (villList.length > 0) {
+          setVillageList(villList);
+        }
+        if (matchedVillage?.nama) {
+          setVillage(matchedVillage.nama);
+        }
+        const foundPostal =
+          matchedVillage?.kodepos ||
+          payload.postalCode ||
+          matchedRegency?.kodepos ||
+          "";
+        if (foundPostal) {
+          setPostalCode(foundPostal);
+        }
+        if (
+          payload.road &&
+          (!address || address === "Jl. Raya Workshop Pendingin No. 18")
+        ) {
+          setAddress(payload.road);
+        }
+
+        const locSummary = [
+          matchedVillage?.nama ? `Kel. ${matchedVillage.nama}` : null,
+          matchedDistrict?.nama ? `Kec. ${matchedDistrict.nama}` : null,
+          matchedRegency?.nama,
+          matchedProvince.nama,
+        ]
+          .filter(Boolean)
+          .join(", ");
+
+        setLocationSuccessMsg(locSummary);
+        toast.success(`Lokasi workshop berhasil disinkronkan: ${locSummary}`);
+      } catch (err) {
+        console.error("Auto detect GPS location failed:", err);
+        toast.info(
+          "Titik GPS berhasil dibaca. Silakan pilih wilayah secara manual jika diperlukan.",
+        );
+      } finally {
         setIsDetectingGps(false);
-      },
-      (err) => {
-        setIsDetectingGps(false);
-        setError(`Gagal membaca GPS: ${err.message}. Tetap menggunakan koordinat kota.`);
-      },
-      { timeout: 8000, enableHighAccuracy: true }
-    );
+      }
+    };
+
+    const getGeoPosition = (highAccuracy: boolean) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          void performReverseGeocode(pos.coords.latitude, pos.coords.longitude);
+        },
+        (geoErr) => {
+          if (highAccuracy) {
+            getGeoPosition(false);
+            return;
+          }
+          setIsDetectingGps(false);
+          toast.error(`Gagal membaca GPS: ${geoErr.message}.`);
+        },
+        { timeout: 9000, enableHighAccuracy: highAccuracy },
+      );
+    };
+
+    getGeoPosition(true);
   };
 
   const operatingHoursSummary = useMemo(() => {
@@ -2351,7 +3010,9 @@ function MemberWorkshopPromo({
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
     if (!emailVerified) {
-      setError("Wajib verifikasi email terlebih dahulu untuk menayangkan iklan bengkel.");
+      setError(
+        "Wajib verifikasi email terlebih dahulu untuk menayangkan iklan bengkel.",
+      );
       return;
     }
     setSaving(true);
@@ -2359,6 +3020,7 @@ function MemberWorkshopPromo({
     setSavedSuccess(false);
 
     const workshopData = {
+      id: member.id || `ws-${member.memberNumber || "user"}`,
       workshopName: workshopName.trim(),
       tagline: tagline.trim(),
       category,
@@ -2452,8 +3114,9 @@ function MemberWorkshopPromo({
           <div className="portal-lock-banner-copy">
             <strong>Penayangan Iklan Terkunci</strong>
             <p>
-              Iklan bengkel/toko hanya dapat ditayangkan ke publik setelah alamat
-              email akun Anda terverifikasi untuk menjamin validitas bisnis.
+              Iklan bengkel/toko hanya dapat ditayangkan ke publik setelah
+              alamat email akun Anda terverifikasi untuk menjamin validitas
+              bisnis.
             </p>
           </div>
           {onResendVerification ? (
@@ -2548,13 +3211,73 @@ function MemberWorkshopPromo({
 
           {/* Card 2: Wilayah & Lokasi Operasional */}
           <div className="promo-form-section-card">
-            <div className="form-section-title-row">
-              <MapPin size={16} color="#0284c7" />
-              <div>
-                <h4>Lokasi & Wilayah Operasional</h4>
-                <p>Cakupan daerah penugasan dan alamat bengkel</p>
+            <div
+              className="form-section-title-row"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "10px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                <MapPin size={16} color="#0284c7" style={{ marginTop: "2px" }} />
+                <div>
+                  <h4>Lokasi & Wilayah Operasional</h4>
+                  <p>Cakupan daerah penugasan dan alamat bengkel</p>
+                </div>
               </div>
+              <button
+                type="button"
+                className="button secondary btn-detect-portal-gps"
+                style={{
+                  fontSize: "12px",
+                  padding: "6px 12px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontWeight: "600",
+                }}
+                onClick={handleDetectCurrentGps}
+                disabled={isDetectingGps}
+                title="Gunakan posisi GPS perangkat Anda saat ini untuk otomatis mengisi Provinsi, Kota, Kecamatan, dan Kelurahan"
+              >
+                <MapPin
+                  size={14}
+                  className={isDetectingGps ? "animate-spin" : ""}
+                />
+                <span>
+                  {isDetectingGps
+                    ? "Mendeteksi Wilayah..."
+                    : "📍 Ambil Lokasi GPS (Auto-isi)"}
+                </span>
+              </button>
             </div>
+
+            {locationSuccessMsg && (
+              <div
+                style={{
+                  margin: "12px 0 14px",
+                  padding: "10px 14px",
+                  background: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
+                  borderRadius: "10px",
+                  color: "#15803d",
+                  fontSize: "12.5px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  boxShadow: "0 2px 8px rgba(22, 163, 74, 0.08)",
+                }}
+              >
+                <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
+                <span>
+                  Wilayah terdeteksi otomatis: <strong>{locationSuccessMsg}</strong>
+                </span>
+              </div>
+            )}
+
             <div className="form-row-2">
               <SearchableSingleSelect
                 label="Provinsi"
@@ -2636,38 +3359,61 @@ function MemberWorkshopPromo({
               <div className="gps-coordinate-left">
                 <Compass size={18} className="text-sky-600" />
                 <div>
-                  <strong>Titik Koordinat GPS Usaha (Pencarian Terdekat)</strong>
+                  <strong>
+                    Titik Koordinat GPS Usaha (Pencarian Terdekat)
+                  </strong>
                   <p>
                     {gpsSource === "auto" && (
                       <>
                         Otomatis disinkronkan dari {city || province}:{" "}
-                        <code>{latitude.toFixed(4)}, {longitude.toFixed(4)}</code>{" "}
-                        <span className="gps-source-tag-auto">🏙️ Titik Wilayah</span>
+                        <code>
+                          {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                        </code>{" "}
+                        <span className="gps-source-tag-auto">
+                          🏙️ Titik Wilayah
+                        </span>
                       </>
                     )}
                     {gpsSource === "gps" && (
                       <>
                         Sensor GPS perangkat Anda saat ini:{" "}
-                        <code>{latitude.toFixed(4)}, {longitude.toFixed(4)}</code>{" "}
+                        <code>
+                          {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                        </code>{" "}
                         <span className="gps-source-tag">📍 GPS Presisi</span>
                       </>
                     )}
                     {gpsSource === "maps" && (
                       <>
                         Titik dari Google Maps:{" "}
-                        <code>{latitude.toFixed(4)}, {longitude.toFixed(4)}</code>{" "}
+                        <code>
+                          {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                        </code>{" "}
                         <span className="gps-source-tag">🗺️ Google Maps</span>
                       </>
                     )}
                   </p>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                }}
+              >
                 {gpsSource === "gps" && (
                   <button
                     type="button"
                     className="button secondary"
-                    style={{ fontSize: "12px", padding: "6px 10px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                    style={{
+                      fontSize: "12px",
+                      padding: "6px 10px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
                     onClick={() => {
                       const coords = getCityCoordinates(city, province);
                       setLatitude(coords.lat);
@@ -2687,8 +3433,13 @@ function MemberWorkshopPromo({
                   disabled={isDetectingGps}
                   title="Gunakan posisi GPS perangkat Anda saat ini sebagai titik lokasi workshop"
                 >
-                  <MapPin size={13} className={isDetectingGps ? "animate-spin" : ""} />
-                  <span>{isDetectingGps ? "Membaca..." : "📍 Ambil Titik GPS Saya"}</span>
+                  <MapPin
+                    size={13}
+                    className={isDetectingGps ? "animate-spin" : ""}
+                  />
+                  <span>
+                    {isDetectingGps ? "Membaca..." : "📍 Ambil Titik GPS Saya"}
+                  </span>
                 </button>
               </div>
             </div>
@@ -2774,22 +3525,38 @@ function MemberWorkshopPromo({
           {/* Card 5: Publikasi & Simpan */}
           <div className="promo-form-section-card publish-card">
             <div className="publish-toggle-box">
-              <label className="toggle-label">
-                <input
-                  type="checkbox"
-                  checked={isPublished}
-                  onChange={(e) => setIsPublished(e.target.checked)}
-                  disabled={!emailVerified}
-                />
-                <span className="toggle-slider" />
-                <div>
+              <div className="publish-toggle-info">
+                <div className="publish-title-badge-row">
                   <strong>Tayangkan di Direktori Publik</strong>
-                  <small>
-                    Profil bengkel akan otomatis muncul di direktori website dan
-                    halaman mitra teknisi.
-                  </small>
+                  <span
+                    className={`publish-status-pill ${isPublished && emailVerified ? "active" : "draft"}`}
+                  >
+                    {isPublished && emailVerified
+                      ? "🟢 Tayang Publik"
+                      : "⚪ Mode Draf"}
+                  </span>
                 </div>
-              </label>
+                <p>
+                  Profil bengkel akan otomatis muncul di direktori pencarian
+                  website dan halaman mitra teknisi resmi.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isPublished && emailVerified}
+                disabled={!emailVerified}
+                onClick={() => setIsPublished(!isPublished)}
+                className={`custom-switch-btn ${isPublished && emailVerified ? "checked" : ""}`}
+                title={
+                  isPublished
+                    ? "Klik untuk jadikan mode Draf (sembunyikan dari direktori)"
+                    : "Klik untuk Tayangkan ke direktori publik"
+                }
+              >
+                <span className="custom-switch-thumb" />
+              </button>
             </div>
 
             <div className="form-actions-row">
@@ -2799,7 +3566,9 @@ function MemberWorkshopPromo({
                 disabled={saving || !emailVerified}
               >
                 <Save size={16} />
-                <span>{saving ? "Menyimpan…" : "Simpan & Publikasikan Iklan"}</span>
+                <span>
+                  {saving ? "Menyimpan…" : "Simpan & Publikasikan Iklan"}
+                </span>
               </button>
             </div>
           </div>
@@ -2878,14 +3647,22 @@ function MemberWorkshopPromo({
                   </div>
 
                   <div className="workshop-card-header-block">
-                    <h3 className="workshop-card-title">{workshopName || "Nama Bengkel Anda"}</h3>
-                    {tagline && <p className="workshop-card-tagline">{tagline}</p>}
+                    <h3 className="workshop-card-title">
+                      {workshopName || "Nama Bengkel Anda"}
+                    </h3>
+                    {tagline && (
+                      <p className="workshop-card-tagline">{tagline}</p>
+                    )}
                   </div>
 
                   <div className="workshop-card-meta">
                     <div className="meta-item">
                       <MapPin size={13} color="#0284c7" className="meta-icon" />
-                      <span>{[village, district, city, province].filter(Boolean).join(", ") || "Lokasi belum diisi"}</span>
+                      <span>
+                        {[village, district, city, province]
+                          .filter(Boolean)
+                          .join(", ") || "Lokasi belum diisi"}
+                      </span>
                     </div>
                     <div className="meta-item">
                       <Phone size={13} color="#64748b" className="meta-icon" />
@@ -2897,7 +3674,11 @@ function MemberWorkshopPromo({
                     </div>
                     {website && (
                       <div className="meta-item">
-                        <Globe size={13} color="#0284c7" className="meta-icon" />
+                        <Globe
+                          size={13}
+                          color="#0284c7"
+                          className="meta-icon"
+                        />
                         <a
                           href={formatWebUrl(website)}
                           target="_blank"
@@ -2949,13 +3730,19 @@ function MemberWorkshopPromo({
                         width="100%"
                         height="125"
                         loading="lazy"
-                        style={{ border: 0, borderRadius: "8px", display: "block" }}
+                        style={{
+                          border: 0,
+                          borderRadius: "8px",
+                          display: "block",
+                        }}
                         allowFullScreen={false}
                       />
                     </div>
                   </div>
 
-                  {description && <p className="workshop-card-desc">{description}</p>}
+                  {description && (
+                    <p className="workshop-card-desc">{description}</p>
+                  )}
 
                   {selectedServices.length > 0 && (
                     <div className="workshop-card-services">
@@ -2976,7 +3763,9 @@ function MemberWorkshopPromo({
                   <div className="workshop-card-footer">
                     <div className="owner-verified-pill">
                       <ShieldCheck size={13} color="#10b981" />
-                      <span>Mitra APTI · KTA: {member.memberNumber || "Valid"}</span>
+                      <span>
+                        Mitra APTI · KTA: {member.memberNumber || "Valid"}
+                      </span>
                     </div>
                     <div className="card-footer-buttons-group">
                       {website && (
@@ -3039,16 +3828,26 @@ function MemberWorkshopPromo({
                     <div className="mobile-app-card">
                       <div className="mobile-card-top-row">
                         <span className="mobile-cat-pill">{category}</span>
-                        {emergency24h && <span className="mobile-24h-pill">🚨 24 Jam</span>}
+                        {emergency24h && (
+                          <span className="mobile-24h-pill">🚨 24 Jam</span>
+                        )}
                       </div>
 
-                      <h4 className="mobile-workshop-title">{workshopName || "Nama Bengkel Anda"}</h4>
-                      {tagline && <p className="mobile-workshop-tagline">{tagline}</p>}
+                      <h4 className="mobile-workshop-title">
+                        {workshopName || "Nama Bengkel Anda"}
+                      </h4>
+                      {tagline && (
+                        <p className="mobile-workshop-tagline">{tagline}</p>
+                      )}
 
                       <div className="mobile-quick-meta">
                         <div className="mobile-meta-row">
                           <MapPin size={11} color="#0284c7" />
-                          <span>{[village, district, city].filter(Boolean).join(", ") || "Lokasi workshop"}</span>
+                          <span>
+                            {[village, district, city]
+                              .filter(Boolean)
+                              .join(", ") || "Lokasi workshop"}
+                          </span>
                         </div>
                         <div className="mobile-meta-row">
                           <Clock size={11} color="#64748b" />
@@ -3070,7 +3869,11 @@ function MemberWorkshopPromo({
                           width="100%"
                           height="95"
                           loading="lazy"
-                          style={{ border: 0, borderRadius: "6px", display: "block" }}
+                          style={{
+                            border: 0,
+                            borderRadius: "6px",
+                            display: "block",
+                          }}
                           allowFullScreen={false}
                         />
                       </div>
@@ -3113,21 +3916,30 @@ function MemberWorkshopPromo({
                   <div className="compact-widget-icon-col">
                     <div className="compact-store-avatar">
                       <Store size={18} color="#0284c7" />
-                      {emergency24h && <span className="compact-24h-dot" title="Siap 24 Jam" />}
+                      {emergency24h && (
+                        <span className="compact-24h-dot" title="Siap 24 Jam" />
+                      )}
                     </div>
                   </div>
 
                   <div className="compact-widget-info-col">
                     <div className="compact-header-line">
                       <span className="compact-cat-tag">{category}</span>
-                      <span className={`compact-status-dot ${isPublished && emailVerified ? "live" : "draft"}`}>
+                      <span
+                        className={`compact-status-dot ${isPublished && emailVerified ? "live" : "draft"}`}
+                      >
                         {isPublished && emailVerified ? "● Tayang" : "● Draf"}
                       </span>
                     </div>
-                    <h4 className="compact-title">{workshopName || "Nama Bengkel"}</h4>
+                    <h4 className="compact-title">
+                      {workshopName || "Nama Bengkel"}
+                    </h4>
                     <p className="compact-location">
                       <MapPin size={11} color="#0284c7" />
-                      <span>{[district, city].filter(Boolean).join(", ") || "Lokasi Bengkel"}</span>
+                      <span>
+                        {[district, city].filter(Boolean).join(", ") ||
+                          "Lokasi Bengkel"}
+                      </span>
                     </p>
                     <p className="compact-hours">
                       <Clock size={11} color="#64748b" />
@@ -3175,23 +3987,44 @@ function MemberWorkshopPromo({
                         <span>{category}</span>
                       </span>
                       {emergency24h && (
-                        <span className="emergency-preview-chip">🚨 Siap Panggilan 24 Jam</span>
+                        <span className="emergency-preview-chip">
+                          🚨 Siap Panggilan 24 Jam
+                        </span>
                       )}
                       <span className="owner-verified-pill">
                         <ShieldCheck size={13} color="#10b981" />
-                        <span>Mitra APTI · KTA: {member.memberNumber || "Valid"}</span>
+                        <span>
+                          Mitra APTI · KTA: {member.memberNumber || "Valid"}
+                        </span>
                       </span>
                     </div>
 
-                    <h3 className="full-banner-title">{workshopName || "Nama Bengkel Anda"}</h3>
-                    {tagline && <p className="full-banner-tagline">{tagline}</p>}
+                    <h3 className="full-banner-title">
+                      {workshopName || "Nama Bengkel Anda"}
+                    </h3>
+                    {tagline && (
+                      <p className="full-banner-tagline">{tagline}</p>
+                    )}
 
-                    {description && <p className="full-banner-desc">{description}</p>}
+                    {description && (
+                      <p className="full-banner-desc">{description}</p>
+                    )}
 
                     <div className="full-banner-meta-grid">
                       <div className="full-meta-cell">
                         <small>Alamat Workshop & Operasional</small>
-                        <strong>{[address, village, district, city, province, postalCode].filter(Boolean).join(", ")}</strong>
+                        <strong>
+                          {[
+                            address,
+                            village,
+                            district,
+                            city,
+                            province,
+                            postalCode,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </strong>
                       </div>
                       <div className="full-meta-cell">
                         <small>Jadwal Operasional Lengkap</small>
@@ -3248,7 +4081,11 @@ function MemberWorkshopPromo({
                         width="100%"
                         height="150"
                         loading="lazy"
-                        style={{ border: 0, borderRadius: "8px", display: "block" }}
+                        style={{
+                          border: 0,
+                          borderRadius: "8px",
+                          display: "block",
+                        }}
                         allowFullScreen={false}
                       />
                     </div>
@@ -3285,8 +4122,9 @@ function MemberWorkshopPromo({
           <div className="preview-hint-box">
             <p>
               💡 <strong>Keuntungan Anggota:</strong> Iklan bengkel Anda akan
-              mendapat lencana resmi <em>&quot;Mitra Terverifikasi APTI&quot;</em> yang
-              meningkatkan kepercayaan calon pelanggan dan kontraktor proyek.
+              mendapat lencana resmi{" "}
+              <em>&quot;Mitra Terverifikasi APTI&quot;</em> yang meningkatkan
+              kepercayaan calon pelanggan dan kontraktor proyek.
             </p>
           </div>
         </div>
@@ -3312,7 +4150,9 @@ function MemberCredentials({
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!emailVerified) {
-      setError("Wajib verifikasi email terlebih dahulu untuk mengajukan kredensial.");
+      setError(
+        "Wajib verifikasi email terlebih dahulu untuk mengajukan kredensial.",
+      );
       return;
     }
     if (!selectedScheme) return;
@@ -3363,7 +4203,8 @@ function MemberCredentials({
           <p className="eyebrow">Kepatuhan & Sertifikasi</p>
           <h2>Standar Kualifikasi & Sertifikasi Profesi</h2>
           <p>
-            Persyaratan kompetensi teknis dan verifikasi dokumen sertifikasi resmi untuk status keanggotaan Anda.
+            Persyaratan kompetensi teknis dan verifikasi dokumen sertifikasi
+            resmi untuk status keanggotaan Anda.
           </p>
         </div>
         {data.requirements.length > 0 && (
@@ -3407,7 +4248,13 @@ function MemberCredentials({
               </span>
               <div>
                 <small>
-                  {requirement.rule === "required" ? "Wajib Dipenuhi" : requirement.rule === "optional" ? "Opsional" : "Salah Satu (Pilihan)"} · Verifikasi {requirement.requiredVerificationLevel.replaceAll("_", " ")}
+                  {requirement.rule === "required"
+                    ? "Wajib Dipenuhi"
+                    : requirement.rule === "optional"
+                      ? "Opsional"
+                      : "Salah Satu (Pilihan)"}{" "}
+                  · Verifikasi{" "}
+                  {requirement.requiredVerificationLevel.replaceAll("_", " ")}
                 </small>
                 <h3>{requirement.scheme.name}</h3>
                 <p>
@@ -3430,7 +4277,11 @@ function MemberCredentials({
                   }
                 }}
                 disabled={!emailVerified}
-                title={!emailVerified ? "Verifikasi email untuk mengajukan" : undefined}
+                title={
+                  !emailVerified
+                    ? "Verifikasi email untuk mengajukan"
+                    : undefined
+                }
               >
                 {!emailVerified ? (
                   <>
@@ -3452,7 +4303,8 @@ function MemberCredentials({
             </span>
             <strong>Standar Kualifikasi Terpenuhi</strong>
             <p>
-              Tipe keanggotaan Anda saat ini tidak memerlukan berkas verifikasi sertifikasi tambahan.
+              Tipe keanggotaan Anda saat ini tidak memerlukan berkas verifikasi
+              sertifikasi tambahan.
             </p>
           </div>
         )}
@@ -3471,7 +4323,11 @@ function MemberCredentials({
           {error && <p className="form-error full">{error}</p>}
           <label htmlFor="portal-cred-number">
             Nomor Sertifikat / Registrasi
-            <input id="portal-cred-number" name="credentialNumber" placeholder="Contoh: REG-BNSP-2026-XXXX" />
+            <input
+              id="portal-cred-number"
+              name="credentialNumber"
+              placeholder="Contoh: REG-BNSP-2026-XXXX"
+            />
           </label>
           <label htmlFor="portal-cred-issuer">
             Lembaga Penerbit

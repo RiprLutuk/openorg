@@ -12,24 +12,25 @@ interface IndustryStatistic {
   period: string | null;
 }
 
-const STATS_EXPLANATIONS: Record<string, { desc: string; benchmark: string }> = {
-  certified_technicians: {
-    desc: "Teknisi aktif pemegang sertifikat uji kompetensi LSP TPTU / BNSP RI dan teregistrasi KTA digital.",
-    benchmark: "Target Nasional: 10.000",
-  },
-  dpd_coverage: {
-    desc: "Cakupan kepengurusan Dewan Pimpinan Daerah (DPD) tingkat provinsi di seluruh wilayah Indonesia.",
-    benchmark: "Target: 100% Wilayah (38 DPD)",
-  },
-  serviced_units_volume: {
-    desc: "Total unit pendingin (AC Split, VRV, Chiller, Cold Chain) yang ditangani teknisi ber-KTA sah tiap bulan.",
-    benchmark: "Target: >100.000 Unit / Bln",
-  },
-  public_satisfaction_rate: {
-    desc: "Survei kepuasan konsumen terhadap mutu servis, kejujuran takaran freon, dan kwitansi bergaransi resmi.",
-    benchmark: "Standar Mutu: Min. 95.0%",
-  },
-};
+const STATS_EXPLANATIONS: Record<string, { desc: string; benchmark: string }> =
+  {
+    certified_technicians: {
+      desc: "Teknisi aktif pemegang sertifikat uji kompetensi LSP TPTU / BNSP RI dan teregistrasi KTA digital.",
+      benchmark: "Target Nasional: 10.000",
+    },
+    dpd_coverage: {
+      desc: "Cakupan kepengurusan Dewan Pimpinan Daerah (DPD) tingkat provinsi di seluruh wilayah Indonesia.",
+      benchmark: "Target: 100% Wilayah (38 DPD)",
+    },
+    serviced_units_volume: {
+      desc: "Total unit pendingin (AC Split, VRV, Chiller, Cold Chain) yang ditangani teknisi ber-KTA sah tiap bulan.",
+      benchmark: "Target: >100.000 Unit / Bln",
+    },
+    public_satisfaction_rate: {
+      desc: "Survei kepuasan konsumen terhadap mutu servis, kejujuran takaran freon, dan kwitansi bergaransi resmi.",
+      benchmark: "Standar Mutu: Min. 95.0%",
+    },
+  };
 
 export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
   const doc = new jsPDF({
@@ -67,12 +68,20 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12.5);
-  doc.text("LAPORAN RESMI STATISTIK & INDIKATOR INDUSTRI HVAC/R", margin + 25, 14.5);
+  doc.text(
+    "LAPORAN RESMI STATISTIK & INDIKATOR INDUSTRI HVAC/R",
+    margin + 25,
+    14.5,
+  );
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(125, 211, 252); // #7dd3fc Sky Light
-  doc.text("ASOSIASI PRAKTISI TEKNIK REFRIGERASI DAN TATA UDARA (APTI INDONESIA)", margin + 25, 20.5);
+  doc.text(
+    "ASOSIASI PRAKTISI TEKNIK REFRIGERASI DAN TATA UDARA (APTI INDONESIA)",
+    margin + 25,
+    20.5,
+  );
 
   // Metadata Sub-row
   doc.setFont("helvetica", "normal");
@@ -197,52 +206,55 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
 
   y += 7.5;
 
-  const dataToPrint = statsList.length > 0 ? statsList : [
-    {
-      id: "1",
-      metricKey: "certified_technicians",
-      metricLabel: "Total Teknisi Bersertifikat BNSP",
-      metricValue: "8,450",
-      metricUnit: "Teknisi Terdaftar",
-      trendDirection: "up" as const,
-      trendPercentage: "+18.5%",
-      category: "Keanggotaan",
-      period: "2026 Q1",
-    },
-    {
-      id: "2",
-      metricKey: "dpd_coverage",
-      metricLabel: "Sebaran DPD & Korwil Provinsi",
-      metricValue: "38 / 38",
-      metricUnit: "Provinsi Sah (100%)",
-      trendDirection: "up" as const,
-      trendPercentage: "100%",
-      category: "Organisasi",
-      period: "2026 Q1",
-    },
-    {
-      id: "3",
-      metricKey: "serviced_units_volume",
-      metricLabel: "Volume Servis Unit AC Terverifikasi",
-      metricValue: "142,800",
-      metricUnit: "Unit AC / Bulan",
-      trendDirection: "up" as const,
-      trendPercentage: "+24.2%",
-      category: "Layanan Sektor",
-      period: "2026 Q1",
-    },
-    {
-      id: "4",
-      metricKey: "public_satisfaction_rate",
-      metricLabel: "Tingkat Kepuasan Pelanggan KTA APTI",
-      metricValue: "98.4%",
-      metricUnit: "Indeks Trust Publik",
-      trendDirection: "up" as const,
-      trendPercentage: "+2.1%",
-      category: "Kualitas Service",
-      period: "2026 Q1",
-    },
-  ];
+  const dataToPrint =
+    statsList.length > 0
+      ? statsList
+      : [
+          {
+            id: "1",
+            metricKey: "certified_technicians",
+            metricLabel: "Total Teknisi Bersertifikat BNSP",
+            metricValue: "8,450",
+            metricUnit: "Teknisi Terdaftar",
+            trendDirection: "up" as const,
+            trendPercentage: "+18.5%",
+            category: "Keanggotaan",
+            period: "2026 Q1",
+          },
+          {
+            id: "2",
+            metricKey: "dpd_coverage",
+            metricLabel: "Sebaran DPD & Korwil Provinsi",
+            metricValue: "38 / 38",
+            metricUnit: "Provinsi Sah (100%)",
+            trendDirection: "up" as const,
+            trendPercentage: "100%",
+            category: "Organisasi",
+            period: "2026 Q1",
+          },
+          {
+            id: "3",
+            metricKey: "serviced_units_volume",
+            metricLabel: "Volume Servis Unit AC Terverifikasi",
+            metricValue: "142,800",
+            metricUnit: "Unit AC / Bulan",
+            trendDirection: "up" as const,
+            trendPercentage: "+24.2%",
+            category: "Layanan Sektor",
+            period: "2026 Q1",
+          },
+          {
+            id: "4",
+            metricKey: "public_satisfaction_rate",
+            metricLabel: "Tingkat Kepuasan Pelanggan KTA APTI",
+            metricValue: "98.4%",
+            metricUnit: "Indeks Trust Publik",
+            trendDirection: "up" as const,
+            trendPercentage: "+2.1%",
+            category: "Kualitas Service",
+            period: "2026 Q1",
+          },
+        ];
 
   dataToPrint.forEach((item, index) => {
     const rowHeight = 16;
@@ -312,7 +324,9 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
     } else {
       doc.setTextColor(71, 85, 105);
     }
-    const trendText = item.trendPercentage ? `[ ${item.trendPercentage} ]` : "[ - ]";
+    const trendText = item.trendPercentage
+      ? `[ ${item.trendPercentage} ]`
+      : "[ - ]";
     doc.text(trendText, margin + 142, y + 5.5);
 
     doc.setFont("helvetica", "normal");
@@ -352,7 +366,11 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
   doc.setTextColor(71, 85, 105);
   doc.text("• Sumatera: 10 DPD    • Jawa - Bali: 7 DPD", margin + 4, y + 11);
   doc.text("• Kalimantan: 5 DPD    • Sulawesi: 6 DPD", margin + 4, y + 16);
-  doc.text("• Nusa Tenggara, Maluku & Papua: 10 DPD (100% Sah)", margin + 4, y + 21);
+  doc.text(
+    "• Nusa Tenggara, Maluku & Papua: 10 DPD (100% Sah)",
+    margin + 4,
+    y + 21,
+  );
 
   // Right Card: Sector Utilization
   const rightX = margin + splitCardWidth + 4;
@@ -368,9 +386,17 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6.5);
   doc.setTextColor(71, 85, 105);
-  doc.text("• Residensial (AC Split Inverter/Non-Inv): 65%", rightX + 4, y + 11);
+  doc.text(
+    "• Residensial (AC Split Inverter/Non-Inv): 65%",
+    rightX + 4,
+    y + 11,
+  );
   doc.text("• Komersial Ringan (Cassette & VRV/VRF): 22%", rightX + 4, y + 16);
-  doc.text("• Industrial (Chiller & Cold Storage Chain): 13%", rightX + 4, y + 21);
+  doc.text(
+    "• Industrial (Chiller & Cold Storage Chain): 13%",
+    rightX + 4,
+    y + 21,
+  );
 
   // ==========================================
   // 5. METHODOLOGY & COMPLIANCE BOX
@@ -383,14 +409,21 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.8);
   doc.setTextColor(3, 105, 161);
-  doc.text("4. METODOLOGI PENGUMPULAN DATA & INTEGRITAS BUKU BESAR DIGITAL", margin + 5, y + 5.5);
+  doc.text(
+    "4. METODOLOGI PENGUMPULAN DATA & INTEGRITAS BUKU BESAR DIGITAL",
+    margin + 5,
+    y + 5.5,
+  );
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6.6);
   doc.setTextColor(51, 65, 85);
   const methodologyText =
     "Seluruh data indikator dihimpun melalui sistem buku besar digital ComplyFlow dari pelaporan mandiri 38 DPD, database uji kompetensi LSP TPTU / BNSP RI, serta transaksi KTA digital yang diaudit secara periodik sesuai standar SNI & ISO tata kelola keorganisasian nirlaba.";
-  const splitMethodology = doc.splitTextToSize(methodologyText, contentWidth - 10);
+  const splitMethodology = doc.splitTextToSize(
+    methodologyText,
+    contentWidth - 10,
+  );
   doc.text(splitMethodology, margin + 5, y + 10.5);
 
   doc.setFont("helvetica", "bold");

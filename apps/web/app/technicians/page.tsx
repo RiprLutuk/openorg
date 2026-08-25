@@ -41,7 +41,10 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { NATIONAL_16_WORKSHOPS } from "@/components/home-featured-workshops";
-import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
+import {
+  PublicWorkshopCard,
+  type PublicWorkshopData,
+} from "@/components/public-workshop-card";
 import { ServerPagination } from "@/components/server-pagination";
 
 interface Technician {
@@ -67,42 +70,42 @@ const ITEMS_PER_PAGE_WORKSHOPS = 9;
 const ITEMS_PER_PAGE_TECHS = 12;
 
 const CITY_COORDINATES: Record<string, { lat: number; lng: number }> = {
-  "jakarta": { lat: -6.2088, lng: 106.8456 },
+  jakarta: { lat: -6.2088, lng: 106.8456 },
   "jakarta selatan": { lat: -6.2615, lng: 106.8106 },
   "jakarta barat": { lat: -6.1683, lng: 106.7589 },
   "jakarta pusat": { lat: -6.1805, lng: 106.8284 },
-  "jakarta timur": { lat: -6.2250, lng: 106.9004 },
-  "jakarta utara": { lat: -6.1384, lng: 106.8640 },
-  "bandung": { lat: -6.9175, lng: 107.6191 },
-  "surabaya": { lat: -7.2575, lng: 112.7521 },
-  "semarang": { lat: -6.9667, lng: 110.4167 },
-  "yogyakarta": { lat: -7.7956, lng: 110.3695 },
-  "jogja": { lat: -7.7956, lng: 110.3695 },
-  "medan": { lat: 3.5952, lng: 98.6722 },
-  "makassar": { lat: -5.1477, lng: 119.4327 },
-  "denpasar": { lat: -8.6705, lng: 115.2126 },
-  "bali": { lat: -8.6705, lng: 115.2126 },
-  "palembang": { lat: -2.9761, lng: 104.7754 },
-  "tangerang": { lat: -6.1783, lng: 106.6319 },
-  "bekasi": { lat: -6.2383, lng: 106.9756 },
-  "bogor": { lat: -6.5971, lng: 106.8060 },
-  "depok": { lat: -6.4025, lng: 106.7942 },
-  "malang": { lat: -7.9666, lng: 112.6326 },
-  "balikpapan": { lat: -1.2379, lng: 116.8289 },
-  "pekanbaru": { lat: 0.5071, lng: 101.4478 },
-  "lampung": { lat: -5.4500, lng: 105.2667 },
-  "bandar lampung": { lat: -5.4500, lng: 105.2667 },
-  "batam": { lat: 1.1301, lng: 104.0529 },
-  "banjarmasin": { lat: -3.3194, lng: 114.5908 },
-  "samarinda": { lat: -0.5022, lng: 117.1536 },
-  "manado": { lat: 1.4748, lng: 124.8428 },
-  "padang": { lat: -0.9471, lng: 100.4172 },
-  "pontianak": { lat: -0.0263, lng: 109.3425 },
-  "solo": { lat: -7.5755, lng: 110.8243 },
-  "surakarta": { lat: -7.5755, lng: 110.8243 },
-  "cirebon": { lat: -6.7320, lng: 108.5523 },
-  "sukabumi": { lat: -6.9277, lng: 106.9300 },
-  "tasikmalaya": { lat: -7.3274, lng: 108.2207 },
+  "jakarta timur": { lat: -6.225, lng: 106.9004 },
+  "jakarta utara": { lat: -6.1384, lng: 106.864 },
+  bandung: { lat: -6.9175, lng: 107.6191 },
+  surabaya: { lat: -7.2575, lng: 112.7521 },
+  semarang: { lat: -6.9667, lng: 110.4167 },
+  yogyakarta: { lat: -7.7956, lng: 110.3695 },
+  jogja: { lat: -7.7956, lng: 110.3695 },
+  medan: { lat: 3.5952, lng: 98.6722 },
+  makassar: { lat: -5.1477, lng: 119.4327 },
+  denpasar: { lat: -8.6705, lng: 115.2126 },
+  bali: { lat: -8.6705, lng: 115.2126 },
+  palembang: { lat: -2.9761, lng: 104.7754 },
+  tangerang: { lat: -6.1783, lng: 106.6319 },
+  bekasi: { lat: -6.2383, lng: 106.9756 },
+  bogor: { lat: -6.5971, lng: 106.806 },
+  depok: { lat: -6.4025, lng: 106.7942 },
+  malang: { lat: -7.9666, lng: 112.6326 },
+  balikpapan: { lat: -1.2379, lng: 116.8289 },
+  pekanbaru: { lat: 0.5071, lng: 101.4478 },
+  lampung: { lat: -5.45, lng: 105.2667 },
+  "bandar lampung": { lat: -5.45, lng: 105.2667 },
+  batam: { lat: 1.1301, lng: 104.0529 },
+  banjarmasin: { lat: -3.3194, lng: 114.5908 },
+  samarinda: { lat: -0.5022, lng: 117.1536 },
+  manado: { lat: 1.4748, lng: 124.8428 },
+  padang: { lat: -0.9471, lng: 100.4172 },
+  pontianak: { lat: -0.0263, lng: 109.3425 },
+  solo: { lat: -7.5755, lng: 110.8243 },
+  surakarta: { lat: -7.5755, lng: 110.8243 },
+  cirebon: { lat: -6.732, lng: 108.5523 },
+  sukabumi: { lat: -6.9277, lng: 106.93 },
+  tasikmalaya: { lat: -7.3274, lng: 108.2207 },
 };
 
 function calculateDistanceKm(
@@ -211,13 +214,24 @@ function parseSkillLevel(rawLevel: string): SkillTierInfo {
   };
 }
 
-function getTechWorkshop(tech: Technician, wsList: MemberWorkshop[]): MemberWorkshop {
+function getTechWorkshop(
+  tech: Technician,
+  wsList: MemberWorkshop[],
+): MemberWorkshop {
   const match = wsList.find(
     (w) =>
-      (tech.ktaNumber && w.memberNumber && w.memberNumber.toLowerCase() === tech.ktaNumber.toLowerCase()) ||
-      (tech.name && w.ownerName && w.ownerName.toLowerCase().includes(tech.name.toLowerCase())) ||
-      (tech.name && w.workshopName && w.workshopName.toLowerCase().includes(tech.name.toLowerCase())) ||
-      (tech.workshopName && w.workshopName && w.workshopName.toLowerCase().includes(tech.workshopName.toLowerCase())),
+      (tech.ktaNumber &&
+        w.memberNumber &&
+        w.memberNumber.toLowerCase() === tech.ktaNumber.toLowerCase()) ||
+      (tech.name &&
+        w.ownerName &&
+        w.ownerName.toLowerCase().includes(tech.name.toLowerCase())) ||
+      (tech.name &&
+        w.workshopName &&
+        w.workshopName.toLowerCase().includes(tech.name.toLowerCase())) ||
+      (tech.workshopName &&
+        w.workshopName &&
+        w.workshopName.toLowerCase().includes(tech.workshopName.toLowerCase())),
   );
 
   if (match) return match;
@@ -226,9 +240,12 @@ function getTechWorkshop(tech: Technician, wsList: MemberWorkshop[]): MemberWork
     id: `ws-auto-${tech.id}`,
     workshopName: tech.workshopName || `Bengkel AC & Pendingin ${tech.name}`,
     tagline: `Pusat Layanan Servis & Instalasi Pendingin Resmi Terdaftar`,
-    category: tech.skillLevel.includes("4") || tech.skillLevel.toLowerCase().includes("vrv") || tech.skillLevel.toLowerCase().includes("chiller")
-      ? "Bengkel Spesialis AC Komersial (VRV/VRF/Chiller)"
-      : "Bengkel Servis AC Residensial & Rumah Tangga",
+    category:
+      tech.skillLevel.includes("4") ||
+      tech.skillLevel.toLowerCase().includes("vrv") ||
+      tech.skillLevel.toLowerCase().includes("chiller")
+        ? "Bengkel Spesialis AC Komersial (VRV/VRF/Chiller)"
+        : "Bengkel Servis AC Residensial & Rumah Tangga",
     city: tech.city,
     province: tech.province,
     address: `${tech.city}, ${tech.province}`,
@@ -252,39 +269,47 @@ function getTechWorkshop(tech: Technician, wsList: MemberWorkshop[]): MemberWork
 
 function TechniciansContent() {
   const searchParams = useSearchParams();
-  
+
   // URL-driven query states
   const rawPage = parseInt(searchParams.get("page") || "1", 10);
   const currentPage = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
-  const activeTab = (searchParams.get("tab") as "technicians" | "workshops") || "technicians";
+  const activeTab =
+    (searchParams.get("tab") as "technicians" | "workshops") || "technicians";
   const search = searchParams.get("q") || "";
   const selectedProvince = searchParams.get("provinsi") || "all";
   const selectedCity = searchParams.get("kota") || "all";
   const selectedSkill = searchParams.get("keahlian") || "all";
   const selectedWorkshopCat = searchParams.get("kategori") || "all";
-  const onlyBnsp = searchParams.get("bnsp") === "1" || searchParams.get("bnsp") === "true";
+  const onlyBnsp =
+    searchParams.get("bnsp") === "1" || searchParams.get("bnsp") === "true";
   const sortMode = searchParams.get("sort") || "default";
 
   // Client data states
   const [technicians, setTechnicians] = useState<Technician[]>([]);
-  const [workshops, setWorkshops] = useState<MemberWorkshop[]>(SEED_MEMBER_WORKSHOPS);
+  const [workshops, setWorkshops] = useState<MemberWorkshop[]>(
+    SEED_MEMBER_WORKSHOPS,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [copiedKta, setCopiedKta] = useState<string | null>(null);
-  const [activeTechModal, setActiveTechModal] = useState<Technician | null>(null);
+  const [activeTechModal, setActiveTechModal] = useState<Technician | null>(
+    null,
+  );
 
   // Geolocation states
-  const [userGeo, setUserGeo] = useState<{ lat: number; lng: number } | null>(() => {
-    const lat = searchParams.get("lat");
-    const lng = searchParams.get("lng");
-    if (lat && lng) {
-      const pLat = parseFloat(lat);
-      const pLng = parseFloat(lng);
-      if (!isNaN(pLat) && !isNaN(pLng)) {
-        return { lat: pLat, lng: pLng };
+  const [userGeo, setUserGeo] = useState<{ lat: number; lng: number } | null>(
+    () => {
+      const lat = searchParams.get("lat");
+      const lng = searchParams.get("lng");
+      if (lat && lng) {
+        const pLat = parseFloat(lat);
+        const pLng = parseFloat(lng);
+        if (!isNaN(pLat) && !isNaN(pLng)) {
+          return { lat: pLat, lng: pLng };
+        }
       }
-    }
-    return null;
-  });
+      return null;
+    },
+  );
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -314,7 +339,8 @@ function TechniciansContent() {
       if (nextSearch.trim()) url.searchParams.set("q", nextSearch.trim());
       else url.searchParams.delete("q");
 
-      const nextProv = params.provinsi !== undefined ? params.provinsi : selectedProvince;
+      const nextProv =
+        params.provinsi !== undefined ? params.provinsi : selectedProvince;
       if (nextProv !== "all") url.searchParams.set("provinsi", nextProv);
       else url.searchParams.delete("provinsi");
 
@@ -322,11 +348,13 @@ function TechniciansContent() {
       if (nextKota !== "all") url.searchParams.set("kota", nextKota);
       else url.searchParams.delete("kota");
 
-      const nextSkill = params.keahlian !== undefined ? params.keahlian : selectedSkill;
+      const nextSkill =
+        params.keahlian !== undefined ? params.keahlian : selectedSkill;
       if (nextSkill !== "all") url.searchParams.set("keahlian", nextSkill);
       else url.searchParams.delete("keahlian");
 
-      const nextCat = params.kategori !== undefined ? params.kategori : selectedWorkshopCat;
+      const nextCat =
+        params.kategori !== undefined ? params.kategori : selectedWorkshopCat;
       if (nextCat !== "all") url.searchParams.set("kategori", nextCat);
       else url.searchParams.delete("kategori");
 
@@ -428,8 +456,7 @@ function TechniciansContent() {
           });
         }
       }
-    } catch {
-    }
+    } catch {}
   }, []);
 
   const provinces = useMemo(() => {
@@ -448,15 +475,21 @@ function TechniciansContent() {
       selectedProvince === "all"
         ? pool
         : pool.filter((item) => item.province === selectedProvince);
-    return Array.from(new Set(filteredByProv.map((i) => i.city).filter(Boolean)));
+    return Array.from(
+      new Set(filteredByProv.map((i) => i.city).filter(Boolean)),
+    );
   }, [activeTab, technicians, workshops, selectedProvince]);
 
   const skillLevels = useMemo(() => {
-    return Array.from(new Set(technicians.map((t) => t.skillLevel).filter(Boolean)));
+    return Array.from(
+      new Set(technicians.map((t) => t.skillLevel).filter(Boolean)),
+    );
   }, [technicians]);
 
   const workshopCategories = useMemo(() => {
-    return Array.from(new Set(workshops.map((w) => w.category).filter(Boolean)));
+    return Array.from(
+      new Set(workshops.map((w) => w.category).filter(Boolean)),
+    );
   }, [workshops]);
 
   const activeFiltersCount = useMemo(() => {
@@ -471,7 +504,15 @@ function TechniciansContent() {
     }
     if (userGeo) count++;
     return count;
-  }, [selectedProvince, selectedCity, selectedSkill, selectedWorkshopCat, onlyBnsp, userGeo, activeTab]);
+  }, [
+    selectedProvince,
+    selectedCity,
+    selectedSkill,
+    selectedWorkshopCat,
+    onlyBnsp,
+    userGeo,
+    activeTab,
+  ]);
 
   const handleCopyKta = (e: React.MouseEvent, kta: string) => {
     e.stopPropagation();
@@ -484,7 +525,7 @@ function TechniciansContent() {
   const filteredTechs = useMemo(() => {
     return technicians
       .map((t) => {
-        let distanceKm: number | undefined = undefined;
+        let distanceKm: number | undefined;
         if (userGeo) {
           const cityLookup =
             CITY_COORDINATES[t.city?.toLowerCase()] ||
@@ -511,15 +552,16 @@ function TechniciansContent() {
         const matchProvince =
           selectedProvince === "all" || t.province === selectedProvince;
 
-        const matchCity =
-          selectedCity === "all" || t.city === selectedCity;
+        const matchCity = selectedCity === "all" || t.city === selectedCity;
 
         const matchSkill =
           selectedSkill === "all" || t.skillLevel === selectedSkill;
 
         const matchBnsp = !onlyBnsp || t.certifiedBnsp;
 
-        return matchSearch && matchProvince && matchCity && matchSkill && matchBnsp;
+        return (
+          matchSearch && matchProvince && matchCity && matchSkill && matchBnsp
+        );
       })
       .sort((a, b) => {
         if (userGeo || sortMode === "location") {
@@ -527,20 +569,37 @@ function TechniciansContent() {
             return a.distanceKm - b.distanceKm;
           }
         }
-        return (parseFloat(b.rating || "0") || 0) - (parseFloat(a.rating || "0") || 0);
+        return (
+          (parseFloat(b.rating || "0") || 0) -
+          (parseFloat(a.rating || "0") || 0)
+        );
       });
-  }, [technicians, userGeo, search, selectedProvince, selectedCity, selectedSkill, onlyBnsp, sortMode]);
+  }, [
+    technicians,
+    userGeo,
+    search,
+    selectedProvince,
+    selectedCity,
+    selectedSkill,
+    onlyBnsp,
+    sortMode,
+  ]);
 
   // 2. Process Workshops (Enrich Distance & Filter)
   const filteredWorkshops = useMemo(() => {
     return workshops
       .map((w) => {
-        let distanceKm: number | undefined = undefined;
+        let distanceKm: number | undefined;
         if (userGeo) {
           const lat = w.latitude;
           const lng = w.longitude;
           if (lat && lng) {
-            distanceKm = calculateDistanceKm(userGeo.lat, userGeo.lng, lat, lng);
+            distanceKm = calculateDistanceKm(
+              userGeo.lat,
+              userGeo.lng,
+              lat,
+              lng,
+            );
           } else {
             const cityLookup =
               CITY_COORDINATES[w.city?.toLowerCase()] ||
@@ -565,13 +624,14 @@ function TechniciansContent() {
           w.city.toLowerCase().includes(search.toLowerCase()) ||
           w.ownerName.toLowerCase().includes(search.toLowerCase()) ||
           w.memberNumber.toLowerCase().includes(search.toLowerCase()) ||
-          w.services.some((s) => s.toLowerCase().includes(search.toLowerCase()));
+          w.services.some((s) =>
+            s.toLowerCase().includes(search.toLowerCase()),
+          );
 
         const matchProvince =
           selectedProvince === "all" || w.province === selectedProvince;
 
-        const matchCity =
-          selectedCity === "all" || w.city === selectedCity;
+        const matchCity = selectedCity === "all" || w.city === selectedCity;
 
         const matchCat =
           selectedWorkshopCat === "all" || w.category === selectedWorkshopCat;
@@ -586,7 +646,15 @@ function TechniciansContent() {
         }
         return (b.rating || 0) - (a.rating || 0);
       });
-  }, [workshops, userGeo, search, selectedProvince, selectedCity, selectedWorkshopCat, sortMode]);
+  }, [
+    workshops,
+    userGeo,
+    search,
+    selectedProvince,
+    selectedCity,
+    selectedWorkshopCat,
+    sortMode,
+  ]);
 
   // Pagination Math
   const itemsPerPage =
@@ -644,7 +712,9 @@ function TechniciansContent() {
           {/* Right Column: Hero Metrics Bento Card */}
           <div className="hero-stats-bento-card">
             <div className="stats-card-header">
-              <span className="stats-card-badge">Data Jaringan Terakreditasi</span>
+              <span className="stats-card-badge">
+                Data Jaringan Terakreditasi
+              </span>
               <span className="stats-card-status">● Live Audit QR</span>
             </div>
             <div className="stats-card-grid">
@@ -714,7 +784,9 @@ function TechniciansContent() {
               }}
             >
               <Users size={17} />
-              <span>Direktori Teknisi Berlisensi ({technicians.length || 120})</span>
+              <span>
+                Direktori Teknisi Berlisensi ({technicians.length || 120})
+              </span>
             </button>
             <button
               type="button"
@@ -724,7 +796,9 @@ function TechniciansContent() {
               }}
             >
               <Store size={17} />
-              <span>Bursa Bengkel &amp; Toko Resmi Anggota ({workshops.length})</span>
+              <span>
+                Bursa Bengkel &amp; Toko Resmi Anggota ({workshops.length})
+              </span>
             </button>
           </div>
 
@@ -764,14 +838,25 @@ function TechniciansContent() {
               className={`btn-toolbar-gps ${userGeo ? "active" : ""}`}
               onClick={userGeo ? handleClearLocation : handleDetectLocation}
               disabled={isLocating}
-              title={userGeo ? "Nonaktifkan filter GPS" : "Cari di sekitar radius lokasi GPS Anda"}
+              title={
+                userGeo
+                  ? "Nonaktifkan filter GPS"
+                  : "Cari di sekitar radius lokasi GPS Anda"
+              }
             >
               {isLocating ? (
                 <Loader2 size={14} className="animate-spin text-sky-600" />
               ) : (
-                <LocateFixed size={14} className={userGeo ? "text-emerald-600 animate-pulse" : "text-sky-600"} />
+                <LocateFixed
+                  size={14}
+                  className={
+                    userGeo ? "text-emerald-600 animate-pulse" : "text-sky-600"
+                  }
+                />
               )}
-              <span className="btn-toolbar-text">{userGeo ? "GPS Aktif" : "Dekat Saya"}</span>
+              <span className="btn-toolbar-text">
+                {userGeo ? "GPS Aktif" : "Dekat Saya"}
+              </span>
             </button>
 
             {/* Filter Toggle Button */}
@@ -797,8 +882,15 @@ function TechniciansContent() {
                 {userGeo && (
                   <span className="active-filter-chip">
                     <LocateFixed size={11} className="text-emerald-600" />
-                    <span>GPS Radius ({userGeo.lat.toFixed(1)}, {userGeo.lng.toFixed(1)})</span>
-                    <button type="button" onClick={handleClearLocation} title="Hapus filter GPS">
+                    <span>
+                      GPS Radius ({userGeo.lat.toFixed(1)},{" "}
+                      {userGeo.lng.toFixed(1)})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleClearLocation}
+                      title="Hapus filter GPS"
+                    >
                       <X size={11} />
                     </button>
                   </span>
@@ -808,7 +900,9 @@ function TechniciansContent() {
                     <span>Prov: {selectedProvince}</span>
                     <button
                       type="button"
-                      onClick={() => updateUrl({ provinsi: "all", kota: "all", page: 1 })}
+                      onClick={() =>
+                        updateUrl({ provinsi: "all", kota: "all", page: 1 })
+                      }
                       title="Hapus filter provinsi"
                     >
                       <X size={11} />
@@ -853,7 +947,9 @@ function TechniciansContent() {
                 )}
                 {activeTab === "workshops" && selectedWorkshopCat !== "all" && (
                   <span className="active-filter-chip">
-                    <span>{selectedWorkshopCat.replace(/^Bengkel\s+/i, "")}</span>
+                    <span>
+                      {selectedWorkshopCat.replace(/^Bengkel\s+/i, "")}
+                    </span>
                     <button
                       type="button"
                       onClick={() => updateUrl({ kategori: "all", page: 1 })}
@@ -902,14 +998,36 @@ function TechniciansContent() {
           {/* Results Summary Bar */}
           <div className="directory-results-meta-bar">
             <span className="results-count-text">
-              Menampilkan <strong>{totalItems > 0 ? startIndex + 1 : 0} – {endIndex}</strong> dari <strong>{totalItems}</strong> {activeTab === "workshops" ? "Bengkel Resmi" : "Teknisi Berlisensi"}
-              {selectedProvince !== "all" && <span> di <em>{selectedProvince}</em></span>}
-              {selectedCity !== "all" && <span>, <em>{selectedCity}</em></span>}
-              {userGeo && <span className="text-sky-600 font-semibold"> (Urutan Berdasarkan Jarak Terdekat)</span>}
+              Menampilkan{" "}
+              <strong>
+                {totalItems > 0 ? startIndex + 1 : 0} – {endIndex}
+              </strong>{" "}
+              dari <strong>{totalItems}</strong>{" "}
+              {activeTab === "workshops"
+                ? "Bengkel Resmi"
+                : "Teknisi Berlisensi"}
+              {selectedProvince !== "all" && (
+                <span>
+                  {" "}
+                  di <em>{selectedProvince}</em>
+                </span>
+              )}
+              {selectedCity !== "all" && (
+                <span>
+                  , <em>{selectedCity}</em>
+                </span>
+              )}
+              {userGeo && (
+                <span className="text-sky-600 font-semibold">
+                  {" "}
+                  (Urutan Berdasarkan Jarak Terdekat)
+                </span>
+              )}
             </span>
             {totalPages > 1 && (
               <span className="results-page-indicator">
-                Halaman <strong>{safePage}</strong> dari <strong>{totalPages}</strong>
+                Halaman <strong>{safePage}</strong> dari{" "}
+                <strong>{totalPages}</strong>
               </span>
             )}
           </div>
@@ -922,7 +1040,11 @@ function TechniciansContent() {
                   <div className="smart-banner-copy">
                     <Sparkles size={16} color="#0284c7" />
                     <span>
-                      Ditemukan <strong>{filteredTechs.length} teknisi resmi</strong> untuk kata kunci <em>&quot;{search}&quot;</em>. Klik kartu untuk melihat profil lengkap bengkel &amp; peta operasional.
+                      Ditemukan{" "}
+                      <strong>{filteredTechs.length} teknisi resmi</strong>{" "}
+                      untuk kata kunci <em>&quot;{search}&quot;</em>. Klik kartu
+                      untuk melihat profil lengkap bengkel &amp; peta
+                      operasional.
                     </span>
                   </div>
                   <button
@@ -966,8 +1088,14 @@ function TechniciansContent() {
                           })()}
 
                           {tech.distanceKm !== undefined && (
-                            <span className="ws-pill-distance" title={`Jarak ke lokasi: ±${tech.distanceKm.toFixed(1)} km`}>
-                              📍 {tech.distanceKm < 1 ? "< 1 km" : `±${Math.round(tech.distanceKm)} km`}
+                            <span
+                              className="ws-pill-distance"
+                              title={`Jarak ke lokasi: ±${tech.distanceKm.toFixed(1)} km`}
+                            >
+                              📍{" "}
+                              {tech.distanceKm < 1
+                                ? "< 1 km"
+                                : `±${Math.round(tech.distanceKm)} km`}
                             </span>
                           )}
 
@@ -1031,7 +1159,9 @@ function TechniciansContent() {
                                 </strong>
                               </div>
                               <div className="ws-box-footer">
-                                <span className="ws-cat-subtag truncate">{ws.category}</span>
+                                <span className="ws-cat-subtag truncate">
+                                  {ws.category}
+                                </span>
                                 <span className="ws-view-link">
                                   <span>Detail Usaha</span>
                                   <ArrowRight size={10} />
@@ -1089,8 +1219,8 @@ function TechniciansContent() {
                       <Users size={44} color="#94a3b8" />
                       <h3>Tidak Ada Teknisi yang Sesuai</h3>
                       <p>
-                        Coba sesuaikan kata kunci pencarian atau ubah filter jenjang
-                        keahlian dan provinsi.
+                        Coba sesuaikan kata kunci pencarian atau ubah filter
+                        jenjang keahlian dan provinsi.
                       </p>
                       <button
                         type="button"
@@ -1128,8 +1258,8 @@ function TechniciansContent() {
                     <Store size={44} color="#94a3b8" />
                     <h3>Tidak Ada Bengkel / Toko yang Sesuai</h3>
                     <p>
-                      Coba sesuaikan kata kunci pencarian atau ubah filter kategori
-                      dan provinsi.
+                      Coba sesuaikan kata kunci pencarian atau ubah filter
+                      kategori dan provinsi.
                     </p>
                     <button
                       type="button"
@@ -1151,14 +1281,20 @@ function TechniciansContent() {
               </div>
 
               {/* Callout Banner when on Workshops Tab - Placed Cleanly After Grid */}
-              <div className="workshop-member-cta-banner" style={{ marginTop: "24px" }}>
+              <div
+                className="workshop-member-cta-banner"
+                style={{ marginTop: "24px" }}
+              >
                 <div className="banner-left">
                   <Sparkles size={24} color="#0284c7" />
                   <div>
-                    <strong>Punya Bengkel AC, Toko Sparepart, atau Jasa Pendingin?</strong>
+                    <strong>
+                      Punya Bengkel AC, Toko Sparepart, atau Jasa Pendingin?
+                    </strong>
                     <p>
-                      Pasang profil usaha Anda secara gratis di bursa direktori resmi
-                      APTI untuk meningkatkan kredibilitas dan jangkauan order pelanggan.
+                      Pasang profil usaha Anda secara gratis di bursa direktori
+                      resmi APTI untuk meningkatkan kredibilitas dan jangkauan
+                      order pelanggan.
                     </p>
                   </div>
                 </div>
@@ -1177,7 +1313,9 @@ function TechniciansContent() {
             totalPages={totalPages}
             totalItems={totalItems}
             pageSize={itemsPerPage}
-            itemName={activeTab === "workshops" ? "Bengkel & Toko" : "Teknisi Terdaftar"}
+            itemName={
+              activeTab === "workshops" ? "Bengkel & Toko" : "Teknisi Terdaftar"
+            }
             onPageChange={handlePageChange}
           />
         </div>
@@ -1217,7 +1355,9 @@ function TechniciansContent() {
                 <SlidersHorizontal size={17} className="text-sky-600" />
                 <h4>Filter Direktori &amp; Wilayah</h4>
                 {activeFiltersCount > 0 && (
-                  <span className="filter-header-count">{activeFiltersCount} Aktif</span>
+                  <span className="filter-header-count">
+                    {activeFiltersCount} Aktif
+                  </span>
                 )}
               </div>
               <button
@@ -1239,7 +1379,9 @@ function TechniciansContent() {
                     <LocateFixed size={14} className="text-sky-600" />
                     <span>Lokasi GPS &amp; Radius Terdekat</span>
                   </label>
-                  {userGeo && <span className="filter-status-on">● GPS Aktif</span>}
+                  {userGeo && (
+                    <span className="filter-status-on">● GPS Aktif</span>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -1251,10 +1393,18 @@ function TechniciansContent() {
                 >
                   <LocateFixed
                     size={18}
-                    className={userGeo ? "text-emerald-600 animate-pulse" : "text-sky-600"}
+                    className={
+                      userGeo
+                        ? "text-emerald-600 animate-pulse"
+                        : "text-sky-600"
+                    }
                   />
                   <div className="gps-card-text">
-                    <strong>{userGeo ? "Radius GPS Aktif" : "Deteksi Lokasi Terdekat (GPS)"}</strong>
+                    <strong>
+                      {userGeo
+                        ? "Radius GPS Aktif"
+                        : "Deteksi Lokasi Terdekat (GPS)"}
+                    </strong>
                     <small>
                       {userGeo
                         ? `Posisi: ${userGeo.lat.toFixed(2)}, ${userGeo.lng.toFixed(2)} (Hasil diurutkan dari jarak terdekat)`
@@ -1309,11 +1459,19 @@ function TechniciansContent() {
                 <div className="filter-selects-stack">
                   <select
                     value={selectedProvince}
-                    onChange={(e) => updateUrl({ provinsi: e.target.value, kota: "all", page: 1 })}
+                    onChange={(e) =>
+                      updateUrl({
+                        provinsi: e.target.value,
+                        kota: "all",
+                        page: 1,
+                      })
+                    }
                     className="filter-modal-select"
                     aria-label="Pilih Provinsi"
                   >
-                    <option value="all">Semua Provinsi ({provinces.length})</option>
+                    <option value="all">
+                      Semua Provinsi ({provinces.length})
+                    </option>
                     {provinces.map((p) => (
                       <option key={p} value={p}>
                         {p}
@@ -1324,11 +1482,15 @@ function TechniciansContent() {
                   {availableCities.length > 0 && (
                     <select
                       value={selectedCity}
-                      onChange={(e) => updateUrl({ kota: e.target.value, page: 1 })}
+                      onChange={(e) =>
+                        updateUrl({ kota: e.target.value, page: 1 })
+                      }
                       className="filter-modal-select"
                       aria-label="Pilih Kota atau Rayon"
                     >
-                      <option value="all">Semua Kota / Rayon ({availableCities.length})</option>
+                      <option value="all">
+                        Semua Kota / Rayon ({availableCities.length})
+                      </option>
                       {availableCities.map((c) => (
                         <option key={c} value={c}>
                           {c}
@@ -1348,7 +1510,9 @@ function TechniciansContent() {
                   </label>
                   <select
                     value={selectedSkill}
-                    onChange={(e) => updateUrl({ keahlian: e.target.value, page: 1 })}
+                    onChange={(e) =>
+                      updateUrl({ keahlian: e.target.value, page: 1 })
+                    }
                     className="filter-modal-select"
                     aria-label="Pilih Jenjang Keahlian"
                   >
@@ -1366,10 +1530,17 @@ function TechniciansContent() {
                     onClick={() => updateUrl({ bnsp: !onlyBnsp, page: 1 })}
                   >
                     <div className="toggle-row-left">
-                      <Award size={16} className={onlyBnsp ? "text-emerald-600" : "text-slate-400"} />
+                      <Award
+                        size={16}
+                        className={
+                          onlyBnsp ? "text-emerald-600" : "text-slate-400"
+                        }
+                      />
                       <div>
                         <strong>Hanya Teknisi Bersertifikat BNSP</strong>
-                        <small>Filter anggota yang telah lulus uji kompetensi resmi</small>
+                        <small>
+                          Filter anggota yang telah lulus uji kompetensi resmi
+                        </small>
                       </div>
                     </div>
                     <div className={`switch-knob ${onlyBnsp ? "on" : "off"}`} />
@@ -1383,11 +1554,15 @@ function TechniciansContent() {
                   </label>
                   <select
                     value={selectedWorkshopCat}
-                    onChange={(e) => updateUrl({ kategori: e.target.value, page: 1 })}
+                    onChange={(e) =>
+                      updateUrl({ kategori: e.target.value, page: 1 })
+                    }
                     className="filter-modal-select"
                     aria-label="Pilih Kategori Bengkel atau Toko"
                   >
-                    <option value="all">Semua Kategori ({workshopCategories.length})</option>
+                    <option value="all">
+                      Semua Kategori ({workshopCategories.length})
+                    </option>
                     {workshopCategories.map((c) => (
                       <option key={c} value={c}>
                         {c}
@@ -1440,7 +1615,8 @@ function TechniciansContent() {
                 className="btn-filter-modal-apply"
                 onClick={() => setIsFilterModalOpen(false)}
               >
-                Terapkan Filter ({activeFiltersCount > 0 ? activeFiltersCount : "Semua"})
+                Terapkan Filter (
+                {activeFiltersCount > 0 ? activeFiltersCount : "Semua"})
               </button>
             </div>
           </div>
@@ -1706,14 +1882,19 @@ function TechniciansContent() {
               {(() => {
                 const ws = getTechWorkshop(activeTechModal, workshops);
                 const mapsQuery = encodeURIComponent(
-                  ws.googleMapsUrl || `${ws.address}, ${ws.city}, ${ws.province}, Indonesia`,
+                  ws.googleMapsUrl ||
+                    `${ws.address}, ${ws.city}, ${ws.province}, Indonesia`,
                 );
                 const mapsDirectUrl =
                   ws.googleMapsUrl && ws.googleMapsUrl.startsWith("http")
                     ? ws.googleMapsUrl
                     : `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
 
-                const cleanWa = (ws.whatsapp || activeTechModal.phone || "").replace(/\D/g, "");
+                const cleanWa = (
+                  ws.whatsapp ||
+                  activeTechModal.phone ||
+                  ""
+                ).replace(/\D/g, "");
                 const waOrderUrl = `https://wa.me/${cleanWa}?text=${encodeURIComponent(
                   `Halo ${ws.workshopName} / Pak ${activeTechModal.name}, saya menemukan profil workshop Anda di Direktori Resmi APTI Indonesia. Saya ingin konsultasi/order servis.`,
                 )}`;
@@ -1734,13 +1915,17 @@ function TechniciansContent() {
                     <div className="modal-workshop-card-inner">
                       <div className="inner-brand-row">
                         <h5 className="modal-ws-title">{ws.workshopName}</h5>
-                        {ws.tagline && <p className="modal-ws-tagline">{ws.tagline}</p>}
+                        {ws.tagline && (
+                          <p className="modal-ws-tagline">{ws.tagline}</p>
+                        )}
                       </div>
 
                       <div className="inner-meta-grid">
                         <div className="meta-cell">
                           <MapPin size={12} color="#0284c7" />
-                          <span>{ws.address || `${ws.city}, ${ws.province}`}</span>
+                          <span>
+                            {ws.address || `${ws.city}, ${ws.province}`}
+                          </span>
                         </div>
                         <div className="meta-cell">
                           <Clock size={12} color="#64748b" />
@@ -1750,12 +1935,18 @@ function TechniciansContent() {
                           <div className="meta-cell">
                             <Globe size={12} color="#0284c7" />
                             <a
-                              href={ws.website.startsWith("http") ? ws.website : `https://${ws.website}`}
+                              href={
+                                ws.website.startsWith("http")
+                                  ? ws.website
+                                  : `https://${ws.website}`
+                              }
                               target="_blank"
                               rel="noopener noreferrer"
                               className="modal-ws-web-link"
                             >
-                              <span>{ws.website.replace(/^https?:\/\//, "")}</span>
+                              <span>
+                                {ws.website.replace(/^https?:\/\//, "")}
+                              </span>
                               <ExternalLink size={10} />
                             </a>
                           </div>
@@ -1785,7 +1976,11 @@ function TechniciansContent() {
                           width="100%"
                           height="110"
                           loading="lazy"
-                          style={{ border: 0, display: "block", borderRadius: "8px" }}
+                          style={{
+                            border: 0,
+                            display: "block",
+                            borderRadius: "8px",
+                          }}
                           allowFullScreen={false}
                         />
                       </div>

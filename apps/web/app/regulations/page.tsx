@@ -184,7 +184,12 @@ function RegulationsContent() {
   const updateUrl = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(updates).forEach(([key, val]) => {
-      if (val === null || val === "" || (key === "page" && val === "1") || (key === "kategori" && val === "semua")) {
+      if (
+        val === null ||
+        val === "" ||
+        (key === "page" && val === "1") ||
+        (key === "kategori" && val === "semua")
+      ) {
         params.delete(key);
       } else {
         params.set(key, val);
@@ -200,7 +205,10 @@ function RegulationsContent() {
   const handleTabChange = (key: string) => {
     setActiveTab(key);
     const friendlySlug = categoryToSlug[key] || key;
-    updateUrl({ kategori: friendlySlug === "semua" ? null : friendlySlug, page: null });
+    updateUrl({
+      kategori: friendlySlug === "semua" ? null : friendlySlug,
+      page: null,
+    });
   };
 
   const handleSearchChange = (val: string) => {
@@ -251,14 +259,16 @@ function RegulationsContent() {
     return matchTab && matchSearch;
   });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE_REGULATIONS));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filtered.length / ITEMS_PER_PAGE_REGULATIONS),
+  );
   const paginatedRows = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE_REGULATIONS,
     currentPage * ITEMS_PER_PAGE_REGULATIONS,
   );
 
-  const headerInfo =
-    CATEGORY_HEADER_INFO[activeTab] ??
+  const headerInfo = CATEGORY_HEADER_INFO[activeTab] ??
     CATEGORY_HEADER_INFO.all ?? {
       badge: "REGULASI & KEBIJAKAN RESMI",
       title: "Regulasi Pemerintah, Standar SNI & ",
@@ -288,7 +298,9 @@ function RegulationsContent() {
           {/* Right Column: Hero Metrics Bento Card */}
           <div className="hero-stats-bento-card">
             <div className="stats-card-header">
-              <span className="stats-card-badge">Pusat Regulasi & Kebijakan</span>
+              <span className="stats-card-badge">
+                Pusat Regulasi & Kebijakan
+              </span>
               <span className="stats-card-status">● Arsip Terverifikasi</span>
             </div>
             <div className="stats-card-grid">
@@ -307,7 +319,10 @@ function RegulationsContent() {
               >
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                  style={{
+                    background: "rgba(99, 102, 241, 0.12)",
+                    color: "#818cf8",
+                  }}
                 >
                   <Scale size={20} />
                 </div>
@@ -332,7 +347,10 @@ function RegulationsContent() {
               >
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#34d399",
+                  }}
                 >
                   <FileCheck2 size={20} />
                 </div>
@@ -357,7 +375,10 @@ function RegulationsContent() {
               >
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#f59e0b",
+                  }}
                 >
                   <FileText size={20} />
                 </div>
@@ -382,7 +403,10 @@ function RegulationsContent() {
               >
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                  style={{
+                    background: "rgba(2, 132, 199, 0.12)",
+                    color: "#38bdf8",
+                  }}
                 >
                   <ShieldCheck size={20} />
                 </div>
@@ -452,7 +476,9 @@ function RegulationsContent() {
               gap: "0.5rem",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+            >
               <Filter size={14} color="#0284c7" />
               <span>
                 Menampilkan{" "}
@@ -462,7 +488,8 @@ function RegulationsContent() {
                   <>
                     dalam kategori{" "}
                     <strong style={{ color: "#0284c7" }}>
-                      &ldquo;{categoryLabels[activeTab]?.label || activeTab}&rdquo;
+                      &ldquo;{categoryLabels[activeTab]?.label || activeTab}
+                      &rdquo;
                     </strong>
                   </>
                 ) : (

@@ -381,7 +381,10 @@ export default function CalculatorPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                  style={{
+                    background: "rgba(2, 132, 199, 0.12)",
+                    color: "#38bdf8",
+                  }}
                 >
                   <Gauge size={20} />
                 </div>
@@ -393,7 +396,10 @@ export default function CalculatorPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#34d399",
+                  }}
                 >
                   <Droplets size={20} />
                 </div>
@@ -405,7 +411,10 @@ export default function CalculatorPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                  style={{
+                    background: "rgba(99, 102, 241, 0.12)",
+                    color: "#818cf8",
+                  }}
                 >
                   <Wind size={20} />
                 </div>
@@ -417,7 +426,10 @@ export default function CalculatorPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#f59e0b",
+                  }}
                 >
                   <Zap size={20} />
                 </div>
@@ -507,9 +519,7 @@ export default function CalculatorPage() {
                   <div className="presets-chips-row">
                     {ROOM_PRESETS.map((p) => {
                       const isSelected =
-                        length === p.l &&
-                        width === p.w &&
-                        roomType === p.type;
+                        length === p.l && width === p.w && roomType === p.type;
                       return (
                         <button
                           key={p.label}
@@ -550,7 +560,9 @@ export default function CalculatorPage() {
                             step="0.5"
                             value={length}
                             onChange={(e) =>
-                              setLength(Math.max(1, Number(e.target.value) || 1))
+                              setLength(
+                                Math.max(1, Number(e.target.value) || 1),
+                              )
                             }
                             aria-label="Panjang ruangan dalam meter"
                           />
@@ -590,7 +602,9 @@ export default function CalculatorPage() {
                             step="0.1"
                             value={height}
                             onChange={(e) =>
-                              setHeight(Math.max(2, Number(e.target.value) || 2))
+                              setHeight(
+                                Math.max(2, Number(e.target.value) || 2),
+                              )
                             }
                             aria-label="Tinggi plafon ruangan dalam meter"
                           />
@@ -630,7 +644,9 @@ export default function CalculatorPage() {
 
                     <div className="form-two-col-grid">
                       <div className="form-field">
-                        <label htmlFor="calc-room-type">Fungsi / Jenis Ruangan</label>
+                        <label htmlFor="calc-room-type">
+                          Fungsi / Jenis Ruangan
+                        </label>
                         <select
                           id="calc-room-type"
                           name="calcRoomType"
@@ -654,7 +670,9 @@ export default function CalculatorPage() {
                       </div>
 
                       <div className="form-field">
-                        <label htmlFor="calc-sun-exposure">Paparan Sinar Matahari</label>
+                        <label htmlFor="calc-sun-exposure">
+                          Paparan Sinar Matahari
+                        </label>
                         <select
                           id="calc-sun-exposure"
                           name="calcSunExposure"
@@ -692,7 +710,9 @@ export default function CalculatorPage() {
 
                     <div className="form-two-col-grid">
                       <div className="form-field">
-                        <label htmlFor="calc-occupants">Jumlah Penghuni Rutin</label>
+                        <label htmlFor="calc-occupants">
+                          Jumlah Penghuni Rutin
+                        </label>
                         <div className="calc-number-input">
                           <input
                             id="calc-occupants"
@@ -702,7 +722,9 @@ export default function CalculatorPage() {
                             max="50"
                             value={occupants}
                             onChange={(e) =>
-                              setOccupants(Math.max(1, Number(e.target.value) || 1))
+                              setOccupants(
+                                Math.max(1, Number(e.target.value) || 1),
+                              )
                             }
                             aria-label="Jumlah penghuni rutin ruangan"
                           />
@@ -711,7 +733,9 @@ export default function CalculatorPage() {
                       </div>
 
                       <div className="form-field">
-                        <label htmlFor="calc-electronics">Perangkat Elektronik Aktif (PC/TV)</label>
+                        <label htmlFor="calc-electronics">
+                          Perangkat Elektronik Aktif (PC/TV)
+                        </label>
                         <div className="calc-number-input">
                           <input
                             id="calc-electronics"
@@ -721,7 +745,9 @@ export default function CalculatorPage() {
                             max="30"
                             value={electronics}
                             onChange={(e) =>
-                              setElectronics(Math.max(0, Number(e.target.value) || 0))
+                              setElectronics(
+                                Math.max(0, Number(e.target.value) || 0),
+                              )
                             }
                             aria-label="Jumlah perangkat elektronik aktif"
                           />
@@ -811,12 +837,18 @@ export default function CalculatorPage() {
 
                 {/* Action CTA */}
                 <div className="calc-result-actions">
-                  <Link href="/technicians" className="calc-cta-btn primary-btn">
+                  <Link
+                    href="/technicians"
+                    className="calc-cta-btn primary-btn"
+                  >
                     <Users size={15} />
                     <span>Cari Teknisi AC Berlisensi</span>
                     <ArrowRight size={14} />
                   </Link>
-                  <Link href="/technicians?tab=workshops" className="calc-cta-btn secondary-btn">
+                  <Link
+                    href="/technicians?tab=workshops"
+                    className="calc-cta-btn secondary-btn"
+                  >
                     <Store size={15} />
                     <span>Bursa Bengkel & Toko Resmi</span>
                     <ArrowRight size={14} />

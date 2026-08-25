@@ -84,18 +84,22 @@ export const adminCredentialRoutes: FastifyPluginAsync = async (app) => {
           code: r.code,
           name: r.name,
           description:
-            ((r.metadata as Record<string, unknown> | null)
-              ?.description as string | null) ?? null,
+            ((r.metadata as Record<string, unknown> | null)?.description as
+              | string
+              | null) ?? null,
           subjectType: r.subjectType,
           category:
-            ((r.metadata as Record<string, unknown> | null)
-              ?.category as string | null) ?? "Kompetensi",
+            ((r.metadata as Record<string, unknown> | null)?.category as
+              | string
+              | null) ?? "Kompetensi",
           issuerName:
-            ((r.metadata as Record<string, unknown> | null)
-              ?.issuerName as string | null) ?? null,
+            ((r.metadata as Record<string, unknown> | null)?.issuerName as
+              | string
+              | null) ?? null,
           validityMonths:
-            ((r.metadata as Record<string, unknown> | null)
-              ?.validityMonths as number | null) ??
+            ((r.metadata as Record<string, unknown> | null)?.validityMonths as
+              | number
+              | null) ??
             (r.validityPeriodDays
               ? Math.round(r.validityPeriodDays / 30)
               : null),
@@ -133,7 +137,9 @@ export const adminCredentialRoutes: FastifyPluginAsync = async (app) => {
           name: input.name,
           subjectType: input.subjectType,
           minimumVerificationLevel: input.minimumVerificationLevel,
-          validityPeriodDays: input.validityMonths ? input.validityMonths * 30 : null,
+          validityPeriodDays: input.validityMonths
+            ? input.validityMonths * 30
+            : null,
           renewalGracePeriodDays: input.renewalWindowDays,
           jsonSchema: { fields: input.fields },
           metadata: {
@@ -167,7 +173,11 @@ export const adminCredentialRoutes: FastifyPluginAsync = async (app) => {
         .where(eq(credentialSchemes.id, id))
         .returning();
       if (!deleted)
-        throw new AppError(404, "SCHEME_NOT_FOUND", "Skema kredensial tidak ditemukan.");
+        throw new AppError(
+          404,
+          "SCHEME_NOT_FOUND",
+          "Skema kredensial tidak ditemukan.",
+        );
       await audit(
         request,
         "credential_scheme.delete",

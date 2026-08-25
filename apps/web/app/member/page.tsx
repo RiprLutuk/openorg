@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { MemberPortal } from "@/components/member-portal";
 
-export const metadata: Metadata = { title: "Portal Anggota Resmi | APTI Indonesia" };
+export const metadata: Metadata = {
+  title: "Portal Anggota Resmi | APTI Indonesia",
+};
 
 export default function MemberPage() {
   return (

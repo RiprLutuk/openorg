@@ -301,7 +301,11 @@ export const adminRevenueRoutes: FastifyPluginAsync = async (app) => {
         .where(eq(invoices.id, id))
         .returning();
       if (!deleted)
-        throw new AppError(404, "INVOICE_NOT_FOUND", "Tagihan tidak ditemukan.");
+        throw new AppError(
+          404,
+          "INVOICE_NOT_FOUND",
+          "Tagihan tidak ditemukan.",
+        );
       return reply.status(204).send();
     },
   );

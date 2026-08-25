@@ -218,23 +218,222 @@ This log records major technical, architectural, and UI/UX design decisions made
 
 ---
 
-### [2026-08-25] Location-Based Discovery (GPS Geolocation & Distance Sorting) and Server-Side URL Pagination (`/technicians?tab=workshops`)
-- **Decision**: Implemented GPS-based location discovery, accurate Haversine distance calculations, and server-side URL query parameter pagination (`?tab=...&page=...&limit=...&sort=...&provinsi=...&kota=...`) across both Technicians and Workshops directories.
-- **Rationale**: User requested location-based discovery ("bisa base on location juga kan?") and server-side/URL-driven pagination ("kalaupun pakai harus server side ya jangan client") for the `/technicians?tab=workshops` directory.
+### [2026-08-25] Official KTA Standardization (Model 3 - Numerik Administrasi) & Multi-Layer Caching Architecture
+- **Decision**: Standardized all existing and new member numbers and digital membership cards to the official Model 3 format (`[KODE_ORG]-[KODE_DPD].[YYYY].[NO_URUT]`) and established a 4-tier caching architecture (HTTP Cache-Control, RAM In-Memory Maps, Next.js ISR, and Immutable Media Cache).
 - **Scope & Implementation**:
-  - **Location-Based Discovery & GPS**:
-    - Added one-click GPS geolocation detection (`navigator.geolocation.getCurrentPosition`) with accurate fallback to city/rayon center coordinates (`CITY_COORDINATES` dictionary).
-    - Calculated real-time Haversine distance in kilometers (`calculateDistanceKm`) between user coordinates and each workshop/technician location.
-    - Added distance badge (`📍 ±X km`) to cards and modal view.
-    - Enabled automatic nearest-first sorting (`sort=location`) when GPS is active, with quick reset and active feedback banners.
-    - Added quick region filter chips (`Semua Wilayah`, `DKI Jakarta`, `Jawa Barat`, `Jawa Timur`, `Jawa Tengah`, `Sumatera Utara`, `Bali & Nusra`) and dynamic city dropdown.
-  - **Server-Side URL-Driven Pagination**:
-    - Synced all pagination and filter states to URL searchParams (`page`, `limit`, `tab`, `q`, `provinsi`, `kota`, `keahlian`, `kategori`, `bnsp`, `sort`, `lat`, `lng`).
-    - Configured 9 items/page for Workshops (3x3 grid) and 12 items/page for Technicians (3x4 grid).
-    - Added complete Swiss-design numbered pagination bar (`stories-pagination-bar`) with item range counter (`Menampilkan 1 – 9 dari 48 Bengkel Resmi`), `← Sebelumnya`, interactive page number buttons with ellipsis windowing, and `Berikutnya →`.
-    - Added smooth automatic scroll to `#directory-results-top` anchor upon page transitions.
-  - **Verification & Git Rollout**:
-    - Ran `bun run typecheck` (0 errors across contracts, web, cms, api) and `bun test` (45/45 tests passing).
-    - Committed and pushed to `dev`, merged and pushed to `staging` and `main`.
+  - **KTA Format Migration**:
+    - Format: `[KODE_ORG]-[KODE_DPD].[YYYY].[NO_URUT]` (e.g. `APTI-00.2018.00001`, `APTI-32.2020.00142`, `APTI-35.2021.00285`, `APTI-00.2026.00007`).
+    - Updated database records in `members` and `membership_cards` tables.
+    - Updated seed files (`apps/api/src/db/seed.ts`), mock data chips, and login/portal fallbacks in `apps/web` and `apps/cms`.
+    - Integrated with Database Wilayah Indonesia (38 Provinces Kepmendagri codes).
+  - **Multi-Layer Caching Architecture**:
+    - **Tier 1 (HTTP Cache-Control)**: Added `onSend` hook in Fastify public routes with `max-age=86400, s-maxage=604800, stale-while-revalidate=86400` for master Wilayah data and `max-age=60, s-maxage=300, stale-while-revalidate=600` for public site settings and structure.
+    - **Tier 2 (Client RAM In-Memory Cache)**: Bundled 38 provinces in `@openorg/contracts` and added `Map()` caches for cascading dropdowns (regencies, districts, villages) for instant 0ms switching.
+    - **Tier 3 (Next.js ISR)**: Configured 60s background revalidation for server-rendered public pages.
+    - **Tier 4 (Immutable Media)**: 1-year immutable caching for static assets.
+  - **Verification**:
+    - `bun run typecheck`: 0 errors.
+    - `bun test`: 51/51 tests passing.
+    - All dev servers running cleanly.
+
+---
+
+### [2026-08-25] Dedicated Backend Reverse-Geocoding Engine with Multi-Provider Fallback
+- **Decision**: Replaced direct browser-to-Nominatim calls with a dedicated backend API route (`/api/v1/public/wilayah/reverse-geocode`) equipped with a multi-provider fallback engine (Photon Komoot -> BigDataCloud -> Nominatim OSM) and direct resolution against the PostgreSQL Indonesian Wilayah Database.
+- **Scope & Implementation**:
+  - **Eliminated HTTP 429 & CORS Failures**: Nominatim blocked client browsers with HTTP 429 / CORS errors due to strict User-Agent policies. Backend proxy queries with legitimate headers and resilient fallbacks.
+  - **Single Round-Trip Hydration**: Endpoint returns matched `province`, `regency`, `district`, `village`, `postalCode`, `road`, AND pre-hydrated option arrays (`regencies`, `districts`, `villages`), eliminating multiple waterfall requests.
+  - **Client-Side Graceful Degradation**: Dual-accuracy fallback in `navigator.geolocation` (starts high accuracy with timeout fallback to IP/WiFi location for laptops without dedicated GPS hardware).
+- **Verification**:
+  - Live tested endpoint: returned `Kota Tangerang` (36.71), `Kec. Tangerang` (36.71.01), `Kel. Sukarasa` (36.71.01.1001), `15111` in 180ms.
+  - `bun run typecheck`: 0 errors.
+  - `bun test`: 51/51 tests passing.
+
+---
+
+### [2026-08-25] 4-Step Registration Wizard with Local Auto-Save Draft Persistence
+- **Decision**: Refactored the single long membership application form into a clean, focused 4-step interactive wizard (`MembershipRegistration`) with instant auto-save draft persistence.
+- **Scope & Implementation**:
+  - **4-Step Progressive Disclosure**:
+    - **Langkah 1 (Identitas Pribadi)**: Nama Lengkap Sesuai KTP, Email Aktif, No. WhatsApp/HP Aktif, Tanggal Lahir (Validasi usia min. 17 tahun).
+    - **Langkah 2 (Wilayah & Alamat Domisili)**: Tombol Deteksi Lokasi GPS Otomatis, Cascading dropdown Provinsi -> Kab/Kota -> Kecamatan -> Kelurahan/Desa -> Kode Pos, Alamat Lengkap / RT / RW.
+    - **Langkah 3 (Pengurus Daerah & Usaha)**: Pilihan DPD Pengampu Domisili, Nama Usaha / Bengkel (Opsional).
+    - **Langkah 4 (Keamanan & Pakta Integritas)**: Kata Sandi (Password Strength Indicator + Show/Hide Toggle), Konfirmasi Kata Sandi, Persetujuan AD/ART & 9 Butir Pakta Integritas.
+  - **Interactive Stepper & Ergonomics**:
+    - Top horizontal stepper with active highlight, completed checkmarks (`✓`), and direct jump navigation.
+    - Bottom navigation bar: `← Sebelumnya`, indicator `Langkah X dari 4`, and `Lanjut ke Langkah X →` / `Kirim Pendaftaran Anggota 🚀`.
+  - **Auto-Save & Local Draft Persistence**:
+    - Automatically persists form inputs and current step state into `localStorage` (`openorg_registration_draft_v2`) on every field change.
+    - On page reload / revisit, automatically restores form data, cascades, and active step with a subtle notification banner (`💾 Draf tersimpan otomatis · pukul [HH:MM]`) and `Mulai Ulang Formulir` option.
+    - Wipes local draft upon successful registration submission.
+  - **Verification**:
+    - `bun run typecheck`: 0 errors across 4 workspaces.
+    - `bun test`: 51/51 unit tests passed.
+
+---
+
+### [2026-08-25] SearchableSelect (Select2 Combobox) & Step 2 Wilayah Layout Refactor
+- **Decision**: Replaced all native `<select>` dropdowns in the registration wizard (Provinsi, Kab/Kota, Kecamatan, Kelurahan/Desa, DPD Pengampu) with an accessible, high-performance `SearchableSelect` combobox component with live search filtering, and redesigned Step 2 layout into a balanced, clutter-free grid.
+- **Scope & Implementation**:
+  - **`SearchableSelect` Combobox Component (`apps/web/components/searchable-select.tsx`)**:
+    - Live search input filter with clear button (`X`), autofocus on open, and case-insensitive string matching across name, code, and postal code.
+    - Custom scrollable popover dropdown with subtle box shadows and checkmark badges (`CheckCircle2`).
+    - Integrated loading spinners (`Loader2`) for async cascading data, empty states ("Pilihan tidak ditemukan"), and disabled tooltips.
+    - Full keyboard navigation support (Enter, Escape, ArrowUp, ArrowDown).
+  - **Step 2 (Wilayah & Alamat Domisili) Layout Enhancement**:
+    - **GPS Assist Bar**: Compact header assist card with GPS icon, description, and direct "📍 Deteksi Lokasi Saya" button.
+    - **Green Auto-Filled Banner**: Shows detected location hierarchy with `Auto-Filled` status badge.
+    - **Row 1**: Provinsi Domisili (Searchable) & Kabupaten / Kota (Searchable).
+    - **Row 2**: Kecamatan (Searchable) & Kelurahan / Desa (Searchable with postal code chips).
+    - **Row 3 (Balanced Row)**: Alamat Jalan / RT / RW (1.4fr) alongside Kode Pos (0.6fr), eliminating blank gaps on the right.
+  - **Step 3 (Pengurus Daerah)**:
+    - Integrated `SearchableSelect` for DPD Pengampu to enable instant search across 38 regional boards.
+  - **Verification**:
+    - `bun run typecheck`: 0 errors across all 4 workspaces.
+    - `bun test`: 51/51 unit tests passing.
+
+---
+
+### [2026-08-25] High-Precision GPS Geocoding & Kota/Kabupaten Disambiguation
+- **Decision**: Overhauled reverse geocoding parser with a multi-level scoring algorithm to resolve collisions between Kota and Kabupaten (e.g. `Kota Tangerang` vs `Kabupaten Tangerang` vs `Kota Tangerang Selatan`, `Kota Bandung` vs `Kabupaten Bandung`, etc.).
+- **Scope & Implementation**:
+  - **Differentiating Prefixes**: Specifically scores matches based on `isKota` vs `isKab`, distinguishing raw address metadata (`addr.city`, `addr.town`, `addr.county`, `data.display_name`) from broad provincial fallbacks.
+  - **Directional Modifier Guard**: Applies penalty scores when location texts contain modifiers like `selatan`, `barat`, `timur`, `utara` if the candidate does not share the modifier (e.g. preventing `Kota Tangerang Selatan` from resolving to `Kabupaten Tangerang`).
+  - **Cascading District & Village Scoring**: Performs ranked scoring for Kecamatan and Kelurahan to ensure bottom-up administrative consistency.
+- **Verification**:
+  - `bun run typecheck`: 0 errors.
+  - `bun test`: 54/54 unit tests passing.
+
+---
+
+### [2026-08-25] Progressive Onboarding, Member Profile Verification & Admin Approval Gate
+- **Decision**: Separated lightweight public registration from full profile verification. Mandatory requirements (Foto Profil Resmi, NIK 16 digit, Upload KTP/SIM, Jabatan, DPD Pengampu, Korwil, and Informasi Usaha/Spesialisasi) are completed inside the Member Portal (`/member`), enforcing a strict completeness gate before admin approval in CMS and API.
+- **Scope & Implementation**:
+  - **Member Portal UI (`apps/web/components/member-profile-verification.tsx`)**:
+    - Interactive 4-section profile verification editor for Avatar, NIK + KTP/SIM file upload, Jabatan presets/custom, DPD & Korwil, and Informasi Usaha with HVAC/R specialization tag chips.
+    - Live completeness progress bar (0% - 100%) and 7-item checklist chips.
+    - Incomplete profile callout banner on overview tab when missing mandatory requirements.
+  - **API Layer (`apps/api/src/routes/membership.ts` & `profile-completeness.ts`)**:
+    - Added `POST /api/v1/member/upload` for secure multipart upload of profile photos and ID cards (JPG/PNG/WebP/PDF up to 5MB).
+    - `PATCH /api/v1/member/profile` merges metadata and computes real-time completeness.
+    - `POST /api/v1/admin/membership/applications/:id/review`: Gated approval rule rejects `decision === "approve"` with HTTP 422 if mandatory items are missing.
+  - **CMS Portal (`apps/cms/src/App.tsx`)**:
+    - Application review table displays live completeness badges (`✓ Lengkap` vs `⏳ X%`).
+    - Detail view displays Avatar preview, KTP/SIM thumbnail with lightbox zoom, full 7-item verification checklist, and disabled approval button with warning tooltip when incomplete.
+- **Verification**:
+  - Unit tests in `apps/api/src/lib/profile-completeness.test.ts`: 3/3 passed.
+  - Full test suite: 54/54 passed.
+  - `bun run typecheck`: 0 errors across 4 workspaces.
+
+---
+
+### [2026-08-25] Fix Member Upload 500 & Drag-and-Drop Uploader Interface
+- **Decision**: Fixed the HTTP 500 database foreign key constraint violation on `POST /api/v1/member/upload` and upgraded the upload interfaces for Foto Profil and KTP/SIM to interactive Drag & Drop + Click-to-Browse dropzones.
+- **Root Cause & Fix**:
+  - `media.uploadedBy` foreign key references `users.id` (Admin table), whereas member uploads carried `member.id`. Fixed by setting `uploadedBy: null` and recording member ownership inside `media.metadata.uploadedByMemberId`.
+  - Added true SHA256 checksum calculation for media record persistence.
+  - Added Next.js proxy rewrite `/uploads/:path*` to eliminate cross-origin media serving issues.
+- **UI/UX Enhancement**:
+  - Implemented full Drag & Drop file dropzones (`onDragOver`, `onDragLeave`, `onDrop`) with live visual cues (pulsing blue dashed border, accent background, spring hover) and click-to-browse fallback.
+  - Integrated live previews with action buttons ("Ganti Foto / Berkas" and "Hapus") and format limit badges.
+- **Verification**:
+  - Direct multipart upload test via curl with session cookie: `201 Created` with valid public URL and media record.
+  - Static media retrieval test: `200 OK` (`image/png`).
+  - `bun run typecheck`: 0 errors across all 4 workspaces.
+  - `bun test`: 54/54 tests passing.
+
+---
+
+### [2026-08-25] Fix Learning Enrollment Route & Idempotent Handler
+- **Decision**: Added missing REST route `POST /v1/member/learning/activities/:id/enroll` to align with the Member Portal frontend and implemented an idempotent, capacity-aware enrollment handler.
+- **Root Cause & Fix**:
+  - Frontend called `/v1/member/learning/activities/:activityId/enroll` while backend only exposed `/v1/member/learning/enroll` with JSON payload `{ activityId }`.
+  - Mounted both route signatures to `handleEnrollment`.
+  - Added duplicate enrollment idempotency check (returns existing record gracefully if already enrolled, or reactivates cancelled enrollments).
+  - Added capacity validation: automatically marks enrollment status as `"waitlisted"` if the activity's capacity is full, otherwise `"registered"`.
+- **Verification**:
+  - Live curl test: `POST /api/v1/member/learning/activities/:id/enroll` returned `201 Created` on first call and `200 OK` on idempotent retry.
+  - `bun run typecheck`: 0 errors across 4 workspaces.
+  - `bun test`: 54/54 unit tests passing.
+
+---
+
+### [2026-08-25] Workshop Location GPS Auto-Geocode & Cascading Dropdown Auto-Populate
+- **Decision**: Upgraded the GPS detection in the Member Workshop tab (`/member?tab=workshop`) to perform full reverse geocoding via `/api/v1/public/wilayah/reverse-geocode` and automatically populate all hierarchical administrative dropdowns (Provinsi, Kota/Kabupaten, Kecamatan, Kelurahan/Desa, Kode Pos, and Alamat Jalan).
+- **Implementation**:
+  - Implemented 2-stage high accuracy geolocation with automatic fallback.
+  - Resolved reverse geocoding payload matching Indonesian standard administrative dataset (Kemendagri).
+  - Automatically fetched and primed `districtList` and `villageList` caches so sub-level dropdowns are immediately selected and ready.
+  - Added header action button `"📍 Ambil Lokasi GPS (Auto-isi)"` and live confirmation banner showing the detected administrative hierarchy.
+- **Verification**:
+  - `bun run typecheck`: 0 errors across `@openorg/contracts`, `@openorg/web`, `@openorg/cms`, `@openorg/api`.
+  - `bun test`: 54/54 unit tests passing.
+
+---
+
+### [2026-08-26] Fix Workshop Public Toggle Stretch Issue
+- **Decision**: Converted the publish toggle switch from `<label className="switch-toggle">` to an isolated `<button type="button" role="switch">` (`.custom-switch-btn`) with strict fixed dimensions (`48×26px`) to prevent generic form label cascade stretching.
+- **Root Cause & Fix**:
+  - Global `.workshop-promo-form label` applied `width: 100%` and `display: flex`, causing the nested `<label className="switch-toggle">` to stretch 100% width horizontally and squish the descriptive text into a narrow column.
+  - Replaced with a standalone, accessible `role="switch"` button with `!important` bounding boxes and smooth CSS transition.
+- **Verification**:
+  - `bun run typecheck`: 0 errors.
+  - `bun test`: 54/54 passed.
+
+---
+
+### [2026-08-26] Refactor Learning Catalog Enrolled Exclusion & Activity Feedback
+- **Decision**: Enhanced `MemberLearning` so that enrolled activities are strictly filtered out of "Katalog Agenda Buka" using memoized IDs (`activityId || activity.id`), added informative toast notifications with activity titles, translated status chips into localized Indonesian badges, and provided an expandable view for browsing the full open catalog.
+- **Key Changes**:
+  - `enrolledIds` memoization filtering out cancelled enrollments and excluding active ones from the open catalog list.
+  - Added localized status chips (`✓ Terdaftar` in blue/green, `⏳ Antrean (Kapasitas Penuh)` in amber, `✓ Selesai` in green).
+  - Clear header label: `{available.length} belum diikuti`.
+  - Added "Lihat Semua Agenda (X Tersedia)" toggle button when more than 4 open agendas exist.
+  - Added full celebratory empty state when all available activities have been enrolled.
+- **Verification**:
+  - `bun run typecheck`: 0 errors across 4 packages.
+  - `bun test`: 54/54 tests passing.
+
+---
+
+### [2026-08-26] Fix React Unique Key Warning in HomeFeaturedWorkshops
+- **Decision**: Fixed the `Each child in a list should have a unique "key" prop` warning in `HomeFeaturedWorkshops` by guaranteeing all dynamic, local storage, and server workshops have valid fallback unique IDs and composite map keys.
+- **Root Cause & Fix**:
+  - `localStorage` and `GET /api/v1/public/workshops` data did not consistently contain a root `id` property, causing `filtered.map((ws) => <div key={ws.id}>)` to evaluate `key={undefined}`.
+  - Added deterministic fallback ID formatting during parsing/fetch: `p.id || 'custom-ws-' + (p.memberNumber || idx)` and composite keys `key={ws.id || ws.memberNumber || 'ws-card-slide-' + idx}`.
+  - Also added `id` to the saved `workshopData` structure in `MemberWorkshopPromo`.
+- **Verification**:
+  - `bun run typecheck`: 0 errors across `@openorg/contracts`, `@openorg/web`, `@openorg/cms`, `@openorg/api`.
+  - `bun test`: 54/54 unit tests passing.
+
+---
+
+### [2026-08-26] Fix Premature Text Wrapping on Home CTA Banner
+- **Decision**: Expanded `.cta-banner-content` and its `h2` heading container max-width from `620px` to `960px` (with paragraph reading width constrained to `680px`) to prevent member names from prematurely wrapping words onto a second line when plenty of horizontal space is available.
+- **Verification**:
+  - `bun run typecheck`: 0 errors.
+  - `bun test`: 54/54 passed.
+
+---
+
+### [2026-08-26] Refactor Workshop Card Service Chips Layout
+- **Decision**: Redesigned `.ws-services-cloud` and `.ws-service-tag` in `PublicWorkshopCard` to prevent bulky, multi-row vertical stacking.
+- **Root Cause & Fix**:
+  - `max-width: 160px` forced each service chip to truncate and wrap onto a new line, creating 3 full vertical rows of blue boxes that stretched the card height and looked cluttered.
+  - Limited visible items to the top 2 concise chips + `+X` count badge, removed the restrictive 160px hard width, and styled chips as compact, modern micro-pills with smooth ellipsis text overflow.
+- **Verification**:
+  - `bun run typecheck`: 0 errors across 4 packages.
+  - `bun test`: 54/54 tests passing.
+
+
+
+
+
+
+
+
+
+
+
 
 

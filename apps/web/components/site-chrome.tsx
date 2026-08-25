@@ -592,15 +592,10 @@ function HeaderContent({ site }: { site: PublicSite }) {
             )}
           </nav>
 
-          {isLoggedIn ? (
+          {isLoggedIn && (
             <Link className="header-action" href="/member">
               <CreditCard size={15} />
               <span>Portal & KTA Saya</span>
-            </Link>
-          ) : (
-            <Link className="header-action" href="/join">
-              <span>Daftar Anggota</span>
-              <ArrowUpRight size={15} />
             </Link>
           )}
 
@@ -811,7 +806,9 @@ export function Footer({ site }: { site: PublicSite }) {
           <div className="footer-nav-col">
             <h3>Layanan & Direktori</h3>
             <Link href="/technicians">Cari Teknisi AC KTA</Link>
-            <Link href="/technicians?tab=workshops">Bursa Bengkel & Toko AC</Link>
+            <Link href="/technicians?tab=workshops">
+              Bursa Bengkel & Toko AC
+            </Link>
             <Link href="/partners">Mitra & Distributor Resmi</Link>
             <Link href="/clubs">Direktori Klub & TKT</Link>
             <Link href="/verify">Verifikasi KTA Digital</Link>

@@ -1134,13 +1134,16 @@ export const adArtDocuments = pgTable(
     summary: text("summary").notNull().default(""),
     color: varchar("color", { length: 30 }).notNull().default("#38bdf8"),
     sortOrder: integer("sort_order").notNull().default(0),
-    articles: jsonb("articles").$type<
-      Array<{
-        articleNumber: string;
-        title: string;
-        clauses: string[];
-      }>
-    >().notNull().default([]),
+    articles: jsonb("articles")
+      .$type<
+        Array<{
+          articleNumber: string;
+          title: string;
+          clauses: string[];
+        }>
+      >()
+      .notNull()
+      .default([]),
     ...timestamps,
   },
   (table) => [
@@ -1171,15 +1174,27 @@ export const refrigerantSpecifications = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     code: varchar("code", { length: 30 }).notNull().unique(), // "R32", "R410A"
     name: varchar("name", { length: 150 }).notNull(),
-    chemicalFormula: varchar("chemical_formula", { length: 80 }).notNull().default(""),
-    refrigerantType: varchar("refrigerant_type", { length: 80 }).notNull().default("HFC"),
+    chemicalFormula: varchar("chemical_formula", { length: 80 })
+      .notNull()
+      .default(""),
+    refrigerantType: varchar("refrigerant_type", { length: 80 })
+      .notNull()
+      .default("HFC"),
     suctionPsi: varchar("suction_psi", { length: 80 }).notNull().default(""),
-    dischargePsi: varchar("discharge_psi", { length: 80 }).notNull().default(""),
+    dischargePsi: varchar("discharge_psi", { length: 80 })
+      .notNull()
+      .default(""),
     gwp: integer("gwp").notNull().default(0),
     odp: varchar("odp", { length: 20 }).notNull().default("0"),
-    oilType: varchar("oil_type", { length: 80 }).notNull().default("Synthetic POE"),
-    safetyClass: varchar("safety_class", { length: 80 }).notNull().default("A1"),
-    statusKlhk: varchar("status_klhk", { length: 150 }).notNull().default("Legal"),
+    oilType: varchar("oil_type", { length: 80 })
+      .notNull()
+      .default("Synthetic POE"),
+    safetyClass: varchar("safety_class", { length: 80 })
+      .notNull()
+      .default("A1"),
+    statusKlhk: varchar("status_klhk", { length: 150 })
+      .notNull()
+      .default("Legal"),
     description: text("description").notNull().default(""),
     recommendedUse: text("recommended_use").notNull().default(""),
     sortOrder: integer("sort_order").notNull().default(0),
@@ -1198,12 +1213,12 @@ export const indonesiaProvinces = pgTable(
     nama: varchar("nama", { length: 100 }).notNull(),
     ibukota: varchar("ibukota", { length: 100 }).notNull().default(""),
     kodepos: varchar("kodepos", { length: 10 }).notNull().default(""),
-    kodeposRange: varchar("kodepos_range", { length: 50 }).notNull().default(""),
+    kodeposRange: varchar("kodepos_range", { length: 50 })
+      .notNull()
+      .default(""),
     ...timestamps,
   },
-  (table) => [
-    index("idx_indonesia_provinces_nama").on(table.nama),
-  ],
+  (table) => [index("idx_indonesia_provinces_nama").on(table.nama)],
 );
 
 export const indonesiaRegencies = pgTable(
@@ -1216,7 +1231,9 @@ export const indonesiaRegencies = pgTable(
     nama: varchar("nama", { length: 150 }).notNull(),
     ibukota: varchar("ibukota", { length: 100 }).notNull().default(""),
     kodepos: varchar("kodepos", { length: 10 }).notNull().default(""),
-    kodeposRange: varchar("kodepos_range", { length: 50 }).notNull().default(""),
+    kodeposRange: varchar("kodepos_range", { length: 50 })
+      .notNull()
+      .default(""),
     kodeposList: jsonb("kodepos_list").$type<string[]>().notNull().default([]),
     ...timestamps,
   },

@@ -14,11 +14,19 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { NATIONAL_16_WORKSHOPS } from "@/components/home-featured-workshops";
-import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
+import {
+  PublicWorkshopCard,
+  type PublicWorkshopData,
+} from "@/components/public-workshop-card";
 
 const MAX_NEARBY_RADIUS_KM = 35;
 
-function computeDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+function computeDistanceKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -50,7 +58,9 @@ function getStoredWorkshops(): PublicWorkshopData[] {
         const parsed: PublicWorkshopData[] = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
           const memberNums = new Set(parsed.map((p) => p.memberNumber));
-          const baseWithoutDuplicates = combined.filter((w) => !memberNums.has(w.memberNumber));
+          const baseWithoutDuplicates = combined.filter(
+            (w) => !memberNums.has(w.memberNumber),
+          );
           combined = [...parsed, ...baseWithoutDuplicates];
         }
       }
@@ -62,7 +72,9 @@ function getStoredWorkshops(): PublicWorkshopData[] {
 }
 
 function WorkshopsPageContent() {
-  const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(NATIONAL_16_WORKSHOPS);
+  const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(
+    NATIONAL_16_WORKSHOPS,
+  );
   const [search, setSearch] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -80,7 +92,9 @@ function WorkshopsPageContent() {
       .then((res) => {
         if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
           const serverWorkshops: PublicWorkshopData[] = res.data;
-          const memberNums = new Set(serverWorkshops.map((p) => p.memberNumber));
+          const memberNums = new Set(
+            serverWorkshops.map((p) => p.memberNumber),
+          );
           const baseWithoutDuplicates = NATIONAL_16_WORKSHOPS.filter(
             (w) => !memberNums.has(w.memberNumber),
           );
@@ -105,7 +119,9 @@ function WorkshopsPageContent() {
       return { ...ws, distanceKm };
     });
 
-    withDistances.sort((a, b) => (a.distanceKm ?? 99999) - (b.distanceKm ?? 99999));
+    withDistances.sort(
+      (a, b) => (a.distanceKm ?? 99999) - (b.distanceKm ?? 99999),
+    );
     setWorkshops(withDistances);
     setGeoState({
       status: "active",
@@ -130,54 +146,19 @@ function WorkshopsPageContent() {
         applyLocationSort(latitude, longitude, getStoredWorkshops(), "gps");
       },
       (err) => {
-        console.warn("Browser GPS permission not granted or timeout:", err.message);
-        detectLocationFromIp(getStoredWorkshops());
+        console.warn(
+          "Browser GPS permission not granted or timeout:",
+          err.message,
+        );
+        setGeoState({ status: "denied" });
       },
-      { timeout: 8000, enableHighAccuracy: true }
+      { timeout: 8000, enableHighAccuracy: true },
     );
-  };
-
-  const detectLocationFromIp = (combined: PublicWorkshopData[]) => {
-    fetch("https://ipwho.is/")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.success && data?.latitude && data?.longitude) {
-          applyLocationSort(data.latitude, data.longitude, combined, "ip", data.city || data.region);
-        } else {
-          setWorkshops(shuffleArray(combined));
-        }
-      })
-      .catch(() => {
-        setWorkshops(shuffleArray(combined));
-      });
   };
 
   useEffect(() => {
     const combined = getStoredWorkshops();
-
-    if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
-      navigator.permissions
-        .query({ name: "geolocation" as PermissionName })
-        .then((permissionStatus) => {
-          if (permissionStatus.state === "granted") {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined, "gps");
-              },
-              () => {
-                detectLocationFromIp(combined);
-              }
-            );
-          } else {
-            detectLocationFromIp(combined);
-          }
-        })
-        .catch(() => {
-          detectLocationFromIp(combined);
-        });
-    } else {
-      detectLocationFromIp(combined);
-    }
+    setWorkshops(combined);
   }, []);
 
   const handleShuffle = () => {
@@ -191,16 +172,24 @@ function WorkshopsPageContent() {
   };
 
   const nearbyWorkshops = workshops.filter(
-    (w) => w.distanceKm !== undefined && w.distanceKm <= MAX_NEARBY_RADIUS_KM
+    (w) => w.distanceKm !== undefined && w.distanceKm <= MAX_NEARBY_RADIUS_KM,
   );
   const nearbyCount = nearbyWorkshops.length;
 
-  const provinces = Array.from(new Set(workshops.map((w) => w.province).filter(Boolean)));
-  const categories = Array.from(new Set(workshops.map((w) => w.category).filter(Boolean)));
+  const provinces = Array.from(
+    new Set(workshops.map((w) => w.province).filter(Boolean)),
+  );
+  const categories = Array.from(
+    new Set(workshops.map((w) => w.category).filter(Boolean)),
+  );
 
   const filtered = workshops.filter((ws) => {
     // 1. Proximity filter if location active and onlyNearby is true
-    if (geoState.status === "active" && onlyNearby && ws.distanceKm !== undefined) {
+    if (
+      geoState.status === "active" &&
+      onlyNearby &&
+      ws.distanceKm !== undefined
+    ) {
       if (nearbyCount > 0) {
         if (ws.distanceKm > MAX_NEARBY_RADIUS_KM) return false;
       } else {
@@ -217,8 +206,10 @@ function WorkshopsPageContent() {
       ws.ownerName.toLowerCase().includes(search.toLowerCase()) ||
       ws.services.some((s) => s.toLowerCase().includes(search.toLowerCase()));
 
-    const matchProvince = selectedProvince === "all" || ws.province === selectedProvince;
-    const matchCategory = selectedCategory === "all" || ws.category === selectedCategory;
+    const matchProvince =
+      selectedProvince === "all" || ws.province === selectedProvince;
+    const matchCategory =
+      selectedCategory === "all" || ws.category === selectedCategory;
 
     return matchSearch && matchProvince && matchCategory;
   });
@@ -235,7 +226,9 @@ function WorkshopsPageContent() {
           <p>
             {geoState.status === "active" && onlyNearby ? (
               <span>
-                📍 Menampilkan {filtered.length} bengkel terdekat di sekitar wilayah {geoState.nearestCity || "Anda"} (Radius &lt; {MAX_NEARBY_RADIUS_KM} km).
+                📍 Menampilkan {filtered.length} bengkel terdekat di sekitar
+                wilayah {geoState.nearestCity || "Anda"} (Radius &lt;{" "}
+                {MAX_NEARBY_RADIUS_KM} km).
               </span>
             ) : (
               "Temukan bengkel pendingin resmi, klinik reparasi modul PCB inverter, dan distributor suku cadang terdaftar di seluruh wilayah Indonesia."
@@ -294,7 +287,11 @@ function WorkshopsPageContent() {
                   title="Beralih antara hanya bengkel terdekat atau seluruh Indonesia"
                 >
                   <MapPin size={13} />
-                  <span>{onlyNearby ? `📍 Wilayah Anda (${filtered.length})` : "🌐 Seluruh Indonesia"}</span>
+                  <span>
+                    {onlyNearby
+                      ? `📍 Wilayah Anda (${filtered.length})`
+                      : "🌐 Seluruh Indonesia"}
+                  </span>
                 </button>
               ) : (
                 <button
@@ -304,8 +301,17 @@ function WorkshopsPageContent() {
                   disabled={geoState.status === "requesting"}
                   title="Deteksi lokasi saya untuk menampilkan bengkel terdekat"
                 >
-                  <Compass size={13} className={geoState.status === "requesting" ? "animate-spin" : ""} />
-                  <span>{geoState.status === "requesting" ? "Mendeteksi..." : "📍 Dekat Saya"}</span>
+                  <Compass
+                    size={13}
+                    className={
+                      geoState.status === "requesting" ? "animate-spin" : ""
+                    }
+                  />
+                  <span>
+                    {geoState.status === "requesting"
+                      ? "Mendeteksi..."
+                      : "📍 Dekat Saya"}
+                  </span>
                 </button>
               )}
 
@@ -316,7 +322,9 @@ function WorkshopsPageContent() {
                   className="tech-select-input"
                   aria-label="Filter berdasarkan provinsi"
                 >
-                  <option value="all">Semua Wilayah ({provinces.length} Provinsi)</option>
+                  <option value="all">
+                    Semua Wilayah ({provinces.length} Provinsi)
+                  </option>
                   {provinces.map((p) => (
                     <option key={p} value={p}>
                       {p}
@@ -332,7 +340,9 @@ function WorkshopsPageContent() {
                   className="tech-select-input"
                   aria-label="Filter berdasarkan kategori usaha"
                 >
-                  <option value="all">Semua Kategori ({categories.length})</option>
+                  <option value="all">
+                    Semua Kategori ({categories.length})
+                  </option>
                   {categories.map((c) => (
                     <option key={c} value={c}>
                       {c}
@@ -360,7 +370,8 @@ function WorkshopsPageContent() {
               <div>
                 <strong>Punya Usaha Bengkel AC atau Toko Sparepart?</strong>
                 <p>
-                  Pasang iklan dan profil usaha Anda gratis di bursa direktori nasional ini.
+                  Pasang iklan dan profil usaha Anda gratis di bursa direktori
+                  nasional ini.
                 </p>
               </div>
             </div>
@@ -374,12 +385,16 @@ function WorkshopsPageContent() {
           {/* Workshop Cards Grid */}
           <div className="home-workshops-grid-compact">
             {filtered.length > 0 ? (
-              filtered.map((ws) => <PublicWorkshopCard key={ws.id} workshop={ws} />)
+              filtered.map((ws) => (
+                <PublicWorkshopCard key={ws.id} workshop={ws} />
+              ))
             ) : (
               <div className="no-tech-found">
                 <Store size={44} className="text-muted" />
                 <h3>Tidak ada bengkel/toko ditemukan</h3>
-                <p>Coba sesuaikan kata kunci pencarian atau reset filter wilayah.</p>
+                <p>
+                  Coba sesuaikan kata kunci pencarian atau reset filter wilayah.
+                </p>
                 <button
                   type="button"
                   className="button secondary reset-filter-btn"
@@ -402,7 +417,10 @@ function WorkshopsPageContent() {
         guestTitle="Daftarkan Usaha Bengkel &amp; Toko Anda di Bursa Nasional"
         guestDescription="Raih pelanggan baru dari seluruh Indonesia dengan kredibilitas lisensi dan sertifikasi kompetensi resmi organisasi."
         guestPrimaryCta={{ label: "Daftar Jadi Anggota", href: "/join" }}
-        guestSecondaryCta={{ label: "Verifikasi Anggota Resmi", href: "/verify" }}
+        guestSecondaryCta={{
+          label: "Verifikasi Anggota Resmi",
+          href: "/verify",
+        }}
       />
     </div>
   );
@@ -410,7 +428,13 @@ function WorkshopsPageContent() {
 
 export default function WorkshopsPage() {
   return (
-    <Suspense fallback={<div className="wrap" style={{ padding: "80px 0" }}>Memuat bursa bengkel &amp; toko...</div>}>
+    <Suspense
+      fallback={
+        <div className="wrap" style={{ padding: "80px 0" }}>
+          Memuat bursa bengkel &amp; toko...
+        </div>
+      }
+    >
       <WorkshopsPageContent />
     </Suspense>
   );

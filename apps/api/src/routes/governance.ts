@@ -465,4 +465,3 @@ export const governanceRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 };
-

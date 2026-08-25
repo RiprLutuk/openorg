@@ -23,8 +23,8 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { Suspense, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { ServerPagination } from "@/components/server-pagination";
 
@@ -301,7 +301,10 @@ function LendersContent() {
     return matchSearch && matchSector;
   });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE_PARTNERS));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filtered.length / ITEMS_PER_PAGE_PARTNERS),
+  );
   const paginatedRows = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE_PARTNERS,
     currentPage * ITEMS_PER_PAGE_PARTNERS,
@@ -325,9 +328,9 @@ function LendersContent() {
 
             <p className="tech-hero-lead">
               Daftar resmi pabrikan AC, distributor suku cadang, penyedia alat
-              ukur refrigerasi, dan mitra pembiayaan pengadaan alat kerja bengkel
-              yang terakreditasi oleh asosiasi demi menjamin keaslian komponen dan
-              standar keselamatan kerja K3.
+              ukur refrigerasi, dan mitra pembiayaan pengadaan alat kerja
+              bengkel yang terakreditasi oleh asosiasi demi menjamin keaslian
+              komponen dan standar keselamatan kerja K3.
             </p>
           </div>
 
@@ -566,8 +569,8 @@ function LendersContent() {
                     <ShieldCheck size={44} color="#94a3b8" />
                     <h3>Mitra / Distributor Tidak Ditemukan</h3>
                     <p>
-                      Periksa kembali kata kunci pencarian atau kategori kemitraan
-                      yang Anda pilih.
+                      Periksa kembali kata kunci pencarian atau kategori
+                      kemitraan yang Anda pilih.
                     </p>
                     <button
                       type="button"

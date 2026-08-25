@@ -15,7 +15,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { PublicWorkshopCard, type PublicWorkshopData } from "./public-workshop-card";
+import {
+  PublicWorkshopCard,
+  type PublicWorkshopData,
+} from "./public-workshop-card";
 
 export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   {
@@ -31,7 +34,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     website: "https://suryamandiriteknik.com",
     googleMapsUrl: "Jl. Fatmawati Raya No. 45, Cilandak, Jakarta Selatan",
     operatingHours: "08.00 - 18.00 | Siap 24 Jam",
-    description: "Bengkel resmi spesialis pendingin gedung perkantoran & multi-inverter VRV.",
+    description:
+      "Bengkel resmi spesialis pendingin gedung perkantoran & multi-inverter VRV.",
     services: ["Cuci Inverter", "Vakum SKKNI", "Recovery R32/R410A"],
     ownerName: "Bambang Sudiro",
     memberNumber: "APTI-2024-0012",
@@ -53,7 +57,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     website: "https://jakarta-aircon.co.id",
     googleMapsUrl: "Jl. Kebon Jeruk Raya No. 18, Jakarta Barat",
     operatingHours: "08.00 - 18.00 | Siap 24 Jam",
-    description: "Klinik perbaikan modul PCB inverter dan instalasi AC cassette standing.",
+    description:
+      "Klinik perbaikan modul PCB inverter dan instalasi AC cassette standing.",
     services: ["Reparasi PCB", "Vakum 2 Tahap", "Servis Chiller"],
     ownerName: "Budi Kurniawan",
     memberNumber: "APTI-2026-0004",
@@ -65,7 +70,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   {
     id: "ws-3",
     workshopName: "Toko Suku Cadang Berkah Refrigerasi",
-    tagline: "Distributor Sparepart Asli, Pipa ASTM B280 & Freon Ramah Lingkungan",
+    tagline:
+      "Distributor Sparepart Asli, Pipa ASTM B280 & Freon Ramah Lingkungan",
     category: "Toko Sparepart & Freon",
     city: "Surabaya",
     province: "Jawa Timur",
@@ -75,7 +81,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     website: "https://berkahrefrigerasi.com",
     googleMapsUrl: "Jl. Ngagel Jaya Selatan No. 88, Gubeng, Surabaya",
     operatingHours: "08.00 - 17.00",
-    description: "Penyedia suku cadang original kompresor inverter dan freon R32/R290.",
+    description:
+      "Penyedia suku cadang original kompresor inverter dan freon R32/R290.",
     services: ["Sparepart Asli", "Manifold Digital", "Pipa Tembaga"],
     ownerName: "H. Ridwan Santoso",
     memberNumber: "APTI-2024-0038",
@@ -97,7 +104,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     website: "https://nusantaracold.id",
     googleMapsUrl: "Jl. Soekarno-Hatta No. 312, Buahbatu, Bandung",
     operatingHours: "07.30 - 19.00",
-    description: "Layanan servis cepat pendingin rumah tangga & apartemen bergaransi.",
+    description:
+      "Layanan servis cepat pendingin rumah tangga & apartemen bergaransi.",
     services: ["Cuci Bebas Bau", "Bongkar Pasang", "Reparasi Modul"],
     ownerName: "Asep Sunandar",
     memberNumber: "APTI-2024-0084",
@@ -119,7 +127,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     website: "https://sentralinstrument.com",
     googleMapsUrl: "Jl. Gatot Subroto KM 6.5 No. 19, Medan",
     operatingHours: "08.00 - 17.30",
-    description: "Penyedia rental alat ukur berstandar SKKNI dan recovery machine bersertifikat.",
+    description:
+      "Penyedia rental alat ukur berstandar SKKNI dan recovery machine bersertifikat.",
     services: ["Rental Manifold", "Pompa Vakum", "Recovery Freon"],
     ownerName: "Tengku Iskandar",
     memberNumber: "APTI-2024-0105",
@@ -141,7 +150,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     website: "https://semaranghvac.com",
     googleMapsUrl: "Jl. Pemuda No. 88, Semarang Tengah",
     operatingHours: "08.00 - 17.30 | Siap 24 Jam",
-    description: "Pusat overhaul kompresor Chiller, water cooled & perakitan cold storage.",
+    description:
+      "Pusat overhaul kompresor Chiller, water cooled & perakitan cold storage.",
     services: ["Servis Chiller", "Cold Storage", "Uji Nitrogen K3"],
     ownerName: "Dewi Lestari",
     memberNumber: "APTI-2026-0006",
@@ -162,7 +172,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     phone: "0411876543",
     googleMapsUrl: "Jl. Urip Sumoharjo No. 142, Makassar",
     operatingHours: "08.00 - 18.00",
-    description: "Kontraktor dan teknisi resmi pendingin ruang komersial Sulawesi Selatan.",
+    description:
+      "Kontraktor dan teknisi resmi pendingin ruang komersial Sulawesi Selatan.",
     services: ["AC Cassette", "Ducting Udara", "Perawatan Berkala"],
     ownerName: "Andi Mappanyukki",
     memberNumber: "APTI-2024-0142",
@@ -174,7 +185,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   {
     id: "ws-8",
     workshopName: "Bali Cool Pro Solutions",
-    tagline: "Pemeliharaan Tata Udara Resor, Villa & Restoran Standar Pariwisata",
+    tagline:
+      "Pemeliharaan Tata Udara Resor, Villa & Restoran Standar Pariwisata",
     category: "Bengkel Servis AC Residensial",
     city: "Denpasar",
     province: "Bali",
@@ -184,7 +196,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     website: "https://balicoolpro.com",
     googleMapsUrl: "Jl. Bypass Ngurah Rai No. 210, Sanur, Denpasar",
     operatingHours: "08.00 - 20.00 | Siap 24 Jam",
-    description: "Spesialis perawatan pendingin ramah lingkungan untuk villa & perhotelan Bali.",
+    description:
+      "Spesialis perawatan pendingin ramah lingkungan untuk villa & perhotelan Bali.",
     services: ["Servis Villa/Hotel", "Vakum Standar", "Anti Bau Organik"],
     ownerName: "I Wayan Sudarma",
     memberNumber: "APTI-2024-0177",
@@ -205,7 +218,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     phone: "0274889123",
     googleMapsUrl: "Jl. Ring Road Utara No. 55, Sleman, Yogyakarta",
     operatingHours: "08.30 - 17.30",
-    description: "Pusat rujukan penanganan kerusakan error code AC multi-inverter di DIY.",
+    description:
+      "Pusat rujukan penanganan kerusakan error code AC multi-inverter di DIY.",
     services: ["Scan Diagnosa", "Reparasi Modul", "Uji Tekanan"],
     ownerName: "Raden Mas Suryo",
     memberNumber: "APTI-2024-0195",
@@ -217,7 +231,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   {
     id: "ws-10",
     workshopName: "Sriwijaya Mega Refrigerasi",
-    tagline: "Pabrikasi Cold Storage Ikan/Daging & Pemasangan Pipa Tembaga ASTM",
+    tagline:
+      "Pabrikasi Cold Storage Ikan/Daging & Pemasangan Pipa Tembaga ASTM",
     category: "Bengkel Spesialis AC Komersial",
     city: "Palembang",
     province: "Sumatera Selatan",
@@ -226,7 +241,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     phone: "0711412345",
     googleMapsUrl: "Jl. Kolonel H. Burlian KM 7, Palembang",
     operatingHours: "08.00 - 17.00 | Siap 24 Jam",
-    description: "Rekayasa ruang pendingin industri dan distributor pipa pendingin ASTM.",
+    description:
+      "Rekayasa ruang pendingin industri dan distributor pipa pendingin ASTM.",
     services: ["Cold Storage", "Insulasi Pipa", "Recovery Emisi"],
     ownerName: "M. Zulkarnain",
     memberNumber: "APTI-2024-0210",
@@ -238,7 +254,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   {
     id: "ws-11",
     workshopName: "Borneo Aircon Engineering",
-    tagline: "Servis Pendingin Fasilitas Tambang, Rig Lepas Pantai & Kantor IKN",
+    tagline:
+      "Servis Pendingin Fasilitas Tambang, Rig Lepas Pantai & Kantor IKN",
     category: "Bengkel Spesialis AC Komersial",
     city: "Balikpapan",
     province: "Kalimantan Timur",
@@ -248,7 +265,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     website: "https://borneoaircon.id",
     googleMapsUrl: "Jl. MT Haryono No. 99, Balikpapan",
     operatingHours: "07.30 - 18.00 | Siap 24 Jam",
-    description: "Teknisi K3 bersertifikat industri tambang dan tata udara proyek kawasan IKN.",
+    description:
+      "Teknisi K3 bersertifikat industri tambang dan tata udara proyek kawasan IKN.",
     services: ["HVAC Industri", "K3 Bersertifikat", "Overhaul Chiller"],
     ownerName: "Fajar Nugroho",
     memberNumber: "APTI-2024-0233",
@@ -269,7 +287,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     phone: "0218899001",
     googleMapsUrl: "Jl. Ahmad Yani No. 60, Bekasi",
     operatingHours: "08.00 - 20.00",
-    description: "Layanan servis panggilan perumahan Bekasi dengan SOP vakum wajib.",
+    description:
+      "Layanan servis panggilan perumahan Bekasi dengan SOP vakum wajib.",
     services: ["Cuci AC Rumah", "Isi Freon R32", "Pasang Baru"],
     ownerName: "Dedi Suhendar",
     memberNumber: "APTI-2024-0256",
@@ -281,7 +300,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   {
     id: "ws-13",
     workshopName: "Tangerang HVAC Service Lab",
-    tagline: "Uji Tekanan Nitrogen K3, Vakum Dua Tahap & Pemulihan Freon Ramah Lingkungan",
+    tagline:
+      "Uji Tekanan Nitrogen K3, Vakum Dua Tahap & Pemulihan Freon Ramah Lingkungan",
     category: "Rental Alat & Manifold Digital",
     city: "Tangerang",
     province: "Banten",
@@ -290,7 +310,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     phone: "0215577889",
     googleMapsUrl: "Jl. MH Thamrin No. 45, Cikokol, Tangerang",
     operatingHours: "08.00 - 17.30",
-    description: "Pusat kalibrasi alat ukur refrigerasi dan pelatihan SOP vakum teknisi.",
+    description:
+      "Pusat kalibrasi alat ukur refrigerasi dan pelatihan SOP vakum teknisi.",
     services: ["Uji Nitrogen", "Kalibrasi Alat", "Pelatihan SOP"],
     ownerName: "Hendrik Gunawan",
     memberNumber: "APTI-2024-0280",
@@ -302,7 +323,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   {
     id: "ws-14",
     workshopName: "Malang Cold Clinic",
-    tagline: "Spesialis Servis Chiller Hasil Kebun, Buah Apel & Pendingin Hunian",
+    tagline:
+      "Spesialis Servis Chiller Hasil Kebun, Buah Apel & Pendingin Hunian",
     category: "Bengkel Servis AC Residensial",
     city: "Malang",
     province: "Jawa Timur",
@@ -311,7 +333,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     phone: "0341489123",
     googleMapsUrl: "Jl. Soekarno Hatta No. 78, Lowokwaru, Malang",
     operatingHours: "08.00 - 18.00",
-    description: "Klinik pendingin hasil bumi dan servis pendingin perkantoran wilayah Malang Raya.",
+    description:
+      "Klinik pendingin hasil bumi dan servis pendingin perkantoran wilayah Malang Raya.",
     services: ["Chiller Buah", "Servis Residensial", "Recovery Freon"],
     ownerName: "Bagus Prasetyo",
     memberNumber: "APTI-2024-0301",
@@ -323,7 +346,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   {
     id: "ws-15",
     workshopName: "Solo Rejeki Pendingin",
-    tagline: "Penyedia Kompresor Asli, Flaring Hidrolik & Alat Kerja Teknisi Resmi",
+    tagline:
+      "Penyedia Kompresor Asli, Flaring Hidrolik & Alat Kerja Teknisi Resmi",
     category: "Toko Sparepart & Freon",
     city: "Surakarta",
     province: "Jawa Tengah",
@@ -332,7 +356,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     phone: "0271712345",
     googleMapsUrl: "Jl. Slamet Riyadi No. 240, Laweyan, Surakarta",
     operatingHours: "08.30 - 17.00",
-    description: "Toko suku cadang terpercaya rekanan teknisi Soloraya & sekitarnya.",
+    description:
+      "Toko suku cadang terpercaya rekanan teknisi Soloraya & sekitarnya.",
     services: ["Kompresor Asli", "Flaring Hidrolik", "Freon R32/R410A"],
     ownerName: "Joko Wibowo",
     memberNumber: "APTI-2024-0325",
@@ -344,7 +369,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   {
     id: "ws-16",
     workshopName: "Batam Marine HVAC Support",
-    tagline: "Servis Pendingin Kapal Laut, Galangan Shipyard & Industri Elektronik",
+    tagline:
+      "Servis Pendingin Kapal Laut, Galangan Shipyard & Industri Elektronik",
     category: "Bengkel Spesialis AC Komersial",
     city: "Batam",
     province: "Kepulauan Riau",
@@ -353,7 +379,8 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     phone: "0778451234",
     googleMapsUrl: "Jl. Duyung No. 12, Batu Ampar, Batam",
     operatingHours: "08.00 - 17.00 | Siap 24 Jam",
-    description: "Layanan teknik refrigerasi kapal kargo, tugboat, dan clean room semikonduktor.",
+    description:
+      "Layanan teknik refrigerasi kapal kargo, tugboat, dan clean room semikonduktor.",
     services: ["HVAC Kapal Laut", "Clean Room", "Chiller Marine"],
     ownerName: "Rudi Hamsah",
     memberNumber: "APTI-2024-0350",
@@ -368,7 +395,12 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
 const MAX_NEARBY_RADIUS_KM = 35;
 
 // Helper to compute Haversine distance in KM
-function computeDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+function computeDistanceKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
   const R = 6371; // Earth radius in km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -400,9 +432,17 @@ function getStoredWorkshops(): PublicWorkshopData[] {
       if (stored) {
         const parsed: PublicWorkshopData[] = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const memberNums = new Set(parsed.map((p) => p.memberNumber));
-          const baseWithoutDuplicates = combined.filter((w) => !memberNums.has(w.memberNumber));
-          combined = [...parsed, ...baseWithoutDuplicates];
+          const formattedParsed = parsed.map((p, idx) => ({
+            ...p,
+            id: p.id || `custom-ws-${p.memberNumber || idx}`,
+          }));
+          const memberNums = new Set(
+            formattedParsed.map((p) => p.memberNumber),
+          );
+          const baseWithoutDuplicates = combined.filter(
+            (w) => !memberNums.has(w.memberNumber),
+          );
+          combined = [...formattedParsed, ...baseWithoutDuplicates];
         }
       }
     }
@@ -413,7 +453,9 @@ function getStoredWorkshops(): PublicWorkshopData[] {
 }
 
 export function HomeFeaturedWorkshops() {
-  const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(NATIONAL_16_WORKSHOPS);
+  const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(
+    NATIONAL_16_WORKSHOPS,
+  );
   const [selectedCat, setSelectedCat] = useState<string>("all");
   const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
   const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -436,14 +478,20 @@ export function HomeFeaturedWorkshops() {
     source: "gps" | "ip" = "gps",
     customCityName?: string,
   ) => {
-    const withDistances: PublicWorkshopData[] = baseList.map((ws) => {
+    const withDistances: PublicWorkshopData[] = baseList.map((ws, idx) => {
       const wsLat = ws.latitude ?? -6.2;
       const wsLng = ws.longitude ?? 106.8;
       const distanceKm = computeDistanceKm(lat, lng, wsLat, wsLng);
-      return { ...ws, distanceKm };
+      return {
+        ...ws,
+        id: ws.id || `ws-dist-${ws.memberNumber || idx}`,
+        distanceKm,
+      };
     });
 
-    withDistances.sort((a, b) => (a.distanceKm ?? 99999) - (b.distanceKm ?? 99999));
+    withDistances.sort(
+      (a, b) => (a.distanceKm ?? 99999) - (b.distanceKm ?? 99999),
+    );
     setWorkshops(withDistances);
     setGeoState({
       status: "active",
@@ -471,71 +519,42 @@ export function HomeFeaturedWorkshops() {
         applyLocationSort(latitude, longitude, combined, "gps");
       },
       (err) => {
-        console.warn("Browser GPS permission not granted or timeout:", err.message);
-        // Fallback to IP geolocation
-        detectLocationFromIp(getStoredWorkshops());
+        console.warn(
+          "Browser GPS permission not granted or timeout:",
+          err.message,
+        );
+        setGeoState({ status: "denied" });
       },
-      { timeout: 8000, enableHighAccuracy: true }
+      { timeout: 8000, enableHighAccuracy: true },
     );
   };
 
-  const detectLocationFromIp = (combined: PublicWorkshopData[]) => {
-    fetch("https://ipwho.is/")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.success && data?.latitude && data?.longitude) {
-          applyLocationSort(data.latitude, data.longitude, combined, "ip", data.city || data.region);
-        } else {
-          setWorkshops(shuffleArray(combined));
-        }
-      })
-      .catch(() => {
-        setWorkshops(shuffleArray(combined));
-      });
-  };
-
-  // On mount: Automatic API Fetch, IP Geolocation & Check existing GPS permissions
+  // On mount: Automatic API Fetch
   useEffect(() => {
     fetch("/api/v1/public/workshops")
       .then((r) => (r.ok ? r.json() : null))
       .then((res) => {
         let baseList = getStoredWorkshops();
         if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-          const serverWorkshops: PublicWorkshopData[] = res.data;
-          const memberNums = new Set(serverWorkshops.map((p) => p.memberNumber));
+          const serverWorkshops: PublicWorkshopData[] = res.data.map(
+            (p: any, idx: number) => ({
+              ...p,
+              id: p.id || `server-ws-${p.memberNumber || idx}`,
+            }),
+          );
+          const memberNums = new Set(
+            serverWorkshops.map((p) => p.memberNumber),
+          );
           const baseWithoutDuplicates = baseList.filter(
             (w) => !memberNums.has(w.memberNumber),
           );
           baseList = [...serverWorkshops, ...baseWithoutDuplicates];
         }
-
-        if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
-          navigator.permissions
-            .query({ name: "geolocation" as PermissionName })
-            .then((permissionStatus) => {
-              if (permissionStatus.state === "granted") {
-                navigator.geolocation.getCurrentPosition(
-                  (pos) => {
-                    applyLocationSort(pos.coords.latitude, pos.coords.longitude, baseList, "gps");
-                  },
-                  () => {
-                    detectLocationFromIp(baseList);
-                  }
-                );
-              } else {
-                detectLocationFromIp(baseList);
-              }
-            })
-            .catch(() => {
-              detectLocationFromIp(baseList);
-            });
-        } else {
-          detectLocationFromIp(baseList);
-        }
+        setWorkshops(baseList);
       })
       .catch(() => {
         const combined = getStoredWorkshops();
-        detectLocationFromIp(combined);
+        setWorkshops(combined);
       });
   }, []);
 
@@ -552,13 +571,16 @@ export function HomeFeaturedWorkshops() {
   const handleScroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
       const scrollAmount = direction === "left" ? -370 : 370;
-      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+      scrollContainerRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
     }
   };
 
   // Count how many workshops fall strictly in nearby range
   const nearbyWorkshops = workshops.filter(
-    (w) => w.distanceKm !== undefined && w.distanceKm <= MAX_NEARBY_RADIUS_KM
+    (w) => w.distanceKm !== undefined && w.distanceKm <= MAX_NEARBY_RADIUS_KM,
   );
   const nearbyCount = nearbyWorkshops.length;
 
@@ -570,7 +592,11 @@ export function HomeFeaturedWorkshops() {
     }
 
     // 2. Strict Nearby Proximity Filtering
-    if (geoState.status === "active" && onlyNearby && w.distanceKm !== undefined) {
+    if (
+      geoState.status === "active" &&
+      onlyNearby &&
+      w.distanceKm !== undefined
+    ) {
       // If we have at least 1 workshop within radius, strictly exclude faraway ones
       if (nearbyCount > 0) {
         return w.distanceKm <= MAX_NEARBY_RADIUS_KM;
@@ -585,10 +611,13 @@ export function HomeFeaturedWorkshops() {
 
   const categories = Array.from(
     new Set(
-      (geoState.status === "active" && onlyNearby && nearbyCount > 0 ? nearbyWorkshops : workshops)
+      (geoState.status === "active" && onlyNearby && nearbyCount > 0
+        ? nearbyWorkshops
+        : workshops
+      )
         .map((w) => w.category)
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   );
 
   // Auto-scroll loop effect (pauses on hover or touch)
@@ -624,11 +653,16 @@ export function HomeFeaturedWorkshops() {
           </Link>
           <h2>Jaringan Bengkel &amp; Toko Mitra Anggota</h2>
           <p>
-            16+ bengkel AC resmi, klinik modul inverter &amp; penyedia suku cadang berlisensi di seluruh Indonesia.
+            16+ bengkel AC resmi, klinik modul inverter &amp; penyedia suku
+            cadang berlisensi di seluruh Indonesia.
             {geoState.status === "active" && (
               <span className="ws-geo-meta-hint">
-                📍 Menampilkan {filtered.length} bengkel terdekat di {geoState.nearestCity || "wilayah Anda"}
-                {onlyNearby && nearbyCount > 0 ? ` (radius < ${MAX_NEARBY_RADIUS_KM} km)` : " (seluruh Indonesia)"}.
+                📍 Menampilkan {filtered.length} bengkel terdekat di{" "}
+                {geoState.nearestCity || "wilayah Anda"}
+                {onlyNearby && nearbyCount > 0
+                  ? ` (radius < ${MAX_NEARBY_RADIUS_KM} km)`
+                  : " (seluruh Indonesia)"}
+                .
               </span>
             )}
           </p>
@@ -644,14 +678,16 @@ export function HomeFeaturedWorkshops() {
             >
               Semua ({filtered.length})
             </button>
-            {categories.map((cat) => (
+            {categories.map((cat, idx) => (
               <button
-                key={cat}
+                key={`${cat}-${idx}`}
                 type="button"
                 className={`ws-cat-filter-btn ${selectedCat === cat ? "active" : ""}`}
                 onClick={() => setSelectedCat(cat)}
               >
-                {cat.replace(/^Bengkel\s+/i, "").replace(/& Manifold Digital/i, "& Manifold")}
+                {cat
+                  .replace(/^Bengkel\s+/i, "")
+                  .replace(/& Manifold Digital/i, "& Manifold")}
               </button>
             ))}
           </div>
@@ -684,8 +720,17 @@ export function HomeFeaturedWorkshops() {
                 disabled={geoState.status === "requesting"}
                 title="Deteksi lokasi saya untuk menampilkan bengkel terdekat di wilayah Anda"
               >
-                <Compass size={12} className={geoState.status === "requesting" ? "animate-spin" : ""} />
-                <span>{geoState.status === "requesting" ? "Mendeteksi..." : "Lokasi Saya"}</span>
+                <Compass
+                  size={12}
+                  className={
+                    geoState.status === "requesting" ? "animate-spin" : ""
+                  }
+                />
+                <span>
+                  {geoState.status === "requesting"
+                    ? "Mendeteksi..."
+                    : "Lokasi Saya"}
+                </span>
               </button>
             )}
 
@@ -705,7 +750,9 @@ export function HomeFeaturedWorkshops() {
               type="button"
               className={`carousel-autoplay-btn ${isAutoPlay ? "active" : ""}`}
               onClick={() => setIsAutoPlay((prev) => !prev)}
-              title={isAutoPlay ? "Jeda Auto-Scroll" : "Mulai Auto-Scroll Otomatis"}
+              title={
+                isAutoPlay ? "Jeda Auto-Scroll" : "Mulai Auto-Scroll Otomatis"
+              }
               aria-label="Toggle Auto-Scroll"
             >
               {isAutoPlay ? <Pause size={12} /> : <Play size={12} />}
@@ -742,8 +789,11 @@ export function HomeFeaturedWorkshops() {
           onTouchEnd={() => setIsHovered(false)}
         >
           <div className="ws-horizontal-carousel" ref={scrollContainerRef}>
-            {filtered.map((ws) => (
-              <div key={ws.id} className="ws-carousel-slide">
+            {filtered.map((ws, idx) => (
+              <div
+                key={ws.id || ws.memberNumber || `ws-card-slide-${idx}`}
+                className="ws-carousel-slide"
+              >
                 <PublicWorkshopCard workshop={ws} />
               </div>
             ))}
@@ -759,7 +809,8 @@ export function HomeFeaturedWorkshops() {
             <div>
               <strong>Punya Usaha Bengkel AC atau Toko Sparepart?</strong>
               <p>
-                Daftarkan profil usaha Anda untuk mendapatkan promosi nasional di bursa direktori resmi organisasi.
+                Daftarkan profil usaha Anda untuk mendapatkan promosi nasional
+                di bursa direktori resmi organisasi.
               </p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { creditSchemeInputSchema } from "@openorg/contracts";
-import { asc, desc, eq } from "drizzle-orm";
-import type { FastifyPluginAsync, FastifyRequest } from "fastify";
+import { and, asc, desc, eq, or, sql } from "drizzle-orm";
+import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { db } from "../db/client";
 import {
@@ -228,7 +228,11 @@ export const adminLearningRoutes: FastifyPluginAsync = async (app) => {
         .where(eq(learningActivities.id, id))
         .returning();
       if (!deleted)
-        throw new AppError(404, "ACTIVITY_NOT_FOUND", "Kegiatan tidak ditemukan.");
+        throw new AppError(
+          404,
+          "ACTIVITY_NOT_FOUND",
+          "Kegiatan tidak ditemukan.",
+        );
       return reply.status(204).send();
     },
   );
@@ -243,12 +247,15 @@ export const adminLearningRoutes: FastifyPluginAsync = async (app) => {
         .where(eq(learningEnrollments.id, id))
         .returning();
       if (!deleted)
-        throw new AppError(404, "ENROLLMENT_NOT_FOUND", "Pendaftaran tidak ditemukan.");
+        throw new AppError(
+          404,
+          "ENROLLMENT_NOT_FOUND",
+          "Pendaftaran tidak ditemukan.",
+        );
       return reply.status(204).send();
     },
   );
 };
-
 
 export const memberLearningRoutes: FastifyPluginAsync = async (app) => {
   app.get(
@@ -410,6 +417,103 @@ export const memberLearningRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
+  const handleEnrollment = async (
+    activityId: string,
+    member: typeof members.$inferSelect,
+    reply: FastifyReply,
+  ) => {
+    const [activity] = await db
+      .select()
+      .from(learningActivities)
+      .where(eq(learningActivities.id, activityId))
+      .limit(1);
+
+    if (!activity) {
+      throw new AppError(
+        404,
+        "ACTIVITY_NOT_FOUND",
+        "Kegiatan pelatihan tidak ditemukan.",
+      );
+    }
+
+    if (activity.status !== "open" && activity.status !== "in_progress") {
+      throw new AppError(
+        400,
+        "ACTIVITY_NOT_OPEN",
+        "Pendaftaran untuk kegiatan pelatihan ini tidak tersedia atau sudah ditutup.",
+      );
+    }
+
+    // Check existing enrollment
+    const [existing] = await db
+      .select()
+      .from(learningEnrollments)
+      .where(
+        and(
+          eq(learningEnrollments.activityId, activityId),
+          eq(learningEnrollments.memberId, member.id),
+        ),
+      )
+      .limit(1);
+
+    if (existing) {
+      if (existing.status === "cancelled") {
+        const [updated] = await db
+          .update(learningEnrollments)
+          .set({ status: "registered", registeredAt: new Date() })
+          .where(eq(learningEnrollments.id, existing.id))
+          .returning();
+        return reply.status(200).send({ data: updated });
+      }
+      return reply.status(200).send({ data: existing });
+    }
+
+    // Determine status based on capacity
+    let status: "registered" | "waitlisted" = "registered";
+    if (activity.capacity && activity.capacity > 0) {
+      const [countRow] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(learningEnrollments)
+        .where(
+          and(
+            eq(learningEnrollments.activityId, activityId),
+            or(
+              eq(learningEnrollments.status, "registered"),
+              eq(learningEnrollments.status, "confirmed"),
+            ),
+          ),
+        );
+
+      const currentCount = countRow?.count ?? 0;
+      if (currentCount >= activity.capacity) {
+        status = "waitlisted";
+      }
+    }
+
+    const [created] = await db
+      .insert(learningEnrollments)
+      .values({
+        activityId,
+        memberId: member.id,
+        status,
+      })
+      .returning();
+
+    return reply.status(201).send({ data: created });
+  };
+
+  app.post(
+    "/learning/activities/:id/enroll",
+    { preHandler: app.authenticateMember },
+    async (request, reply) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const member = request.currentMember;
+      if (!member)
+        throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
+      return handleEnrollment(id, member, reply);
+    },
+  );
+
   app.post(
     "/learning/enroll",
     { preHandler: app.authenticateMember },
@@ -418,31 +522,7 @@ export const memberLearningRoutes: FastifyPluginAsync = async (app) => {
       const member = request.currentMember;
       if (!member)
         throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
-
-      const [account] = await db
-        .select({ emailVerifiedAt: memberAccounts.emailVerifiedAt })
-        .from(memberAccounts)
-        .where(eq(memberAccounts.memberId, member.id))
-        .limit(1);
-
-      if (!account?.emailVerifiedAt) {
-        throw new AppError(
-          403,
-          "EMAIL_VERIFICATION_REQUIRED",
-          "Alamat email belum diverifikasi. Silakan verifikasi email akun Anda terlebih dahulu untuk mendaftar pelatihan.",
-        );
-      }
-
-      const [created] = await db
-        .insert(learningEnrollments)
-        .values({
-          activityId: input.activityId,
-          memberId: member.id,
-          status: "registered",
-        })
-        .returning();
-
-      return reply.status(201).send({ data: created });
+      return handleEnrollment(input.activityId, member, reply);
     },
   );
 

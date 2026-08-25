@@ -7,8 +7,11 @@ coverage
 *.log
 .DS_Store
 apps/api/uploads
+apps/api/apps
+**/uploads/**
 apps/api/.local
 agent/
 .claude/
 __pycache__/
 *.tsbuildinfo
+

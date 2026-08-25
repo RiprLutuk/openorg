@@ -912,7 +912,9 @@ export function EventDetailClient({ event, site }: Props) {
               <div className="modal-body-content">
                 <div className="form-two-col-grid">
                   <div className="form-field">
-                    <label htmlFor="modal-event-name">Nama Lengkap (Sesuai KTP & Sertifikat) *</label>
+                    <label htmlFor="modal-event-name">
+                      Nama Lengkap (Sesuai KTP & Sertifikat) *
+                    </label>
                     <input
                       id="modal-event-name"
                       name="eventAttendeeName"
@@ -928,7 +930,9 @@ export function EventDetailClient({ event, site }: Props) {
                   </div>
 
                   <div className="form-field">
-                    <label htmlFor="modal-event-nik">Nomor Induk Kependudukan (NIK) *</label>
+                    <label htmlFor="modal-event-nik">
+                      Nomor Induk Kependudukan (NIK) *
+                    </label>
                     <input
                       id="modal-event-nik"
                       name="eventAttendeeNik"
@@ -945,7 +949,9 @@ export function EventDetailClient({ event, site }: Props) {
 
                 <div className="form-two-col-grid mt-4">
                   <div className="form-field">
-                    <label htmlFor="modal-event-phone">Nomor WhatsApp Aktif (Notifikasi Tiket) *</label>
+                    <label htmlFor="modal-event-phone">
+                      Nomor WhatsApp Aktif (Notifikasi Tiket) *
+                    </label>
                     <input
                       id="modal-event-phone"
                       name="eventAttendeePhone"
@@ -961,7 +967,9 @@ export function EventDetailClient({ event, site }: Props) {
                   </div>
 
                   <div className="form-field">
-                    <label htmlFor="modal-event-email">Alamat Email Aktif *</label>
+                    <label htmlFor="modal-event-email">
+                      Alamat Email Aktif *
+                    </label>
                     <input
                       id="modal-event-email"
                       name="eventAttendeeEmail"
@@ -979,7 +987,9 @@ export function EventDetailClient({ event, site }: Props) {
 
                 <div className="form-two-col-grid mt-4">
                   <div className="form-field">
-                    <label htmlFor="modal-event-level">Pilihan Jenjang Skema SKKNI *</label>
+                    <label htmlFor="modal-event-level">
+                      Pilihan Jenjang Skema SKKNI *
+                    </label>
                     <select
                       id="modal-event-level"
                       name="eventAttendeeLevel"
@@ -1001,7 +1011,9 @@ export function EventDetailClient({ event, site }: Props) {
                   </div>
 
                   <div className="form-field">
-                    <label htmlFor="modal-event-tuk">Pilihan Tempat Uji Kompetensi (TUK) *</label>
+                    <label htmlFor="modal-event-tuk">
+                      Pilihan Tempat Uji Kompetensi (TUK) *
+                    </label>
                     <select
                       id="modal-event-tuk"
                       name="eventAttendeeTukCity"
@@ -1027,7 +1039,9 @@ export function EventDetailClient({ event, site }: Props) {
                 </div>
 
                 <div className="form-field mt-4">
-                  <label htmlFor="modal-event-workshop">Nama Workshop / Bengkel Servis</label>
+                  <label htmlFor="modal-event-workshop">
+                    Nama Workshop / Bengkel Servis
+                  </label>
                   <input
                     id="modal-event-workshop"
                     name="eventAttendeeWorkshop"

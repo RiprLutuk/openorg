@@ -125,7 +125,9 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
               <div className="hero-metric-data">
                 <div className="hero-metric-num-wrap">
                   <Building2 size={14} className="text-sky-600 flex-shrink-0" />
-                  <strong className="hero-metric-num">{unitCount || "14+"}</strong>
+                  <strong className="hero-metric-num">
+                    {unitCount || "14+"}
+                  </strong>
                 </div>
                 <span className="hero-metric-lbl">Pengurus Wilayah</span>
               </div>
@@ -136,8 +138,13 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
             <div className="hero-metric-item">
               <div className="hero-metric-data">
                 <div className="hero-metric-num-wrap">
-                  <GraduationCap size={14} className="text-sky-600 flex-shrink-0" />
-                  <strong className="hero-metric-num">{eventCount || "8+"}</strong>
+                  <GraduationCap
+                    size={14}
+                    className="text-sky-600 flex-shrink-0"
+                  />
+                  <strong className="hero-metric-num">
+                    {eventCount || "8+"}
+                  </strong>
                 </div>
                 <span className="hero-metric-lbl">Agenda &amp; SKP</span>
               </div>
@@ -148,7 +155,10 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
             <div className="hero-metric-item">
               <div className="hero-metric-data">
                 <div className="hero-metric-num-wrap">
-                  <ShieldCheck size={14} className="text-emerald-600 flex-shrink-0" />
+                  <ShieldCheck
+                    size={14}
+                    className="text-emerald-600 flex-shrink-0"
+                  />
                   <strong className="hero-metric-num">100%</strong>
                 </div>
                 <span className="hero-metric-lbl">Terverifikasi</span>
@@ -212,7 +222,10 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
                       </small>
                     </div>
                   </div>
-                  <div className="kta-luxury-badge" title="Digital Membership Pass">
+                  <div
+                    className="kta-luxury-badge"
+                    title="Digital Membership Pass"
+                  >
                     <svg
                       width="32"
                       height="21"
@@ -231,10 +244,33 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
                         stroke="#bae6fd"
                         strokeWidth="1"
                       />
-                      <path d="M0.75 6H31.25" stroke="#7dd3fc" strokeWidth="1" />
-                      <rect x="4" y="9" width="6" height="4.5" rx="1" fill="#0284c7" />
-                      <circle cx="25" cy="14.5" r="2.8" fill="#0284c7" fillOpacity="0.35" />
-                      <circle cx="22" cy="14.5" r="2.8" fill="#0369a1" fillOpacity="0.55" />
+                      <path
+                        d="M0.75 6H31.25"
+                        stroke="#7dd3fc"
+                        strokeWidth="1"
+                      />
+                      <rect
+                        x="4"
+                        y="9"
+                        width="6"
+                        height="4.5"
+                        rx="1"
+                        fill="#0284c7"
+                      />
+                      <circle
+                        cx="25"
+                        cy="14.5"
+                        r="2.8"
+                        fill="#0284c7"
+                        fillOpacity="0.35"
+                      />
+                      <circle
+                        cx="22"
+                        cy="14.5"
+                        r="2.8"
+                        fill="#0369a1"
+                        fillOpacity="0.55"
+                      />
                       <defs>
                         <linearGradient
                           id="ktaCardGrad"
@@ -275,12 +311,12 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
                     <div className="kta-member-meta-grid">
                       <div>
                         <small>NO. ANGGOTA (KTA)</small>
-                        <strong>KTA-2026-08892</strong>
+                        <strong>APTI-32.2026.00142</strong>
                       </div>
                       <div>
                         <small>STATUS / WILAYAH</small>
                         <span className="kta-status-pill">
-                          ● AKTIF · DPP PUSAT
+                          ● AKTIF · DPD JAWA BARAT
                         </span>
                       </div>
                     </div>
@@ -294,7 +330,7 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
                     </div>
                     <div className="kta-qr-text">
                       <small>PINDAI UNTUK AUDIT KEABSAHAN</small>
-                      <strong>openorg.id/verify/KTA-2026-08892</strong>
+                      <strong>openorg.id/verify/APTI-32.2026.00142</strong>
                     </div>
                   </div>
                   <span className="kta-official-seal">
@@ -314,7 +350,8 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
                   </div>
                   <h3>Uji Keaslian KTA &amp; Kredensial</h3>
                   <p>
-                    Ketik nomor KTA atau pilih sampel di bawah untuk menguji validasi real-time.
+                    Ketik nomor KTA atau pilih sampel di bawah untuk menguji
+                    validasi real-time.
                   </p>
                 </div>
 
@@ -353,11 +390,11 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
                     type="button"
                     className="sample-chip"
                     onClick={() => {
-                      setVerifyInput("KTA-2026-08892");
-                      handleSimulateVerify("KTA-2026-08892");
+                      setVerifyInput("APTI-32.2026.00142");
+                      handleSimulateVerify("APTI-32.2026.00142");
                     }}
                   >
-                    KTA-2026-08892
+                    APTI-32.2026.00142
                   </button>
                   <button
                     type="button"
@@ -384,22 +421,34 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
 
                     <div className="sim-result-profile">
                       <div className="sim-result-avatar">
-                        {verifyResult.name?.split(" ").slice(0, 2).map((n) => n[0]).join("") || "ID"}
+                        {verifyResult.name
+                          ?.split(" ")
+                          .slice(0, 2)
+                          .map((n) => n[0])
+                          .join("") || "ID"}
                       </div>
                       <div className="sim-result-identity">
-                        <strong className="sim-result-name">{verifyResult.name}</strong>
-                        <span className="sim-result-role">{verifyResult.role}</span>
+                        <strong className="sim-result-name">
+                          {verifyResult.name}
+                        </strong>
+                        <span className="sim-result-role">
+                          {verifyResult.role}
+                        </span>
                       </div>
                     </div>
 
                     <div className="sim-result-grid">
                       <div className="sim-meta-item">
                         <small>NO. KREDENSIAL</small>
-                        <span className="sim-meta-code">{verifyResult.number}</span>
+                        <span className="sim-meta-code">
+                          {verifyResult.number}
+                        </span>
                       </div>
                       <div className="sim-meta-item">
                         <small>MASA BERLAKU</small>
-                        <span className="sim-meta-valid">{verifyResult.expiry} (Aktif)</span>
+                        <span className="sim-meta-valid">
+                          {verifyResult.expiry} (Aktif)
+                        </span>
                       </div>
                       <div className="sim-meta-item full-width">
                         <small>UNIT KERJA / PENERBIT</small>

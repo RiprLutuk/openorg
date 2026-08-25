@@ -1,7 +1,5 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Building2,
   Calendar,
@@ -19,6 +17,8 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { ServerPagination } from "@/components/server-pagination";
 
@@ -39,18 +39,21 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-01",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Budi Kurniawan",
     teamName: "APTI DPD DKI Jakarta - Team Alpha",
     unitName: "DPD DKI Jakarta",
     points: 480,
     rank: 1,
-    achievements: "Juara 1 Troubleshooting Inverter AC & Waktu Vakum Tercepat (08:42 menit)",
+    achievements:
+      "Juara 1 Troubleshooting Inverter AC & Waktu Vakum Tercepat (08:42 menit)",
   },
   {
     id: "champ-2026-02",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Agus Pratama",
     teamName: "APTI DPD Jawa Barat - Bandung Technicians",
     unitName: "DPD Jawa Barat",
@@ -61,7 +64,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-03",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Dewi Lestari",
     teamName: "APTI DPD Jawa Tengah - Semarang Cold Chain",
     unitName: "DPD Jawa Tengah",
@@ -72,40 +76,47 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-04",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Rian Hidayat",
     teamName: "APTI DPD Jawa Timur - Surabaya Cool Team",
     unitName: "DPD Jawa Timur",
     points: 395,
     rank: 4,
-    achievements: "Juara 4 Instalasi VRF Multi-Split & Setting Centralized Controller",
+    achievements:
+      "Juara 4 Instalasi VRF Multi-Split & Setting Centralized Controller",
   },
   {
     id: "champ-2026-05",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Fajar Nugroho",
     teamName: "APTI DPD DI Yogyakarta - Jogja HVAC Squad",
     unitName: "DPD DI Yogyakarta",
     points: 380,
     rank: 5,
-    achievements: "Juara 5 Evakuasi & Recovery Refrigerant Ramah Lingkungan R32",
+    achievements:
+      "Juara 5 Evakuasi & Recovery Refrigerant Ramah Lingkungan R32",
   },
   {
     id: "champ-2026-06",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Muhammad Farhan",
     teamName: "APTI DPD Banten - Tangerang Industrial Pro",
     unitName: "DPD Banten",
     points: 365,
     rank: 6,
-    achievements: "Juara 6 Uji Kebocoran Tekanan Tinggi Nitrogen Kering 500 PSI",
+    achievements:
+      "Juara 6 Uji Kebocoran Tekanan Tinggi Nitrogen Kering 500 PSI",
   },
   {
     id: "champ-2026-07",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "I Wayan Sudarma",
     teamName: "APTI DPD Bali - Denpasar Hospitality Cool",
     unitName: "DPD Bali",
@@ -116,7 +127,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-08",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Hendra Saputra",
     teamName: "APTI DPD Sumatera Utara - Medan Cool Engineering",
     unitName: "DPD Sumatera Utara",
@@ -127,7 +139,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-09",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Andi Wijaya",
     teamName: "APTI DPD Sulawesi Selatan - Makassar Refrigerasi",
     unitName: "DPD Sulawesi Selatan",
@@ -138,7 +151,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-10",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Rizky Ramadhan",
     teamName: "APTI DPD Riau - Pekanbaru Aircon Tech",
     unitName: "DPD Riau",
@@ -149,7 +163,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-11",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Eko Prasetyo",
     teamName: "APTI DPD Kalimantan Timur - Balikpapan Energy Cool",
     unitName: "DPD Kalimantan Timur",
@@ -160,7 +175,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-12",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Dedi Hermanto",
     teamName: "APTI DPD Sumatera Selatan - Palembang Cooling Pro",
     unitName: "DPD Sumatera Selatan",
@@ -171,7 +187,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-13",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Anton Setiawan",
     teamName: "APTI DPD Lampung - Bandar Lampung Service",
     unitName: "DPD Lampung",
@@ -182,7 +199,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-14",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Ilham Maulana",
     teamName: "APTI DPD NTB - Mataram Cold Solution",
     unitName: "DPD Nusa Tenggara Barat",
@@ -193,7 +211,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-15",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Surya Darmawan",
     teamName: "APTI DPD Kalimantan Barat - Pontianak Aircon",
     unitName: "DPD Kalimantan Barat",
@@ -204,7 +223,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2026-16",
     seasonYear: 2026,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2026)",
     participantName: "Ahmad Zulkarnain",
     teamName: "APTI DPD Aceh - Serambi HVAC Team",
     unitName: "DPD Aceh",
@@ -217,7 +237,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2025-01",
     seasonYear: 2025,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
     participantName: "Agus Pratama",
     teamName: "APTI DPD Jawa Barat - Bandung Technicians",
     unitName: "DPD Jawa Barat",
@@ -228,7 +249,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2025-02",
     seasonYear: 2025,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
     participantName: "Budi Kurniawan",
     teamName: "APTI DPD DKI Jakarta - Team Alpha",
     unitName: "DPD DKI Jakarta",
@@ -239,7 +261,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2025-03",
     seasonYear: 2025,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
     participantName: "Rian Hidayat",
     teamName: "APTI DPD Jawa Timur - Surabaya Cool Team",
     unitName: "DPD Jawa Timur",
@@ -250,7 +273,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2025-04",
     seasonYear: 2025,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
     participantName: "Dewi Lestari",
     teamName: "APTI DPD Jawa Tengah - Semarang Cold Chain",
     unitName: "DPD Jawa Tengah",
@@ -261,7 +285,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2025-05",
     seasonYear: 2025,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
     participantName: "Hendra Saputra",
     teamName: "APTI DPD Sumatera Utara - Medan Cool Engineering",
     unitName: "DPD Sumatera Utara",
@@ -272,7 +297,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2025-06",
     seasonYear: 2025,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
     participantName: "I Wayan Sudarma",
     teamName: "APTI DPD Bali - Denpasar Hospitality Cool",
     unitName: "DPD Bali",
@@ -283,7 +309,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2025-07",
     seasonYear: 2025,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
     participantName: "Fajar Nugroho",
     teamName: "APTI DPD DI Yogyakarta - Jogja HVAC Squad",
     unitName: "DPD DI Yogyakarta",
@@ -294,7 +321,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2025-08",
     seasonYear: 2025,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
     participantName: "Muhammad Farhan",
     teamName: "APTI DPD Banten - Tangerang Industrial Pro",
     unitName: "DPD Banten",
@@ -305,7 +333,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2025-09",
     seasonYear: 2025,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
     participantName: "Andi Wijaya",
     teamName: "APTI DPD Sulawesi Selatan - Makassar Refrigerasi",
     unitName: "DPD Sulawesi Selatan",
@@ -316,7 +345,8 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   {
     id: "champ-2025-10",
     seasonYear: 2025,
-    category: "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
+    category:
+      "Kontes Keterampilan Teknisi Pendingin Nasional (Skill Contest 2025)",
     participantName: "Eko Prasetyo",
     teamName: "APTI DPD Kalimantan Timur - Balikpapan Energy Cool",
     unitName: "DPD Kalimantan Timur",
@@ -333,9 +363,13 @@ export function ChampionshipsPageContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [standings, setStandings] = useState<ChampionshipStanding[]>(FALLBACK_CHAMPIONSHIPS);
+  const [standings, setStandings] = useState<ChampionshipStanding[]>(
+    FALLBACK_CHAMPIONSHIPS,
+  );
   const [isLoading, setIsLoading] = useState(false);
-  const [totalCount, setTotalCount] = useState<number>(FALLBACK_CHAMPIONSHIPS.length);
+  const [totalCount, setTotalCount] = useState<number>(
+    FALLBACK_CHAMPIONSHIPS.length,
+  );
 
   // URL-driven query parameters
   const pageParam = searchParams.get("page");
@@ -349,7 +383,12 @@ export function ChampionshipsPageContent() {
   const updateQueryParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(updates).forEach(([key, val]) => {
-      if (val === null || val === "" || (key === "page" && val === "1") || (key === "season" && val === "2026")) {
+      if (
+        val === null ||
+        val === "" ||
+        (key === "page" && val === "1") ||
+        (key === "season" && val === "2026")
+      ) {
         params.delete(key);
       } else {
         params.set(key, val);
@@ -405,7 +444,10 @@ export function ChampionshipsPageContent() {
   });
 
   const totalFilteredCount = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(totalFilteredCount / ITEMS_PER_PAGE_CHAMPIONSHIPS));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalFilteredCount / ITEMS_PER_PAGE_CHAMPIONSHIPS),
+  );
   const paginatedRows = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE_CHAMPIONSHIPS,
     currentPage * ITEMS_PER_PAGE_CHAMPIONSHIPS,
@@ -430,8 +472,8 @@ export function ChampionshipsPageContent() {
             </h1>
 
             <p className="tech-hero-lead">
-              Papan peringkat resmi kontes keterampilan refrigerasi dan tata udara
-              tingkat nasional. Pengujian ketat akurasi sambungan brazing
+              Papan peringkat resmi kontes keterampilan refrigerasi dan tata
+              udara tingkat nasional. Pengujian ketat akurasi sambungan brazing
               nitrogen, kecepatan uji vakum &lt;500µ, serta presisi diagnosis
               modul inverter.
             </p>
@@ -447,7 +489,10 @@ export function ChampionshipsPageContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
+                  style={{
+                    background: "rgba(245, 158, 11, 0.12)",
+                    color: "#f59e0b",
+                  }}
                 >
                   <Trophy size={20} />
                 </div>
@@ -459,7 +504,10 @@ export function ChampionshipsPageContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
+                  style={{
+                    background: "rgba(2, 132, 199, 0.12)",
+                    color: "#38bdf8",
+                  }}
                 >
                   <Gauge size={20} />
                 </div>
@@ -471,7 +519,10 @@ export function ChampionshipsPageContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#34d399",
+                  }}
                 >
                   <Flag size={20} />
                 </div>
@@ -483,7 +534,10 @@ export function ChampionshipsPageContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
+                  style={{
+                    background: "rgba(99, 102, 241, 0.12)",
+                    color: "#818cf8",
+                  }}
                 >
                   <Star size={20} />
                 </div>
@@ -574,26 +628,32 @@ export function ChampionshipsPageContent() {
 
                     {/* Background Watermark Crest */}
                     <div className="podium-watermark" aria-hidden="true">
-                      {isGold ? <Crown size={110} /> : isSilver ? <Medal size={110} /> : <Trophy size={110} />}
+                      {isGold ? (
+                        <Crown size={110} />
+                      ) : isSilver ? (
+                        <Medal size={110} />
+                      ) : (
+                        <Trophy size={110} />
+                      )}
                     </div>
 
                     {/* Header Rank Badge */}
                     <div className="podium-card-header">
                       <div className="podium-rank-badge">
-                        {isGold ? (
-                          <Crown size={15} />
-                        ) : (
-                          <Medal size={15} />
-                        )}
+                        {isGold ? <Crown size={15} /> : <Medal size={15} />}
                         <span>{rankLabel}</span>
                       </div>
-                      <span className="podium-season-tag">Musim {pod.seasonYear}</span>
+                      <span className="podium-season-tag">
+                        Musim {pod.seasonYear}
+                      </span>
                     </div>
 
                     {/* Champion Avatar Frame */}
                     <div className="podium-avatar-wrapper">
                       <div className="podium-avatar">
-                        <span className="podium-avatar-initials">{initials}</span>
+                        <span className="podium-avatar-initials">
+                          {initials}
+                        </span>
                       </div>
                       <span className="podium-avatar-rank-pill">
                         #{pod.rank}
@@ -624,7 +684,9 @@ export function ChampionshipsPageContent() {
                         <span className="score-num">{pod.points}</span>
                         <span className="score-unit">POIN</span>
                       </div>
-                      <span className="score-category-chip">{pod.category || "HVAC/R"}</span>
+                      <span className="score-category-chip">
+                        {pod.category || "HVAC/R"}
+                      </span>
                     </div>
 
                     {/* Citation / Official Achievement Box */}
@@ -762,9 +824,7 @@ export function ChampionshipsPageContent() {
                       >
                         <div className="mobile-card-top-row">
                           <div className="mobile-rank-badge-wrap">
-                            <span
-                              className={`rank-chip rank-chip-${row.rank}`}
-                            >
+                            <span className={`rank-chip rank-chip-${row.rank}`}>
                               #{row.rank}
                             </span>
                             <span className="mobile-contestant-name">

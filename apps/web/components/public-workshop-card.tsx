@@ -113,17 +113,20 @@ export function PublicWorkshopCard({
       <article className={`public-workshop-card ${compact ? "compact" : ""}`}>
         {/* 1. Header Badges: Clean 2-Pill Hierarchy */}
         <div className="ws-card-header">
-          <span
-            className="ws-cat-pill"
-            title={workshop.category}
-          >
+          <span className="ws-cat-pill" title={workshop.category}>
             <Store size={12} className="text-sky-600 flex-shrink-0" />
             <span>{workshop.category.replace(/^Bengkel\s+/i, "")}</span>
           </span>
           <div className="ws-header-right-meta">
             {workshop.distanceKm !== undefined ? (
-              <span className="ws-pill-distance" title={`Jarak ke lokasi Anda: ±${workshop.distanceKm.toFixed(1)} km`}>
-                📍 {workshop.distanceKm < 1 ? "< 1 km" : `±${Math.round(workshop.distanceKm)} km`}
+              <span
+                className="ws-pill-distance"
+                title={`Jarak ke lokasi Anda: ±${workshop.distanceKm.toFixed(1)} km`}
+              >
+                📍{" "}
+                {workshop.distanceKm < 1
+                  ? "< 1 km"
+                  : `±${Math.round(workshop.distanceKm)} km`}
               </span>
             ) : is24h ? (
               <span className="ws-pill-24h">⚡ 24 Jam</span>
@@ -159,7 +162,10 @@ export function PublicWorkshopCard({
             <span className="ws-place-address-text truncate">
               {workshop.address || `${workshop.city}, ${workshop.province}`}
             </span>
-            <ExternalLink size={12} className="ws-place-maps-arrow flex-shrink-0" />
+            <ExternalLink
+              size={12}
+              className="ws-place-maps-arrow flex-shrink-0"
+            />
           </a>
           <div className="ws-place-time-row">
             <Clock size={13} className="text-slate-400 flex-shrink-0" />
@@ -170,20 +176,24 @@ export function PublicWorkshopCard({
         {/* 4. Layanan Spesialisasi */}
         {workshop.services && workshop.services.length > 0 && (
           <div className="ws-services-cloud">
-            {workshop.services.slice(0, 3).map((srv) => (
-              <span key={srv} className="ws-service-tag truncate">
-                <Wrench size={11} className="text-sky-500 flex-shrink-0" />
-                <span className="truncate">{srv}</span>
+            {workshop.services.slice(0, 2).map((srv, idx) => (
+              <span
+                key={`${srv}-${idx}`}
+                className="ws-service-tag"
+                title={srv}
+              >
+                <Wrench size={10} className="text-sky-600 flex-shrink-0" />
+                <span className="ws-service-text">{srv}</span>
               </span>
             ))}
-            {workshop.services.length > 3 && (
+            {workshop.services.length > 2 && (
               <button
                 type="button"
                 className="ws-service-tag ws-more-tag"
                 onClick={() => setShowDetail(true)}
-                title="Lihat semua spesialisasi"
+                title={`Lihat semua ${workshop.services.length} layanan lengkap`}
               >
-                +{workshop.services.length - 3}
+                +{workshop.services.length - 2}
               </button>
             )}
           </div>
@@ -243,8 +253,13 @@ export function PublicWorkshopCard({
             {/* Modal Minimal Header */}
             <div className="ws-modal-header-simple">
               <div className="ws-modal-header-tag">
-                <ShieldCheck size={14} className="text-emerald-600 flex-shrink-0" />
-                <span>Mitra Resmi Organisasi · NRA: {workshop.memberNumber}</span>
+                <ShieldCheck
+                  size={14}
+                  className="text-emerald-600 flex-shrink-0"
+                />
+                <span>
+                  Mitra Resmi Organisasi · NRA: {workshop.memberNumber}
+                </span>
               </div>
               <button
                 type="button"
@@ -262,17 +277,23 @@ export function PublicWorkshopCard({
               <div className="ws-modal-hero-clean">
                 <h3 className="ws-modal-hero-title">{workshop.workshopName}</h3>
                 <p className="ws-modal-hero-tagline">{workshop.tagline}</p>
-                
+
                 {/* One-Line Meta Highlights */}
                 <div className="ws-modal-quick-meta-row">
                   <span className="ws-meta-pill-highlight">
                     <Star size={12} className="fill-amber-400 text-amber-400" />
-                    <strong>{workshop.rating ? workshop.rating.toFixed(2) : "4.95"}</strong>
+                    <strong>
+                      {workshop.rating ? workshop.rating.toFixed(2) : "4.95"}
+                    </strong>
                   </span>
                   {workshop.distanceKm !== undefined && (
                     <span className="ws-meta-pill-highlight">
                       <MapPin size={12} className="text-sky-600" />
-                      <span>{workshop.distanceKm < 1 ? "< 1 km" : `±${Math.round(workshop.distanceKm)} km`}</span>
+                      <span>
+                        {workshop.distanceKm < 1
+                          ? "< 1 km"
+                          : `±${Math.round(workshop.distanceKm)} km`}
+                      </span>
                     </span>
                   )}
                   <span className="ws-meta-pill-highlight">
@@ -317,9 +338,15 @@ export function PublicWorkshopCard({
                     <MapPin size={16} className="text-sky-600" />
                   </div>
                   <div className="ws-unified-content">
-                    <span className="ws-unified-label">Lokasi Bengkel / Toko</span>
-                    <strong className="ws-unified-title">{workshop.address}</strong>
-                    <span className="ws-unified-sub">{workshop.city}, {workshop.province}</span>
+                    <span className="ws-unified-label">
+                      Lokasi Bengkel / Toko
+                    </span>
+                    <strong className="ws-unified-title">
+                      {workshop.address}
+                    </strong>
+                    <span className="ws-unified-sub">
+                      {workshop.city}, {workshop.province}
+                    </span>
                   </div>
                   <a
                     href={mapsDirectUrl}
@@ -341,9 +368,15 @@ export function PublicWorkshopCard({
                     <UserCheck size={16} className="text-sky-600" />
                   </div>
                   <div className="ws-unified-content">
-                    <span className="ws-unified-label">Pimpinan / Master Teknisi</span>
-                    <strong className="ws-unified-title">{workshop.ownerName}</strong>
-                    <span className="ws-unified-sub">No. KTA: {workshop.memberNumber} · Terverifikasi</span>
+                    <span className="ws-unified-label">
+                      Pimpinan / Master Teknisi
+                    </span>
+                    <strong className="ws-unified-title">
+                      {workshop.ownerName}
+                    </strong>
+                    <span className="ws-unified-sub">
+                      No. KTA: {workshop.memberNumber} · Terverifikasi
+                    </span>
                   </div>
                   <Link
                     href={`/technicians?q=${encodeURIComponent(workshop.ownerName)}`}
@@ -365,7 +398,11 @@ export function PublicWorkshopCard({
                   onClick={handleShare}
                   title="Bagikan Tautan"
                 >
-                  {copied ? <Check size={13} className="text-emerald-600" /> : <Share2 size={13} />}
+                  {copied ? (
+                    <Check size={13} className="text-emerald-600" />
+                  ) : (
+                    <Share2 size={13} />
+                  )}
                   <span>{copied ? "Tersalin" : "Bagikan"}</span>
                 </button>
 

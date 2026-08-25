@@ -1,6 +1,11 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -38,7 +43,9 @@ export function ServerPagination({
   const endItem = Math.min(safeCurrentPage * pageSize, totalItems);
 
   const createPageUrl = (page: number) => {
-    const params = new URLSearchParams(searchParams ? searchParams.toString() : "");
+    const params = new URLSearchParams(
+      searchParams ? searchParams.toString() : "",
+    );
     if (page <= 1) {
       params.delete(pageParamKey);
     } else {
@@ -109,7 +116,11 @@ export function ServerPagination({
     >
       <div className="pagination-info">
         <span>
-          Menampilkan <strong>{startItem} - {endItem}</strong> dari <strong>{totalItems}</strong> {itemName}
+          Menampilkan{" "}
+          <strong>
+            {startItem} - {endItem}
+          </strong>{" "}
+          dari <strong>{totalItems}</strong> {itemName}
         </span>
       </div>
 

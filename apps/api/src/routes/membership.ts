@@ -1,4 +1,6 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import { hash, verify } from "@node-rs/argon2";
 import { paginationSchema } from "@openorg/contracts";
 import { and, desc, eq, gt, ilike, isNull, or, sql } from "drizzle-orm";
@@ -8,6 +10,7 @@ import { config } from "../config";
 import { db } from "../db/client";
 import {
   auditLogs,
+  media,
   memberAccounts,
   memberApplications,
   memberSessions,
@@ -17,10 +20,9 @@ import {
   siteSettings,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
-import {
-  generateKtaNumber,
-  generateRegistrationNumber,
-} from "../lib/kta";
+import { generateKtaNumber, generateRegistrationNumber } from "../lib/kta";
+import { detectSupportedImage } from "../lib/media";
+import { computeProfileCompleteness } from "../lib/profile-completeness";
 import {
   hashMemberSessionToken,
   MEMBER_SESSION_TTL_SECONDS,
@@ -42,6 +44,13 @@ const registrationInput = z.object({
     .transform((value) => value.replace(/[^+\d]/g, "")),
   password: z.string().min(8).max(200),
   address: z.string().trim().max(2000).nullable().optional(),
+  province: z.string().trim().max(120).nullable().optional(),
+  regency: z.string().trim().max(120).nullable().optional(),
+  district: z.string().trim().max(120).nullable().optional(),
+  village: z.string().trim().max(120).nullable().optional(),
+  postalCode: z.string().trim().max(20).nullable().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
   unitId: z.string().uuid().nullable().optional(),
   dateOfBirth: z.string().date().nullable().optional(),
   companyName: z.string().trim().max(180).nullable().optional(),
@@ -58,6 +67,49 @@ const profileInput = z.object({
   phone: z.string().trim().min(8).max(40).optional(),
   address: z.string().trim().max(2000).nullable().optional(),
   avatarUrl: z.string().url().nullable().optional(),
+  unitId: z.string().uuid().nullable().optional(),
+  companyName: z.string().trim().max(180).nullable().optional(),
+  biography: z.string().trim().max(2000).nullable().optional(),
+
+  // Mandatory & Additional Member Requirements:
+  nik: z
+    .string()
+    .trim()
+    .regex(/^\d{16}$/, "NIK harus terdiri dari 16 digit angka")
+    .optional(),
+  idCardUrl: z.string().url().nullable().optional(),
+  jabatan: z.string().trim().min(2).max(120).optional(),
+  korwil: z.string().trim().min(2).max(120).optional(),
+  specialization: z.array(z.string().trim()).optional(),
+  businessInfo: z
+    .object({
+      name: z.string().trim().min(1).max(180).optional(),
+      specialization: z.array(z.string().trim()).optional(),
+      address: z.string().trim().max(2000).optional(),
+      staffCount: z.coerce.number().int().min(0).max(1000).optional(),
+      phone: z.string().trim().max(40).optional(),
+      establishedYear: z.string().trim().max(10).optional(),
+    })
+    .optional(),
+  emergencyContact: z
+    .object({
+      name: z.string().trim().min(1).max(120).optional(),
+      phone: z.string().trim().min(8).max(40).optional(),
+      relation: z.string().trim().max(60).optional(),
+    })
+    .optional(),
+  workExperienceYears: z.coerce.number().int().min(0).max(80).optional(),
+  certifications: z
+    .array(
+      z.object({
+        title: z.string().trim(),
+        issuer: z.string().trim(),
+        certificateNumber: z.string().trim().optional(),
+        year: z.string().trim().optional(),
+        fileUrl: z.string().url().optional(),
+      }),
+    )
+    .optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
@@ -148,6 +200,17 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
       const verificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
       const [member] = await db.transaction(async (tx) => {
+        const fullAddressFormatted = [
+          input.address,
+          input.village ? `Kel. ${input.village}` : null,
+          input.district ? `Kec. ${input.district}` : null,
+          input.regency,
+          input.province,
+          input.postalCode,
+        ]
+          .filter(Boolean)
+          .join(", ");
+
         const [created] = await tx
           .insert(members)
           .values({
@@ -160,6 +223,15 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
             metadata: {
               dateOfBirth: input.dateOfBirth ?? null,
               companyName: input.companyName ?? null,
+              province: input.province ?? null,
+              regency: input.regency ?? null,
+              district: input.district ?? null,
+              village: input.village ?? null,
+              postalCode: input.postalCode ?? null,
+              addressDetail: input.address ?? null,
+              fullAddress: fullAddressFormatted || input.address || null,
+              latitude: input.latitude ?? null,
+              longitude: input.longitude ?? null,
             },
           })
           .returning();
@@ -182,6 +254,19 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
           requestedUnitId: input.unitId ?? null,
           status: "applicant",
           createdMemberId: created.id,
+          payload: {
+            dateOfBirth: input.dateOfBirth ?? null,
+            companyName: input.companyName ?? null,
+            province: input.province ?? null,
+            regency: input.regency ?? null,
+            district: input.district ?? null,
+            village: input.village ?? null,
+            postalCode: input.postalCode ?? null,
+            addressDetail: input.address ?? null,
+            fullAddress: fullAddressFormatted || input.address || null,
+            latitude: input.latitude ?? null,
+            longitude: input.longitude ?? null,
+          },
         });
         return [created];
       });
@@ -493,61 +578,104 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
 };
 
 export const memberPortalRoutes: FastifyPluginAsync = async (app) => {
-  app.get(
-    "/session",
-    { preHandler: app.authenticateMember },
-    async (request) => {
-      const member = request.currentMember;
-      if (!member)
-        throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
+  app.get("/session", async (request, reply) => {
+    const token = request.cookies[config.MEMBER_SESSION_COOKIE_NAME];
+    const [site] = await db
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.id, "default"))
+      .limit(1);
 
-      const [card, site, account] = await Promise.all([
-        db
-          .select()
-          .from(membershipCards)
-          .where(
-            and(
-              eq(membershipCards.memberId, member.id),
-              isNull(membershipCards.revokedAt),
-            ),
-          )
-          .orderBy(desc(membershipCards.version))
-          .limit(1)
-          .then((rows) => rows[0] ?? null),
-        db
-          .select()
-          .from(siteSettings)
-          .where(eq(siteSettings.id, "default"))
-          .limit(1)
-          .then((rows) => rows[0] ?? null),
-        db
-          .select({
-            id: memberAccounts.id,
-            emailVerifiedAt: memberAccounts.emailVerifiedAt,
-          })
-          .from(memberAccounts)
-          .where(eq(memberAccounts.memberId, member.id))
-          .limit(1)
-          .then((rows) => rows[0] ?? null),
-      ]);
+    const defaultOrg = {
+      id: "default",
+      name: site?.name ?? "OpenOrg Association",
+      logoUrl: site?.logoUrl ?? null,
+      theme: site?.theme ?? null,
+      primaryColor: site?.primaryColor ?? null,
+      secondaryColor: site?.secondaryColor ?? null,
+    };
 
+    if (!token) {
       return {
         data: {
-          member,
-          card,
-          emailVerified: Boolean(account?.emailVerifiedAt),
-          organization: {
-            id: "default",
-            name: site?.name ?? "OpenOrg Association",
-            logoUrl: site?.logoUrl ?? null,
-            theme: site?.theme ?? null,
-            primaryColor: site?.primaryColor ?? null,
-            secondaryColor: site?.secondaryColor ?? null,
-          },
+          member: null,
+          card: null,
+          emailVerified: false,
+          organization: defaultOrg,
         },
       };
-    },
-  );
+    }
+
+    const [result] = await db
+      .select({ member: members })
+      .from(memberSessions)
+      .innerJoin(
+        memberAccounts,
+        eq(memberSessions.memberAccountId, memberAccounts.id),
+      )
+      .innerJoin(members, eq(memberAccounts.memberId, members.id))
+      .where(
+        and(
+          eq(memberSessions.tokenHash, hashMemberSessionToken(token)),
+          gt(memberSessions.expiresAt, new Date()),
+        ),
+      )
+      .limit(1);
+
+    if (!result) {
+      reply.clearCookie(config.MEMBER_SESSION_COOKIE_NAME, {
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        secure: config.NODE_ENV === "production",
+      });
+      return {
+        data: {
+          member: null,
+          card: null,
+          emailVerified: false,
+          organization: defaultOrg,
+        },
+      };
+    }
+
+    const member = result.member;
+    const [card, account] = await Promise.all([
+      db
+        .select()
+        .from(membershipCards)
+        .where(
+          and(
+            eq(membershipCards.memberId, member.id),
+            isNull(membershipCards.revokedAt),
+          ),
+        )
+        .orderBy(desc(membershipCards.version))
+        .limit(1)
+        .then((rows) => rows[0] ?? null),
+      db
+        .select({
+          id: memberAccounts.id,
+          emailVerifiedAt: memberAccounts.emailVerifiedAt,
+        })
+        .from(memberAccounts)
+        .where(eq(memberAccounts.memberId, member.id))
+        .limit(1)
+        .then((rows) => rows[0] ?? null),
+    ]);
+
+    const completeness = computeProfileCompleteness(member);
+
+    return {
+      data: {
+        member,
+        card,
+        emailVerified: Boolean(account?.emailVerifiedAt),
+        organization: defaultOrg,
+        profileCompleteness: completeness,
+      },
+    };
+  });
 
   app.patch(
     "/profile",
@@ -557,11 +685,84 @@ export const memberPortalRoutes: FastifyPluginAsync = async (app) => {
       const member = request.currentMember;
       if (!member)
         throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
+
+      const {
+        name,
+        phone,
+        address,
+        avatarUrl,
+        unitId,
+        companyName,
+        biography,
+        nik,
+        idCardUrl,
+        jabatan,
+        korwil,
+        specialization,
+        businessInfo,
+        emergencyContact,
+        workExperienceYears,
+        certifications,
+        metadata: extraMetadata,
+      } = input;
+
+      const existingMeta = (member.metadata || {}) as Record<string, unknown>;
+      const newMeta: Record<string, unknown> = {
+        ...existingMeta,
+        ...(extraMetadata || {}),
+      };
+
+      if (nik !== undefined) newMeta.nik = nik;
+      if (idCardUrl !== undefined) newMeta.idCardUrl = idCardUrl;
+      if (jabatan !== undefined) newMeta.jabatan = jabatan;
+      if (korwil !== undefined) newMeta.korwil = korwil;
+      if (specialization !== undefined) newMeta.specialization = specialization;
+      if (businessInfo !== undefined) newMeta.businessInfo = businessInfo;
+      if (emergencyContact !== undefined) newMeta.emergencyContact = emergencyContact;
+      if (workExperienceYears !== undefined)
+        newMeta.workExperienceYears = workExperienceYears;
+      if (certifications !== undefined) newMeta.certifications = certifications;
+      if (address !== undefined) {
+        newMeta.addressDetail = address;
+        newMeta.address = address;
+      }
+      if (companyName !== undefined) newMeta.companyName = companyName;
+      if (biography !== undefined) newMeta.biography = biography;
+
+      const updatePayload: Partial<typeof members.$inferInsert> = {
+        updatedAt: new Date(),
+        metadata: newMeta,
+      };
+
+      if (name !== undefined) updatePayload.name = name;
+      if (phone !== undefined) updatePayload.phone = phone;
+      if (avatarUrl !== undefined) updatePayload.avatarUrl = avatarUrl;
+      if (unitId !== undefined) updatePayload.unitId = unitId;
+
       const [updated] = await db
         .update(members)
-        .set({ ...input, updatedAt: new Date() })
+        .set(updatePayload)
         .where(eq(members.id, member.id))
         .returning();
+
+      if (!updated) {
+        throw new AppError(500, "UPDATE_FAILED", "Failed to update profile.");
+      }
+
+      // Also update linked member_applications payload if any
+      await db
+        .update(memberApplications)
+        .set({
+          fullName: updated.name,
+          phone: updated.phone,
+          requestedUnitId: updated.unitId,
+          payload: newMeta,
+          updatedAt: new Date(),
+        })
+        .where(eq(memberApplications.createdMemberId, member.id));
+
+      const completeness = computeProfileCompleteness(updated);
+
       await membershipAudit(
         request,
         "member.profile_updated",
@@ -570,23 +771,145 @@ export const memberPortalRoutes: FastifyPluginAsync = async (app) => {
         member,
         updated,
       );
-      return { data: updated };
+
+      return {
+        data: {
+          member: updated,
+          profileCompleteness: completeness,
+        },
+      };
     },
   );
 
   app.post(
-    "/logout",
+    "/upload",
     { preHandler: app.authenticateMember },
     async (request, reply) => {
-      const token = request.cookies[config.MEMBER_SESSION_COOKIE_NAME];
-      if (token)
-        await db
-          .delete(memberSessions)
-          .where(eq(memberSessions.tokenHash, hashMemberSessionToken(token)));
-      reply.clearCookie(config.MEMBER_SESSION_COOKIE_NAME, { path: "/" });
-      return reply.status(204).send();
+      const member = request.currentMember;
+      if (!member)
+        throw new AppError(401, "MEMBER_UNAUTHENTICATED", "Sign in required.");
+
+      const upload = await request.file();
+      if (!upload) {
+        throw new AppError(
+          422,
+          "FILE_REQUIRED",
+          "Pilih berkas foto profil atau KTP/SIM untuk diunggah.",
+        );
+      }
+
+      const bytes = await upload.toBuffer();
+      if (bytes.length === 0 || bytes.length > 5_242_880) {
+        throw new AppError(
+          413,
+          "FILE_TOO_LARGE",
+          "Ukuran berkas maksimal 5 MB.",
+        );
+      }
+
+      const detected = detectSupportedImage(bytes);
+      const isPdf =
+        (bytes[0] === 0x25 &&
+          bytes[1] === 0x50 &&
+          bytes[2] === 0x44 &&
+          bytes[3] === 0x46) ||
+        upload.mimetype === "application/pdf" ||
+        upload.filename.toLowerCase().endsWith(".pdf");
+
+      let extension: string = detected?.extension || "jpg";
+      let mimeType: string = detected?.mimeType || upload.mimetype || "image/jpeg";
+
+      if (isPdf) {
+        extension = "pdf";
+        mimeType = "application/pdf";
+      } else if (!detected) {
+        const lowerName = upload.filename.toLowerCase();
+        if (lowerName.endsWith(".png") || upload.mimetype === "image/png") {
+          extension = "png";
+          mimeType = "image/png";
+        } else if (
+          lowerName.endsWith(".webp") ||
+          upload.mimetype === "image/webp"
+        ) {
+          extension = "webp";
+          mimeType = "image/webp";
+        } else if (
+          lowerName.endsWith(".gif") ||
+          upload.mimetype === "image/gif"
+        ) {
+          extension = "gif";
+          mimeType = "image/gif";
+        } else if (
+          lowerName.endsWith(".jpg") ||
+          lowerName.endsWith(".jpeg") ||
+          upload.mimetype?.startsWith("image/")
+        ) {
+          extension = "jpg";
+          mimeType = "image/jpeg";
+        } else {
+          throw new AppError(
+            415,
+            "UNSUPPORTED_MEDIA_TYPE",
+            "Format berkas yang didukung: JPG, PNG, WebP, dan PDF.",
+          );
+        }
+      }
+
+      const id = randomUUID();
+      const filename = `${id}.${extension}`;
+      const target = resolve(config.STORAGE_LOCAL_PATH, filename);
+      await mkdir(dirname(target), { recursive: true });
+      await writeFile(target, bytes, { flag: "wx" });
+
+      const url = `${config.STORAGE_PUBLIC_URL.replace(/\/$/, "")}/${filename}`;
+
+      const checksumSha256 = createHash("sha256").update(bytes).digest("hex");
+
+      await db
+        .insert(media)
+        .values({
+          id,
+          kind: isPdf ? "document" : "image",
+          filename,
+          mimeType,
+          sizeBytes: bytes.length,
+          checksumSha256,
+          url,
+          uploadedBy: null,
+          metadata: {
+            uploadedByMemberId: member.id,
+            originalFilename: upload.filename,
+          },
+        })
+        .returning();
+
+      return reply.status(201).send({
+        data: {
+          id,
+          url,
+          filename,
+          sizeBytes: bytes.length,
+          mimeType,
+        },
+      });
     },
   );
+
+  app.post("/logout", async (request, reply) => {
+    const token = request.cookies[config.MEMBER_SESSION_COOKIE_NAME];
+    if (token) {
+      await db
+        .delete(memberSessions)
+        .where(eq(memberSessions.tokenHash, hashMemberSessionToken(token)));
+    }
+    reply.clearCookie(config.MEMBER_SESSION_COOKIE_NAME, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: config.NODE_ENV === "production",
+    });
+    return reply.status(200).send({ data: { success: true } });
+  });
 };
 
 export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
@@ -624,10 +947,7 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
             organizationUnits,
             eq(memberApplications.requestedUnitId, organizationUnits.id),
           )
-          .leftJoin(
-            members,
-            eq(memberApplications.createdMemberId, members.id),
-          )
+          .leftJoin(members, eq(memberApplications.createdMemberId, members.id))
           .where(where)
           .orderBy(desc(memberApplications.createdAt))
           .limit(query.limit)
@@ -638,40 +958,76 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
           .where(where),
       ]);
       return {
-        data: rows.map((row) => ({
-          ...row.application,
-          unitName: row.unitName,
-          submittedAt: row.application.createdAt.toISOString(),
-          reviewerNotes: row.application.reviewNotes,
-          member: {
-            id: row.application.createdMemberId ?? row.application.id,
-            name: row.createdMember?.name ?? row.application.fullName,
-            email: row.createdMember?.email ?? row.application.email,
-            phone: row.createdMember?.phone ?? row.application.phone,
-            address:
-              ((row.createdMember?.metadata as Record<string, unknown> | null)
-                ?.address as string | undefined) ??
-              ((row.application.payload as Record<string, unknown> | null)
-                ?.address != null
-                ? String(
-                    (row.application.payload as Record<string, unknown>)
-                      .address,
-                  )
-                : null),
-            memberNumber:
-              row.createdMember?.memberNumber ??
-              ((row.application.payload as Record<string, unknown> | null)
-                ?.memberNumber != null
-                ? String(
-                    (row.application.payload as Record<string, unknown>)
-                      .memberNumber,
-                  )
-                : "PENDING"),
-            status: row.createdMember?.status ?? row.application.status,
-            customFields:
-              (row.application.payload as Record<string, unknown> | null) ?? {},
-          },
-        })),
+        data: rows.map((row) => {
+          const memberMeta = (row.createdMember?.metadata || {}) as Record<
+            string,
+            unknown
+          >;
+          const appPayload = (row.application.payload || {}) as Record<
+            string,
+            unknown
+          >;
+          const mergedMeta = { ...appPayload, ...memberMeta };
+
+          const completeness = computeProfileCompleteness(
+            row.createdMember || {
+              name: row.application.fullName,
+              email: row.application.email,
+              phone: row.application.phone,
+              unitId: row.application.requestedUnitId,
+              metadata: mergedMeta,
+            },
+          );
+
+          return {
+            ...row.application,
+            unitName: row.unitName,
+            submittedAt: row.application.createdAt.toISOString(),
+            reviewerNotes: row.application.reviewNotes,
+            profileCompleteness: completeness,
+            member: {
+              id: row.application.createdMemberId ?? row.application.id,
+              name: row.createdMember?.name ?? row.application.fullName,
+              email: row.createdMember?.email ?? row.application.email,
+              phone: row.createdMember?.phone ?? row.application.phone,
+              avatarUrl:
+                row.createdMember?.avatarUrl ||
+                (mergedMeta.avatarUrl as string) ||
+                null,
+              nik: (mergedMeta.nik as string) || null,
+              idCardUrl: (mergedMeta.idCardUrl as string) || null,
+              jabatan: (mergedMeta.jabatan as string) || null,
+              korwil: (mergedMeta.korwil as string) || null,
+              companyName:
+                (mergedMeta.companyName as string) ||
+                (mergedMeta.businessInfo as any)?.name ||
+                null,
+              specialization:
+                mergedMeta.specialization ||
+                (mergedMeta.businessInfo as any)?.specialization ||
+                [],
+              businessInfo: mergedMeta.businessInfo || null,
+              emergencyContact: mergedMeta.emergencyContact || null,
+              workExperienceYears: mergedMeta.workExperienceYears || null,
+              certifications: mergedMeta.certifications || [],
+              address:
+                (mergedMeta.address as string | undefined) ??
+                (mergedMeta.addressDetail as string | undefined) ??
+                null,
+              memberNumber:
+                row.createdMember?.memberNumber ??
+                ((row.application.payload as Record<string, unknown> | null)
+                  ?.memberNumber != null
+                  ? String(
+                      (row.application.payload as Record<string, unknown>)
+                        .memberNumber,
+                    )
+                  : "PENDING"),
+              status: row.createdMember?.status ?? row.application.status,
+              customFields: mergedMeta,
+            },
+          };
+        }),
         meta: {
           page: query.page,
           limit: query.limit,
@@ -714,6 +1070,34 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
             .where(eq(memberApplications.id, id))
             .returning();
           return { application: updatedApp, card: null };
+        }
+
+        // Profile Completeness Gate for Approval
+        let targetMember = application.createdMemberId
+          ? await tx
+              .select()
+              .from(members)
+              .where(eq(members.id, application.createdMemberId))
+              .limit(1)
+              .then((r) => r[0])
+          : null;
+
+        const completeness = computeProfileCompleteness(
+          targetMember || {
+            name: application.fullName,
+            email: application.email,
+            phone: application.phone,
+            unitId: application.requestedUnitId,
+            metadata: application.payload as Record<string, unknown>,
+          },
+        );
+
+        if (!completeness.isComplete) {
+          throw new AppError(
+            422,
+            "PROFILE_INCOMPLETE",
+            `Permohonan belum dapat disetujui karena berkas wajib belum lengkap: ${completeness.missingFields.join(", ")}.`,
+          );
         }
 
         const [settings] = await tx

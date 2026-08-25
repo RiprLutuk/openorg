@@ -92,17 +92,19 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
-  app.post(
-    "/logout",
-    { preHandler: app.authenticate },
-    async (request, reply) => {
-      const token = request.cookies[config.SESSION_COOKIE_NAME];
-      if (token)
-        await db
-          .delete(sessions)
-          .where(eq(sessions.tokenHash, hashSessionToken(token)));
-      reply.clearCookie(config.SESSION_COOKIE_NAME, { path: "/" });
-      return reply.status(204).send();
-    },
-  );
+  app.post("/logout", async (request, reply) => {
+    const token = request.cookies[config.SESSION_COOKIE_NAME];
+    if (token) {
+      await db
+        .delete(sessions)
+        .where(eq(sessions.tokenHash, hashSessionToken(token)));
+    }
+    reply.clearCookie(config.SESSION_COOKIE_NAME, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: config.NODE_ENV === "production",
+    });
+    return reply.status(200).send({ data: { success: true } });
+  });
 };
