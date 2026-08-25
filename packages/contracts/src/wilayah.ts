@@ -16288,8 +16288,32 @@ export function findProvince(query: string): WilayahProvince | undefined {
     (p) =>
       p.kode === q ||
       p.nama.toLowerCase() === q ||
+      p.ibukota.toLowerCase() === q ||
       p.nama.toLowerCase().includes(q) ||
-      q.includes(p.nama.toLowerCase())
+      q.includes(p.nama.toLowerCase()) ||
+      (q.includes("jakarta") && p.kode === "31") ||
+      (q.includes("dki") && p.kode === "31") ||
+      (q.includes("yogyakarta") && p.kode === "34") ||
+      (q.includes("diy") && p.kode === "34") ||
+      (q.includes("jabar") && p.kode === "32") ||
+      (q.includes("jateng") && p.kode === "33") ||
+      (q.includes("jatim") && p.kode === "35") ||
+      (q.includes("banten") && p.kode === "36") ||
+      (q.includes("sumut") && p.kode === "12") ||
+      (q.includes("sumbar") && p.kode === "13") ||
+      (q.includes("sumsel") && p.kode === "16") ||
+      (q.includes("sulsel") && p.kode === "73") ||
+      (q.includes("sulut") && p.kode === "71") ||
+      (q.includes("sultra") && p.kode === "74") ||
+      (q.includes("kaltim") && p.kode === "64") ||
+      (q.includes("kalbar") && p.kode === "61") ||
+      (q.includes("kalsel") && p.kode === "63") ||
+      (q.includes("kalteng") && p.kode === "62") ||
+      (q.includes("kaltara") && p.kode === "65") ||
+      (q.includes("babel") && p.kode === "19") ||
+      (q.includes("kepri") && p.kode === "21") ||
+      (q.includes("ntb") && p.kode === "52") ||
+      (q.includes("ntt") && p.kode === "53")
   );
 }
 

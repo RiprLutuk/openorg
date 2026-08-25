@@ -1,43 +1,52 @@
-const UNIT_CODE_MAP: Record<string, string> = {
-  DPP: "00",
-  "DPD-DKI": "31",
-  DKI: "31",
-  "DPD-JABAR": "32",
-  JABAR: "32",
-  "DPD-JATENG": "33",
-  JATENG: "33",
-  "DPD-DIY": "34",
-  DIY: "34",
-  "DPD-JATIM": "35",
-  JATIM: "35",
-  "DPD-BANTEN": "36",
-  BANTEN: "36",
-  "DPD-BALI": "51",
-  BALI: "51",
-  "DPD-SUMUT": "12",
-  SUMUT: "12",
-  "DPD-SUMBAR": "13",
-  SUMBAR: "13",
-  "DPD-RIAU": "14",
-  RIAU: "14",
-  "DPD-SUMSEL": "16",
-  SUMSEL: "16",
-  "DPD-SULSEL": "73",
-  SULSEL: "73",
-};
+import { findProvince, searchRegencies } from "@openorg/contracts";
 
+/**
+ * Resolves standard 2-digit regional code (Kode Wilayah Kepmendagri)
+ * directly from the official Database Wilayah Indonesia (38 Provinsi & 514 Kabupaten/Kota).
+ */
 export function extractUnitRegionCode(
-  unitCode?: string | null,
-  unitSlug?: string | null,
+  unitCode?: string | null | undefined,
+  unitName?: string | null | undefined,
+  unitSlug?: string | null | undefined,
 ): string {
-  if (!unitCode && !unitSlug) return "00";
-  const raw = (unitCode || unitSlug || "").toUpperCase().trim();
-  if (UNIT_CODE_MAP[raw]) return UNIT_CODE_MAP[raw];
-  const stripped = raw.replace(/^DP[DPC]-/, "");
-  if (UNIT_CODE_MAP[stripped]) return UNIT_CODE_MAP[stripped];
-  if (/^\d{2}$/.test(raw)) return raw;
-  const clean = stripped.replace(/[^A-Z0-9]/g, "").slice(0, 4);
-  return clean || "00";
+  const candidates = [unitCode, unitName, unitSlug].filter(Boolean) as string[];
+  if (candidates.length === 0) return "00";
+
+  for (const raw of candidates) {
+    const trimmed = raw.trim();
+    if (
+      trimmed.toUpperCase() === "DPP" ||
+      trimmed.toUpperCase() === "PUSAT" ||
+      trimmed === "00"
+    ) {
+      return "00";
+    }
+
+    // Direct 2-digit numeric code (e.g. "31", "32", "35", "73")
+    if (/^\d{2}$/.test(trimmed)) {
+      return trimmed;
+    }
+
+    // 1. Lookup province in official Database Wilayah (38 Provinces)
+    const cleanSearch = trimmed
+      .replace(/^DP[DPC][\s._-]*/i, "")
+      .replace(/^(PROVINSI|PROV|DAERAH|KORWIL|CABANG)[\s._-]*/i, "")
+      .trim();
+
+    const prov = findProvince(cleanSearch) || findProvince(trimmed);
+    if (prov) {
+      return prov.kode;
+    }
+
+    // 2. If unit is a city / regency / chapter (e.g. Bandung, Surabaya, Medan)
+    const matchedRegency =
+      searchRegencies(cleanSearch)[0] || searchRegencies(trimmed)[0];
+    if (matchedRegency) {
+      return matchedRegency.provinceCode;
+    }
+  }
+
+  return "00";
 }
 
 /**
@@ -58,11 +67,13 @@ export function generateRegistrationNumber(date = new Date()): string {
  * Example: APTI-31.2026.00142
  */
 export function generateKtaNumber(options?: {
-  orgName?: string | null;
-  unitCode?: string | null;
-  unitSlug?: string | null;
-  date?: Date | null;
-  sequence?: string | number | null;
+  orgName?: string | null | undefined;
+  unitCode?: string | null | undefined;
+  unitName?: string | null | undefined;
+  unitSlug?: string | null | undefined;
+  provinceName?: string | null | undefined;
+  date?: Date | null | undefined;
+  sequence?: string | number | null | undefined;
 }): string {
   // 1. KODE ORG (e.g. "APTI Indonesia" -> "APTI", "ASISI" -> "ASISI")
   const rawOrg = options?.orgName?.trim() || "APTI";
@@ -71,9 +82,10 @@ export function generateKtaNumber(options?: {
       .replace(/[^a-zA-Z0-9]/g, "")
       .toUpperCase() || "APTI";
 
-  // 2. KODE DPD (e.g. "DPD-DKI" -> "31", "DPD-JABAR" -> "32", "DPP" -> "00")
+  // 2. KODE DPD: Resolved dynamically from official Database Wilayah
   const regionCode = extractUnitRegionCode(
     options?.unitCode,
+    options?.unitName || options?.provinceName,
     options?.unitSlug,
   );
 

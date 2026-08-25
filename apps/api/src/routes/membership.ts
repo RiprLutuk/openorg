@@ -706,17 +706,24 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
           .limit(1);
         const orgName = settings?.name || "APTI";
 
-        let unitCode: string | null = null;
+        let unit:
+          | {
+              name: string;
+              code: string | null;
+              slug: string | null;
+            }
+          | undefined;
         if (application.requestedUnitId) {
-          const [unit] = await tx
+          const [u] = await tx
             .select({
+              name: organizationUnits.name,
               code: organizationUnits.code,
               slug: organizationUnits.slug,
             })
             .from(organizationUnits)
             .where(eq(organizationUnits.id, application.requestedUnitId))
             .limit(1);
-          unitCode = unit?.code || unit?.slug || null;
+          unit = u;
         }
 
         let memberId = application.createdMemberId;
@@ -725,7 +732,9 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
         if (!memberId) {
           memberNumber = generateKtaNumber({
             orgName,
-            unitCode,
+            unitCode: unit?.code,
+            unitName: unit?.name,
+            unitSlug: unit?.slug,
             date: reviewedAt,
           });
           const [createdMem] = await tx
@@ -757,7 +766,9 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
           } else {
             memberNumber = generateKtaNumber({
               orgName,
-              unitCode,
+              unitCode: unit?.code,
+              unitName: unit?.name,
+              unitSlug: unit?.slug,
               date: reviewedAt,
             });
           }
