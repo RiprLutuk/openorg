@@ -117,7 +117,8 @@ export function PublicWorkshopCard({
             className="ws-cat-pill"
             title={workshop.category}
           >
-            {workshop.category.replace(/^Bengkel\s+/i, "")}
+            <Store size={12} className="text-sky-600 flex-shrink-0" />
+            <span>{workshop.category.replace(/^Bengkel\s+/i, "")}</span>
           </span>
           <div className="ws-header-right-meta">
             {workshop.distanceKm !== undefined ? (
@@ -154,16 +155,15 @@ export function PublicWorkshopCard({
             className="ws-place-address-row"
             title="Buka petunjuk arah di Google Maps"
           >
-            <MapPin size={13} className="text-sky-600 flex-shrink-0" />
+            <MapPin size={14} className="text-sky-600 flex-shrink-0" />
             <span className="ws-place-address-text truncate">
               {workshop.address || `${workshop.city}, ${workshop.province}`}
             </span>
-            <ExternalLink size={11} className="ws-place-maps-arrow flex-shrink-0" />
+            <ExternalLink size={12} className="ws-place-maps-arrow flex-shrink-0" />
           </a>
           <div className="ws-place-time-row">
-            <Clock size={12} className="text-slate-400 flex-shrink-0" />
+            <Clock size={13} className="text-slate-400 flex-shrink-0" />
             <span className="truncate">{workshop.operatingHours}</span>
-            {is24h && <span className="ws-dot-badge-24h">· Siap 24 Jam</span>}
           </div>
         </div>
 
@@ -172,7 +172,7 @@ export function PublicWorkshopCard({
           <div className="ws-services-cloud">
             {workshop.services.slice(0, 3).map((srv) => (
               <span key={srv} className="ws-service-tag truncate">
-                <Wrench size={10} className="text-sky-500 flex-shrink-0" />
+                <Wrench size={11} className="text-sky-500 flex-shrink-0" />
                 <span className="truncate">{srv}</span>
               </span>
             ))}
@@ -192,7 +192,7 @@ export function PublicWorkshopCard({
         {/* 5. Footer: Master Technician Profile & Contact Action CTAs */}
         <div className="ws-card-footer">
           <div className="ws-owner-block">
-            <small className="ws-owner-label">Penanggung Jawab:</small>
+            <span className="ws-owner-label">Penanggung Jawab:</span>
             <Link
               href={`/technicians?q=${encodeURIComponent(workshop.ownerName)}`}
               className="ws-owner-link truncate"
@@ -209,7 +209,7 @@ export function PublicWorkshopCard({
               onClick={() => setShowDetail(true)}
               title="Lihat Detail Profil & Layanan Lengkap"
             >
-              <Info size={12} />
+              <Info size={13} />
               <span>Detail</span>
             </button>
             <a
@@ -219,7 +219,7 @@ export function PublicWorkshopCard({
               className="ws-btn-whatsapp"
               title="Chat & Order via WhatsApp"
             >
-              <MessageSquare size={12} />
+              <MessageSquare size={13} />
               <span>WhatsApp</span>
             </a>
           </div>
