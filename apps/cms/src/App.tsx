@@ -4309,9 +4309,9 @@ function CredentialsManager() {
   return (
     <>
       <PageHeading
-        eyebrow="ComplyFlow"
-        title="Credentials & compliance"
-        description="Define reusable legal and professional credentials, assign requirements, and keep every verification decision auditable."
+        eyebrow="Kepatuhan & Sertifikasi"
+        title="Kredensial & Sertifikasi Profesi"
+        description="Kelola standar kompetensi BNSP, lisensi K3 teknisi HVAC/R, penanganan flammable refrigerant, dan verifikasi sertifikat keahlian anggota."
         action={
           view === "schemes" ? (
             <button
@@ -4319,7 +4319,7 @@ function CredentialsManager() {
               type="button"
               onClick={() => setSchemeEditor(true)}
             >
-              <Plus size={18} /> New scheme
+              <Plus size={16} /> <span>Tambah Skema</span>
             </button>
           ) : undefined
         }
@@ -4330,14 +4330,14 @@ function CredentialsManager() {
           className={view === "queue" ? "active" : ""}
           onClick={() => setView("queue")}
         >
-          Verification queue
+          Antrean Verifikasi Sertifikat
         </button>
         <button
           type="button"
           className={view === "schemes" ? "active" : ""}
           onClick={() => setView("schemes")}
         >
-          Schemes & requirements
+          Skema Standar Kompetensi
         </button>
       </div>
       {view === "queue" ? <CredentialQueue /> : <CredentialSchemes />}
@@ -4351,14 +4351,14 @@ function CredentialsManager() {
 function CredentialQueue() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("submitted");
+  const [status, setStatus] = useState("all");
   const [selected, setSelected] = useState<CmsMemberCredential | null>(null);
   const [error, setError] = useState("");
   const query = useQuery({
     queryKey: ["member-credentials", search, status],
     queryFn: () =>
       api<{ data: CmsMemberCredential[] }>(
-        `/v1/admin/credentials/credentials?limit=100&search=${encodeURIComponent(search)}${status ? `&status=${status}` : ""}`,
+        `/v1/admin/credentials/credentials?limit=100&search=${encodeURIComponent(search)}${status !== "all" ? `&status=${status}` : ""}`,
       ),
   });
   const verify = useMutation({
@@ -4383,12 +4383,23 @@ function CredentialQueue() {
         }),
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       setSelected(null);
       setError("");
+      toast.success(
+        variables.decision === "verify"
+          ? "Kredensial berhasil diverifikasi dan disahkan!"
+          : variables.decision === "reject"
+            ? "Pengajuan kredensial telah ditolak."
+            : "Kredensial anggota telah dicabut.",
+      );
       void client.invalidateQueries({ queryKey: ["member-credentials"] });
+      void client.invalidateQueries({ queryKey: ["dashboard"] });
     },
-    onError: (reason) => setError(reason.message),
+    onError: (reason) => {
+      setError(reason.message);
+      toast.error(`Gagal memproses verifikasi: ${reason.message}`);
+    },
   });
   const submitDecision = (
     form: HTMLFormElement,
@@ -4397,7 +4408,7 @@ function CredentialQueue() {
     if (!selected) return;
     const notes = String(new FormData(form).get("notes") ?? "").trim();
     if (decision !== "verify" && !notes) {
-      setError("Add a reason before rejecting or revoking a credential.");
+      setError("Wajib mengisi alasan/catatan sebelum menolak atau mencabut kredensial.");
       return;
     }
     verify.mutate({ credential: selected, decision, form });
@@ -4407,12 +4418,12 @@ function CredentialQueue() {
     <div className="inbox-layout applications-layout credential-layout">
       <section className="table-panel inbox-list">
         <div className="table-toolbar">
-          <label className="search-field">
-            <Search size={18} />
+          <label className="search-field" style={{ minWidth: "60%" }}>
+            <Search size={16} />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Member, number, credential…"
+              placeholder="Cari teknisi, no. sertifikat, atau skema..."
             />
           </label>
           <select
@@ -4422,56 +4433,59 @@ function CredentialQueue() {
               setSelected(null);
             }}
           >
-            <option value="">All status</option>
-            <option value="submitted">Needs verification</option>
-            <option value="verified">Verified</option>
-            <option value="rejected">Rejected</option>
-            <option value="revoked">Revoked</option>
+            <option value="all">Semua Status</option>
+            <option value="submitted">Menunggu Verifikasi</option>
+            <option value="verified">Terverifikasi (Valid)</option>
+            <option value="rejected">Ditolak</option>
+            <option value="revoked">Dicabut</option>
           </select>
         </div>
         <div className="submission-list application-list">
-          {items.map((item) => (
-            <button
-              type="button"
-              className={selected?.id === item.id ? "active" : ""}
-              key={item.id}
-              onClick={() => {
-                setSelected(item);
-                setError("");
-              }}
-            >
-              <span
-                className="submission-dot"
-                data-status={item.effectiveStatus}
-              />
-              <span>
-                <strong>{item.member?.name ?? "Anggota"}</strong>
-                <small>
-                  {item.scheme?.name ?? "Sertifikat"} ·{" "}
-                  {item.scheme?.code ?? "CERT"}
-                </small>
-                <p>
-                  {item.credentialNumber ?? "Number not supplied"} ·{" "}
-                  {(item.verificationLevel ?? "document_checked").replaceAll(
-                    "_",
-                    " ",
-                  )}
-                </p>
-              </span>
-              <Status value={item.effectiveStatus} />
-            </button>
-          ))}
+          {query.isLoading ? (
+            <PageLoading />
+          ) : items.length === 0 ? (
+            <Empty message="Tidak ada kredensial yang sesuai dengan filter." />
+          ) : (
+            items.map((item) => (
+              <button
+                type="button"
+                className={selected?.id === item.id ? "active" : ""}
+                key={item.id}
+                onClick={() => {
+                  setSelected(item);
+                  setError("");
+                }}
+              >
+                <span
+                  className="submission-dot"
+                  data-status={item.effectiveStatus}
+                />
+                <span>
+                  <strong>{item.member?.name ?? "Teknisi Anggota"}</strong>
+                  <small>
+                    {item.scheme?.name ?? "Sertifikat"} ·{" "}
+                    {item.scheme?.code ?? "CERT"}
+                  </small>
+                  <p>
+                    {item.credentialNumber ?? "Nomor belum diisi"} ·{" "}
+                    {(item.verificationLevel ?? "document_checked").replaceAll(
+                      "_",
+                      " ",
+                    )}
+                  </p>
+                </span>
+                <Status value={item.effectiveStatus} />
+              </button>
+            ))
+          )}
         </div>
-        {!query.isLoading && !items.length && (
-          <Empty message="No credentials match this verification view." />
-        )}
       </section>
       <section className="panel submission-detail credential-detail">
         {selected ? (
           <>
             <div className="panel-head">
               <div>
-                <span className="eyebrow">Credential review</span>
+                <span className="eyebrow">Tinjauan Kredensial Sertifikasi</span>
                 <h2>{selected.scheme?.name ?? "Sertifikat"}</h2>
                 <p>
                   {selected.member?.name ?? "Anggota"} ·{" "}
@@ -4482,29 +4496,37 @@ function CredentialQueue() {
             </div>
             <dl>
               <div>
-                <dt>Credential number</dt>
+                <dt>Nomor Sertifikat / Registrasi</dt>
                 <dd>{selected.credentialNumber ?? "—"}</dd>
               </div>
               <div>
-                <dt>Issuer</dt>
+                <dt>Lembaga Penerbit / LSP</dt>
                 <dd>
                   {selected.issuerName ?? selected.scheme?.issuerName ?? "—"}
                 </dd>
               </div>
               <div>
-                <dt>Issued</dt>
+                <dt>Tanggal Terbit</dt>
                 <dd>
                   {selected.issuedAt
-                    ? new Date(selected.issuedAt).toLocaleDateString()
+                    ? new Date(selected.issuedAt).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
                     : "—"}
                 </dd>
               </div>
               <div>
-                <dt>Expires</dt>
+                <dt>Masa Berlaku Hingga</dt>
                 <dd>
                   {selected.expiresAt
-                    ? new Date(selected.expiresAt).toLocaleDateString()
-                    : "No expiry"}
+                    ? new Date(selected.expiresAt).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
+                    : "Seumur Hidup / Tidak Kedaluwarsa"}
                 </dd>
               </div>
               {Object.entries(selected.data ?? {}).map(([key, value]) => (
@@ -4514,7 +4536,7 @@ function CredentialQueue() {
                 </div>
               ))}
               <div>
-                <dt>Evidence source</dt>
+                <dt>Bukti / Sumber Data</dt>
                 <dd>
                   {selected.sourceUrl ? (
                     <a
@@ -4522,10 +4544,10 @@ function CredentialQueue() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Open source record ↗
+                      Buka Tautan Verifikasi LSP ↗
                     </a>
                   ) : (
-                    "Not provided"
+                    "Dokumen diunggah langsung"
                   )}
                 </dd>
               </div>
@@ -4533,43 +4555,33 @@ function CredentialQueue() {
             <form className="review-form">
               {error && <div className="alert error">{error}</div>}
               <label>
-                Verification level
+                Tingkat Validitas Verifikasi
                 <select
                   name="verificationLevel"
-                  defaultValue={selected.scheme.minimumVerificationLevel}
+                  defaultValue={selected.scheme?.minimumVerificationLevel ?? "document_checked"}
                 >
-                  <option value="document_checked">Document checked</option>
-                  <option value="issuer_confirmed">Issuer confirmed</option>
-                  <option value="api_verified">API verified</option>
+                  <option value="document_checked">Pemeriksaan Fisik Dokumen (Document Checked)</option>
+                  <option value="issuer_confirmed">Konfirmasi Langsung LSP / Penerbit (Issuer Confirmed)</option>
+                  <option value="api_verified">Terverifikasi API Resmi BNSP / Pemerintah (API Verified)</option>
                   <option value="cryptographically_verified">
-                    Cryptographically verified
+                    Tanda Tangan Digital / Kriptografis (Cryptographically Verified)
                   </option>
                 </select>
               </label>
               <label>
-                Verification method
-                <select name="method" defaultValue="document_review">
-                  <option value="document_review">Document review</option>
-                  <option value="issuer_confirmation">
-                    Issuer confirmation
-                  </option>
-                  <option value="api">Official API</option>
-                  <option value="digital_signature">Digital signature</option>
-                </select>
-              </label>
-              <label>
-                Verification source
+                Metode / Catatan Validasi
                 <input
-                  name="source"
-                  placeholder="Issuer, registry, API, or verifier identity"
+                  name="method"
+                  defaultValue="Pemeriksaan Dokumen & Portofolio Kerja"
+                  placeholder="Metode verifikasi yang digunakan…"
                 />
               </label>
               <label>
-                Reviewer notes
+                Catatan Reviewer / Alasan Penolakan
                 <textarea
                   name="notes"
-                  rows={3}
-                  placeholder="Record the evidence and basis for this decision…"
+                  rows={2}
+                  placeholder="Catatan hasil verifikasi atau alasan penolakan/pencabutan sertifikat…"
                 />
               </label>
               <div className="submission-actions">
@@ -4579,14 +4591,21 @@ function CredentialQueue() {
                   disabled={verify.isPending}
                   onClick={(event) => {
                     const form = event.currentTarget.form;
-                    if (form)
-                      submitDecision(
-                        form,
-                        selected.status === "verified" ? "revoke" : "reject",
-                      );
+                    if (form) submitDecision(form, "reject");
                   }}
                 >
-                  {selected.status === "verified" ? "Revoke" : "Reject"}
+                  Tolak
+                </button>
+                <button
+                  type="button"
+                  className="button ghost destructive"
+                  disabled={verify.isPending}
+                  onClick={(event) => {
+                    const form = event.currentTarget.form;
+                    if (form) submitDecision(form, "revoke");
+                  }}
+                >
+                  Cabut Kredensial
                 </button>
                 <button
                   type="button"
@@ -4598,13 +4617,32 @@ function CredentialQueue() {
                   }}
                 >
                   <ShieldCheck size={17} />{" "}
-                  {verify.isPending ? "Saving decision…" : "Verify credential"}
+                  {verify.isPending ? "Memproses…" : "Sahkan & Verifikasi"}
                 </button>
               </div>
             </form>
           </>
         ) : (
-          <Empty message="Select a credential to inspect its data and verification basis." />
+          <div
+            style={{
+              display: "grid",
+              placeItems: "center",
+              height: "300px",
+              color: "#94a3b8",
+              textAlign: "center",
+              padding: "20px",
+            }}
+          >
+            <div>
+              <ShieldCheck size={36} color="#cbd5e1" style={{ margin: "0 auto 10px" }} />
+              <h3 style={{ color: "#475569", fontSize: "15px", marginBottom: "4px" }}>
+                Pilih Kredensial Teknisi
+              </h3>
+              <p style={{ fontSize: "12.5px" }}>
+                Klik sertifikat teknisi pada daftar di sebelah kiri untuk melihat rincian bukti dan menentukan status keabsahan.
+              </p>
+            </div>
+          </div>
         )}
       </section>
     </div>

@@ -78,7 +78,35 @@ export const adminCredentialRoutes: FastifyPluginAsync = async (app) => {
         .select()
         .from(credentialSchemes)
         .orderBy(asc(credentialSchemes.name));
-      return { data: rows };
+      return {
+        data: rows.map((r) => ({
+          id: r.id,
+          code: r.code,
+          name: r.name,
+          description:
+            ((r.metadata as Record<string, unknown> | null)
+              ?.description as string | null) ?? null,
+          subjectType: r.subjectType,
+          category:
+            ((r.metadata as Record<string, unknown> | null)
+              ?.category as string | null) ?? "Kompetensi",
+          issuerName:
+            ((r.metadata as Record<string, unknown> | null)
+              ?.issuerName as string | null) ?? null,
+          validityMonths:
+            ((r.metadata as Record<string, unknown> | null)
+              ?.validityMonths as number | null) ??
+            (r.validityPeriodDays
+              ? Math.round(r.validityPeriodDays / 30)
+              : null),
+          renewalWindowDays: r.renewalGracePeriodDays ?? 30,
+          minimumVerificationLevel: r.minimumVerificationLevel,
+          fields:
+            ((r.jsonSchema as Record<string, unknown> | null)
+              ?.fields as any[]) ?? [],
+          isActive: true,
+        })),
+      };
     },
   );
 
@@ -100,7 +128,21 @@ export const adminCredentialRoutes: FastifyPluginAsync = async (app) => {
         );
       const [created] = await db
         .insert(credentialSchemes)
-        .values(input)
+        .values({
+          code: input.code,
+          name: input.name,
+          subjectType: input.subjectType,
+          minimumVerificationLevel: input.minimumVerificationLevel,
+          validityPeriodDays: input.validityMonths ? input.validityMonths * 30 : null,
+          renewalGracePeriodDays: input.renewalWindowDays,
+          jsonSchema: { fields: input.fields },
+          metadata: {
+            category: input.category,
+            issuerName: input.issuerName,
+            description: input.description,
+            validityMonths: input.validityMonths,
+          },
+        })
         .returning();
       if (!created) throw new Error("Could not create credential scheme.");
       await audit(
@@ -195,15 +237,32 @@ export const adminCredentialRoutes: FastifyPluginAsync = async (app) => {
           name: "Anggota",
           memberNumber: "MEM-0000",
         };
-        const scheme = schemeMap.get(c.schemeId) ?? {
-          id: c.schemeId,
-          name: "Sertifikat",
-          code: "CERT",
-          category: "legal",
-          issuerName: null,
-          minimumVerificationLevel: "document_checked",
-          fields: [],
-        };
+        const rawScheme = schemeMap.get(c.schemeId);
+        const scheme = rawScheme
+          ? {
+              id: rawScheme.id,
+              name: rawScheme.name,
+              code: rawScheme.code,
+              category:
+                ((rawScheme.metadata as Record<string, unknown> | null)
+                  ?.category as string) ?? "Kompetensi",
+              issuerName:
+                ((rawScheme.metadata as Record<string, unknown> | null)
+                  ?.issuerName as string) ?? null,
+              minimumVerificationLevel: rawScheme.minimumVerificationLevel,
+              fields:
+                ((rawScheme.jsonSchema as Record<string, unknown> | null)
+                  ?.fields as any[]) ?? [],
+            }
+          : {
+              id: c.schemeId,
+              name: "Sertifikat",
+              code: "CERT",
+              category: "Kompetensi",
+              issuerName: null,
+              minimumVerificationLevel: "document_checked",
+              fields: [],
+            };
         return {
           ...c,
           effectiveStatus: c.status,
