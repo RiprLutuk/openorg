@@ -44,14 +44,14 @@ export async function buildApp() {
     },
     trustProxy: config.TRUST_PROXY,
     requestIdHeader: "x-request-id",
-    bodyLimit: 1_048_576,
+    bodyLimit: 12_582_912,
   });
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
   registerErrorHandler(app);
   await app.register(cookie);
   await app.register(multipart, {
-    limits: { files: 1, fileSize: 5_242_880, fields: 5 },
+    limits: { files: 10, fileSize: 10_485_760, fields: 10 },
   });
   await app.register(securityPlugin);
   if (config.EXPOSE_API_DOCS) {

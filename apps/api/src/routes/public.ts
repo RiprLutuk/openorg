@@ -1,7 +1,11 @@
+import { randomUUID } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import { pageSectionsSchema, paginationSchema } from "@openorg/contracts";
 import { and, asc, desc, eq, gt, gte, ilike, or, sql } from "drizzle-orm";
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
+import { config } from "../config";
 import { db } from "../db/client";
 import {
   adArtDocuments,
@@ -15,6 +19,7 @@ import {
   indonesiaVillages,
   industryStatistics,
   lenderRegistries,
+  media,
   members,
   organizationMilestones,
   organizationUnits,
@@ -30,6 +35,7 @@ import {
   workingGroups,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
+import { detectSupportedImage } from "../lib/media";
 
 const slugParams = z.object({
   slug: z
@@ -374,6 +380,83 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     return { data: rows };
   });
 
+  // Public Complaint Evidence Upload Endpoint (Max 1MB per file, max 10 files)
+  app.post(
+    "/complaints/upload-evidence",
+    { config: { rateLimit: { max: 40, timeWindow: "10 minutes" } } },
+    async (request, reply) => {
+      const upload = await request.file();
+      if (!upload) {
+        throw new AppError(
+          422,
+          "FILE_REQUIRED",
+          "Pilih berkas bukti untuk diunggah.",
+        );
+      }
+      const bytes = await upload.toBuffer();
+      if (bytes.length === 0 || bytes.length > 1_048_576) {
+        throw new AppError(
+          413,
+          "FILE_TOO_LARGE",
+          "Ukuran setiap berkas bukti tidak boleh melebihi 1 MB.",
+        );
+      }
+      const detected = detectSupportedImage(bytes);
+      let extension: string;
+      let mimeType: string;
+      let isPdf = false;
+
+      if (detected) {
+        extension = detected.extension;
+        mimeType = detected.mimeType;
+      } else if (
+        bytes.length > 4 &&
+        bytes[0] === 0x25 &&
+        bytes[1] === 0x50 &&
+        bytes[2] === 0x44 &&
+        bytes[3] === 0x46
+      ) {
+        extension = "pdf";
+        mimeType = "application/pdf";
+        isPdf = true;
+      } else {
+        throw new AppError(
+          415,
+          "UNSUPPORTED_MEDIA_TYPE",
+          "Format berkas tidak didukung. Harap unggah format JPG, PNG, WebP, atau PDF.",
+        );
+      }
+
+      const id = randomUUID();
+      const filename = `${id}.${extension}`;
+      const target = resolve(config.STORAGE_LOCAL_PATH, filename);
+      await mkdir(dirname(target), { recursive: true });
+      await writeFile(target, bytes, { flag: "wx" });
+
+      const fileUrl = `${config.STORAGE_PUBLIC_URL.replace(/\/$/, "")}/${filename}`;
+
+      await db.insert(media).values({
+        id,
+        kind: isPdf ? "document" : "image",
+        filename,
+        mimeType: mimeType || "application/octet-stream",
+        sizeBytes: bytes.length,
+        checksumSha256: id,
+        url: fileUrl,
+      });
+
+      return reply.status(201).send({
+        data: {
+          id,
+          url: fileUrl,
+          filename: upload.filename,
+          sizeBytes: bytes.length,
+          extension,
+        },
+      });
+    },
+  );
+
   // Public Ethics & Complaints Filing
   app.post(
     "/complaints",
@@ -387,7 +470,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         targetIdentifier: z.string().min(2).max(160),
         category: z.string().min(2).max(80).default("kode_etik"),
         description: z.string().min(10).max(10_000),
-        evidenceFileUrl: z.string().max(2048).optional(),
+        evidenceFileUrl: z.string().max(65535).optional(),
         hpWebsite: z.string().max(100).optional(),
       });
 
@@ -444,6 +527,7 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
         createdAt: publicComplaints.createdAt,
         reviewedAt: publicComplaints.reviewedAt,
         responseNotes: publicComplaints.responseNotes,
+        evidenceFileUrl: publicComplaints.evidenceFileUrl,
       })
       .from(publicComplaints)
       .where(eq(publicComplaints.ticketNumber, params.ticketNumber))

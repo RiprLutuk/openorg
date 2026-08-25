@@ -12,16 +12,20 @@ import {
   ChevronRight,
   Clock,
   Copy,
+  ExternalLink,
   FileCheck2,
   FileText,
   Gavel,
   HelpCircle,
+  Image as ImageIcon,
   Info,
   LifeBuoy,
   Loader2,
   Lock,
   Mail,
+  Paperclip,
   Phone,
+  Plus,
   QrCode,
   RotateCw,
   Scale,
@@ -30,6 +34,8 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Trash2,
+  UploadCloud,
   User,
   Users,
   Wrench,
@@ -38,6 +44,16 @@ import {
 import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+
+export interface EvidenceFileItem {
+  id: string;
+  name: string;
+  size: number;
+  isImage: boolean;
+  previewUrl?: string | undefined;
+  url?: string | undefined;
+  isUploading?: boolean | undefined;
+}
 
 interface ComplaintTrackResult {
   ticketNumber: string;
@@ -48,6 +64,7 @@ interface ComplaintTrackResult {
   createdAt: string;
   reviewedAt: string | null;
   responseNotes: string | null;
+  evidenceFileUrl?: string | null | undefined;
 }
 
 const statusLabels: Record<
@@ -89,6 +106,11 @@ export default function ComplaintsPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [copiedTicket, setCopiedTicket] = useState(false);
 
+  // Evidence Files Upload State (Max 1MB per file, up to 10 files = max 10MB)
+  const [evidenceFiles, setEvidenceFiles] = useState<EvidenceFileItem[]>([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isUploadingAny, setIsUploadingAny] = useState(false);
+
   // Anti-Bot & Captcha State
   const [captchaNum1, setCaptchaNum1] = useState(7);
   const [captchaNum2, setCaptchaNum2] = useState(4);
@@ -100,7 +122,7 @@ export default function ComplaintsPage() {
   const generateCaptcha = () => {
     setIsRotatingCaptcha(true);
     const n1 = Math.floor(Math.random() * 12) + 5; // 5 - 16
-    const n2 = Math.floor(Math.random() * 8) + 2;  // 2 - 9
+    const n2 = Math.floor(Math.random() * 8) + 2; // 2 - 9
     const op = Math.random() > 0.4 ? "+" : "-";
     setCaptchaNum1(n1);
     setCaptchaNum2(n2);
@@ -113,6 +135,104 @@ export default function ComplaintsPage() {
     generateCaptcha();
     setFormStartTime(Date.now());
   }, []);
+
+  // Handle Multi-File Selection & Upload
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadError(null);
+
+    const maxAllowed = 10;
+    const currentCount = evidenceFiles.length;
+    const remainingSlots = maxAllowed - currentCount;
+
+    if (remainingSlots <= 0) {
+      setUploadError("Maksimal 10 berkas lampiran telah tercapai.");
+      e.target.value = "";
+      return;
+    }
+
+    if (files.length > remainingSlots) {
+      setUploadError(
+        `Maksimal 10 berkas lampiran. Anda hanya dapat menambahkan ${remainingSlots} berkas lagi.`,
+      );
+    }
+
+    const filesToUpload = Array.from(files).slice(0, remainingSlots);
+
+    // Validate 1MB per file limit (1 MB = 1_048_576 bytes)
+    for (const file of filesToUpload) {
+      if (file.size > 1_048_576) {
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+        setUploadError(
+          `Berkas "${file.name}" (${sizeMb} MB) melebihi batas 1 MB. Harap perkecil/kompres gambar sebelum mengunggah.`,
+        );
+        e.target.value = "";
+        return;
+      }
+    }
+
+    setIsUploadingAny(true);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
+
+    for (const file of filesToUpload) {
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const isImg = file.type.startsWith("image/");
+      const localPreview = isImg ? URL.createObjectURL(file) : undefined;
+
+      const newItem: EvidenceFileItem = {
+        id: tempId,
+        name: file.name,
+        size: file.size,
+        isImage: isImg,
+        previewUrl: localPreview,
+        isUploading: true,
+      };
+
+      setEvidenceFiles((prev) => [...prev, newItem]);
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch(
+          `${apiUrl}/v1/public/complaints/upload-evidence`,
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
+
+        const json = await res.json();
+        if (!res.ok) {
+          throw new Error(
+            json.error?.message ?? `Gagal mengunggah ${file.name}`,
+          );
+        }
+
+        setEvidenceFiles((prev) =>
+          prev.map((item) =>
+            item.id === tempId
+              ? { ...item, url: json.data.url, isUploading: false }
+              : item,
+          ),
+        );
+      } catch (err: unknown) {
+        const errorMsg =
+          err instanceof Error ? err.message : "Gagal mengunggah berkas.";
+        setUploadError(errorMsg);
+        setEvidenceFiles((prev) => prev.filter((item) => item.id !== tempId));
+      }
+    }
+
+    setIsUploadingAny(false);
+    e.target.value = "";
+  };
+
+  const handleRemoveFile = (id: string) => {
+    setEvidenceFiles((prev) => prev.filter((item) => item.id !== id));
+  };
 
   // Tracking State
   const [trackTicket, setTrackTicket] = useState("");
@@ -131,23 +251,39 @@ export default function ComplaintsPage() {
     // 1. Anti-Bot Honeypot Trap
     const honeypot = fd.get("hpWebsite") as string;
     if (honeypot && honeypot.trim().length > 0) {
-      setSubmitError("Verifikasi keamanan gagal. Permintaan terindikasi otomatis.");
+      setSubmitError(
+        "Verifikasi keamanan gagal. Permintaan terindikasi otomatis.",
+      );
       return;
     }
 
     // 2. Submission Speed Guard (< 2.0 seconds is bot behavior)
     if (Date.now() - formStartTime < 2000) {
-      setSubmitError("Pengisian formulir terlalu cepat. Harap luangkan waktu untuk membaca data Anda.");
+      setSubmitError(
+        "Pengisian formulir terlalu cepat. Harap luangkan waktu untuk membaca data Anda.",
+      );
       return;
     }
 
     // 3. Captcha Math Challenge Verification
-    const expectedAnswer = captchaOp === "+" ? captchaNum1 + captchaNum2 : captchaNum1 - captchaNum2;
+    const expectedAnswer =
+      captchaOp === "+"
+        ? captchaNum1 + captchaNum2
+        : captchaNum1 - captchaNum2;
     const userAnswer = parseInt(captchaInput.trim(), 10);
 
     if (isNaN(userAnswer) || userAnswer !== expectedAnswer) {
-      setSubmitError("Hasil verifikasi keamanan (Captcha) salah. Silakan jawab pertanyaan hitungan dengan benar.");
+      setSubmitError(
+        "Hasil verifikasi keamanan (Captcha) salah. Silakan jawab pertanyaan hitungan dengan benar.",
+      );
       generateCaptcha();
+      return;
+    }
+
+    if (isUploadingAny) {
+      setSubmitError(
+        "Mohon tunggu hingga proses pengunggahan berkas bukti selesai.",
+      );
       return;
     }
 
@@ -179,9 +315,15 @@ export default function ComplaintsPage() {
     }
 
     if (!description || description.length < 15) {
-      setSubmitError("Uraian kronologi keluhan minimal 15 karakter agar dapat ditelaah Dewan Etik.");
+      setSubmitError(
+        "Uraian kronologi keluhan minimal 15 karakter agar dapat ditelaah Dewan Etik.",
+      );
       return;
     }
+
+    const uploadedUrls = evidenceFiles
+      .filter((f) => f.url)
+      .map((f) => f.url as string);
 
     setIsSubmitting(true);
 
@@ -193,6 +335,8 @@ export default function ComplaintsPage() {
       targetIdentifier,
       category: fd.get("category") as string,
       description,
+      evidenceFileUrl:
+        uploadedUrls.length > 0 ? JSON.stringify(uploadedUrls) : undefined,
       hpWebsite: honeypot || undefined,
     };
 
@@ -214,10 +358,13 @@ export default function ComplaintsPage() {
         message: json.data.message,
       });
       setTrackTicket(json.data.ticketNumber);
+      setEvidenceFiles([]);
       (e.target as HTMLFormElement).reset();
     } catch (err: unknown) {
       setSubmitError(
-        err instanceof Error ? err.message : "Terjadi kesalahan sistem pengaduan.",
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan sistem pengaduan.",
       );
       generateCaptcha();
     } finally {
@@ -638,7 +785,7 @@ export default function ComplaintsPage() {
                     <div className="form-step-block">
                       <div className="form-step-badge">
                         <span className="step-num-pill">3</span>
-                        <h4>Kronologi Kejadian &amp; Rincian Keluhan</h4>
+                        <h4>Kronologi Kejadian &amp; Berkas Bukti</h4>
                       </div>
 
                       <div className="form-field full-width">
@@ -652,13 +799,132 @@ export default function ComplaintsPage() {
                           rows={4}
                           placeholder="Jelaskan secara runtut: tanggal pengerjaan, merk/kapasitas unit AC, keluhan awal, tindakan teknisi, serta respon pihak teknisi saat Anda hubungi..."
                         />
-                        <small className="form-hint-text">
-                          <Info size={13} />
-                          <span>
-                            Sertakan foto kwitansi fisik, nameplate outdoor, atau
-                            tangkapan layar chat WhatsApp saat proses mediasi.
+                      </div>
+
+                      {/* Multi-File Upload Zone (Max 1MB per file, up to 10 files) */}
+                      <div className="form-field full-width">
+                        <div className="evidence-upload-header">
+                          <label htmlFor="complaint-evidence-input">
+                            Lampiran Bukti (Nota Fisik, Foto Unit AC, Chat WhatsApp)
+                          </label>
+                          <span className="evidence-limit-pill">
+                            {evidenceFiles.length}/10 Berkas (Maks. 1 MB/berkas)
                           </span>
-                        </small>
+                        </div>
+
+                        {evidenceFiles.length < 10 && (
+                          <div className="evidence-dropzone">
+                            <input
+                              type="file"
+                              id="complaint-evidence-input"
+                              multiple
+                              accept="image/png,image/jpeg,image/webp,application/pdf"
+                              className="evidence-file-input"
+                              onChange={handleFileSelect}
+                              disabled={isUploadingAny}
+                            />
+                            <label
+                              htmlFor="complaint-evidence-input"
+                              className="evidence-dropzone-label"
+                            >
+                              <div className="evidence-icon-wrap">
+                                {isUploadingAny ? (
+                                  <Loader2
+                                    size={20}
+                                    className="animate-spin text-sky-600"
+                                  />
+                                ) : (
+                                  <Paperclip
+                                    size={20}
+                                    className="text-sky-600"
+                                  />
+                                )}
+                              </div>
+                              <div className="evidence-dropzone-info">
+                                <strong>
+                                  {isUploadingAny
+                                    ? "Sedang mengunggah berkas..."
+                                    : "Pilih / Seret Foto & Dokumen Bukti"}
+                                </strong>
+                                <small>
+                                  Format: JPG, PNG, WebP, PDF &middot; Maks. 1 MB per berkas (Bisa tambah hingga 10 berkas)
+                                </small>
+                              </div>
+                              <span className="btn-browse-evidence">
+                                <Plus size={13} />
+                                <span>Tambah Berkas</span>
+                              </span>
+                            </label>
+                          </div>
+                        )}
+
+                        {uploadError && (
+                          <div className="evidence-error-banner slide-in-up">
+                            <AlertCircle size={14} className="flex-shrink-0" />
+                            <span>{uploadError}</span>
+                          </div>
+                        )}
+
+                        {/* Uploaded File List */}
+                        {evidenceFiles.length > 0 && (
+                          <div className="evidence-file-grid">
+                            {evidenceFiles.map((f) => (
+                              <div key={f.id} className="evidence-file-card">
+                                <div className="evidence-file-preview">
+                                  {f.isImage ? (
+                                    <img
+                                      src={f.url || f.previewUrl}
+                                      alt={f.name}
+                                      className="evidence-thumb-img"
+                                    />
+                                  ) : (
+                                    <FileText
+                                      size={20}
+                                      className="text-slate-600"
+                                    />
+                                  )}
+                                </div>
+
+                                <div className="evidence-file-info">
+                                  <span
+                                    className="evidence-file-name"
+                                    title={f.name}
+                                  >
+                                    {f.name}
+                                  </span>
+                                  <div className="evidence-file-status">
+                                    <small>
+                                      {(f.size / 1024).toFixed(0)} KB
+                                    </small>
+                                    {f.isUploading ? (
+                                      <span className="badge-uploading">
+                                        <Loader2
+                                          size={10}
+                                          className="animate-spin"
+                                        />{" "}
+                                        Mengunggah
+                                      </span>
+                                    ) : (
+                                      <span className="badge-uploaded">
+                                        <Check size={10} /> Siap
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  className="btn-delete-evidence"
+                                  onClick={() => handleRemoveFile(f.id)}
+                                  title="Hapus berkas ini"
+                                  aria-label={`Hapus berkas ${f.name}`}
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -910,6 +1176,54 @@ export default function ComplaintsPage() {
                       </div>
                     )}
                   </div>
+
+                  {/* Attached Evidence Files */}
+                  {trackResult.evidenceFileUrl && (
+                    <div className="track-evidence-box">
+                      <div className="evidence-box-header">
+                        <Paperclip size={14} className="text-sky-600" />
+                        <strong>Berkas Bukti Terlampir:</strong>
+                      </div>
+                      <div className="track-evidence-links">
+                        {(() => {
+                          try {
+                            const parsed = JSON.parse(
+                              trackResult.evidenceFileUrl,
+                            );
+                            if (Array.isArray(parsed)) {
+                              return parsed.map((u: string, idx: number) => (
+                                <a
+                                  key={idx}
+                                  href={u}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="evidence-link-chip"
+                                >
+                                  <FileText size={12} />
+                                  <span>Berkas Bukti #{idx + 1}</span>
+                                  <ExternalLink size={11} />
+                                </a>
+                              ));
+                            }
+                          } catch {
+                            // Fallback if plain string
+                          }
+                          return (
+                            <a
+                              href={trackResult.evidenceFileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="evidence-link-chip"
+                            >
+                              <FileText size={12} />
+                              <span>Lihat Berkas Bukti</span>
+                              <ExternalLink size={11} />
+                            </a>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Official Secretariat Response Note */}
                   {trackResult.responseNotes && (

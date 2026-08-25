@@ -11,7 +11,7 @@ import { AppError } from "../lib/errors";
 import { detectSupportedImage } from "../lib/media";
 
 const publicMediaParams = z.object({
-  filename: z.string().regex(/^[0-9a-f-]{36}\.(?:gif|jpg|png|webp)$/),
+  filename: z.string().regex(/^[0-9a-f-]{36}\.(?:gif|jpg|png|webp|pdf)$/),
 });
 const idParams = z.object({ id: z.string().uuid() });
 const storageRoot = resolve(config.STORAGE_LOCAL_PATH);
