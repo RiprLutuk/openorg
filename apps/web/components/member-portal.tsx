@@ -2,6 +2,7 @@
 
 import {
   AlertTriangle,
+  ArrowRight,
   Award,
   BadgeCheck,
   BookOpen,
@@ -11,6 +12,7 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
+  ChevronRight,
   Clock,
   CreditCard,
   ExternalLink,
@@ -37,7 +39,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MemberLogin } from "@/components/member-login";
 import { MemberApiError, memberApi } from "@/lib/member-client";
@@ -226,6 +228,13 @@ function getMemberDisplayName(fullName?: string | null): string {
   return (first ? first.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "") : "") || "Anggota";
 }
 
+export type MemberPortalTab =
+  | "overview"
+  | "workshop"
+  | "credentials"
+  | "learning"
+  | "billing";
+
 export function MemberPortal() {
   const [data, setData] = useState<PortalData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -235,6 +244,27 @@ export function MemberPortal() {
   const [learning, setLearning] = useState<LearningData | null>(null);
   const [billing, setBilling] = useState<BillingData | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const rawTab = searchParams?.get("tab");
+  const activeTab: MemberPortalTab =
+    rawTab === "workshop" ||
+    rawTab === "credentials" ||
+    rawTab === "learning" ||
+    rawTab === "billing"
+      ? rawTab
+      : "overview";
+
+  const handleTabChange = (tab: MemberPortalTab) => {
+    const params = new URLSearchParams(searchParams?.toString() || "");
+    if (tab === "overview") {
+      params.delete("tab");
+    } else {
+      params.set("tab", tab);
+    }
+    const query = params.toString();
+    router.replace(`/member${query ? `?${query}` : ""}`, { scroll: false });
+  };
 
   const loadPortal = useCallback(() => {
     setLoading(true);
@@ -328,17 +358,92 @@ export function MemberPortal() {
   const applicationStatus = data.application?.status ?? data.member.status;
   const memberFirstName = getMemberDisplayName(data.member.name);
 
+  // Derived metadata for counters and indicators
+  const workshopAd = (data.member.metadata as Record<string, unknown> | null)?.workshopAd as
+    | {
+        workshopName?: string;
+        tagline?: string;
+        category?: string;
+        isPublished?: boolean;
+      }
+    | undefined;
+
+  const isAdLive = Boolean(workshopAd?.isPublished && data.emailVerified);
+  const credentialsCount = compliance?.credentials?.length ?? 0;
+  const learningEnrollmentsCount = learning?.enrollments?.length ?? 0;
+  const learningBalanceHours =
+    Math.round(
+      ((learning?.balances?.reduce((acc, b) => acc + b.amount, 0) ?? 0) / 100) * 10
+    ) / 10;
+  const invoicesCount = billing?.invoices?.length ?? 0;
+
   return (
     <div className="member-dashboard">
-      <div className="member-dashboard-head">
-        <div>
-          <p className="eyebrow">Portal Anggota</p>
-          <h1>Halo, {memberFirstName}</h1>
-          <p>Kelola keanggotaan, KTA Digital, dan layanan kompetensi di {data.organization.name}.</p>
+      {/* 1. Modern Header & Profile Banner */}
+      <div className="member-dashboard-header-card">
+        <div className="header-card-left">
+          <div className="member-avatar-badge">
+            {data.member.avatarUrl ? (
+              <img
+                src={data.member.avatarUrl}
+                alt={data.member.name}
+                className="member-avatar-img"
+              />
+            ) : (
+              <span className="member-avatar-initials">
+                {data.member.name
+                  .split(" ")
+                  .filter(Boolean)
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase() || "AP"}
+              </span>
+            )}
+            <span className="avatar-online-dot" />
+          </div>
+
+          <div className="member-identity-info">
+            <div className="identity-title-row">
+              <h2>Halo, {memberFirstName}</h2>
+              <span className={`portal-status-pill ${applicationStatus}`}>
+                ● {applicationStatus === "active" ? "Anggota Aktif" : applicationStatus === "pending" ? "Menunggu Verifikasi" : applicationStatus.replace("_", " ")}
+              </span>
+            </div>
+            <p className="member-sub-info">
+              <span>{data.organization.name}</span>
+              <span>·</span>
+              <span>KTA: <strong>{data.member.memberNumber || "Dalam Proses"}</strong></span>
+              {data.member.email && (
+                <>
+                  <span>·</span>
+                  <span>{data.member.email}</span>
+                </>
+              )}
+            </p>
+          </div>
         </div>
-        <button className="button member-logout" type="button" onClick={logout}>
-          <LogOut size={16} /> <span>Keluar</span>
-        </button>
+
+        <div className="header-card-actions">
+          {!data.emailVerified && (
+            <Link
+              href="/member/verify-email"
+              className="btn-header-verify"
+            >
+              <AlertTriangle size={14} />
+              <span>Verifikasi Email</span>
+            </Link>
+          )}
+          <button
+            className="btn-header-logout"
+            type="button"
+            onClick={logout}
+            title="Keluar dari Portal"
+          >
+            <LogOut size={15} />
+            <span>Keluar</span>
+          </button>
+        </div>
       </div>
 
       {!data.emailVerified && (
@@ -359,199 +464,350 @@ export function MemberPortal() {
         </div>
       )}
 
-      <div className="member-status-strip">
-        <span className="member-status-icon">
-          <BadgeCheck size={22} />
-        </span>
-        <div className="member-status-details">
-          <small>Status Keanggotaan</small>
-          <strong>
-            {data.member.memberNumber ? `No. KTA: ${data.member.memberNumber}` : "Anggota Terdaftar"}
-          </strong>
-        </div>
-        <span className={`public-status ${applicationStatus}`}>
-          ● {applicationStatus === "active" ? "Aktif" : applicationStatus === "pending" ? "Menunggu Verifikasi" : applicationStatus.replace("_", " ")}
-        </span>
-      </div>
-      <div className="member-dashboard-grid">
-        <section className="portal-panel profile-panel">
-          <div className="portal-panel-head">
-            <span>
-              <UserRound size={19} />
-            </span>
-            <div>
-              <h2>Profil Anggota</h2>
-              <p>Informasi data resmi terdaftar</p>
-            </div>
-          </div>
-          <dl className="portal-details">
-            <div>
-              <dt>Nomor KTA</dt>
-              <dd>{data.member.memberNumber}</dd>
-            </div>
-            <div>
-              <dt>Alamat Email</dt>
-              <dd>{data.member.email ?? "—"}</dd>
-            </div>
-            <div>
-              <dt>No. WhatsApp / Telepon</dt>
-              <dd>{data.member.phone ?? "—"}</dd>
-            </div>
-            <div>
-              <dt>Alamat Domisili</dt>
-              <dd>{data.member.address ?? "—"}</dd>
-            </div>
-          </dl>
-        </section>
-        <section className="portal-panel timeline-panel">
-          <div className="portal-panel-head">
-            <span>
-              <CalendarDays size={19} />
-            </span>
-            <div>
-              <h2>Status Pengajuan</h2>
-              <p>Progres verifikasi dan penerbitan</p>
-            </div>
-          </div>
-          <ol className="application-timeline">
-            <li className="complete">
-              <span />
-              Pendaftaran Diterima
-            </li>
-            <li className={data.emailVerified ? "complete" : ""}>
-              <span />
-              Email Terverifikasi
-            </li>
-            <li className={applicationStatus === "active" ? "complete" : ""}>
-              <span />
-              Verifikasi Berkas Organisasi
-            </li>
-            <li className={data.card ? "complete" : ""}>
-              <span />
-              KTA Digital Diterbitkan
-            </li>
-          </ol>
-          {data.application?.rejectionReason && (
-            <p className="application-feedback">
-              <strong>Catatan Peninjauan:</strong> {data.application.rejectionReason}
-            </p>
-          )}
-        </section>
-      </div>
-      {compliance && (
-        <MemberCredentials
-          data={compliance}
-          emailVerified={data.emailVerified}
-          onReload={loadPortal}
-        />
-      )}
-      {learning && (
-        <MemberLearning
-          data={learning}
-          emailVerified={data.emailVerified}
-          onReload={loadPortal}
-        />
-      )}
+      {/* 2. Modern Segmented Tab Bar */}
+      <div className="member-segmented-tabs-bar">
+        <button
+          type="button"
+          className={`segmented-tab-btn ${activeTab === "overview" ? "active" : ""}`}
+          onClick={() => handleTabChange("overview")}
+        >
+          <CreditCard size={15} />
+          <span>Ringkasan & KTA</span>
+        </button>
 
-      {/* 4. Workshop / Store Promotion Benefit Showcase */}
-      <MemberWorkshopPromo
-        member={data.member}
-        emailVerified={data.emailVerified}
-        organization={data.organization}
-        onReload={loadPortal}
-      />
-
-      {billing && <MemberBilling data={billing} />}
-
-      {data.card ? (
-        <section className="portal-card-section">
-          <div className="portal-section-heading">
-            <div>
-              <p className="eyebrow">KTA Digital Resmi</p>
-              <h2>Kartu Tanda Anggota (KTA) Digital</h2>
-              <p>
-                Kartu anggota resmi berstandar ID Card. Download kartu (PNG)
-                atau scan QR Code untuk verifikasi keaslian.
-              </p>
-            </div>
-          </div>
-
-          {!data.emailVerified ? (
-            <div className="kta-locked-security-container">
-              <div className="kta-blurred-backdrop">
-                <MemberPortraitCard
-                  member={{
-                    name: data.member.name,
-                    memberNumber: data.member.memberNumber || data.card.code,
-                    avatarUrl: data.member.avatarUrl,
-                    unitName: (data.member as { unitName?: string }).unitName,
-                    positionName: "ANGGOTA RESMI",
-                    status: data.member.status,
-                  }}
-                  card={data.card}
-                  organization={data.organization}
-                />
-              </div>
-
-              <div className="kta-security-lock-overlay">
-                <div className="lock-icon-circle">
-                  <ShieldAlert size={36} color="#ef4444" />
-                </div>
-                <span className="lock-security-badge">
-                  <Lock size={12} />
-                  KTA DIKUNCI SEMENTARA
-                </span>
-                <h3>Verifikasi Email Diperlukan</h3>
-                <p>
-                  Untuk memastikan keaslian data keanggotaan dan mengaktifkan
-                  QR Code verifikasi publik Anda, silakan lakukan verifikasi
-                  alamat email terlebih dahulu.
-                </p>
-                <div className="lock-overlay-actions">
-                  <Link
-                    href="/member/verify-email"
-                    className="button primary"
-                  >
-                    Verifikasi Email Sekarang
-                  </Link>
-                  <Link
-                    href="/member/verify-email"
-                    className="button secondary"
-                  >
-                    Kirim Ulang Link / OTP
-                  </Link>
-                </div>
-              </div>
-            </div>
+        <button
+          type="button"
+          className={`segmented-tab-btn ${activeTab === "workshop" ? "active" : ""}`}
+          onClick={() => handleTabChange("workshop")}
+        >
+          <Store size={15} />
+          <span>Iklan & Bengkel</span>
+          {isAdLive ? (
+            <span className="tab-pill-badge live">Tayang</span>
           ) : (
-            <div className="membership-card-print-area">
-              <MemberPortraitCard
-                member={{
-                  name: data.member.name,
-                  memberNumber: data.member.memberNumber || data.card.code,
-                  avatarUrl: data.member.avatarUrl,
-                  unitName: (data.member as { unitName?: string }).unitName,
-                  positionName: "ANGGOTA RESMI",
-                  status: data.member.status,
-                }}
-                card={data.card}
-                organization={data.organization}
-              />
-            </div>
+            <span className="tab-pill-badge">Draf</span>
           )}
-        </section>
-      ) : (
-        <section className="card-awaiting">
-          <CreditCard size={25} />
-          <div>
-            <h2>Kartu KTA Sedang Diproses</h2>
-            <p>
-              KTA Digital akan otomatis terbit setelah verifikasi email dan
-              persetujuan berkas keanggotaan oleh DPP/DPD.
-            </p>
+        </button>
+
+        <button
+          type="button"
+          className={`segmented-tab-btn ${activeTab === "credentials" ? "active" : ""}`}
+          onClick={() => handleTabChange("credentials")}
+        >
+          <Award size={15} />
+          <span>Kredensial & BNSP</span>
+          {credentialsCount > 0 && (
+            <span className="tab-pill-badge">{credentialsCount}</span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          className={`segmented-tab-btn ${activeTab === "learning" ? "active" : ""}`}
+          onClick={() => handleTabChange("learning")}
+        >
+          <BookOpen size={15} />
+          <span>Pelatihan & CPD</span>
+          {learningEnrollmentsCount > 0 && (
+            <span className="tab-pill-badge">{learningEnrollmentsCount}</span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          className={`segmented-tab-btn ${activeTab === "billing" ? "active" : ""}`}
+          onClick={() => handleTabChange("billing")}
+        >
+          <ReceiptText size={15} />
+          <span>Iuran & Keuangan</span>
+          {invoicesCount > 0 && (
+            <span className="tab-pill-badge">{invoicesCount}</span>
+          )}
+        </button>
+      </div>
+
+      {/* 3. Tab Panel Contents */}
+      <div className="portal-tab-content-area">
+        {activeTab === "overview" && (
+          <div className="tab-pane-fade-in">
+            {/* Quick Metrics Grid */}
+            <div className="member-overview-metrics-grid">
+              <div
+                className="metric-card metric-kta"
+                onClick={() => {
+                  const el = document.getElementById("digital-kta-card");
+                  el?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                <div className="metric-icon-wrap kta-bg">
+                  <CreditCard size={18} color="#0284c7" />
+                </div>
+                <div className="metric-content">
+                  <small>KTA Digital Resmi</small>
+                  <strong>{data.member.memberNumber || "Dalam Proses"}</strong>
+                  <span className="metric-subtext">
+                    {data.emailVerified ? "Terverifikasi & Aktif" : "Perlu Verifikasi"}
+                  </span>
+                </div>
+                <ChevronRight size={14} className="metric-arrow" />
+              </div>
+
+              <div
+                className="metric-card metric-workshop"
+                onClick={() => handleTabChange("workshop")}
+              >
+                <div className="metric-icon-wrap workshop-bg">
+                  <Store size={18} color="#10b981" />
+                </div>
+                <div className="metric-content">
+                  <small>Iklan Workshop / Toko</small>
+                  <strong>{isAdLive ? "Tayang di Direktori" : "Belum Ditayangkan"}</strong>
+                  <span className="metric-subtext">
+                    {workshopAd?.workshopName || "Atur Iklan Bengkel →"}
+                  </span>
+                </div>
+                <ChevronRight size={14} className="metric-arrow" />
+              </div>
+
+              <div
+                className="metric-card metric-credentials"
+                onClick={() => handleTabChange("credentials")}
+              >
+                <div className="metric-icon-wrap creds-bg">
+                  <Award size={18} color="#8b5cf6" />
+                </div>
+                <div className="metric-content">
+                  <small>Kredensial & BNSP</small>
+                  <strong>{credentialsCount} Dokumen</strong>
+                  <span className="metric-subtext">
+                    {compliance?.requirements?.length
+                      ? `${compliance.requirements.length} Standar Kompetensi →`
+                      : "Kelola Sertifikasi →"}
+                  </span>
+                </div>
+                <ChevronRight size={14} className="metric-arrow" />
+              </div>
+
+              <div
+                className="metric-card metric-learning"
+                onClick={() => handleTabChange("learning")}
+              >
+                <div className="metric-icon-wrap learning-bg">
+                  <BookOpen size={18} color="#f59e0b" />
+                </div>
+                <div className="metric-content">
+                  <small>Akademi & Kredit CPD</small>
+                  <strong>{learningBalanceHours} Jam / SKP</strong>
+                  <span className="metric-subtext">
+                    {learningEnrollmentsCount > 0
+                      ? `${learningEnrollmentsCount} Kelas Diikuti →`
+                      : "Katalog Kursus →"}
+                  </span>
+                </div>
+                <ChevronRight size={14} className="metric-arrow" />
+              </div>
+            </div>
+
+            {/* KTA Digital Section */}
+            <div id="digital-kta-card">
+              {data.card ? (
+                <section className="portal-card-section">
+                  <div className="portal-section-heading">
+                    <div>
+                      <p className="eyebrow">KTA Digital Resmi</p>
+                      <h2>Kartu Tanda Anggota (KTA) Digital</h2>
+                      <p>
+                        Kartu anggota resmi berstandar ID Card. Download kartu (PNG)
+                        atau scan QR Code untuk verifikasi keaslian.
+                      </p>
+                    </div>
+                  </div>
+
+                  {!data.emailVerified ? (
+                    <div className="kta-locked-security-container">
+                      <div className="kta-blurred-backdrop">
+                        <MemberPortraitCard
+                          member={{
+                            name: data.member.name,
+                            memberNumber: data.member.memberNumber || data.card.code,
+                            avatarUrl: data.member.avatarUrl,
+                            unitName: (data.member as { unitName?: string }).unitName,
+                            positionName: "ANGGOTA RESMI",
+                            status: data.member.status,
+                          }}
+                          card={data.card}
+                          organization={data.organization}
+                        />
+                      </div>
+
+                      <div className="kta-security-lock-overlay">
+                        <div className="lock-icon-circle">
+                          <ShieldAlert size={36} color="#ef4444" />
+                        </div>
+                        <span className="lock-security-badge">
+                          <Lock size={12} />
+                          KTA DIKUNCI SEMENTARA
+                        </span>
+                        <h3>Verifikasi Email Diperlukan</h3>
+                        <p>
+                          Untuk memastikan keaslian data keanggotaan dan mengaktifkan
+                          QR Code verifikasi publik Anda, silakan lakukan verifikasi
+                          alamat email terlebih dahulu.
+                        </p>
+                        <div className="lock-overlay-actions">
+                          <Link
+                            href="/member/verify-email"
+                            className="button primary"
+                          >
+                            Verifikasi Email Sekarang
+                          </Link>
+                          <Link
+                            href="/member/verify-email"
+                            className="button secondary"
+                          >
+                            Kirim Ulang Link / OTP
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="membership-card-print-area">
+                      <MemberPortraitCard
+                        member={{
+                          name: data.member.name,
+                          memberNumber: data.member.memberNumber || data.card.code,
+                          avatarUrl: data.member.avatarUrl,
+                          unitName: (data.member as { unitName?: string }).unitName,
+                          positionName: "ANGGOTA RESMI",
+                          status: data.member.status,
+                        }}
+                        card={data.card}
+                        organization={data.organization}
+                      />
+                    </div>
+                  )}
+                </section>
+              ) : (
+                <section className="card-awaiting">
+                  <CreditCard size={25} />
+                  <div>
+                    <h2>Kartu KTA Sedang Diproses</h2>
+                    <p>
+                      KTA Digital akan otomatis terbit setelah verifikasi email dan
+                      persetujuan berkas keanggotaan oleh DPP/DPD.
+                    </p>
+                  </div>
+                </section>
+              )}
+            </div>
+
+            {/* Profile and Verification Timeline Details */}
+            <div className="member-dashboard-grid" style={{ marginTop: "24px" }}>
+              <section className="portal-panel profile-panel">
+                <div className="portal-panel-head">
+                  <span>
+                    <UserRound size={19} />
+                  </span>
+                  <div>
+                    <h2>Profil Anggota</h2>
+                    <p>Informasi data resmi terdaftar</p>
+                  </div>
+                </div>
+                <dl className="portal-details">
+                  <div>
+                    <dt>Nomor KTA</dt>
+                    <dd>{data.member.memberNumber || "Dalam Proses"}</dd>
+                  </div>
+                  <div>
+                    <dt>Alamat Email</dt>
+                    <dd>{data.member.email ?? "—"}</dd>
+                  </div>
+                  <div>
+                    <dt>No. WhatsApp / Telepon</dt>
+                    <dd>{data.member.phone ?? "—"}</dd>
+                  </div>
+                  <div>
+                    <dt>Alamat Domisili</dt>
+                    <dd>{data.member.address ?? "—"}</dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section className="portal-panel timeline-panel">
+                <div className="portal-panel-head">
+                  <span>
+                    <CalendarDays size={19} />
+                  </span>
+                  <div>
+                    <h2>Status Pengajuan</h2>
+                    <p>Progres verifikasi dan penerbitan</p>
+                  </div>
+                </div>
+                <ol className="application-timeline">
+                  <li className="complete">
+                    <span />
+                    Pendaftaran Diterima
+                  </li>
+                  <li className={data.emailVerified ? "complete" : ""}>
+                    <span />
+                    Email Terverifikasi
+                  </li>
+                  <li className={applicationStatus === "active" ? "complete" : ""}>
+                    <span />
+                    Verifikasi Berkas Organisasi
+                  </li>
+                  <li className={data.card ? "complete" : ""}>
+                    <span />
+                    KTA Digital Diterbitkan
+                  </li>
+                </ol>
+                {data.application?.rejectionReason && (
+                  <p className="application-feedback">
+                    <strong>Catatan Peninjauan:</strong> {data.application.rejectionReason}
+                  </p>
+                )}
+              </section>
+            </div>
           </div>
-        </section>
-      )}
+        )}
+
+        {activeTab === "workshop" && (
+          <div className="tab-pane-fade-in">
+            <MemberWorkshopPromo
+              member={data.member}
+              emailVerified={data.emailVerified}
+              organization={data.organization}
+              onReload={loadPortal}
+            />
+          </div>
+        )}
+
+        {activeTab === "credentials" && compliance && (
+          <div className="tab-pane-fade-in">
+            <MemberCredentials
+              data={compliance}
+              emailVerified={data.emailVerified}
+              onReload={loadPortal}
+            />
+          </div>
+        )}
+
+        {activeTab === "learning" && learning && (
+          <div className="tab-pane-fade-in">
+            <MemberLearning
+              data={learning}
+              emailVerified={data.emailVerified}
+              onReload={loadPortal}
+            />
+          </div>
+        )}
+
+        {activeTab === "billing" && billing && (
+          <div className="tab-pane-fade-in">
+            <MemberBilling data={billing} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
