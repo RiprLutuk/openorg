@@ -1065,7 +1065,7 @@ function SearchableMultiSelect({
           </button>
         )}
         <ChevronDown
-          size={16}
+          size={14}
           className={`chevron-icon ${isOpen ? "rotated" : ""}`}
         />
       </div>
@@ -1263,7 +1263,7 @@ function SearchableSingleSelect({
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown
-          size={16}
+          size={14}
           className={`chevron-icon ${isOpen ? "rotated" : ""}`}
         />
       </div>

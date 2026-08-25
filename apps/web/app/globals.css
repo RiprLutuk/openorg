@@ -21287,13 +21287,16 @@ img {
   box-sizing: border-box;
 }
 
-.workshop-promo-form label {
+.workshop-promo-form label,
+.searchable-single-select-wrap,
+.searchable-multi-select-wrap {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #334155;
+  line-height: 1.3;
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -21301,21 +21304,25 @@ img {
 }
 
 .workshop-promo-form input[type="text"],
-.workshop-promo-form select {
-  height: 38px;
-  min-height: 38px;
+.workshop-promo-form select,
+.searchable-single-select-box,
+.searchable-multi-input-box {
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
   background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  padding: 0 12px;
-  color: #0f172a;
-  font-size: 13px;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 0 12px !important;
+  color: #0f172a !important;
+  font-size: 13px !important;
   outline: none;
+  box-sizing: border-box !important;
+  overflow: hidden;
   transition: all 0.15s ease;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  box-sizing: border-box;
 }
 
 .workshop-promo-form textarea {
@@ -21335,16 +21342,19 @@ img {
 
 .workshop-promo-form input:focus,
 .workshop-promo-form select:focus,
-.workshop-promo-form textarea:focus {
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-  background: #ffffff;
+.workshop-promo-form textarea:focus,
+.searchable-single-select-box.focused,
+.searchable-multi-input-box.focused {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+  background: #ffffff !important;
 }
 
 .form-row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+  align-items: start;
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -21722,9 +21732,10 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  height: 38px;
-  min-height: 38px;
-  padding: 0 12px;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  padding: 0 12px !important;
   background: #f8fafc;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
@@ -21735,6 +21746,7 @@ img {
   max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .searchable-single-select-box.focused {
@@ -21755,6 +21767,9 @@ img {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+  line-height: normal;
 }
 
 .selected-value-text.placeholder {
