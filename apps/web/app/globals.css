@@ -23857,6 +23857,41 @@ img {
   background: #f8fafc;
   border: 1px solid #cbd5e1;
   color: #334155;
+.carousel-autoplay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 12.5px;
+  font-weight: 650;
+  padding: 8px 13px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.carousel-autoplay-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.carousel-autoplay-btn.active {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.btn-shuffle-fair {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
   font-size: 13px;
   font-weight: 700;
   padding: 8px 14px;
@@ -24382,6 +24417,7 @@ img {
     width: 100%;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
   }
 
@@ -24389,12 +24425,19 @@ img {
     display: none;
   }
 
+  .carousel-autoplay-btn {
+    font-size: 11.5px;
+    padding: 8px 10px;
+    flex: 1;
+    justify-content: center;
+  }
+
   .btn-shuffle-fair,
   .btn-view-all-hero {
     flex: 1;
     justify-content: center;
-    font-size: 12px;
-    padding: 9px 12px;
+    font-size: 11.5px;
+    padding: 8px 10px;
     text-align: center;
   }
 

@@ -4,6 +4,8 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  Pause,
+  Play,
   Shuffle,
   Sparkles,
   Store,
@@ -340,6 +342,8 @@ function shuffleArray<T>(array: T[]): T[] {
 export function HomeFeaturedWorkshops() {
   const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(NATIONAL_16_WORKSHOPS);
   const [selectedCat, setSelectedCat] = useState<string>("all");
+  const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Shuffle on mount for fair randomized rotation ("tidak saling iri")
@@ -367,7 +371,7 @@ export function HomeFeaturedWorkshops() {
 
   const handleScroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = direction === "left" ? -380 : 380;
+      const scrollAmount = direction === "left" ? -370 : 370;
       scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
@@ -378,6 +382,28 @@ export function HomeFeaturedWorkshops() {
     if (selectedCat === "all") return true;
     return w.category === selectedCat;
   });
+
+  // Auto-scroll loop effect (pauses on hover or touch)
+  useEffect(() => {
+    if (!isAutoPlay || isHovered) return;
+
+    const interval = setInterval(() => {
+      if (scrollContainerRef.current) {
+        const el = scrollContainerRef.current;
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        const step = 370; // 1 card slide width + gap
+
+        if (el.scrollLeft >= maxScroll - 15) {
+          // Seamlessly reset back to beginning
+          el.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          el.scrollBy({ left: step, behavior: "smooth" });
+        }
+      }
+    }, 3400);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlay, isHovered, filtered.length]);
 
   return (
     <section className="section-space home-workshops-showcase-section">
@@ -397,6 +423,19 @@ export function HomeFeaturedWorkshops() {
           </div>
 
           <div className="ws-heading-right">
+            {/* Auto-Play Toggle */}
+            <button
+              type="button"
+              className={`carousel-autoplay-btn ${isAutoPlay ? "active" : ""}`}
+              onClick={() => setIsAutoPlay((prev) => !prev)}
+              title={isAutoPlay ? "Jeda Auto-Scroll" : "Mulai Auto-Scroll Otomatis"}
+              aria-label="Toggle Auto-Scroll"
+            >
+              {isAutoPlay ? <Pause size={14} /> : <Play size={14} />}
+              <span>{isAutoPlay ? "Auto-Scroll Aktif" : "Auto-Scroll Jeda"}</span>
+            </button>
+
+            {/* Fair Shuffle */}
             <button
               type="button"
               className="btn-shuffle-fair"
@@ -407,6 +446,7 @@ export function HomeFeaturedWorkshops() {
               <span>Rotasi Acak</span>
             </button>
 
+            {/* Arrows */}
             <div className="carousel-arrows-pair">
               <button
                 type="button"
@@ -456,8 +496,14 @@ export function HomeFeaturedWorkshops() {
           </div>
         )}
 
-        {/* Horizontal Swipeable / Scrollable Carousel */}
-        <div className="ws-carousel-track-wrapper">
+        {/* Horizontal Swipeable / Scrollable Carousel with Auto-Scroll */}
+        <div
+          className="ws-carousel-track-wrapper"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onTouchStart={() => setIsHovered(true)}
+          onTouchEnd={() => setIsHovered(false)}
+        >
           <div className="ws-horizontal-carousel" ref={scrollContainerRef}>
             {filtered.map((ws) => (
               <div key={ws.id} className="ws-carousel-slide">
