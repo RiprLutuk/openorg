@@ -122,39 +122,35 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
           {/* Key Metrics / Live Counters */}
           <div className="hero-metrics-row">
             <div className="hero-metric-item">
-              <div className="hero-metric-icon">
-                <Building2 size={18} />
-              </div>
               <div className="hero-metric-data">
-                <strong className="hero-metric-num">
-                  {unitCount || "14+"}
-                </strong>
+                <div className="hero-metric-num-wrap">
+                  <Building2 size={14} className="text-sky-600 flex-shrink-0" />
+                  <strong className="hero-metric-num">{unitCount || "14+"}</strong>
+                </div>
                 <span className="hero-metric-lbl">Pengurus Wilayah</span>
               </div>
             </div>
 
-            <div className="metric-separator" />
+            <div className="hero-metric-divider" />
 
             <div className="hero-metric-item">
-              <div className="hero-metric-icon">
-                <GraduationCap size={18} />
-              </div>
               <div className="hero-metric-data">
-                <strong className="hero-metric-num">
-                  {eventCount || "8+"}
-                </strong>
-                <span className="hero-metric-lbl">Agenda & SKP</span>
+                <div className="hero-metric-num-wrap">
+                  <GraduationCap size={14} className="text-sky-600 flex-shrink-0" />
+                  <strong className="hero-metric-num">{eventCount || "8+"}</strong>
+                </div>
+                <span className="hero-metric-lbl">Agenda &amp; SKP</span>
               </div>
             </div>
 
-            <div className="metric-separator" />
+            <div className="hero-metric-divider" />
 
             <div className="hero-metric-item">
-              <div className="hero-metric-icon">
-                <ShieldCheck size={18} />
-              </div>
               <div className="hero-metric-data">
-                <strong className="hero-metric-num">100%</strong>
+                <div className="hero-metric-num-wrap">
+                  <ShieldCheck size={14} className="text-emerald-600 flex-shrink-0" />
+                  <strong className="hero-metric-num">100%</strong>
+                </div>
                 <span className="hero-metric-lbl">Terverifikasi</span>
               </div>
             </div>
