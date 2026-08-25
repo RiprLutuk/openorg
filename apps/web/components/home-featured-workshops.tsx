@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowLeft,
   ArrowRight,
   ChevronLeft,
   ChevronRight,
@@ -368,7 +367,7 @@ export function HomeFeaturedWorkshops() {
 
   const handleScroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = direction === "left" ? -340 : 340;
+      const scrollAmount = direction === "left" ? -380 : 380;
       scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
@@ -381,36 +380,33 @@ export function HomeFeaturedWorkshops() {
   });
 
   return (
-    <section className="home-workshops-showcase-section">
+    <section className="section-space home-workshops-showcase-section">
       <div className="wrap">
-        {/* Section Header: Compact & High-Impact */}
-        <div className="showcase-header-compact">
-          <div className="header-text-block">
-            <div className="pill-badge-eyebrow">
-              <Store size={12} className="text-sky-600" />
-              <span>BURSA BENGKEL &amp; TOKO RESMI</span>
-            </div>
-            <h2 className="section-title-compact">
-              Jaringan Bengkel &amp; Toko Mitra Anggota
-            </h2>
-            <p className="section-subtitle-compact">
-              {workshops.length}+ bengkel AC resmi, klinik modul inverter &amp; toko suku cadang berlisensi di seluruh Indonesia.
+        {/* Section Heading: Standard OpenOrg Design System */}
+        <div className="section-heading ws-showcase-heading">
+          <div className="ws-heading-left">
+            <Link href="/bengkel" className="eyebrow-cta-link">
+              <Store size={13} className="text-sky-600" />
+              <span>Bursa Bengkel &amp; Toko Resmi</span>
+              <ArrowRight size={12} />
+            </Link>
+            <h2>Jaringan Bengkel &amp; Toko Mitra Anggota</h2>
+            <p>
+              {workshops.length}+ bengkel AC resmi, klinik modul inverter &amp; penyedia suku cadang berlisensi di seluruh Indonesia.
             </p>
           </div>
 
-          <div className="header-actions-block">
-            {/* Fair Rotation Shuffle Button */}
+          <div className="ws-heading-right">
             <button
               type="button"
               className="btn-shuffle-fair"
               onClick={handleShuffle}
               title="Acak urutan tampilan agar rotasi promosi adil bagi semua anggota"
             >
-              <Shuffle size={13} />
+              <Shuffle size={14} />
               <span>Rotasi Acak</span>
             </button>
 
-            {/* Scroll Navigation Arrows */}
             <div className="carousel-arrows-pair">
               <button
                 type="button"
@@ -418,7 +414,7 @@ export function HomeFeaturedWorkshops() {
                 onClick={() => handleScroll("left")}
                 aria-label="Geser ke kiri"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={18} />
               </button>
               <button
                 type="button"
@@ -426,23 +422,23 @@ export function HomeFeaturedWorkshops() {
                 onClick={() => handleScroll("right")}
                 aria-label="Geser ke kanan"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={18} />
               </button>
             </div>
 
-            <Link href="/bengkel" className="btn-view-all-compact">
+            <Link href="/bengkel" className="button primary btn-view-all-hero">
               <span>Semua Bengkel</span>
-              <ArrowRight size={13} />
+              <ArrowRight size={14} />
             </Link>
           </div>
         </div>
 
         {/* Category Filter Chips */}
         {categories.length > 0 && (
-          <div className="category-scroll-chips">
+          <div className="ws-category-chips-row">
             <button
               type="button"
-              className={`filter-chip ${selectedCat === "all" ? "active" : ""}`}
+              className={`ws-cat-filter-btn ${selectedCat === "all" ? "active" : ""}`}
               onClick={() => setSelectedCat("all")}
             >
               Semua ({workshops.length})
@@ -451,7 +447,7 @@ export function HomeFeaturedWorkshops() {
               <button
                 key={cat}
                 type="button"
-                className={`filter-chip ${selectedCat === cat ? "active" : ""}`}
+                className={`ws-cat-filter-btn ${selectedCat === cat ? "active" : ""}`}
                 onClick={() => setSelectedCat(cat)}
               >
                 {cat}
@@ -461,25 +457,30 @@ export function HomeFeaturedWorkshops() {
         )}
 
         {/* Horizontal Swipeable / Scrollable Carousel */}
-        <div className="carousel-track-wrapper">
-          <div className="horizontal-workshop-carousel" ref={scrollContainerRef}>
+        <div className="ws-carousel-track-wrapper">
+          <div className="ws-horizontal-carousel" ref={scrollContainerRef}>
             {filtered.map((ws) => (
-              <div key={ws.id} className="carousel-item-slide">
+              <div key={ws.id} className="ws-carousel-slide">
                 <PublicWorkshopCard workshop={ws} />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Compact Strip Banner for Members */}
-        <div className="compact-member-promo-strip">
-          <div className="promo-strip-text">
-            <Sparkles size={16} className="text-sky-600 flex-shrink-0" />
-            <span>
-              <strong>Punya Usaha Bengkel AC atau Toko Sparepart?</strong> Daftarkan profil usaha Anda gratis untuk mendapatkan promosi nasional di bursa direktori ini.
-            </span>
+        {/* Standard Benefit Banner for Members */}
+        <div className="ws-member-acquisition-banner">
+          <div className="ws-acq-copy">
+            <div className="ws-acq-icon-box">
+              <Sparkles size={20} className="text-sky-600" />
+            </div>
+            <div>
+              <strong>Punya Usaha Bengkel AC atau Toko Sparepart?</strong>
+              <p>
+                Daftarkan profil usaha Anda untuk mendapatkan promosi nasional di bursa direktori resmi organisasi.
+              </p>
+            </div>
           </div>
-          <Link href="/join" className="btn-promo-join">
+          <Link href="/join" className="button primary ws-btn-acq">
             Daftar &amp; Pasang Iklan →
           </Link>
         </div>

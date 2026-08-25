@@ -58,7 +58,7 @@ export function PublicWorkshopCard({
 
   const cleanWhatsapp = workshop.whatsapp.replace(/\D/g, "");
   const waUrl = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(
-    `Halo ${workshop.workshopName}, saya menemukan profil workshop Anda di Direktori Resmi APTI Indonesia.`,
+    `Halo ${workshop.workshopName}, saya menemukan profil usaha Anda di Direktori Resmi APTI Indonesia.`,
   )}`;
 
   const cleanWebUrl = workshop.website
@@ -68,40 +68,40 @@ export function PublicWorkshopCard({
     : undefined;
 
   return (
-    <article className="clean-workshop-card">
-      {/* 1. Top Bar: Kategori & Status */}
-      <div className="card-top-bar">
-        <span className="card-cat-pill">
-          <Store size={10.5} className="text-sky-600 flex-shrink-0" />
+    <article className="standard-workshop-card">
+      {/* 1. Header: Kategori & Status Resmi */}
+      <div className="ws-card-header-row">
+        <span className="ws-cat-pill">
+          <Store size={12} className="text-sky-600 flex-shrink-0" />
           <span className="truncate">{workshop.category}</span>
         </span>
-        <div className="card-badge-group">
-          {is24h && <span className="pill-24h">24J</span>}
-          <span className="pill-verified" title="Mitra Resmi Terverifikasi">
-            <ShieldCheck size={10} className="text-emerald-600 flex-shrink-0" />
+        <div className="ws-badge-group">
+          {is24h && <span className="ws-pill-24h">24 Jam</span>}
+          <span className="ws-pill-verified" title="Mitra Resmi Terverifikasi">
+            <ShieldCheck size={12} className="text-emerald-600 flex-shrink-0" />
             <span>Resmi</span>
           </span>
         </div>
       </div>
 
-      {/* 2. Nama Bengkel & Tagline Ringkas */}
-      <div className="card-brand">
-        <h4 className="card-title truncate" title={workshop.workshopName}>
+      {/* 2. Nama Bengkel & Tagline */}
+      <div className="ws-card-brand">
+        <h4 className="ws-brand-title truncate" title={workshop.workshopName}>
           {workshop.workshopName}
         </h4>
-        <p className="card-tagline truncate" title={workshop.tagline}>
+        <p className="ws-brand-tagline truncate" title={workshop.tagline}>
           {workshop.tagline || `${workshop.category} di ${workshop.city}`}
         </p>
       </div>
 
-      {/* 3. Lokasi & Jam Operasional Ringkas */}
-      <div className="card-meta-chips">
-        <div className="meta-line truncate">
-          <MapPin size={11} className="text-sky-500 flex-shrink-0" />
+      {/* 3. Lokasi & Jam Operasional */}
+      <div className="ws-meta-box">
+        <div className="ws-meta-item truncate">
+          <MapPin size={13} className="text-sky-500 flex-shrink-0" />
           <span className="truncate">{workshop.city}, {workshop.province}</span>
         </div>
-        <div className="meta-line truncate">
-          <Clock size={11} className="text-slate-400 flex-shrink-0" />
+        <div className="ws-meta-item truncate">
+          <Clock size={13} className="text-slate-400 flex-shrink-0" />
           <span className="truncate">{workshop.operatingHours}</span>
         </div>
       </div>
@@ -111,18 +111,17 @@ export function PublicWorkshopCard({
         href={mapsDirectUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="card-map-banner"
+        className="ws-map-banner"
         title="Buka Navigasi Rute Google Maps"
       >
-        <div className="map-banner-grid-backdrop" />
-        <div className="map-banner-pin-pulse">
-          <MapPin size={16} className="pin-icon" />
-          <span className="pulse-ring" />
+        <div className="ws-map-grid-pattern" />
+        <div className="ws-pin-pulse-box">
+          <MapPin size={16} />
         </div>
-        <div className="map-banner-info">
-          <span className="map-addr-text truncate">{workshop.address || workshop.city}</span>
-          <span className="map-nav-action">
-            <Navigation size={10} />
+        <div className="ws-map-info-copy">
+          <span className="ws-addr-text truncate">{workshop.address || workshop.city}</span>
+          <span className="ws-nav-cta">
+            <Navigation size={11} />
             <span>Buka Rute Maps</span>
           </span>
         </div>
@@ -130,15 +129,15 @@ export function PublicWorkshopCard({
 
       {/* 5. Layanan Spesialisasi */}
       {workshop.services && workshop.services.length > 0 && (
-        <div className="card-services-cloud">
+        <div className="ws-services-cloud">
           {workshop.services.slice(0, 2).map((srv) => (
-            <span key={srv} className="service-mini-tag truncate">
-              <Wrench size={9} className="text-sky-500 flex-shrink-0" />
+            <span key={srv} className="ws-service-tag truncate">
+              <Wrench size={11} className="text-sky-500 flex-shrink-0" />
               <span className="truncate">{srv}</span>
             </span>
           ))}
           {workshop.services.length > 2 && (
-            <span className="service-mini-tag more-tag">
+            <span className="ws-service-tag ws-more-tag">
               +{workshop.services.length - 2}
             </span>
           )}
@@ -146,38 +145,38 @@ export function PublicWorkshopCard({
       )}
 
       {/* 6. Footer: Owner KTA & WhatsApp Action */}
-      <div className="card-bottom-row">
-        <div className="owner-info">
-          <small className="owner-lbl">Penanggung Jawab:</small>
+      <div className="ws-card-footer">
+        <div className="ws-owner-block">
+          <small className="ws-owner-label">Penanggung Jawab:</small>
           <Link
             href={`/verify?code=${encodeURIComponent(workshop.memberNumber)}`}
-            className="owner-name-link truncate"
+            className="ws-owner-link truncate"
             title={`No. KTA: ${workshop.memberNumber}`}
           >
             <strong>{workshop.ownerName}</strong>
           </Link>
         </div>
 
-        <div className="card-cta-group">
+        <div className="ws-actions-group">
           {cleanWebUrl && (
             <a
               href={cleanWebUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-card-web"
+              className="ws-btn-web"
               title="Kunjungi Website Resmi"
             >
-              <Globe size={12} />
+              <Globe size={14} />
             </a>
           )}
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-card-wa"
+            className="ws-btn-whatsapp"
             title="Chat & Order via WhatsApp"
           >
-            <MessageSquare size={12} />
+            <MessageSquare size={13} />
             <span>WhatsApp</span>
           </a>
         </div>
