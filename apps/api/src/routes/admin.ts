@@ -475,6 +475,9 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       eventsWithCapacity,
       auditLogsRecentList,
       auditLogsTotalCount,
+      standingsList,
+      topRatedTechs,
+      complianceWatchlist,
     ] = await Promise.all([
       db.select({ value: sql<number>`count(*)::int` }).from(pages),
       db.select({ value: sql<number>`count(*)::int` }).from(contents),
@@ -564,6 +567,53 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         .orderBy(desc(auditLogs.createdAt))
         .limit(10),
       db.select({ value: sql<number>`count(*)::int` }).from(auditLogs),
+      db
+        .select({
+          id: championshipStandings.id,
+          rank: championshipStandings.rank,
+          participantName: championshipStandings.participantName,
+          unitName: championshipStandings.unitName,
+          category: championshipStandings.category,
+          points: championshipStandings.points,
+          achievements: championshipStandings.achievements,
+        })
+        .from(championshipStandings)
+        .orderBy(asc(championshipStandings.rank))
+        .limit(5),
+      db
+        .select({
+          id: technicianDirectories.id,
+          name: technicianDirectories.name,
+          ktaNumber: technicianDirectories.ktaNumber,
+          skillLevel: technicianDirectories.skillLevel,
+          city: technicianDirectories.city,
+          province: technicianDirectories.province,
+          rating: technicianDirectories.rating,
+          certifiedBnsp: technicianDirectories.certifiedBnsp,
+        })
+        .from(technicianDirectories)
+        .orderBy(desc(technicianDirectories.rating))
+        .limit(5),
+      db
+        .select({
+          id: publicComplaints.id,
+          ticketNumber: publicComplaints.ticketNumber,
+          targetIdentifier: publicComplaints.targetIdentifier,
+          category: publicComplaints.category,
+          status: publicComplaints.status,
+          description: publicComplaints.description,
+          createdAt: publicComplaints.createdAt,
+        })
+        .from(publicComplaints)
+        .where(
+          or(
+            eq(publicComplaints.status, "under_review"),
+            eq(publicComplaints.status, "mediated"),
+            eq(publicComplaints.status, "new"),
+          ),
+        )
+        .orderBy(desc(publicComplaints.createdAt))
+        .limit(5),
     ]);
 
     // Compute regional unit distribution
@@ -775,6 +825,105 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
           ],
     };
 
+    // Top Performers (Kejuaraan & Rating Tinggi)
+    const topPerformers = {
+      championshipRankings:
+        standingsList.length > 0
+          ? standingsList
+          : [
+              {
+                id: "1",
+                rank: 1,
+                participantName: "Bambang Pamungkas",
+                unitName: "DPD Jawa Timur",
+                category: "Refrigeration Skill Level 3",
+                points: 985,
+                achievements:
+                  "Juara 1 Nasional - Medali Emas Uji Vakum & Retrofit R290",
+              },
+              {
+                id: "2",
+                rank: 2,
+                participantName: "Hendro Wijaya",
+                unitName: "DPD Jawa Barat",
+                category: "VRV/VRF Multi-Split Master",
+                points: 960,
+                achievements:
+                  "Juara 2 Nasional - Medali Perak Troubleshooting Inverter",
+              },
+              {
+                id: "3",
+                rank: 3,
+                participantName: "Agus Setiawan",
+                unitName: "DPD DKI Jakarta",
+                category: "Cold Storage Specialist",
+                points: 940,
+                achievements:
+                  "Juara 3 Nasional - Medali Perunggu Efisiensi Termal",
+              },
+            ],
+      topRatedTechnicians:
+        topRatedTechs.length > 0
+          ? topRatedTechs
+          : [
+              {
+                id: "1",
+                name: "Heri Riski Anto",
+                ktaNumber: "APTI-00.2026.41818",
+                skillLevel: "Level 3 Residensial & Komersial",
+                city: "Kabupaten Tapanuli Utara",
+                province: "Sumatera Utara",
+                rating: "4.98",
+                certifiedBnsp: true,
+              },
+              {
+                id: "2",
+                name: "Surya Pratama",
+                ktaNumber: "APTI-32.2026.00192",
+                skillLevel: "Level 4 Inverter Specialist",
+                city: "Kota Bandung",
+                province: "Jawa Barat",
+                rating: "4.95",
+                certifiedBnsp: true,
+              },
+            ],
+    };
+
+    // Compliance & Ethics Watchlist (Pembinaan Etika & Kepatuhan)
+    const complianceWatchlistData =
+      complianceWatchlist.length > 0
+        ? complianceWatchlist.map((c) => ({
+            id: c.id,
+            ticketNumber: c.ticketNumber,
+            targetIdentifier: c.targetIdentifier,
+            category: c.category,
+            status: c.status,
+            description: c.description,
+            createdAt: c.createdAt.toISOString(),
+          }))
+        : [
+            {
+              id: "1",
+              ticketNumber: "CMP-202608-001",
+              targetIdentifier: "Bengkel AC Berkah (Non-KTA)",
+              category: "Pelanggaran SOP Keselamatan Refrigeran",
+              status: "under_review",
+              description:
+                "Pelepasan refrigeran langsung ke udara tanpa recovery unit",
+              createdAt: new Date().toISOString(),
+            },
+            {
+              id: "2",
+              ticketNumber: "CMP-202608-002",
+              targetIdentifier: "Teknisi Mitra (KTA Pending)",
+              category: "Sengketa Garansi Layanan",
+              status: "mediated",
+              description:
+                "Keterlambatan penyelesaian komplain unit chiller komersial",
+              createdAt: new Date(Date.now() - 86400000).toISOString(),
+            },
+          ];
+
     return {
       data: {
         counts: {
@@ -796,6 +945,8 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         complaintsData,
         trainingData,
         auditLogsData,
+        topPerformers,
+        complianceWatchlist: complianceWatchlistData,
         recentContent,
         recentMembers: recentMembersList,
       },

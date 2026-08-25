@@ -91,6 +91,36 @@ export type DashboardData = {
       createdAt: string;
     }>;
   };
+  topPerformers?: {
+    championshipRankings: Array<{
+      id: string;
+      rank: number;
+      participantName: string;
+      unitName?: string | null;
+      category: string;
+      points: number;
+      achievements?: string | null;
+    }>;
+    topRatedTechnicians: Array<{
+      id: string;
+      name: string;
+      ktaNumber: string;
+      skillLevel: string;
+      city: string;
+      province: string;
+      rating?: string | null;
+      certifiedBnsp: boolean;
+    }>;
+  };
+  complianceWatchlist?: Array<{
+    id: string;
+    ticketNumber: string;
+    targetIdentifier: string;
+    category: string;
+    status: string;
+    description: string;
+    createdAt: string;
+  }>;
   recentContent: Array<{
     id: string;
     title: string;

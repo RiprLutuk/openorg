@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import html2canvas from "html2canvas";
 import {
   Activity,
+  AlertTriangle,
   ArrowRight,
   Award,
   BadgeCheck,
@@ -35,6 +36,7 @@ import {
   LogOut,
   Mail,
   MapPin,
+  Medal,
   Menu,
   Network,
   Newspaper,
@@ -52,6 +54,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Star,
   Trash2,
   Trophy,
   Users,
@@ -1705,6 +1708,159 @@ function Dashboard({
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Visual Analytics Row 4: Top Performing Technicians & Compliance Watchlist */}
+      <div
+        className="dashboard-grid"
+        style={{
+          gridTemplateColumns: "1.2fr 0.8fr",
+          gap: "16px",
+          marginBottom: "20px",
+        }}
+      >
+        {/* Left Card: Teknisi Berprestasi & Hall of Fame */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <div>
+              <h3>Teknisi Berprestasi & Hall of Fame Kejuaraan</h3>
+              <p>Peringkat kompetensi tertinggi & penilaian kepuasan konsumen</p>
+            </div>
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => navigate("championships")}
+            >
+              Klasemen Lengkap <ArrowRight size={14} />
+            </button>
+          </div>
+
+          <div className="performer-list">
+            {(data?.topPerformers?.championshipRankings || [
+              {
+                id: "1",
+                rank: 1,
+                participantName: "Bambang Pamungkas",
+                unitName: "DPD Jawa Timur",
+                category: "Refrigeration Skill Level 3",
+                points: 985,
+                achievements:
+                  "Juara 1 Nasional - Medali Emas Uji Vakum & Retrofit R290",
+              },
+              {
+                id: "2",
+                rank: 2,
+                participantName: "Hendro Wijaya",
+                unitName: "DPD Jawa Barat",
+                category: "VRV/VRF Multi-Split Master",
+                points: 960,
+                achievements:
+                  "Juara 2 Nasional - Medali Perak Troubleshooting Inverter",
+              },
+              {
+                id: "3",
+                rank: 3,
+                participantName: "Agus Setiawan",
+                unitName: "DPD DKI Jakarta",
+                category: "Cold Storage Specialist",
+                points: 940,
+                achievements:
+                  "Juara 3 Nasional - Medali Perunggu Efisiensi Termal",
+              },
+            ]).map((p, idx) => {
+              const medalClass =
+                idx === 0
+                  ? "gold"
+                  : idx === 1
+                    ? "silver"
+                    : idx === 2
+                      ? "bronze"
+                      : "star";
+              return (
+                <div className="performer-item" key={p.id}>
+                  <div className={`medal-badge ${medalClass}`}>
+                    {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : idx + 1}
+                  </div>
+                  <div className="performer-details">
+                    <div className="performer-name-row">
+                      <span className="performer-name">{p.participantName}</span>
+                      {p.unitName && (
+                        <span className="tag-badge">{p.unitName}</span>
+                      )}
+                    </div>
+                    <div className="performer-sub">
+                      <span>{p.category}</span>
+                      {p.achievements && <span>· {p.achievements}</span>}
+                    </div>
+                  </div>
+                  <div className="performer-score">
+                    <Trophy size={13} style={{ display: "inline", marginRight: "4px" }} />
+                    {p.points} Poin
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right Card: Compliance Watchlist & Pembinaan Meja Etik */}
+        <div className="chart-card">
+          <div className="chart-header">
+            <div>
+              <h3>Pengawasan Kepatuhan & Meja Etik</h3>
+              <p>Daftar peninjauan pelanggaran & pembinaan anggota</p>
+            </div>
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => navigate("complaints")}
+            >
+              Proses Sidang <ArrowRight size={14} />
+            </button>
+          </div>
+
+          <div className="watchlist-list">
+            {(data?.complianceWatchlist || [
+              {
+                id: "1",
+                ticketNumber: "CMP-202608-001",
+                targetIdentifier: "Bengkel AC Berkah (Non-KTA)",
+                category: "Pelanggaran SOP Keselamatan Refrigeran",
+                status: "under_review",
+                description:
+                  "Pelepasan refrigeran langsung ke udara tanpa recovery unit",
+                createdAt: new Date().toISOString(),
+              },
+              {
+                id: "2",
+                ticketNumber: "CMP-202608-002",
+                targetIdentifier: "Teknisi Mitra (KTA Pending)",
+                category: "Sengketa Garansi Layanan",
+                status: "mediated",
+                description:
+                  "Keterlambatan penyelesaian komplain unit chiller komersial",
+                createdAt: new Date(Date.now() - 86400000).toISOString(),
+              },
+            ]).map((item) => (
+              <div className="watchlist-item" key={item.id}>
+                <div className="watchlist-head">
+                  <div className="watchlist-target">
+                    <AlertTriangle size={15} color="#d97706" />
+                    <span>{item.targetIdentifier}</span>
+                  </div>
+                  <span className="code-badge">{item.ticketNumber}</span>
+                </div>
+                <div className="watchlist-desc">{item.description}</div>
+                <div className="watchlist-meta">
+                  <span>Kategori: {item.category}</span>
+                  <strong style={{ textTransform: "uppercase" }}>
+                    Status: {item.status.replace("_", " ")}
+                  </strong>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
