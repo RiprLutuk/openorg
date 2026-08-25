@@ -806,8 +806,19 @@ export function MemberPortal() {
                 </div>
                 <dl className="portal-details">
                   <div>
-                    <dt>Nomor KTA</dt>
-                    <dd>{data.member.memberNumber || "Dalam Proses"}</dd>
+                    <dt>{data.member.status === "active" ? "Nomor KTA Resmi" : "No. Registrasi Pendaftaran"}</dt>
+                    <dd>
+                      {data.member.status === "active" ? (
+                        data.member.memberNumber || "Dalam Proses"
+                      ) : (
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                          <span style={{ fontFamily: "monospace", fontWeight: 750 }}>{data.member.memberNumber}</span>
+                          <span style={{ fontSize: "11px", background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a", padding: "2px 6px", borderRadius: "4px", fontWeight: 650 }}>
+                            Menunggu Review Pengurus
+                          </span>
+                        </span>
+                      )}
+                    </dd>
                   </div>
                   <div>
                     <dt>Alamat Email</dt>
