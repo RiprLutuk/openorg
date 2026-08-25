@@ -24237,3 +24237,260 @@ img {
   transform: translateY(-1px);
 }
 
+/* ==========================================================================
+   Technician Card Workshop Enhancement & Modal Workshop Section
+   ========================================================================== */
+.tech-workshop-box-enhanced {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tech-workshop-box-enhanced:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  transform: translateY(-1px);
+}
+
+.ws-box-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ws-box-name {
+  font-size: 12px;
+  font-weight: 750;
+  color: #0369a1;
+}
+
+.ws-box-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 10.5px;
+}
+
+.ws-cat-subtag {
+  color: #64748b;
+  font-weight: 600;
+  max-width: 140px;
+}
+
+.ws-view-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #0284c7;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Modal Workshop Section */
+.modal-tech-workshop-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%);
+  border: 1px solid #bae6fd;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.modal-workshop-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.section-title-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-title-left strong {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.modal-workshop-card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.modal-ws-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 2px;
+  line-height: 1.25;
+}
+
+.modal-ws-tagline {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.inner-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+@media (max-width: 600px) {
+  .inner-meta-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.meta-cell {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #334155;
+  min-width: 0;
+}
+
+.meta-cell span,
+.meta-cell a {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-ws-web-link {
+  color: #0284c7;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.modal-workshop-map-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0 2px;
+}
+
+.map-top-bar small {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 650;
+  color: #475569;
+}
+
+.map-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 650;
+  color: #0284c7;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 1px 5px;
+  text-decoration: none;
+}
+
+.map-nav-link:hover {
+  background: #f0f9ff;
+  border-color: #0284c7;
+}
+
+.modal-ws-services-wrap small {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  letter-spacing: 0.3px;
+}
+
+.services-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.search-match-smart-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.smart-banner-copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #0369a1;
+}
+
+.btn-switch-workshop-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0284c7;
+  background: #ffffff;
+  border: 1px solid #7dd3fc;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-switch-workshop-tab:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+

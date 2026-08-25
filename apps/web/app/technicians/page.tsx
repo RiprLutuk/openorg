@@ -74,6 +74,89 @@ export interface MemberWorkshop {
 
 const SEED_MEMBER_WORKSHOPS: MemberWorkshop[] = [
   {
+    id: "ws-budi",
+    workshopName: "Jakarta Aircon Service Center",
+    tagline: "Pusat Servis AC Inverter, Multi-Split & VRV Komersial Bergaransi Resmi",
+    category: "Bengkel Spesialis AC Komersial (VRV/VRF/Chiller)",
+    city: "Jakarta Selatan",
+    province: "DKI Jakarta",
+    address: "Jl. RS Fatmawati Raya No. 45, Cilandak",
+    whatsapp: "081234567890",
+    phone: "081234567890",
+    website: "https://jakarta-aircon.co.id",
+    googleMapsUrl: "Jl. RS Fatmawati Raya No. 45, Cilandak, Jakarta Selatan",
+    operatingHours: "Senin - Sabtu: 08.00 - 18.00 | Siap Layanan Darurat 24 Jam",
+    description:
+      "Bengkel resmi berlisensi Master Level IV APTI di bawah pimpinan Budi Kurniawan. Spesialis perbaikan pendingin gedung perkantoran, multi-split VRV/VRF inverter, dan recovery ramah lingkungan.",
+    services: [
+      "Cuci AC Inverter Bebas Bau",
+      "Vakum Standar SKKNI (Dua Tahap)",
+      "Recovery Freon R32 / R410A",
+      "Servis Chiller & VRV Komersial",
+      "Instalasi AC Cassette / Standing",
+      "Perbaikan Modul PCB Inverter",
+    ],
+    ownerName: "Budi Kurniawan",
+    memberNumber: "APTI-2026-0004",
+    isPublished: true,
+    rating: 4.95,
+    completedJobs: 450,
+  },
+  {
+    id: "ws-agus",
+    workshopName: "Bandung Cold Solution",
+    tagline: "Spesialis Servis AC Split Residensial & Perawatan Berkala Rumah/Kantor",
+    category: "Bengkel Servis AC Residensial & Rumah Tangga",
+    city: "Bandung",
+    province: "Jawa Barat",
+    address: "Jl. Soekarno-Hatta No. 312, Buahbatu",
+    whatsapp: "081298765432",
+    phone: "081298765432",
+    website: "https://bandungcoldsolution.id",
+    googleMapsUrl: "Jl. Soekarno-Hatta No. 312, Buahbatu, Bandung",
+    operatingHours: "Setiap Hari: 07.30 - 19.00",
+    description:
+      "Layanan panggilan servis AC cepat residensial & apartemen. Bergaransi 30 hari dengan SOP uji kebocoran nitrogen dan pencucian bersih anti bocor.",
+    services: [
+      "Cuci AC Inverter Bebas Bau",
+      "Bongkar Pasang AC Split",
+      "Uji Tekanan Nitrogen K3",
+      "Vakum Standar SKKNI (Dua Tahap)",
+    ],
+    ownerName: "Agus Pratama",
+    memberNumber: "APTI-2026-0005",
+    isPublished: true,
+    rating: 4.88,
+    completedJobs: 380,
+  },
+  {
+    id: "ws-dewi",
+    workshopName: "Semarang Industrial HVAC",
+    tagline: "Rekayasa Tata Udara Chiller Industri & Cold Storage Jawa Tengah",
+    category: "Bengkel Spesialis AC Komersial (VRV/VRF/Chiller)",
+    city: "Semarang",
+    province: "Jawa Tengah",
+    address: "Jl. Pemuda No. 88, Semarang Tengah",
+    whatsapp: "081311223344",
+    phone: "081311223344",
+    website: "https://semaranghvac.com",
+    googleMapsUrl: "Jl. Pemuda No. 88, Semarang Tengah",
+    operatingHours: "Senin - Sabtu: 08.00 - 17.30 | Siap 24 Jam",
+    description:
+      "Pusat rekondisi dan overhaul kompresor Chiller, water cooled system, dan perakitan cold storage industri farmasi/makanan berstandar regulasi.",
+    services: [
+      "Servis Chiller & VRV Komersial",
+      "Recovery Freon R32 / R410A",
+      "Uji Tekanan Nitrogen K3",
+      "Instalasi AC Cassette / Standing",
+    ],
+    ownerName: "Dewi Lestari",
+    memberNumber: "APTI-2026-0006",
+    isPublished: true,
+    rating: 4.92,
+    completedJobs: 290,
+  },
+  {
     id: "ws-1",
     workshopName: "CV Surya Mandiri Teknik",
     tagline: "Spesialis Servis AC Inverter & VRV Komersial Bergaransi",
@@ -271,6 +354,45 @@ function parseSkillLevel(rawLevel: string): SkillTierInfo {
     color: "#6366f1",
     bgClass: "tier-level-1",
     icon: Sparkles,
+  };
+}
+
+function getTechWorkshop(tech: Technician, wsList: MemberWorkshop[]): MemberWorkshop {
+  const match = wsList.find(
+    (w) =>
+      (tech.ktaNumber && w.memberNumber && w.memberNumber.toLowerCase() === tech.ktaNumber.toLowerCase()) ||
+      (tech.name && w.ownerName && w.ownerName.toLowerCase().includes(tech.name.toLowerCase())) ||
+      (tech.name && w.workshopName && w.workshopName.toLowerCase().includes(tech.name.toLowerCase())) ||
+      (tech.workshopName && w.workshopName && w.workshopName.toLowerCase().includes(tech.workshopName.toLowerCase())),
+  );
+
+  if (match) return match;
+
+  return {
+    id: `ws-auto-${tech.id}`,
+    workshopName: tech.workshopName || `Bengkel AC & Pendingin ${tech.name}`,
+    tagline: `Pusat Layanan Servis & Instalasi Pendingin Resmi Terdaftar`,
+    category: tech.skillLevel.includes("4") || tech.skillLevel.toLowerCase().includes("vrv") || tech.skillLevel.toLowerCase().includes("chiller")
+      ? "Bengkel Spesialis AC Komersial (VRV/VRF/Chiller)"
+      : "Bengkel Servis AC Residensial & Rumah Tangga",
+    city: tech.city,
+    province: tech.province,
+    address: `${tech.city}, ${tech.province}`,
+    whatsapp: tech.phone || "081234567890",
+    phone: tech.phone || "081234567890",
+    operatingHours: "Senin - Sabtu: 08.00 - 17.30 | Siap 24 Jam",
+    description: `Bengkel dan pusat layanan tata udara resmi bergaransi di bawah tanggung jawab ${tech.name} (KTA: ${tech.ktaNumber}). Menerapkan SOP vakum wajib dan SOP recovery freon standar organisasi.`,
+    services: [
+      "Cuci AC Inverter Bebas Bau",
+      "Vakum Standar SKKNI (Dua Tahap)",
+      "Recovery Freon R32 / R410A",
+      "Uji Tekanan Nitrogen K3",
+    ],
+    ownerName: tech.name,
+    memberNumber: tech.ktaNumber,
+    isPublished: true,
+    rating: Number(tech.rating) || 4.9,
+    googleMapsUrl: `${tech.city}, ${tech.province}`,
   };
 }
 
@@ -692,6 +814,29 @@ function TechniciansContent() {
           {/* Results Grid: Tab 1 (Technicians) */}
           {activeTab === "technicians" && (
             <>
+              {search.trim() && filteredTechs.length > 0 && (
+                <div className="search-match-smart-banner">
+                  <div className="smart-banner-copy">
+                    <Sparkles size={16} color="#0284c7" />
+                    <span>
+                      Ditemukan <strong>{filteredTechs.length} teknisi resmi</strong> untuk kata kunci <em>&quot;{search}&quot;</em>. Klik kartu untuk melihat profil lengkap bengkel &amp; peta operasional.
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-switch-workshop-tab"
+                    onClick={() => {
+                      setActiveTab("workshops");
+                      updateUrl(search, selectedProvince, selectedSkill, onlyBnsp, "workshops");
+                    }}
+                  >
+                    <Store size={13} />
+                    <span>Lihat Bursa Bengkel</span>
+                    <ArrowRight size={12} />
+                  </button>
+                </div>
+              )}
+
               {isLoading ? (
                 <div className="tech-loading-state">
                   <Loader2 size={36} className="animate-spin text-primary" />
@@ -762,13 +907,31 @@ function TechniciansContent() {
                           </div>
                         </button>
 
-                        {/* Workshop Name if present */}
-                        {tech.workshopName && (
-                          <div className="tech-workshop-box">
-                            <Wrench size={13} color="#0284c7" />
-                            <span className="truncate">{tech.workshopName}</span>
-                          </div>
-                        )}
+                        {/* Workshop & Business Profile Pill */}
+                        {(() => {
+                          const ws = getTechWorkshop(tech, workshops);
+                          return (
+                            <div
+                              className="tech-workshop-box-enhanced"
+                              onClick={() => setActiveTechModal(tech)}
+                              title="Buka profil lengkap & peta lokasi bengkel resmi"
+                            >
+                              <div className="ws-box-header">
+                                <Store size={12} color="#0284c7" />
+                                <strong className="ws-box-name truncate">
+                                  {ws.workshopName}
+                                </strong>
+                              </div>
+                              <div className="ws-box-footer">
+                                <span className="ws-cat-subtag truncate">{ws.category}</span>
+                                <span className="ws-view-link">
+                                  <span>Detail Usaha</span>
+                                  <ArrowRight size={10} />
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })()}
 
                         {/* SKKNI Scope Description */}
                         {(() => {
@@ -1141,17 +1304,126 @@ function TechniciansContent() {
                 </div>
               </div>
 
+              {/* Workshop / Business Profile Dossier Box */}
+              {(() => {
+                const ws = getTechWorkshop(activeTechModal, workshops);
+                const mapsQuery = encodeURIComponent(
+                  ws.googleMapsUrl || `${ws.address}, ${ws.city}, ${ws.province}, Indonesia`,
+                );
+                const mapsDirectUrl =
+                  ws.googleMapsUrl && ws.googleMapsUrl.startsWith("http")
+                    ? ws.googleMapsUrl
+                    : `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+
+                const cleanWa = (ws.whatsapp || activeTechModal.phone || "").replace(/\D/g, "");
+                const waOrderUrl = `https://wa.me/${cleanWa}?text=${encodeURIComponent(
+                  `Halo ${ws.workshopName} / Pak ${activeTechModal.name}, saya menemukan profil workshop Anda di Direktori Resmi APTI Indonesia. Saya ingin konsultasi/order servis.`,
+                )}`;
+
+                return (
+                  <div className="modal-tech-workshop-section">
+                    <div className="modal-workshop-section-header">
+                      <div className="section-title-left">
+                        <Store size={16} color="#0284c7" />
+                        <strong>Profil Usaha & Workshop Resmi</strong>
+                      </div>
+                      <span className="showcase-verified-badge">
+                        <ShieldCheck size={11} color="#10b981" />
+                        <span>Mitra Terverifikasi</span>
+                      </span>
+                    </div>
+
+                    <div className="modal-workshop-card-inner">
+                      <div className="inner-brand-row">
+                        <h5 className="modal-ws-title">{ws.workshopName}</h5>
+                        {ws.tagline && <p className="modal-ws-tagline">{ws.tagline}</p>}
+                      </div>
+
+                      <div className="inner-meta-grid">
+                        <div className="meta-cell">
+                          <MapPin size={12} color="#0284c7" />
+                          <span>{ws.address || `${ws.city}, ${ws.province}`}</span>
+                        </div>
+                        <div className="meta-cell">
+                          <Clock size={12} color="#64748b" />
+                          <span>{ws.operatingHours}</span>
+                        </div>
+                        {ws.website && (
+                          <div className="meta-cell">
+                            <Globe size={12} color="#0284c7" />
+                            <a
+                              href={ws.website.startsWith("http") ? ws.website : `https://${ws.website}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="modal-ws-web-link"
+                            >
+                              <span>{ws.website.replace(/^https?:\/\//, "")}</span>
+                              <ExternalLink size={10} />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Map Embed in Modal */}
+                      <div className="modal-workshop-map-box">
+                        <div className="map-top-bar">
+                          <small>
+                            <MapPin size={10} color="#0284c7" />
+                            <span>Titik Operasional: {ws.city}</span>
+                          </small>
+                          <a
+                            href={mapsDirectUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="map-nav-link"
+                          >
+                            <Navigation size={10} />
+                            <span>Buka Navigasi Rute Maps</span>
+                          </a>
+                        </div>
+                        <iframe
+                          title={`Peta Lokasi ${ws.workshopName}`}
+                          src={`https://maps.google.com/maps?q=${mapsQuery}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
+                          width="100%"
+                          height="110"
+                          loading="lazy"
+                          style={{ border: 0, display: "block", borderRadius: "8px" }}
+                          allowFullScreen={false}
+                        />
+                      </div>
+
+                      {/* Services Cloud */}
+                      {ws.services && ws.services.length > 0 && (
+                        <div className="modal-ws-services-wrap">
+                          <small>Spesialisasi Bengkel & Alat Kerja:</small>
+                          <div className="services-chips-row">
+                            {ws.services.map((srv) => (
+                              <span key={srv} className="showcase-service-pill">
+                                <Wrench size={10} color="#0284c7" />
+                                <span>{srv}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Actions Row */}
               <div className="modal-actions-row">
                 {activeTechModal.phone ? (
                   <a
-                    href={`https://wa.me/${activeTechModal.phone.replace(/[^0-9]/g, "")}`}
+                    href={`https://wa.me/${activeTechModal.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                      `Halo ${activeTechModal.name} (${activeTechModal.workshopName || "Teknisi Resmi"}), saya menemukan profil Anda di Direktori Resmi APTI Indonesia.`,
+                    )}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="button primary btn-modal-action"
                   >
                     <MessageSquare size={15} />
-                    <span>Hubungi via WhatsApp</span>
+                    <span>Hubungi Workshop via WhatsApp</span>
                   </a>
                 ) : (
                   <Link
