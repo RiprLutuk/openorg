@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { Resend } from "resend";
 import { config } from "../config";
 
@@ -86,10 +88,44 @@ async function sendWhatsAppMessage(
   }
 }
 
+function readEnvDirect(key: string): string | null {
+  try {
+    const candidates = [
+      resolve(process.cwd(), ".env"),
+      resolve(process.cwd(), "apps/api/.env"),
+      resolve(process.cwd(), "../../apps/api/.env"),
+    ];
+    for (const envPath of candidates) {
+      if (existsSync(envPath)) {
+        const content = readFileSync(envPath, "utf8");
+        const match = content.match(new RegExp(`^${key}=(.*)$`, "m"));
+        if (match && match[1]) {
+          return match[1].trim().replace(/^["']|["']$/g, "");
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
 function getResendClient(): Resend | null {
-  const apiKey = process.env.RESEND_API_KEY || config.RESEND_API_KEY;
+  const apiKey =
+    process.env.RESEND_API_KEY ||
+    config.RESEND_API_KEY ||
+    readEnvDirect("RESEND_API_KEY");
   if (!apiKey) return null;
   return new Resend(apiKey);
+}
+
+function getResendFrom(): string {
+  return (
+    process.env.RESEND_FROM ||
+    config.RESEND_FROM ||
+    readEnvDirect("RESEND_FROM") ||
+    "APTI Indonesia <no-reply@openorg.demo.pandanteknik.com>"
+  );
 }
 
 /**
@@ -103,10 +139,7 @@ export async function sendEmailMessage(
   const client = getResendClient();
   if (client) {
     try {
-      const from =
-        process.env.RESEND_FROM ||
-        config.RESEND_FROM ||
-        "onboarding@resend.dev";
+      const from = getResendFrom();
       const { data, error } = await client.emails.send({
         from,
         to,
@@ -115,12 +148,12 @@ export async function sendEmailMessage(
       });
       if (error) {
         process.stderr.write(
-          `[Resend Error] Failed to send email to ${to}: ${error.message}\n`,
+          `[Resend Error] Failed to send email to ${to} from ${from}: ${error.message}\n`,
         );
         return false;
       }
       process.stdout.write(
-        `[Resend Success] Email sent to ${to} (ID: ${data?.id})\n`,
+        `[Resend Success] Email sent to ${to} from ${from} (ID: ${data?.id})\n`,
       );
       return true;
     } catch (err) {
