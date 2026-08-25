@@ -1,7 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { pageSectionsSchema, paginationSchema } from "@openorg/contracts";
+import {
+  findProvince,
+  pageSectionsSchema,
+  paginationSchema,
+} from "@openorg/contracts";
 import { and, asc, desc, eq, gt, gte, ilike, or, sql } from "drizzle-orm";
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
@@ -168,12 +172,24 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       .from(pages)
       .where(and(eq(pages.isHomepage, true), eq(pages.status, "published")))
       .limit(1);
-    if (!page)
-      throw new AppError(
-        404,
-        "PAGE_NOT_FOUND",
-        "Homepage has not been published yet.",
-      );
+
+    if (!page) {
+      return {
+        data: {
+          id: "home",
+          title: "APTI Indonesia",
+          slug: "home",
+          excerpt:
+            "Platform Resmi Asosiasi Pengusaha & Teknisi Pendingin Indonesia",
+          isHomepage: true,
+          status: "published",
+          sections: [],
+          seo: {},
+          updatedAt: new Date().toISOString(),
+        },
+      };
+    }
+
     return {
       data: { ...page, sections: pageSectionsSchema.parse(page.sections) },
     };
@@ -982,10 +998,14 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
 
     if (query.province?.trim()) {
       const p = query.province.trim();
+      const provMatch = findProvince(p);
+      const provCode = provMatch?.kode || p;
       conditions.push(
         or(
+          eq(indonesiaRegencies.provinceKode, provCode),
           eq(indonesiaRegencies.provinceKode, p),
           ilike(indonesiaRegencies.provinceKode, p),
+          sql`${indonesiaRegencies.provinceKode} IN (SELECT kode FROM indonesia_provinces WHERE nama ILIKE ${'%' + p + '%'})`,
         ),
       );
     }
@@ -1025,20 +1045,28 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
 
     if (query.regency?.trim()) {
       const r = query.regency.trim();
+      const cleanR = r
+        .replace(/^(kabupaten|kota adm\.|kota administrasi|kota|kab\.)\s+/i, "")
+        .trim();
       conditions.push(
         or(
           eq(indonesiaDistricts.regencyKode, r),
           ilike(indonesiaDistricts.regencyKode, r),
+          sql`${indonesiaDistricts.regencyKode} IN (SELECT kode FROM indonesia_regencies WHERE nama ILIKE ${'%' + cleanR + '%'} OR nama ILIKE ${'%' + r + '%'})`,
         ),
       );
     }
 
     if (query.province?.trim()) {
       const p = query.province.trim();
+      const provMatch = findProvince(p);
+      const provCode = provMatch?.kode || p;
       conditions.push(
         or(
+          eq(indonesiaDistricts.provinceKode, provCode),
           eq(indonesiaDistricts.provinceKode, p),
           ilike(indonesiaDistricts.provinceKode, p),
+          sql`${indonesiaDistricts.provinceKode} IN (SELECT kode FROM indonesia_provinces WHERE nama ILIKE ${'%' + p + '%'})`,
         ),
       );
     }
@@ -1078,20 +1106,26 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
 
     if (query.district?.trim()) {
       const d = query.district.trim();
+      const cleanD = d.replace(/^(kecamatan|kec\.)\s+/i, "").trim();
       conditions.push(
         or(
           eq(indonesiaVillages.districtKode, d),
           ilike(indonesiaVillages.districtKode, d),
+          sql`${indonesiaVillages.districtKode} IN (SELECT kode FROM indonesia_districts WHERE nama ILIKE ${'%' + cleanD + '%'} OR nama ILIKE ${'%' + d + '%'})`,
         ),
       );
     }
 
     if (query.regency?.trim()) {
       const r = query.regency.trim();
+      const cleanR = r
+        .replace(/^(kabupaten|kota adm\.|kota administrasi|kota|kab\.)\s+/i, "")
+        .trim();
       conditions.push(
         or(
           eq(indonesiaVillages.regencyKode, r),
           ilike(indonesiaVillages.regencyKode, r),
+          sql`${indonesiaVillages.regencyKode} IN (SELECT kode FROM indonesia_regencies WHERE nama ILIKE ${'%' + cleanR + '%'} OR nama ILIKE ${'%' + r + '%'})`,
         ),
       );
     }
