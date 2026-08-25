@@ -309,47 +309,46 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
               <div className="verification-simulator-card">
                 <div className="sim-header">
                   <div className="sim-badge">
-                    <Sparkles size={14} />
+                    <Sparkles size={13} />
                     <span>Mesin Verifikasi ComplyFlow</span>
                   </div>
-                  <h3>Uji Keaslian KTA & Kredensial</h3>
+                  <h3>Uji Keaslian KTA &amp; Kredensial</h3>
                   <p>
-                    Ketik nomor KTA atau pilih sampel di bawah untuk menguji
-                    sistem validasi real-time.
+                    Ketik nomor KTA atau pilih sampel di bawah untuk menguji validasi real-time.
                   </p>
                 </div>
 
                 <div className="sim-input-row">
                   <div className="sim-input-wrap">
-                    <Search size={16} className="sim-search-icon" />
+                    <Search size={15} className="sim-search-icon" />
                     <input
                       id="hero-verify-input"
                       name="heroVerifyInput"
                       type="text"
                       value={verifyInput}
                       onChange={(e) => setVerifyInput(e.target.value)}
-                      placeholder="Contoh: KTA-2026-08892"
-                      aria-label="Contoh nomor KTA untuk simulasi verifikasi"
+                      placeholder="Ketik No. KTA / SKP..."
+                      aria-label="Nomor KTA atau sertifikat SKP untuk simulasi verifikasi"
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleSimulateVerify();
                       }}
                     />
+                    <button
+                      type="button"
+                      className="btn-sim-verify"
+                      onClick={() => handleSimulateVerify()}
+                      disabled={verifyResult.status === "searching"}
+                    >
+                      {verifyResult.status === "searching"
+                        ? "Mengecek…"
+                        : "Verifikasi"}
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className="btn-sim-verify"
-                    onClick={() => handleSimulateVerify()}
-                    disabled={verifyResult.status === "searching"}
-                  >
-                    {verifyResult.status === "searching"
-                      ? "Mengecek…"
-                      : "Verifikasi"}
-                  </button>
                 </div>
 
                 {/* Sample quick-fill chips */}
                 <div className="sim-sample-chips">
-                  <small>Coba nomor sampel:</small>
+                  <small>Coba sampel:</small>
                   <button
                     type="button"
                     className="sample-chip"
@@ -372,22 +371,39 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
                   </button>
                 </div>
 
-                {/* Result Card Preview */}
+                {/* Result Card Preview: Clean Verified Identity Dossier */}
                 {verifyResult.status === "valid" && (
                   <div className="sim-result-box valid-enter">
                     <div className="sim-result-top">
-                      <span className="valid-pill">
-                        <CheckCircle2 size={14} /> Keabsahan Terkonfirmasi
-                      </span>
-                      <small className="timestamp">Real-time Validated</small>
+                      <div className="valid-pill">
+                        <CheckCircle2 size={13} className="text-emerald-600" />
+                        <span>Keabsahan Terkonfirmasi</span>
+                      </div>
+                      <span className="sim-timestamp">Real-time Validated</span>
                     </div>
-                    <div className="sim-result-body">
-                      <h4>{verifyResult.name}</h4>
-                      <p>{verifyResult.role}</p>
-                      <div className="sim-result-tags">
-                        <span>No: {verifyResult.number}</span>
-                        <span>Masa Berlaku: {verifyResult.expiry}</span>
-                        <span>Unit: {verifyResult.unit}</span>
+
+                    <div className="sim-result-profile">
+                      <div className="sim-result-avatar">
+                        {verifyResult.name?.split(" ").slice(0, 2).map((n) => n[0]).join("") || "ID"}
+                      </div>
+                      <div className="sim-result-identity">
+                        <strong className="sim-result-name">{verifyResult.name}</strong>
+                        <span className="sim-result-role">{verifyResult.role}</span>
+                      </div>
+                    </div>
+
+                    <div className="sim-result-grid">
+                      <div className="sim-meta-item">
+                        <small>NO. KREDENSIAL</small>
+                        <span className="sim-meta-code">{verifyResult.number}</span>
+                      </div>
+                      <div className="sim-meta-item">
+                        <small>MASA BERLAKU</small>
+                        <span className="sim-meta-valid">{verifyResult.expiry} (Aktif)</span>
+                      </div>
+                      <div className="sim-meta-item full-width">
+                        <small>UNIT KERJA / PENERBIT</small>
+                        <span>{verifyResult.unit}</span>
                       </div>
                     </div>
                   </div>
