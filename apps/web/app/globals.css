@@ -3722,8 +3722,12 @@ img {
   .portal-panel,
   .portal-card-section,
   .portal-credentials-section,
-  .portal-learning-section {
-    padding: 20px;
+  .portal-learning-section,
+  .portal-workshop-promo-section {
+    padding: 16px 14px;
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: hidden;
   }
   .member-credit-balances,
   .member-learning-grid {
@@ -21221,6 +21225,9 @@ img {
   padding: 28px;
   margin-top: 32px;
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .benefit-badge-pill {
@@ -21257,11 +21264,16 @@ img {
   grid-template-columns: 1.15fr 0.85fr;
   gap: 32px;
   margin-top: 24px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1024px) {
   .workshop-promo-layout-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 }
 
@@ -21269,6 +21281,10 @@ img {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .workshop-promo-form label {
@@ -21278,6 +21294,10 @@ img {
   font-size: 13px;
   font-weight: 600;
   color: #334155;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .workshop-promo-form input[type="text"],
@@ -21291,6 +21311,10 @@ img {
   font-size: 13.5px;
   outline: none;
   transition: all 0.15s ease;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .workshop-promo-form input:focus,
@@ -21305,11 +21329,21 @@ img {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .portal-workshop-promo-section {
+    padding: 16px 14px !important;
+    margin-top: 20px !important;
+    border-radius: 14px !important;
+  }
   .form-row-2 {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
   }
 }
 
@@ -21320,6 +21354,9 @@ img {
   flex-direction: column;
   gap: 6px;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .searchable-multi-select-label {
@@ -21332,14 +21369,18 @@ img {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   min-height: 46px;
-  padding: 6px 12px;
+  padding: 6px 10px;
   background: #f8fafc;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
   cursor: text;
   transition: all 0.15s ease;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .searchable-multi-select-box.focused {
@@ -21353,9 +21394,11 @@ img {
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  max-width: 100%;
   padding: 2px 0;
+  box-sizing: border-box;
 }
 
 .searchable-tag-chip {
@@ -21370,6 +21413,8 @@ img {
   font-size: 12px;
   font-weight: 600;
   line-height: 1.2;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .searchable-tag-chip .tag-icon {
@@ -21378,10 +21423,16 @@ img {
 }
 
 .searchable-tag-chip .tag-text {
-  max-width: 220px;
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .searchable-tag-chip .tag-text {
+    max-width: 110px;
+  }
 }
 
 .searchable-tag-chip .tag-remove-btn {
@@ -21396,6 +21447,7 @@ img {
   cursor: pointer;
   padding: 0;
   transition: all 0.1s ease;
+  flex-shrink: 0;
 }
 
 .searchable-tag-chip .tag-remove-btn:hover {
@@ -21407,9 +21459,11 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex: 1;
-  min-width: 160px;
+  flex: 1 1 60px;
+  min-width: 50px;
+  max-width: 100%;
   padding: 2px 0;
+  box-sizing: border-box;
 }
 
 .search-inline-icon {
@@ -21425,8 +21479,10 @@ img {
   font-size: 13px !important;
   color: #0f172a !important;
   width: 100% !important;
-  min-width: 100px !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
   padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .search-inline-input::placeholder {
@@ -21436,10 +21492,10 @@ img {
 .searchable-multi-select-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-shrink: 0;
   color: #64748b;
-  padding-top: 4px;
+  padding-top: 2px;
 }
 
 .clear-all-tags-btn {
@@ -21607,6 +21663,9 @@ img {
   flex-direction: column;
   gap: 6px;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .searchable-single-select-box {
@@ -21622,6 +21681,10 @@ img {
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .searchable-single-select-box.focused {

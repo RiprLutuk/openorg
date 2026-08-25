@@ -1318,6 +1318,9 @@ function MemberWorkshopPromo({
   );
   const [province, setProvince] = useState(existingMeta.province || "DKI Jakarta");
   const [city, setCity] = useState(existingMeta.city || "Kota Administrasi Jakarta Selatan");
+  const [postalCode, setPostalCode] = useState(
+    existingMeta.postalCode || "12110",
+  );
   const [address, setAddress] = useState(
     existingMeta.address || member.address || "Jl. Raya Workshop Pendingin No. 18",
   );
@@ -1359,7 +1362,7 @@ function MemberWorkshopPromo({
     return getProvinces().map((p) => ({
       value: p.nama,
       label: p.nama,
-      sublabel: `Ibukota: ${p.ibukota} (Kode: ${p.kode})`,
+      sublabel: `Ibukota: ${p.ibukota} · Kode Pos: ${p.kodeposRange}`,
     }));
   }, []);
 
@@ -1367,15 +1370,29 @@ function MemberWorkshopPromo({
     return getRegenciesByProvince(province).map((r) => ({
       value: r.nama,
       label: r.nama,
-      sublabel: `Ibukota: ${r.ibukota}`,
+      sublabel: `Ibukota: ${r.ibukota} · Kode Pos: ${r.kodeposRange || r.kodepos}`,
     }));
   }, [province]);
 
   const handleProvinceChange = (newProv: string) => {
     setProvince(newProv);
     const availableRegs = getRegenciesByProvince(newProv);
+    const firstReg = availableRegs[0];
     if (!availableRegs.some((r) => r.nama === city)) {
-      setCity(availableRegs[0]?.nama || "");
+      const selectedReg = firstReg?.nama || "";
+      setCity(selectedReg);
+      if (firstReg?.kodepos) {
+        setPostalCode(firstReg.kodepos);
+      }
+    }
+  };
+
+  const handleCityChange = (newCity: string) => {
+    setCity(newCity);
+    const regs = getRegenciesByProvince(province);
+    const foundReg = regs.find((r) => r.nama === newCity);
+    if (foundReg?.kodepos) {
+      setPostalCode(foundReg.kodepos);
     }
   };
 
@@ -1395,6 +1412,7 @@ function MemberWorkshopPromo({
       category,
       city: city.trim(),
       province: province.trim(),
+      postalCode: postalCode.trim(),
       address: address.trim(),
       phone: phone.trim(),
       whatsapp: whatsapp.trim(),
@@ -1547,21 +1565,33 @@ function MemberWorkshopPromo({
               placeholder={`Pilih Kota/Kabupaten (${regencyOptions.length} wilayah)…`}
               options={regencyOptions}
               value={city}
-              onChange={setCity}
+              onChange={handleCityChange}
               disabled={regencyOptions.length === 0}
             />
           </div>
 
-          <label>
-            Alamat Lengkap Workshop / Toko *
-            <input
-              type="text"
-              required
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Jl. Raya Utama No. 123"
-            />
-          </label>
+          <div className="form-row-2">
+            <label>
+              Alamat Lengkap Workshop / Toko *
+              <input
+                type="text"
+                required
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Jl. Raya Utama No. 123"
+              />
+            </label>
+            <label>
+              Kode Pos Wilayah *
+              <input
+                type="text"
+                required
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                placeholder="Contoh: 12110"
+              />
+            </label>
+          </div>
 
           <div className="form-row-2">
             <label>
