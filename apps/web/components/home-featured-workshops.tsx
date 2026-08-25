@@ -619,9 +619,41 @@ export function HomeFeaturedWorkshops() {
           </p>
         </div>
 
-        {/* Dedicated Toolbar: Category Filter Chips on Left + Controls on Right */}
+        {/* Dedicated Toolbar: Unified Filters on Left + Clean Tools on Right */}
         <div className="ws-showcase-toolbar">
           <div className="ws-category-chips-row">
+            {/* Geolocation / Nearby Scope Toggle as Primary Pill */}
+            {geoState.status === "active" ? (
+              <button
+                type="button"
+                className={`btn-geo-location ${onlyNearby ? "active" : ""}`}
+                onClick={() => setOnlyNearby((prev) => !prev)}
+                title={
+                  onlyNearby
+                    ? "Sedang menampilkan bengkel terdekat. Klik untuk melihat seluruh Indonesia."
+                    : "Sedang menampilkan seluruh Indonesia. Klik untuk menyaring bengkel terdekat saja."
+                }
+              >
+                <MapPin size={12} />
+                <span>
+                  {onlyNearby
+                    ? `Wilayah Anda (${nearbyCount || filtered.length})`
+                    : "Seluruh Indonesia (16)"}
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn-geo-location"
+                onClick={requestUserLocation}
+                disabled={geoState.status === "requesting"}
+                title="Deteksi lokasi saya untuk menampilkan bengkel terdekat di wilayah Anda"
+              >
+                <Compass size={12} className={geoState.status === "requesting" ? "animate-spin" : ""} />
+                <span>{geoState.status === "requesting" ? "Mendeteksi..." : "📍 Dekat Saya"}</span>
+              </button>
+            )}
+
             <button
               type="button"
               className={`ws-cat-filter-btn ${selectedCat === "all" ? "active" : ""}`}
@@ -642,38 +674,6 @@ export function HomeFeaturedWorkshops() {
           </div>
 
           <div className="ws-carousel-controls-group">
-            {/* Geolocation / Nearby Scope Toggle */}
-            {geoState.status === "active" ? (
-              <button
-                type="button"
-                className={`btn-geo-location ${onlyNearby ? "active" : ""}`}
-                onClick={() => setOnlyNearby((prev) => !prev)}
-                title={
-                  onlyNearby
-                    ? "Sedang menampilkan bengkel terdekat. Klik untuk melihat seluruh Indonesia."
-                    : "Sedang menampilkan seluruh Indonesia. Klik untuk menyaring bengkel terdekat saja."
-                }
-              >
-                <MapPin size={13} />
-                <span>
-                  {onlyNearby
-                    ? `📍 Wilayah Anda (${nearbyCount || filtered.length})`
-                    : "🌐 Seluruh Indonesia (16)"}
-                </span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="btn-geo-location"
-                onClick={requestUserLocation}
-                disabled={geoState.status === "requesting"}
-                title="Deteksi lokasi saya untuk menampilkan bengkel terdekat di wilayah Anda"
-              >
-                <Compass size={13} className={geoState.status === "requesting" ? "animate-spin" : ""} />
-                <span>{geoState.status === "requesting" ? "Mendeteksi..." : "📍 Dekat Saya"}</span>
-              </button>
-            )}
-
             {/* Fair Shuffle */}
             <button
               type="button"
@@ -681,7 +681,7 @@ export function HomeFeaturedWorkshops() {
               onClick={handleShuffle}
               title="Acak urutan tampilan agar rotasi promosi adil bagi semua anggota"
             >
-              <Shuffle size={13} />
+              <Shuffle size={12} />
               <span>Acak</span>
             </button>
 
@@ -693,7 +693,7 @@ export function HomeFeaturedWorkshops() {
               title={isAutoPlay ? "Jeda Auto-Scroll" : "Mulai Auto-Scroll Otomatis"}
               aria-label="Toggle Auto-Scroll"
             >
-              {isAutoPlay ? <Pause size={13} /> : <Play size={13} />}
+              {isAutoPlay ? <Pause size={12} /> : <Play size={12} />}
               <span>{isAutoPlay ? "Auto" : "Jeda"}</span>
             </button>
 
@@ -704,7 +704,7 @@ export function HomeFeaturedWorkshops() {
                 onClick={() => handleScroll("left")}
                 aria-label="Geser ke kiri"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={15} />
               </button>
               <button
                 type="button"
@@ -712,13 +712,12 @@ export function HomeFeaturedWorkshops() {
                 onClick={() => handleScroll("right")}
                 aria-label="Geser ke kanan"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={15} />
               </button>
             </div>
 
-            <Link href="/bengkel" className="button primary btn-view-all-hero">
-              <span>Bursa Lengkap</span>
-              <ArrowRight size={14} />
+            <Link href="/bengkel" className="ws-link-all-desktop">
+              <span>Semua Bengkel →</span>
             </Link>
           </div>
         </div>
