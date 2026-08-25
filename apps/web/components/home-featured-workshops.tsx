@@ -608,13 +608,12 @@ export function HomeFeaturedWorkshops() {
           </Link>
           <h2>Jaringan Bengkel &amp; Toko Mitra Anggota</h2>
           <p>
-            {geoState.status === "active" ? (
-              <span className="ws-geo-active-text">
-                📍 Menampilkan {filtered.length} bengkel &amp; toko resmi di sekitar {geoState.nearestCity || "lokasi Anda"}
-                {onlyNearby && nearbyCount > 0 ? ` (Radius < ${MAX_NEARBY_RADIUS_KM} km)` : " (Seluruh Indonesia)"}.
+            16+ bengkel AC resmi, klinik modul inverter &amp; penyedia suku cadang berlisensi di seluruh Indonesia.
+            {geoState.status === "active" && (
+              <span className="ws-geo-meta-hint">
+                📍 Menampilkan {filtered.length} bengkel terdekat di {geoState.nearestCity || "wilayah Anda"}
+                {onlyNearby && nearbyCount > 0 ? ` (radius < ${MAX_NEARBY_RADIUS_KM} km)` : " (seluruh Indonesia)"}.
               </span>
-            ) : (
-              `${workshops.length}+ bengkel AC resmi, klinik modul inverter & penyedia suku cadang berlisensi di seluruh Indonesia.`
             )}
           </p>
         </div>
