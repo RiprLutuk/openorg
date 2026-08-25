@@ -268,51 +268,21 @@ function RegulationsContent() {
 
   return (
     <div className="regulations-page-suite">
-      {/* 1. Flagship 2-Column Split Hero Header */}
-      <header className="reg-hero">
-        <div className="wrap">
-          {/* Breadcrumb Navigation Strip */}
-          <nav className="reg-breadcrumbs" aria-label="Breadcrumb" style={{ marginBottom: "1rem" }}>
-            <Link href="/" className="crumb-link">
-              Beranda
-            </Link>
-            <ChevronRight size={13} className="crumb-sep" />
-            <Link
-              href="/regulations"
-              className={`crumb-link ${activeTab === "all" ? "active" : ""}`}
-              onClick={(e) => {
-                if (activeTab !== "all") {
-                  e.preventDefault();
-                  handleTabChange("all");
-                }
-              }}
-            >
-              Regulasi & Kebijakan
-            </Link>
-            {activeTab !== "all" && (
-              <>
-                <ChevronRight size={13} className="crumb-sep" />
-                <span className="crumb-current">
-                  {categoryLabels[activeTab]?.label || activeTab}
-                </span>
-              </>
-            )}
-          </nav>
-        </div>
-
-        <div className="wrap reg-hero-grid">
-          <div className="reg-hero-inner">
-            <div className="reg-hero-pill">
+      {/* 1. Flagship Unified Short & Compact 2-Column Split Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
               <BookOpen size={14} />
               <span>{headerInfo.badge}</span>
             </div>
 
-            <h1 className="reg-hero-title">
+            <h1 className="tech-hero-title">
               {headerInfo.title}
               <span className="text-gradient">{headerInfo.highlight}</span>
             </h1>
 
-            <p className="reg-hero-lead">{headerInfo.lead}</p>
+            <p className="tech-hero-lead">{headerInfo.lead}</p>
           </div>
 
           {/* Right Column: Hero Metrics Bento Card */}
@@ -337,12 +307,12 @@ function RegulationsContent() {
               >
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
                 >
                   <Scale size={20} />
                 </div>
                 <div>
-                  <strong>{govCount || 5} Regulasi SNI/KLHK</strong>
+                  <strong>{govCount || 5} Regulasi SNI</strong>
                   <small>Standar Wajib</small>
                 </div>
               </div>
@@ -362,7 +332,7 @@ function RegulationsContent() {
               >
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
                 >
                   <FileCheck2 size={20} />
                 </div>
@@ -387,7 +357,7 @@ function RegulationsContent() {
               >
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
                 >
                   <FileText size={20} />
                 </div>
@@ -412,7 +382,7 @@ function RegulationsContent() {
               >
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
                 >
                   <ShieldCheck size={20} />
                 </div>
@@ -425,46 +395,6 @@ function RegulationsContent() {
           </div>
         </div>
       </header>
-
-      {/* 1.5 Quick Link to Constitution / AD-ART */}
-      <div className="wrap" style={{ marginTop: "1.5rem" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "1rem",
-            padding: "1rem 1.25rem",
-            background: "rgba(2, 132, 199, 0.05)",
-            border: "1px solid rgba(2, 132, 199, 0.18)",
-            borderRadius: "12px",
-            flexWrap: "wrap",
-          }}
-        >
-          <div
-            style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
-          >
-            <FileText size={20} color="#0284c7" />
-            <div>
-              <strong style={{ fontSize: "0.95rem", color: "#0f172a" }}>
-                Mencari Anggaran Dasar & Anggaran Rumah Tangga (AD/ART)?
-              </strong>
-              <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b" }}>
-                Naskah konstitusi organisasi, SK Kemenkumham, dan 9 Butir Pakta
-                Integritas tersedia di halaman khusus.
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/ad-art"
-            className="button primary"
-            style={{ padding: "0.5rem 1rem", fontSize: "0.85rem" }}
-          >
-            <span>Buka Halaman AD/ART</span>
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-      </div>
 
       {/* 2. Main Content & Search Controls */}
       <section className="reg-body section-space">
