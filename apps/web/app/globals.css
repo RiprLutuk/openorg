@@ -5360,63 +5360,98 @@ img {
   border-radius: 5px;
 }
 
+/* Card 3: Governance Tree Hierarchy */
 .bento-widget-hierarchy {
-  background: #f8fafc;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 22px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.hierarchy-tree-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
-.node-item {
-  padding: 5px 12px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  display: flex;
+.tree-node.root-node {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 4px 10px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 7px;
 }
 
-.node-item.dpp {
-  background: #7c3aed;
-  color: #ffffff;
+.tree-node.root-node .node-title {
+  font-size: 11.5px;
+  font-weight: 750;
+  color: #0f172a;
 }
 
-.node-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
+.tree-node.root-node .node-tag {
+  font-size: 9px;
+  font-weight: 700;
+  color: #0284c7;
+  background: #ffffff;
+  border: 1px solid #bae6fd;
+  padding: 1px 5px;
+  border-radius: 4px;
 }
 
-.node-line {
-  width: 2px;
-  height: 10px;
+.tree-connector {
+  width: 1.5px;
+  height: 8px;
   background: #cbd5e1;
 }
 
-.node-branches {
+.tree-children {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.node-item.dpd {
-  background: #ffffff;
+.tree-node.child-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 650;
   color: #334155;
 }
 
+.tree-node.child-node.tag-more {
+  background: #f1f5f9;
+  color: #0284c7;
+  font-weight: 700;
+  border-color: #cbd5e1;
+}
+
+.node-bullet {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #0284c7;
+}
+
+/* Card 4: Realtime Audit Certificate Snippet */
 .bento-widget-audit {
-  background: #f8fafc;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 22px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
 }
 
 .audit-scanner-box {
@@ -5425,17 +5460,29 @@ img {
   gap: 12px;
 }
 
-.qr-icon {
-  color: #d97706;
-  padding: 6px;
-  background: #fef3c7;
+.audit-qr-frame {
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
 }
 
 .audit-details {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+}
+
+.audit-meta-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .audit-title {
@@ -5444,18 +5491,30 @@ img {
   color: #64748b;
 }
 
-.audit-hash {
-  font-size: 12.5px;
-  color: #0f172a;
+.audit-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 750;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 1px 5px;
+  border-radius: 4px;
 }
 
-.audit-status {
-  font-size: 11px;
-  font-weight: 750;
-  color: #16a34a;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.audit-hash {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.audit-sub {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .bento-card-footer {

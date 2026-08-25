@@ -3,6 +3,7 @@
 import {
   ArrowRight,
   BookOpen,
+  Building2,
   CheckCircle2,
   ChevronRight,
   Network,
@@ -140,21 +141,27 @@ export function InteractiveBentoServices() {
                 (DPP) hingga DPD Provinsi dan Korwil.
               </p>
 
-              {/* Visual Micro-Widget: Hierarchy Nodes */}
+              {/* Visual Micro-Widget: Clean Governance Tree Node */}
               <div className="bento-widget-hierarchy">
-                <div className="node-item dpp">
-                  <span className="node-dot" />
-                  <span>DPP PUSAT · Dewan Pengurus</span>
-                </div>
-                <div className="node-line" />
-                <div className="node-branches">
-                  <div className="node-item dpd">
-                    <span className="node-dot" />
-                    <span>DPD JAWA BARAT</span>
+                <div className="hierarchy-tree-wrap">
+                  <div className="tree-node root-node">
+                    <Building2 size={13} className="text-sky-600" />
+                    <span className="node-title">DPP PUSAT · Pengurus</span>
+                    <span className="node-tag">Nasional</span>
                   </div>
-                  <div className="node-item dpd">
-                    <span className="node-dot" />
-                    <span>DPD JAWA TIMUR</span>
+                  <div className="tree-connector" />
+                  <div className="tree-children">
+                    <div className="tree-node child-node">
+                      <span className="node-bullet" />
+                      <span>DPD Jabar</span>
+                    </div>
+                    <div className="tree-node child-node">
+                      <span className="node-bullet" />
+                      <span>DPD Jatim</span>
+                    </div>
+                    <div className="tree-node child-node tag-more">
+                      <span>+12 DPD</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -184,20 +191,21 @@ export function InteractiveBentoServices() {
                 lisensi profesi teknisi di lapangan secara transparan.
               </p>
 
-              {/* Visual Micro-Widget: QR Scanner & Seal Preview */}
+              {/* Visual Micro-Widget: Clean Realtime Audit Certificate Snippet */}
               <div className="bento-widget-audit">
                 <div className="audit-scanner-box">
-                  <QrCode size={26} className="qr-icon" />
+                  <div className="audit-qr-frame">
+                    <QrCode size={22} className="text-slate-800" />
+                  </div>
                   <div className="audit-details">
-                    <span className="audit-title">
-                      Kredensial Resmi Terdaftar
-                    </span>
-                    <strong className="audit-hash">
-                      ID: CERT-BNSP-2026-0941
-                    </strong>
-                    <span className="audit-status">
-                      <CheckCircle2 size={12} /> Diaudit &amp; Valid Terverifikasi
-                    </span>
+                    <div className="audit-meta-header">
+                      <span className="audit-title">Kredensial BNSP Terdaftar</span>
+                      <span className="audit-status-badge">
+                        <CheckCircle2 size={11} /> Sah
+                      </span>
+                    </div>
+                    <strong className="audit-hash">CERT-BNSP-2026-0941</strong>
+                    <span className="audit-sub">Audit Real-time · SHA-256 Valid</span>
                   </div>
                 </div>
               </div>
