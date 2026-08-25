@@ -26,6 +26,7 @@ import {
   Search,
   ShieldCheck,
   Shuffle,
+  SlidersHorizontal,
   Sparkles,
   Star,
   Store,
@@ -285,6 +286,7 @@ function TechniciansContent() {
   });
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   // URL State Updater (Server-Friendly URL Search Params)
   const updateUrl = (params: {
@@ -455,6 +457,20 @@ function TechniciansContent() {
   const workshopCategories = useMemo(() => {
     return Array.from(new Set(workshops.map((w) => w.category).filter(Boolean)));
   }, [workshops]);
+
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (selectedProvince !== "all") count++;
+    if (selectedCity !== "all") count++;
+    if (activeTab === "technicians") {
+      if (selectedSkill !== "all") count++;
+      if (onlyBnsp) count++;
+    } else {
+      if (selectedWorkshopCat !== "all") count++;
+    }
+    if (userGeo) count++;
+    return count;
+  }, [selectedProvince, selectedCity, selectedSkill, selectedWorkshopCat, onlyBnsp, userGeo, activeTab]);
 
   const handleCopyKta = (e: React.MouseEvent, kta: string) => {
     e.stopPropagation();
@@ -711,124 +727,163 @@ function TechniciansContent() {
             </button>
           </div>
 
-          {/* Quick Location & GPS Action Bar */}
-          <div className="tech-location-quick-bar">
-            <div className="location-bar-left">
-              <span className="location-bar-label">
-                <MapPin size={14} className="text-sky-600" />
-                <span>Radius Wilayah:</span>
-              </span>
-              <div className="location-quick-chips">
+          {/* Compact Search & Filter Toolbar */}
+          <div className="tech-compact-toolbar">
+            {/* Search Input */}
+            <div className="tech-search-box-unified">
+              <Search size={16} className="search-icon" />
+              <input
+                id="technicians-search-input"
+                name="techniciansSearch"
+                type="text"
+                placeholder={
+                  activeTab === "technicians"
+                    ? "Cari nama teknisi, KTA, kota, atau spesialisasi..."
+                    : "Cari nama bengkel, sparepart, kota, layanan..."
+                }
+                value={search}
+                onChange={(e) => updateUrl({ q: e.target.value, page: 1 })}
+                aria-label="Pencarian direktori"
+              />
+              {search && (
                 <button
                   type="button"
-                  className={`loc-chip-btn ${selectedProvince === "all" && !userGeo ? "active" : ""}`}
-                  onClick={() => {
-                    handleClearLocation();
-                    updateUrl({ provinsi: "all", kota: "all", page: 1 });
-                  }}
+                  className="search-clear-btn"
+                  onClick={() => updateUrl({ q: "", page: 1 })}
+                  aria-label="Bersihkan pencarian"
                 >
-                  Semua Wilayah
-                </button>
-                <button
-                  type="button"
-                  className={`loc-chip-btn ${selectedProvince === "DKI Jakarta" ? "active" : ""}`}
-                  onClick={() => updateUrl({ provinsi: "DKI Jakarta", kota: "all", page: 1 })}
-                >
-                  DKI Jakarta
-                </button>
-                <button
-                  type="button"
-                  className={`loc-chip-btn ${selectedProvince === "Jawa Barat" ? "active" : ""}`}
-                  onClick={() => updateUrl({ provinsi: "Jawa Barat", kota: "all", page: 1 })}
-                >
-                  Jawa Barat
-                </button>
-                <button
-                  type="button"
-                  className={`loc-chip-btn ${selectedProvince === "Jawa Timur" ? "active" : ""}`}
-                  onClick={() => updateUrl({ provinsi: "Jawa Timur", kota: "all", page: 1 })}
-                >
-                  Jawa Timur
-                </button>
-                <button
-                  type="button"
-                  className={`loc-chip-btn ${selectedProvince === "Jawa Tengah" ? "active" : ""}`}
-                  onClick={() => updateUrl({ provinsi: "Jawa Tengah", kota: "all", page: 1 })}
-                >
-                  Jawa Tengah
-                </button>
-                <button
-                  type="button"
-                  className={`loc-chip-btn ${selectedProvince === "Sumatera Utara" ? "active" : ""}`}
-                  onClick={() => updateUrl({ provinsi: "Sumatera Utara", kota: "all", page: 1 })}
-                >
-                  Sumatera Utara
-                </button>
-                <button
-                  type="button"
-                  className={`loc-chip-btn ${selectedProvince === "Bali" ? "active" : ""}`}
-                  onClick={() => updateUrl({ provinsi: "Bali", kota: "all", page: 1 })}
-                >
-                  Bali &amp; Nusra
-                </button>
-              </div>
-            </div>
-
-            <div className="location-bar-right">
-              {userGeo ? (
-                <div className="tech-gps-active-badge">
-                  <LocateFixed size={14} className="animate-pulse text-emerald-600" />
-                  <span>GPS Aktif ({userGeo.lat.toFixed(2)}, {userGeo.lng.toFixed(2)})</span>
-                  <button
-                    type="button"
-                    className="gps-clear-btn"
-                    onClick={handleClearLocation}
-                    title="Nonaktifkan filter GPS"
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className="tech-gps-trigger-btn"
-                  onClick={handleDetectLocation}
-                  disabled={isLocating}
-                  title="Deteksi lokasi saat ini untuk menemukan bengkel/teknisi terdekat"
-                >
-                  {isLocating ? (
-                    <>
-                      <Loader2 size={14} className="animate-spin" />
-                      <span>Mencari Lokasi...</span>
-                    </>
-                  ) : (
-                    <>
-                      <LocateFixed size={14} />
-                      <span>📍 Lokasi Terdekat (GPS)</span>
-                    </>
-                  )}
+                  <X size={13} />
                 </button>
               )}
             </div>
+
+            {/* GPS Location Button */}
+            <button
+              type="button"
+              className={`btn-toolbar-gps ${userGeo ? "active" : ""}`}
+              onClick={userGeo ? handleClearLocation : handleDetectLocation}
+              disabled={isLocating}
+              title={userGeo ? "Nonaktifkan filter GPS" : "Cari di sekitar radius lokasi GPS Anda"}
+            >
+              {isLocating ? (
+                <Loader2 size={14} className="animate-spin text-sky-600" />
+              ) : (
+                <LocateFixed size={14} className={userGeo ? "text-emerald-600 animate-pulse" : "text-sky-600"} />
+              )}
+              <span className="btn-toolbar-text">{userGeo ? "GPS Aktif" : "Dekat Saya"}</span>
+            </button>
+
+            {/* Filter Toggle Button */}
+            <button
+              type="button"
+              className={`btn-toolbar-filter ${activeFiltersCount > 0 ? "has-filters" : ""}`}
+              onClick={() => setIsFilterModalOpen(true)}
+              aria-label="Buka filter lanjutan"
+            >
+              <SlidersHorizontal size={14} />
+              <span>Filter</span>
+              {activeFiltersCount > 0 && (
+                <span className="filter-count-badge">{activeFiltersCount}</span>
+              )}
+            </button>
           </div>
 
-          {/* Location Active Feedback / Error Notification */}
-          {userGeo && (
-            <div className="tech-location-banner">
-              <LocateFixed size={16} className="text-sky-600 flex-shrink-0" />
-              <span>
-                <strong>Mode Lokasi Terdekat Aktif:</strong> Menampilkan hasil diurutkan dari jarak terdekat ke posisi GPS Anda.
-              </span>
-              <button
-                type="button"
-                className="btn-text-clear-gps"
-                onClick={handleClearLocation}
-              >
-                Reset Urutan
-              </button>
+          {/* Active Filter Chips Bar (Only shown when filters are active) */}
+          {activeFiltersCount > 0 && (
+            <div className="active-filters-chips-bar">
+              <span className="active-filters-label">Filter:</span>
+              <div className="active-chips-scroll">
+                {userGeo && (
+                  <span className="active-filter-chip">
+                    <LocateFixed size={11} className="text-emerald-600" />
+                    <span>GPS Radius ({userGeo.lat.toFixed(1)}, {userGeo.lng.toFixed(1)})</span>
+                    <button type="button" onClick={handleClearLocation} title="Hapus filter GPS">
+                      <X size={11} />
+                    </button>
+                  </span>
+                )}
+                {selectedProvince !== "all" && (
+                  <span className="active-filter-chip">
+                    <span>Prov: {selectedProvince}</span>
+                    <button
+                      type="button"
+                      onClick={() => updateUrl({ provinsi: "all", kota: "all", page: 1 })}
+                      title="Hapus filter provinsi"
+                    >
+                      <X size={11} />
+                    </button>
+                  </span>
+                )}
+                {selectedCity !== "all" && (
+                  <span className="active-filter-chip">
+                    <span>Kota: {selectedCity}</span>
+                    <button
+                      type="button"
+                      onClick={() => updateUrl({ kota: "all", page: 1 })}
+                      title="Hapus filter kota"
+                    >
+                      <X size={11} />
+                    </button>
+                  </span>
+                )}
+                {activeTab === "technicians" && selectedSkill !== "all" && (
+                  <span className="active-filter-chip">
+                    <span>{selectedSkill}</span>
+                    <button
+                      type="button"
+                      onClick={() => updateUrl({ keahlian: "all", page: 1 })}
+                      title="Hapus filter keahlian"
+                    >
+                      <X size={11} />
+                    </button>
+                  </span>
+                )}
+                {activeTab === "technicians" && onlyBnsp && (
+                  <span className="active-filter-chip">
+                    <span>BNSP Certified</span>
+                    <button
+                      type="button"
+                      onClick={() => updateUrl({ bnsp: false, page: 1 })}
+                      title="Hapus filter BNSP"
+                    >
+                      <X size={11} />
+                    </button>
+                  </span>
+                )}
+                {activeTab === "workshops" && selectedWorkshopCat !== "all" && (
+                  <span className="active-filter-chip">
+                    <span>{selectedWorkshopCat.replace(/^Bengkel\s+/i, "")}</span>
+                    <button
+                      type="button"
+                      onClick={() => updateUrl({ kategori: "all", page: 1 })}
+                      title="Hapus filter kategori"
+                    >
+                      <X size={11} />
+                    </button>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  className="btn-clear-all-chips"
+                  onClick={() => {
+                    handleClearLocation();
+                    updateUrl({
+                      provinsi: "all",
+                      kota: "all",
+                      keahlian: "all",
+                      kategori: "all",
+                      bnsp: false,
+                      page: 1,
+                    });
+                  }}
+                >
+                  Reset Semua
+                </button>
+              </div>
             </div>
           )}
 
+          {/* Location Error Banner */}
           {locationError && (
             <div className="tech-location-error-banner">
               <MapPin size={15} className="text-amber-600 flex-shrink-0" />
@@ -840,179 +895,6 @@ function TechniciansContent() {
               >
                 Tutup
               </button>
-            </div>
-          )}
-
-          {/* Controls Bar: Search & Select Dropdowns */}
-          <div className="tech-controls-bar">
-            {/* Search Input */}
-            <div className="tech-search-box">
-              <Search size={17} className="search-icon" />
-              <input
-                id="technicians-search-input"
-                name="techniciansSearch"
-                type="text"
-                placeholder={
-                  activeTab === "technicians"
-                    ? "Cari nama teknisi, nomor KTA, kota, atau nama bengkel..."
-                    : "Cari nama bengkel/toko, keahlian, kota, atau nomor KTA pemilik..."
-                }
-                value={search}
-                onChange={(e) => {
-                  updateUrl({ q: e.target.value, page: 1 });
-                }}
-                aria-label="Pencarian direktori"
-              />
-              {search && (
-                <button
-                  type="button"
-                  className="search-clear-btn"
-                  onClick={() => {
-                    updateUrl({ q: "", page: 1 });
-                  }}
-                  aria-label="Bersihkan pencarian"
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-
-            {/* Filters Row */}
-            <div className="tech-filters-group">
-              {/* Province Select */}
-              <select
-                id="technicians-province-select"
-                name="techniciansProvince"
-                value={selectedProvince}
-                onChange={(e) => {
-                  updateUrl({ provinsi: e.target.value, kota: "all", page: 1 });
-                }}
-                className="tech-select-input"
-                aria-label="Filter berdasarkan provinsi"
-              >
-                <option value="all">
-                  Semua Provinsi ({provinces.length})
-                </option>
-                {provinces.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-
-              {/* City Select */}
-              {availableCities.length > 0 && (
-                <select
-                  id="technicians-city-select"
-                  name="techniciansCity"
-                  value={selectedCity}
-                  onChange={(e) => {
-                    updateUrl({ kota: e.target.value, page: 1 });
-                  }}
-                  className="tech-select-input"
-                  aria-label="Filter berdasarkan kota/kabupaten"
-                >
-                  <option value="all">Semua Kota / Rayon</option>
-                  {availableCities.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              {/* Tab-Specific Filters */}
-              {activeTab === "technicians" ? (
-                <>
-                  {skillLevels.length > 0 && (
-                    <select
-                      id="technicians-skill-select"
-                      name="techniciansSkill"
-                      value={selectedSkill}
-                      onChange={(e) => {
-                        updateUrl({ keahlian: e.target.value, page: 1 });
-                      }}
-                      className="tech-select-input"
-                      aria-label="Filter berdasarkan tingkat keahlian SKKNI"
-                    >
-                      <option value="all">Semua Jenjang Keahlian</option>
-                      {skillLevels.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-
-                  {/* BNSP Toggle */}
-                  <button
-                    type="button"
-                    className={`tech-toggle-btn ${onlyBnsp ? "active" : ""}`}
-                    onClick={() => {
-                      updateUrl({ bnsp: !onlyBnsp, page: 1 });
-                    }}
-                  >
-                    <Award size={14} />
-                    <span>Hanya BNSP</span>
-                  </button>
-                </>
-              ) : (
-                <>
-                  <select
-                    value={selectedWorkshopCat}
-                    onChange={(e) => updateUrl({ kategori: e.target.value, page: 1 })}
-                    className="tech-select-input"
-                    aria-label="Filter berdasarkan kategori bengkel/toko"
-                  >
-                    <option value="all">Semua Kategori ({workshopCategories.length})</option>
-                    {workshopCategories.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-
-                  <button
-                    type="button"
-                    className="tech-toggle-btn"
-                    onClick={() => {
-                      setWorkshops((prev) => {
-                        const copy = [...prev];
-                        for (let i = copy.length - 1; i > 0; i--) {
-                          const j = Math.floor(Math.random() * (i + 1));
-                          [copy[i], copy[j]] = [copy[j]!, copy[i]!];
-                        }
-                        return copy;
-                      });
-                    }}
-                    title="Acak urutan tampilan agar adil bagi semua anggota"
-                  >
-                    <Shuffle size={13} />
-                    <span>Rotasi Acak</span>
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Callout Banner when on Workshops Tab */}
-          {activeTab === "workshops" && (
-            <div className="workshop-member-cta-banner">
-              <div className="banner-left">
-                <Sparkles size={24} color="#0284c7" />
-                <div>
-                  <strong>Punya Bengkel AC, Toko Sparepart, atau Jasa Pendingin?</strong>
-                  <p>
-                    Pasang profil usaha Anda secara gratis di bursa direktori resmi
-                    APTI untuk meningkatkan kredibilitas dan jangkauan order pelanggan.
-                  </p>
-                </div>
-              </div>
-              <div className="banner-right">
-                <Link href="/join" className="button primary">
-                  Daftar Anggota &amp; Pasang Iklan
-                </Link>
-              </div>
             </div>
           )}
 
@@ -1234,37 +1116,58 @@ function TechniciansContent() {
 
           {/* Results Grid: Tab 2 (Member Workshops & Stores) */}
           {activeTab === "workshops" && (
-            <div className="home-workshops-grid-compact">
-              {paginatedWorkshops.length > 0 ? (
-                paginatedWorkshops.map((ws) => (
-                  <PublicWorkshopCard key={ws.id} workshop={ws} />
-                ))
-              ) : (
-                <div className="tech-empty-state">
-                  <Store size={44} color="#94a3b8" />
-                  <h3>Tidak Ada Bengkel / Toko yang Sesuai</h3>
-                  <p>
-                    Coba sesuaikan kata kunci pencarian atau ubah filter kategori
-                    dan provinsi.
-                  </p>
-                  <button
-                    type="button"
-                    className="button secondary btn-reset-tech"
-                    onClick={() => {
-                      updateUrl({
-                        q: "",
-                        provinsi: "all",
-                        kota: "all",
-                        kategori: "all",
-                        page: 1,
-                      });
-                    }}
-                  >
-                    Reset Filter Bengkel
-                  </button>
+            <>
+              <div className="home-workshops-grid-compact">
+                {paginatedWorkshops.length > 0 ? (
+                  paginatedWorkshops.map((ws) => (
+                    <PublicWorkshopCard key={ws.id} workshop={ws} />
+                  ))
+                ) : (
+                  <div className="tech-empty-state">
+                    <Store size={44} color="#94a3b8" />
+                    <h3>Tidak Ada Bengkel / Toko yang Sesuai</h3>
+                    <p>
+                      Coba sesuaikan kata kunci pencarian atau ubah filter kategori
+                      dan provinsi.
+                    </p>
+                    <button
+                      type="button"
+                      className="button secondary btn-reset-tech"
+                      onClick={() => {
+                        updateUrl({
+                          q: "",
+                          provinsi: "all",
+                          kota: "all",
+                          kategori: "all",
+                          page: 1,
+                        });
+                      }}
+                    >
+                      Reset Filter Bengkel
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Callout Banner when on Workshops Tab - Placed Cleanly After Grid */}
+              <div className="workshop-member-cta-banner" style={{ marginTop: "24px" }}>
+                <div className="banner-left">
+                  <Sparkles size={24} color="#0284c7" />
+                  <div>
+                    <strong>Punya Bengkel AC, Toko Sparepart, atau Jasa Pendingin?</strong>
+                    <p>
+                      Pasang profil usaha Anda secara gratis di bursa direktori resmi
+                      APTI untuk meningkatkan kredibilitas dan jangkauan order pelanggan.
+                    </p>
+                  </div>
                 </div>
-              )}
-            </div>
+                <div className="banner-right">
+                  <Link href="/join" className="button primary">
+                    Daftar Anggota &amp; Pasang Iklan
+                  </Link>
+                </div>
+              </div>
+            </>
           )}
 
           {/* 3. Server-Side URL-Driven Pagination Bar (Swiss Design) */}
@@ -1347,6 +1250,257 @@ function TechniciansContent() {
         memberPrimaryCta={{ label: "Buka Portal & KTA Saya", href: "/member" }}
         memberSecondaryCta={{ label: "Audit KTA Saya", href: "/whois" }}
       />
+
+      {/* 5. Mobile & Desktop Filter Slide-Over Drawer / Modal */}
+      {isFilterModalOpen && (
+        <div
+          className="dir-filter-modal-overlay"
+          onClick={() => setIsFilterModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="dir-filter-modal-sheet"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Sheet Handle Bar for touch/mobile */}
+            <div className="filter-modal-handle-bar" />
+
+            {/* Modal Header */}
+            <div className="filter-modal-header">
+              <div className="filter-modal-title">
+                <SlidersHorizontal size={17} className="text-sky-600" />
+                <h4>Filter Direktori &amp; Wilayah</h4>
+                {activeFiltersCount > 0 && (
+                  <span className="filter-header-count">{activeFiltersCount} Aktif</span>
+                )}
+              </div>
+              <button
+                type="button"
+                className="filter-modal-close"
+                onClick={() => setIsFilterModalOpen(false)}
+                aria-label="Tutup Panel Filter"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="filter-modal-body">
+              {/* Section 1: Radius & Lokasi GPS */}
+              <div className="filter-group-block">
+                <div className="filter-group-header">
+                  <label className="filter-group-label">
+                    <LocateFixed size={14} className="text-sky-600" />
+                    <span>Lokasi GPS &amp; Radius Terdekat</span>
+                  </label>
+                  {userGeo && <span className="filter-status-on">● GPS Aktif</span>}
+                </div>
+                <button
+                  type="button"
+                  className={`filter-gps-card-btn ${userGeo ? "active" : ""}`}
+                  onClick={() => {
+                    if (userGeo) handleClearLocation();
+                    else handleDetectLocation();
+                  }}
+                >
+                  <LocateFixed
+                    size={18}
+                    className={userGeo ? "text-emerald-600 animate-pulse" : "text-sky-600"}
+                  />
+                  <div className="gps-card-text">
+                    <strong>{userGeo ? "Radius GPS Aktif" : "Deteksi Lokasi Terdekat (GPS)"}</strong>
+                    <small>
+                      {userGeo
+                        ? `Posisi: ${userGeo.lat.toFixed(2)}, ${userGeo.lng.toFixed(2)} (Hasil diurutkan dari jarak terdekat)`
+                        : "Urutkan bengkel & teknisi dari yang paling dekat dengan lokasi Anda"}
+                    </small>
+                  </div>
+                  {userGeo ? (
+                    <span className="gps-pill-active">Aktif ✕</span>
+                  ) : (
+                    <span className="gps-pill-detect">Deteksi</span>
+                  )}
+                </button>
+              </div>
+
+              {/* Section 2: Quick Region Chips */}
+              <div className="filter-group-block">
+                <label className="filter-group-label">
+                  <MapPin size={14} className="text-sky-600" />
+                  <span>Pilihan Wilayah Cepat:</span>
+                </label>
+                <div className="filter-chips-grid">
+                  {[
+                    { label: "Semua Wilayah", prov: "all" },
+                    { label: "DKI Jakarta", prov: "DKI Jakarta" },
+                    { label: "Jawa Barat", prov: "Jawa Barat" },
+                    { label: "Jawa Timur", prov: "Jawa Timur" },
+                    { label: "Jawa Tengah", prov: "Jawa Tengah" },
+                    { label: "Sumatera Utara", prov: "Sumatera Utara" },
+                    { label: "Bali & Nusra", prov: "Bali" },
+                  ].map((reg) => (
+                    <button
+                      key={reg.prov}
+                      type="button"
+                      className={`filter-chip-option ${selectedProvince === reg.prov && !userGeo ? "active" : ""}`}
+                      onClick={() => {
+                        handleClearLocation();
+                        updateUrl({ provinsi: reg.prov, kota: "all", page: 1 });
+                      }}
+                    >
+                      {reg.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 3: Provinsi & Kota Dropdown */}
+              <div className="filter-group-block">
+                <label className="filter-group-label">
+                  <Building2 size={14} className="text-sky-600" />
+                  <span>Provinsi &amp; Kota / Rayon:</span>
+                </label>
+                <div className="filter-selects-stack">
+                  <select
+                    value={selectedProvince}
+                    onChange={(e) => updateUrl({ provinsi: e.target.value, kota: "all", page: 1 })}
+                    className="filter-modal-select"
+                    aria-label="Pilih Provinsi"
+                  >
+                    <option value="all">Semua Provinsi ({provinces.length})</option>
+                    {provinces.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
+
+                  {availableCities.length > 0 && (
+                    <select
+                      value={selectedCity}
+                      onChange={(e) => updateUrl({ kota: e.target.value, page: 1 })}
+                      className="filter-modal-select"
+                      aria-label="Pilih Kota atau Rayon"
+                    >
+                      <option value="all">Semua Kota / Rayon ({availableCities.length})</option>
+                      {availableCities.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              </div>
+
+              {/* Section 4: Tab Specific Controls */}
+              {activeTab === "technicians" ? (
+                <div className="filter-group-block">
+                  <label className="filter-group-label">
+                    <Award size={14} className="text-sky-600" />
+                    <span>Kualifikasi SKKNI &amp; Sertifikasi:</span>
+                  </label>
+                  <select
+                    value={selectedSkill}
+                    onChange={(e) => updateUrl({ keahlian: e.target.value, page: 1 })}
+                    className="filter-modal-select"
+                    aria-label="Pilih Jenjang Keahlian"
+                  >
+                    <option value="all">Semua Jenjang Keahlian</option>
+                    {skillLevels.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    type="button"
+                    className={`filter-modal-toggle-row ${onlyBnsp ? "active" : ""}`}
+                    onClick={() => updateUrl({ bnsp: !onlyBnsp, page: 1 })}
+                  >
+                    <div className="toggle-row-left">
+                      <Award size={16} className={onlyBnsp ? "text-emerald-600" : "text-slate-400"} />
+                      <div>
+                        <strong>Hanya Teknisi Bersertifikat BNSP</strong>
+                        <small>Filter anggota yang telah lulus uji kompetensi resmi</small>
+                      </div>
+                    </div>
+                    <div className={`switch-knob ${onlyBnsp ? "on" : "off"}`} />
+                  </button>
+                </div>
+              ) : (
+                <div className="filter-group-block">
+                  <label className="filter-group-label">
+                    <Store size={14} className="text-sky-600" />
+                    <span>Kategori Usaha &amp; Pengurutan:</span>
+                  </label>
+                  <select
+                    value={selectedWorkshopCat}
+                    onChange={(e) => updateUrl({ kategori: e.target.value, page: 1 })}
+                    className="filter-modal-select"
+                    aria-label="Pilih Kategori Bengkel atau Toko"
+                  >
+                    <option value="all">Semua Kategori ({workshopCategories.length})</option>
+                    {workshopCategories.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    type="button"
+                    className="filter-modal-shuffle-btn"
+                    onClick={() => {
+                      setWorkshops((prev) => {
+                        const copy = [...prev];
+                        for (let i = copy.length - 1; i > 0; i--) {
+                          const j = Math.floor(Math.random() * (i + 1));
+                          [copy[i], copy[j]] = [copy[j]!, copy[i]!];
+                        }
+                        return copy;
+                      });
+                    }}
+                  >
+                    <Shuffle size={14} />
+                    <span>Acak Rotasi Tampilan</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="filter-modal-footer">
+              <button
+                type="button"
+                className="btn-filter-modal-reset"
+                onClick={() => {
+                  handleClearLocation();
+                  updateUrl({
+                    provinsi: "all",
+                    kota: "all",
+                    keahlian: "all",
+                    kategori: "all",
+                    bnsp: false,
+                    page: 1,
+                  });
+                }}
+              >
+                Reset Filter
+              </button>
+              <button
+                type="button"
+                className="btn-filter-modal-apply"
+                onClick={() => setIsFilterModalOpen(false)}
+              >
+                Terapkan Filter ({activeFiltersCount > 0 ? activeFiltersCount : "Semua"})
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 4. Interactive Detail Modal */}
       {activeTechModal && (
