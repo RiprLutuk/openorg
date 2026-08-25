@@ -21,6 +21,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Store,
   Sun,
   Users,
   Wind,
@@ -759,9 +760,14 @@ export default function CalculatorPage() {
                 {/* Action CTA */}
                 <div className="calc-result-actions">
                   <Link href="/technicians" className="calc-cta-btn">
-                    <Users size={16} />
-                    <span>Cari Teknisi Terdekat</span>
-                    <ArrowRight size={15} />
+                    <Users size={15} />
+                    <span>Cari Teknisi AC</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                  <Link href="/bengkel" className="calc-cta-btn secondary" style={{ background: "#f0f9ff", color: "#0369a1", border: "1px solid #bae6fd" }}>
+                    <Store size={15} />
+                    <span>Bursa Bengkel & Toko Resmi</span>
+                    <ArrowRight size={14} />
                   </Link>
                 </div>
               </div>

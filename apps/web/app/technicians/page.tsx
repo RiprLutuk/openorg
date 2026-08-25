@@ -34,6 +34,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
 
 interface Technician {
   id: string;
@@ -841,153 +842,10 @@ function TechniciansContent() {
 
           {/* Results Grid: Tab 2 (Member Workshops & Stores) */}
           {activeTab === "workshops" && (
-            <div className="workshop-cards-grid">
+            <div className="home-workshops-grid">
               {filteredWorkshops.length > 0 ? (
                 filteredWorkshops.map((ws) => (
-                  <article className="workshop-card-item" key={ws.id}>
-                    <div className="workshop-card-top-bar">
-                      <span className="workshop-cat-badge">
-                        <Store size={13} />
-                        <span>{ws.category}</span>
-                      </span>
-                      <span className="verified-member-live-badge">
-                        <ShieldCheck size={13} color="#10b981" />
-                        <span>Mitra Resmi APTI</span>
-                      </span>
-                    </div>
-
-                    <div className="workshop-main-info">
-                      <h3 className="workshop-item-title">{ws.workshopName}</h3>
-                      <p className="workshop-item-tagline">{ws.tagline}</p>
-                    </div>
-
-                    <div className="workshop-meta-row">
-                      <div className="meta-line">
-                        <MapPin size={13} color="#0284c7" />
-                        <span>{ws.address}, {ws.city}, {ws.province}</span>
-                      </div>
-                      <div className="meta-line">
-                        <Clock size={13} color="#64748b" />
-                        <span>{ws.operatingHours}</span>
-                      </div>
-                      {ws.website && (
-                        <div className="meta-line">
-                          <Globe size={13} color="#0284c7" />
-                          <a
-                            href={ws.website.startsWith("http") ? ws.website : `https://${ws.website}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="workshop-meta-link"
-                          >
-                            <span>{ws.website.replace(/^https?:\/\//, "")}</span>
-                            <ExternalLink size={10} />
-                          </a>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Interactive Google Maps Embed */}
-                    <div className="workshop-card-map-box">
-                      <div className="map-box-top">
-                        <small>
-                          <MapPin size={11} color="#0284c7" />
-                          <span>Peta Lokasi & Rute</span>
-                        </small>
-                        <a
-                          href={
-                            ws.googleMapsUrl && ws.googleMapsUrl.startsWith("http")
-                              ? ws.googleMapsUrl
-                              : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ws.googleMapsUrl || `${ws.address}, ${ws.city}, ${ws.province}`)}`
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="map-box-link"
-                        >
-                          <Navigation size={10} />
-                          <span>Navigasi</span>
-                        </a>
-                      </div>
-                      <iframe
-                        title={`Peta Lokasi ${ws.workshopName}`}
-                        src={`https://maps.google.com/maps?q=${encodeURIComponent(ws.googleMapsUrl || `${ws.address}, ${ws.city}, ${ws.province}, Indonesia`)}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
-                        width="100%"
-                        height="125"
-                        loading="lazy"
-                        style={{ border: 0, borderRadius: "8px", display: "block" }}
-                        allowFullScreen={false}
-                      />
-                    </div>
-
-                    <p className="workshop-item-desc">{ws.description}</p>
-
-                    <div className="workshop-services-cloud">
-                      {ws.services.map((srv) => (
-                        <span key={srv} className="workshop-srv-tag">
-                          <Wrench size={11} color="#0284c7" />
-                          <span>{srv}</span>
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="workshop-card-bottom-actions">
-                      <div className="owner-kta-info">
-                        <small>Penanggung Jawab:</small>
-                        <Link
-                          href={`/verify?code=${encodeURIComponent(ws.memberNumber)}`}
-                          className="owner-kta-link"
-                          title="Verifikasi KTA Pemilik"
-                        >
-                          <strong>{ws.ownerName}</strong> ({ws.memberNumber})
-                        </Link>
-                      </div>
-
-                      <div className="workshop-action-buttons">
-                        {ws.website && (
-                          <a
-                            href={ws.website.startsWith("http") ? ws.website : `https://${ws.website}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn-ws-website"
-                            title="Kunjungi Website Resmi"
-                          >
-                            <Globe size={13} />
-                            <span>Website</span>
-                          </a>
-                        )}
-                        <a
-                          href={
-                            ws.googleMapsUrl && ws.googleMapsUrl.startsWith("http")
-                              ? ws.googleMapsUrl
-                              : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ws.googleMapsUrl || `${ws.address}, ${ws.city}, ${ws.province}`)}`
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-ws-route"
-                          title="Buka Navigasi Rute Maps"
-                        >
-                          <Navigation size={13} />
-                          <span>Rute</span>
-                        </a>
-                        <Link
-                          href={`/verify?code=${encodeURIComponent(ws.memberNumber)}`}
-                          className="btn-kta-check"
-                          title="Cek Kredensial KTA Resmi"
-                        >
-                          <QrCode size={13} />
-                          <span>KTA</span>
-                        </Link>
-                        <a
-                          href={`https://wa.me/${ws.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Halo ${ws.workshopName}, saya menemukan profil workshop Anda di Direktori Resmi APTI Indonesia.`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-order-wa"
-                        >
-                          <MessageSquare size={13} />
-                          <span>WhatsApp</span>
-                        </a>
-                      </div>
-                    </div>
-                  </article>
+                  <PublicWorkshopCard key={ws.id} workshop={ws} />
                 ))
               ) : (
                 <div className="tech-empty-state">

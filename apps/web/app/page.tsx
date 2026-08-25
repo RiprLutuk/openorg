@@ -2,6 +2,7 @@ import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HomeCtaBanner } from "@/components/home-cta-banner";
+import { HomeFeaturedWorkshops } from "@/components/home-featured-workshops";
 import { HomeHeroInteractive } from "@/components/home-hero-interactive";
 import { InteractiveBentoServices } from "@/components/interactive-bento-services";
 import { SmartImage } from "@/components/smart-image";
@@ -37,7 +38,10 @@ export default async function HomePage() {
       {/* 2. Core 4-Pillar Ecosystem Bento Grid */}
       <InteractiveBentoServices />
 
-      {/* 3. Upcoming Training & Events Highlight */}
+      {/* 3. Bursa Bengkel & Toko Resmi Anggota (High-Impact Showcase) */}
+      <HomeFeaturedWorkshops />
+
+      {/* 4. Upcoming Training & Events Highlight */}
       {events.length > 0 && (
         <section className="section-space home-events-section">
           <div className="wrap">
