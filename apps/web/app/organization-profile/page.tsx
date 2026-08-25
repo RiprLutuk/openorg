@@ -163,50 +163,27 @@ export default async function OrganizationProfilePage() {
 
   return (
     <div className="org-profile-page">
-      {/* Flagship 2-Column Split Hero */}
-      <header className="org-profile-hero">
-        <div className="wrap org-profile-hero-grid">
+      {/* Flagship Unified Short & Compact 2-Column Split Hero */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
           {/* Left Column: Authoritative Copy & Actions */}
-          <div className="org-profile-hero-inner">
-            <div className="org-hero-badge-pill">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
               <ShieldCheck size={14} />
               <span>PROFIL RESMI ASOSIASI</span>
             </div>
 
-            <h1 className="org-hero-title">
+            <h1 className="tech-hero-title">
               Mengenal Perjalanan & Peran Strategis{" "}
               <span className="text-gradient">{site.organization.name}</span>
             </h1>
 
-            <p className="org-hero-lead">
+            <p className="tech-hero-lead">
               Wadah persatuan pengusaha pendingin, bengkel workshop, dan praktisi
               refrigerasi tata udara (HVAC/R) Indonesia. Berdedikasi menghadirkan
               standarisasi kompetensi BNSP, kepatuhan kode etik, dan transparansi
               layanan bagi masyarakat luas.
             </p>
-
-            <div className="org-hero-cta-row">
-              <Link
-                href="/join"
-                className="btn-hero-primary"
-                style={{ width: "auto" }}
-              >
-                <Users size={16} />
-                <span>Gabung Keanggotaan</span>
-                <ArrowRight size={15} className="btn-arrow" />
-              </Link>
-              <Link
-                href="/structure"
-                className="btn-hero-secondary"
-              >
-                <Building2 size={16} />
-                <span>Struktur DPP & DPD</span>
-              </Link>
-              <Link href="/whois" className="btn-hero-ghost">
-                <QrCode size={15} />
-                <span>Cek KTA</span>
-              </Link>
-            </div>
           </div>
 
           {/* Right Column: Key Impact Stats Bento Card (2x2) */}
@@ -219,7 +196,7 @@ export default async function OrganizationProfilePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
                 >
                   <Building2 size={20} />
                 </div>
@@ -231,7 +208,7 @@ export default async function OrganizationProfilePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
                 >
                   <Users size={20} />
                 </div>
@@ -243,7 +220,7 @@ export default async function OrganizationProfilePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
                 >
                   <Award size={20} />
                 </div>
@@ -255,13 +232,13 @@ export default async function OrganizationProfilePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
                 >
                   <ShieldCheck size={20} />
-                </div>
+                  </div>
                 <div>
-                  <strong>100% Real-Time</strong>
-                  <small>Audit Terbuka</small>
+                  <strong>100% Sah</strong>
+                  <small>SK Kemenkumham RI</small>
                 </div>
               </div>
             </div>

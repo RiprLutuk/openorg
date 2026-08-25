@@ -135,51 +135,25 @@ export default async function VisionMissionPage() {
 
   return (
     <div className="vision-mission-page">
-      {/* 1. Flagship Hero */}
-      <header className="vm-hero">
-        <div className="wrap vm-hero-grid">
-          <div className="vm-hero-inner">
-            <div className="vm-hero-pill">
+      {/* 1. Flagship Unified Short & Compact 2-Column Split Hero */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
               <Compass size={14} />
               <span>VISI & MISI STRATEGIS</span>
             </div>
 
-            <h1 className="vm-hero-title">
+            <h1 className="tech-hero-title">
               Visi, Misi & Komitmen Kehormatan{" "}
               <span className="text-gradient">{site.organization.name}</span>
             </h1>
 
-            <p className="vm-hero-lead">
+            <p className="tech-hero-lead">
               Fondasi cita-cita jangka panjang, pedoman etika profesi pendingin,
               dan cetak biru dedikasi organisasi dalam mewujudkan ekosistem tata
               udara yang berdaya saing global, berintegritas tinggi, dan lestari.
             </p>
-
-            <div className="vm-hero-actions">
-              <Link
-                href="/join"
-                className="btn-hero-primary"
-                style={{ width: "auto" }}
-              >
-                <Users size={16} />
-                <span>Bergabung Jadi Anggota</span>
-                <ArrowRight size={15} className="btn-arrow" />
-              </Link>
-              <Link
-                href="/regulations"
-                className="btn-hero-secondary"
-              >
-                <FileText size={15} />
-                <span>AD/ART & Etik</span>
-              </Link>
-              <Link
-                href="/structure"
-                className="btn-hero-ghost"
-              >
-                <Users size={15} />
-                <span>Struktur</span>
-              </Link>
-            </div>
           </div>
 
           {/* Right Column: Strategic Pillar Bento Card */}
@@ -192,7 +166,7 @@ export default async function VisionMissionPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
                 >
                   <Target size={20} />
                 </div>
@@ -204,7 +178,7 @@ export default async function VisionMissionPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
                 >
                   <ShieldCheck size={20} />
                 </div>
@@ -216,7 +190,7 @@ export default async function VisionMissionPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
                 >
                   <Leaf size={20} />
                 </div>
@@ -228,7 +202,7 @@ export default async function VisionMissionPage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
                 >
                   <Award size={20} />
                 </div>

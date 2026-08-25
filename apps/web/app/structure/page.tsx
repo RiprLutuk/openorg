@@ -32,49 +32,26 @@ export default async function StructurePage() {
 
   return (
     <div className="structure-page-suite">
-      {/* 1. Flagship Hero */}
-      <header className="struct-hero">
-        <div className="wrap struct-hero-grid">
-          <div className="struct-hero-inner">
-            <div className="struct-hero-pill">
+      {/* 1. Flagship Unified Short & Compact 2-Column Split Hero */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
               <Network size={14} />
               <span>STRUKTUR DPP & DPD</span>
             </div>
 
-            <h1 className="struct-hero-title">
+            <h1 className="tech-hero-title">
               Struktur Kepengurusan DPP & DPD{" "}
               <span className="text-gradient">{site.organization.name}</span>
             </h1>
 
-            <p className="struct-hero-lead">
+            <p className="tech-hero-lead">
               Bagan organisasi resmi kepemimpinan {site.organization.name} dari
               tingkat Dewan Pimpinan Pusat (DPP), Dewan Pimpinan Daerah (DPD) di
               38 provinsi, hingga Koordinator Wilayah (Korwil/DPC) di seluruh
               Nusantara.
             </p>
-
-            <div className="struct-hero-actions">
-              <Link
-                href="/join"
-                className="btn-hero-primary"
-                style={{ width: "auto" }}
-              >
-                <Users size={16} />
-                <span>Pendaftaran Anggota KTA</span>
-                <ArrowRight size={15} className="btn-arrow" />
-              </Link>
-              <Link
-                href="/regulations"
-                className="btn-hero-secondary"
-              >
-                <FileText size={15} />
-                <span>AD/ART Pengurus</span>
-              </Link>
-              <Link href="/whois" className="btn-hero-ghost">
-                <ShieldCheck size={15} />
-                <span>Verifikasi</span>
-              </Link>
-            </div>
           </div>
 
           {/* Right Column: Key Structure Metrics Bento Card */}
@@ -87,7 +64,7 @@ export default async function StructurePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
                 >
                   <Building2 size={20} />
                 </div>
@@ -99,7 +76,7 @@ export default async function StructurePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
                 >
                   <Network size={20} />
                 </div>
@@ -111,7 +88,7 @@ export default async function StructurePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
                 >
                   <UserRoundCheck size={20} />
                 </div>
@@ -123,7 +100,7 @@ export default async function StructurePage() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
                 >
                   <ShieldCheck size={20} />
                 </div>

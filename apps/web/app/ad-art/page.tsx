@@ -511,21 +511,21 @@ function AdArtContent() {
 
   return (
     <div className="adart-page-suite">
-      {/* 1. Flagship Clean Split Hero Header */}
-      <header className="adart-hero">
-        <div className="wrap adart-hero-grid">
-          <div className="adart-hero-inner">
-            <div className="org-hero-badge-pill">
+      {/* 1. Flagship Unified Short & Compact 2-Column Split Hero Header */}
+      <header className="tech-hero">
+        <div className="wrap hero-split-grid">
+          <div className="tech-hero-inner">
+            <div className="tech-hero-pill">
               <Scale size={14} />
               <span>KONSTITUSI & KODE ETIK</span>
             </div>
 
-            <h1 className="org-hero-title">
+            <h1 className="tech-hero-title">
               Anggaran Dasar, AD/ART &{" "}
               <span className="text-gradient">Kode Etik Profesi</span>
             </h1>
 
-            <p className="org-hero-lead">
+            <p className="tech-hero-lead">
               Konstitusi pokok resmi yang disahkan melalui Musyawarah Nasional
               (Munas) sebagai pedoman tata kelola keorganisasian, hak & kewajiban
               anggota, wewenang kepengurusan DPP/DPD, serta 9 Butir Pakta
@@ -543,7 +543,7 @@ function AdArtContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#f0f9ff", color: "#0284c7" }}
+                  style={{ background: "rgba(2, 132, 199, 0.12)", color: "#38bdf8" }}
                 >
                   <Landmark size={20} />
                 </div>
@@ -555,7 +555,7 @@ function AdArtContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#ecfdf5", color: "#10b981" }}
+                  style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
                 >
                   <FileCheck2 size={20} />
                 </div>
@@ -567,7 +567,7 @@ function AdArtContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#eef2ff", color: "#6366f1" }}
+                  style={{ background: "rgba(99, 102, 241, 0.12)", color: "#818cf8" }}
                 >
                   <ShieldCheck size={20} />
                 </div>
@@ -579,7 +579,7 @@ function AdArtContent() {
               <div className="stat-item">
                 <div
                   className="stat-icon-wrap"
-                  style={{ background: "#fffbeb", color: "#f59e0b" }}
+                  style={{ background: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
                 >
                   <Users size={20} />
                 </div>
