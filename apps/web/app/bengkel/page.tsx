@@ -114,26 +114,19 @@ function WorkshopsPageContent() {
   useEffect(() => {
     const combined = getStoredWorkshops();
 
-    if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
-      navigator.permissions
-        .query({ name: "geolocation" as PermissionName })
-        .then((permissionStatus) => {
-          if (permissionStatus.state === "granted") {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined);
-              },
-              () => {
-                setWorkshops(shuffleArray(combined));
-              }
-            );
-          } else {
-            setWorkshops(shuffleArray(combined));
-          }
-        })
-        .catch(() => {
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      setGeoState({ status: "requesting" });
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined);
+        },
+        (err) => {
+          console.info("Geolocation not granted or timeout, using fair random rotation:", err.message);
+          setGeoState({ status: "denied" });
           setWorkshops(shuffleArray(combined));
-        });
+        },
+        { timeout: 7000, enableHighAccuracy: false, maximumAge: 600000 }
+      );
     } else {
       setWorkshops(shuffleArray(combined));
     }

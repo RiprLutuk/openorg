@@ -465,31 +465,23 @@ export function HomeFeaturedWorkshops() {
     );
   };
 
-  // Initial load: Try to use geolocation if already granted, otherwise fair random shuffle
+  // Initial load: Request location immediately so browser shows prompt to user
   useEffect(() => {
     const combined = getStoredWorkshops();
 
-    if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
-      navigator.permissions
-        .query({ name: "geolocation" as PermissionName })
-        .then((permissionStatus) => {
-          if (permissionStatus.state === "granted") {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined);
-              },
-              () => {
-                setWorkshops(shuffleArray(combined));
-              }
-            );
-          } else {
-            // Default to fair randomized shuffle if not already allowed
-            setWorkshops(shuffleArray(combined));
-          }
-        })
-        .catch(() => {
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      setGeoState({ status: "requesting" });
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          applyLocationSort(pos.coords.latitude, pos.coords.longitude, combined);
+        },
+        (err) => {
+          console.info("Geolocation not granted or timeout, using fair random rotation:", err.message);
+          setGeoState({ status: "denied" });
           setWorkshops(shuffleArray(combined));
-        });
+        },
+        { timeout: 7000, enableHighAccuracy: false, maximumAge: 600000 }
+      );
     } else {
       setWorkshops(shuffleArray(combined));
     }
