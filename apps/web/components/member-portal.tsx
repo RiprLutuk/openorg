@@ -35,6 +35,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MemberApiError, memberApi } from "@/lib/member-client";
+import {
+  findProvince,
+  getProvinces,
+  getRegenciesByProvince,
+} from "@/lib/indonesia-wilayah";
 import { MemberPortraitCard } from "./member-portrait-card";
 
 type PortalData = {
@@ -1145,6 +1150,150 @@ function SearchableMultiSelect({
   );
 }
 
+interface SearchableSingleSelectProps {
+  label: string;
+  placeholder?: string;
+  options: Array<{ value: string; label: string; sublabel?: string }>;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+  disabled?: boolean;
+}
+
+function SearchableSingleSelect({
+  label,
+  placeholder = "Pilih atau cari…",
+  options,
+  value,
+  onChange,
+  required = false,
+  disabled = false,
+}: SearchableSingleSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedOption = useMemo(() => {
+    return options.find((opt) => opt.value === value || opt.label === value);
+  }, [options, value]);
+
+  const filteredOptions = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return options;
+    return options.filter(
+      (opt) =>
+        opt.label.toLowerCase().includes(q) ||
+        (opt.sublabel && opt.sublabel.toLowerCase().includes(q))
+    );
+  }, [options, search]);
+
+  const handleSelect = (val: string) => {
+    onChange(val);
+    setIsOpen(false);
+    setSearch("");
+  };
+
+  return (
+    <div className="searchable-single-select-wrap" ref={containerRef}>
+      <span className="searchable-single-select-label">
+        {label} {required && "*"}
+      </span>
+      <div
+        className={`searchable-single-select-box ${isOpen ? "focused" : ""} ${disabled ? "disabled" : ""}`}
+        onClick={() => {
+          if (disabled) return;
+          const nextState = !isOpen;
+          setIsOpen(nextState);
+          if (nextState) {
+            setTimeout(() => inputRef.current?.focus(), 50);
+          }
+        }}
+      >
+        <span
+          className={`selected-value-text ${!selectedOption ? "placeholder" : ""}`}
+        >
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <ChevronDown
+          size={16}
+          className={`chevron-icon ${isOpen ? "rotated" : ""}`}
+        />
+      </div>
+
+      {isOpen && !disabled && (
+        <div className="searchable-single-select-dropdown">
+          <div className="single-select-search-bar">
+            <Search size={14} className="search-inline-icon" />
+            <input
+              ref={inputRef}
+              type="text"
+              className="single-select-search-input"
+              placeholder={`Cari dari ${options.length} data…`}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+            />
+            {search && (
+              <button
+                type="button"
+                className="single-select-clear-search"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSearch("");
+                }}
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
+
+          <div className="single-select-options-list">
+            {filteredOptions.map((opt) => {
+              const isSelected = opt.value === value || opt.label === value;
+              return (
+                <div
+                  key={opt.value}
+                  className={`single-select-option-item ${isSelected ? "selected" : ""}`}
+                  onClick={() => handleSelect(opt.label)}
+                >
+                  <div className="option-label-group">
+                    <span className="option-main-label">{opt.label}</span>
+                    {opt.sublabel && (
+                      <small className="option-sublabel">{opt.sublabel}</small>
+                    )}
+                  </div>
+                  {isSelected && (
+                    <Check size={14} className="text-sky-600 flex-shrink-0" />
+                  )}
+                </div>
+              );
+            })}
+            {filteredOptions.length === 0 && (
+              <div className="single-select-empty">
+                Tidak ada data wilayah yang cocok.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MemberWorkshopPromo({
   member,
   emailVerified,
@@ -1167,8 +1316,8 @@ function MemberWorkshopPromo({
   const [category, setCategory] = useState(
     existingMeta.category || WORKSHOP_CATEGORIES[0],
   );
-  const [city, setCity] = useState(existingMeta.city || "Jakarta Selatan");
   const [province, setProvince] = useState(existingMeta.province || "DKI Jakarta");
+  const [city, setCity] = useState(existingMeta.city || "Kota Administrasi Jakarta Selatan");
   const [address, setAddress] = useState(
     existingMeta.address || member.address || "Jl. Raya Workshop Pendingin No. 18",
   );
@@ -1187,7 +1336,7 @@ function MemberWorkshopPromo({
     existingMeta.services || [
       "Cuci AC Inverter Bebas Bau",
       "Vakum Standar SKKNI (Dua Tahap)",
-      "Recovery Freon R32 / R410A",
+      "Recovery Freon R32 / R410A / R290",
       "Perbaikan Modul PCB Inverter",
     ],
   );
@@ -1199,10 +1348,35 @@ function MemberWorkshopPromo({
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  const toggleService = (srv: string) => {
-    setSelectedServices((prev) =>
-      prev.includes(srv) ? prev.filter((s) => s !== srv) : [...prev, srv],
-    );
+  const categoryOptions = useMemo(() => {
+    return WORKSHOP_CATEGORIES.map((cat) => ({
+      value: cat,
+      label: cat,
+    }));
+  }, []);
+
+  const provinceOptions = useMemo(() => {
+    return getProvinces().map((p) => ({
+      value: p.nama,
+      label: p.nama,
+      sublabel: `Ibukota: ${p.ibukota} (Kode: ${p.kode})`,
+    }));
+  }, []);
+
+  const regencyOptions = useMemo(() => {
+    return getRegenciesByProvince(province).map((r) => ({
+      value: r.nama,
+      label: r.nama,
+      sublabel: `Ibukota: ${r.ibukota}`,
+    }));
+  }, [province]);
+
+  const handleProvinceChange = (newProv: string) => {
+    setProvince(newProv);
+    const availableRegs = getRegenciesByProvince(newProv);
+    if (!availableRegs.some((r) => r.nama === city)) {
+      setCity(availableRegs[0]?.nama || "");
+    }
   };
 
   const handleSave = async (e: FormEvent) => {
@@ -1338,19 +1512,14 @@ function MemberWorkshopPromo({
                 placeholder="Contoh: Sentosa Jaya Teknik AC"
               />
             </label>
-            <label>
-              Kategori Usaha *
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                {WORKSHOP_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <SearchableSingleSelect
+              label="Kategori Usaha"
+              required
+              placeholder="Pilih kategori usaha…"
+              options={categoryOptions}
+              value={category}
+              onChange={setCategory}
+            />
           </div>
 
           <label>
@@ -1364,26 +1533,23 @@ function MemberWorkshopPromo({
           </label>
 
           <div className="form-row-2">
-            <label>
-              Kota / Kabupaten *
-              <input
-                type="text"
-                required
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder="Contoh: Surabaya"
-              />
-            </label>
-            <label>
-              Provinsi *
-              <input
-                type="text"
-                required
-                value={province}
-                onChange={(e) => setProvince(e.target.value)}
-                placeholder="Contoh: Jawa Timur"
-              />
-            </label>
+            <SearchableSingleSelect
+              label="Provinsi"
+              required
+              placeholder="Pilih atau cari provinsi (38 Provinsi)…"
+              options={provinceOptions}
+              value={province}
+              onChange={handleProvinceChange}
+            />
+            <SearchableSingleSelect
+              label="Kota / Kabupaten"
+              required
+              placeholder={`Pilih Kota/Kabupaten (${regencyOptions.length} wilayah)…`}
+              options={regencyOptions}
+              value={city}
+              onChange={setCity}
+              disabled={regencyOptions.length === 0}
+            />
           </div>
 
           <label>
