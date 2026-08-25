@@ -180,21 +180,20 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
   doc.text("2. TABEL INDIKATOR KINERJA INDUSTRI TERVERIFIKASI", margin, y);
 
   y += 4;
-  // Table Header
+  // Table Header (Exact Widths: 8 + 62 + 38 + 32 + 42 = 182mm)
   doc.setFillColor(241, 245, 249); // #f1f5f9
   doc.setDrawColor(203, 213, 225); // #cbd5e1
   doc.rect(margin, y, contentWidth, 7.5, "FD");
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(7);
+  doc.setFontSize(6.8);
   doc.setTextColor(51, 65, 85);
 
-  doc.text("NO", margin + 3, y + 5);
-  doc.text("INDIKATOR KINERJA & DESKRIPSI", margin + 11, y + 5);
-  doc.text("NILAI TERUKUR", margin + 84, y + 5);
-  doc.text("KATEGORI", margin + 118, y + 5);
-  doc.text("PERIODE", margin + 143, y + 5);
-  doc.text("TREN & BENCHMARK", margin + 162, y + 5);
+  doc.text("NO", margin + 4, y + 5, { align: "center" });
+  doc.text("INDIKATOR KINERJA & DESKRIPSI", margin + 10, y + 5);
+  doc.text("NILAI DATA & UNIT", margin + 72, y + 5);
+  doc.text("KATEGORI & PERIODE", margin + 110, y + 5);
+  doc.text("TREN & STATUS BENCHMARK", margin + 142, y + 5);
 
   y += 7.5;
 
@@ -203,8 +202,8 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
       id: "1",
       metricKey: "certified_technicians",
       metricLabel: "Total Teknisi Bersertifikat BNSP",
-      metricValue: "8.450",
-      metricUnit: "Teknisi",
+      metricValue: "8,450",
+      metricUnit: "Teknisi Terdaftar",
       trendDirection: "up" as const,
       trendPercentage: "+18.5%",
       category: "Keanggotaan",
@@ -215,7 +214,7 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
       metricKey: "dpd_coverage",
       metricLabel: "Sebaran DPD & Korwil Provinsi",
       metricValue: "38 / 38",
-      metricUnit: "Provinsi",
+      metricUnit: "Provinsi Sah (100%)",
       trendDirection: "up" as const,
       trendPercentage: "100%",
       category: "Organisasi",
@@ -225,11 +224,11 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
       id: "3",
       metricKey: "serviced_units_volume",
       metricLabel: "Volume Servis Unit AC Terverifikasi",
-      metricValue: "142.800",
-      metricUnit: "Unit/Bln",
+      metricValue: "142,800",
+      metricUnit: "Unit AC / Bulan",
       trendDirection: "up" as const,
       trendPercentage: "+24.2%",
-      category: "Layanan",
+      category: "Layanan Sektor",
       period: "2026 Q1",
     },
     {
@@ -237,16 +236,16 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
       metricKey: "public_satisfaction_rate",
       metricLabel: "Tingkat Kepuasan Pelanggan KTA APTI",
       metricValue: "98.4%",
-      metricUnit: "Indeks",
+      metricUnit: "Indeks Trust Publik",
       trendDirection: "up" as const,
       trendPercentage: "+2.1%",
-      category: "Kualitas",
+      category: "Kualitas Service",
       period: "2026 Q1",
     },
   ];
 
   dataToPrint.forEach((item, index) => {
-    const rowHeight = 15.5;
+    const rowHeight = 16;
     const isEven = index % 2 === 0;
 
     if (isEven) {
@@ -257,54 +256,70 @@ export async function generateStatisticsPdf(statsList: IndustryStatistic[]) {
     doc.setDrawColor(226, 232, 240);
     doc.rect(margin, y, contentWidth, rowHeight, "FD");
 
-    // No
+    // Subtle Column Separators
+    doc.setDrawColor(241, 245, 249);
+    doc.line(margin + 8, y, margin + 8, y + rowHeight);
+    doc.line(margin + 70, y, margin + 70, y + rowHeight);
+    doc.line(margin + 108, y, margin + 108, y + rowHeight);
+    doc.line(margin + 140, y, margin + 140, y + rowHeight);
+
+    // Col 1: No
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    doc.text((index + 1).toString(), margin + 3.5, y + 6);
+    doc.text((index + 1).toString(), margin + 4, y + 6.5, { align: "center" });
 
-    // Indicator Name & Description
+    // Col 2: Indicator Name & Description (Width: 62mm)
     doc.setFont("helvetica", "bold");
+    doc.setFontSize(7.2);
     doc.setTextColor(15, 23, 42);
-    doc.text(item.metricLabel, margin + 11, y + 5.5);
+    doc.text(item.metricLabel, margin + 10, y + 5.5);
 
     const info = STATS_EXPLANATIONS[item.metricKey];
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(6.2);
+    doc.setFontSize(5.8);
     doc.setTextColor(100, 116, 139);
     const descText = info ? info.desc : "Metrik kinerja resmi APTI Indonesia.";
-    doc.text(descText.slice(0, 68), margin + 11, y + 10.5);
+    doc.text(descText.slice(0, 60), margin + 10, y + 10.5);
 
-    // Value
+    // Col 3: Value (Line 1) & Unit (Line 2) (Width: 38mm)
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
+    doc.setFontSize(8.2);
     doc.setTextColor(2, 132, 199);
-    doc.text(`${item.metricValue} ${item.metricUnit || ""}`, margin + 84, y + 7);
+    doc.text(item.metricValue, margin + 72, y + 5.5);
 
-    // Category Badge
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(71, 85, 105);
-    doc.text(item.category, margin + 118, y + 7);
+    doc.setFontSize(5.8);
+    doc.setTextColor(100, 116, 139);
+    doc.text(item.metricUnit || "Unit Terukur", margin + 72, y + 10.5);
 
-    // Period
-    doc.text(item.period || "2026 Q1", margin + 143, y + 7);
-
-    // Trend (ASCII Safe: [+18.5%] instead of unicode glyphs)
+    // Col 4: Category (Line 1) & Period (Line 2) (Width: 32mm)
     doc.setFont("helvetica", "bold");
+    doc.setFontSize(6.8);
+    doc.setTextColor(51, 65, 85);
+    doc.text(item.category, margin + 110, y + 5.5);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(5.8);
+    doc.setTextColor(100, 116, 139);
+    doc.text(item.period || "2026 Q1", margin + 110, y + 10.5);
+
+    // Col 5: Trend (Line 1) & Benchmark (Line 2) (Width: 42mm)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7.2);
     if (item.trendDirection === "up") {
       doc.setTextColor(22, 163, 74);
     } else {
       doc.setTextColor(71, 85, 105);
     }
     const trendText = item.trendPercentage ? `[ ${item.trendPercentage} ]` : "[ - ]";
-    doc.text(trendText, margin + 162, y + 5.5);
+    doc.text(trendText, margin + 142, y + 5.5);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(5.8);
     doc.setTextColor(100, 116, 139);
     const bench = info ? info.benchmark : "Target Terpenuhi";
-    doc.text(bench.slice(0, 25), margin + 162, y + 10.5);
+    doc.text(bench.slice(0, 26), margin + 142, y + 10.5);
 
     y += rowHeight;
   });
