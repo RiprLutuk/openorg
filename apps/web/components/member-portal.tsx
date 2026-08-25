@@ -29,6 +29,7 @@ import {
   Wrench,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { MemberApiError, memberApi } from "@/lib/member-client";
 import { MemberPortraitCard } from "./member-portrait-card";
@@ -188,6 +189,25 @@ type BillingData = {
   }>;
 };
 
+function getMemberDisplayName(fullName?: string | null): string {
+  if (!fullName) return "Anggota";
+  const cleaned = fullName.trim();
+  if (!cleaned) return "Anggota";
+  const parts = cleaned.split(/\s+/);
+  for (const part of parts) {
+    const lower = part.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
+    if (
+      !["ir", "dr", "drs", "dra", "h", "hj", "prof", "kh", "st", "se", "sh", "skm", "spd", "mt", "mm", "phd", "msc", "bsc", "bba", "mba", "s", "pt", "cv"].includes(lower) &&
+      !part.endsWith(".") &&
+      part.length > 1
+    ) {
+      return part.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
+    }
+  }
+  const first = parts[0];
+  return (first ? first.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "") : "") || "Anggota";
+}
+
 export function MemberPortal() {
   const [data, setData] = useState<PortalData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -196,6 +216,7 @@ export function MemberPortal() {
   const [compliance, setCompliance] = useState<ComplianceData | null>(null);
   const [learning, setLearning] = useState<LearningData | null>(null);
   const [billing, setBilling] = useState<BillingData | null>(null);
+  const router = useRouter();
 
   const loadPortal = useCallback(() => {
     setLoading(true);
@@ -244,60 +265,77 @@ export function MemberPortal() {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => loadPortal(), [loadPortal]);
+  useEffect(() => {
+    loadPortal();
+  }, [loadPortal]);
 
   const logout = async () => {
     try {
       localStorage.removeItem("openorg_member_logged_in");
+      document.cookie =
+        "openorg_member_active=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     } catch {
       // storage blocked
     }
-    await memberApi("/v1/member/logout", { method: "POST" });
-    window.location.assign("/member/login");
+    try {
+      await memberApi("/v1/member/logout", { method: "POST" });
+    } catch {
+      // ignore
+    }
+    setData(null);
+    setUnauthorized(true);
+    router.push("/member/login");
   };
 
   if (loading)
     return (
-      <div className="portal-loading">
-        <span className="spinner-dot" />
-        Memuat ruang kerja portal anggota…
+      <div className="member-portal-page wrap">
+        <div className="portal-loading-card">
+          <div className="portal-spinner" />
+          <p>Memuat dasbor anggota...</p>
+        </div>
       </div>
     );
-  if (unauthorized || !data)
+
+  if (!data)
     return (
-      <div className="member-success-card portal-gate">
-        <span>
-          <ShieldCheck size={32} />
-        </span>
-        <p className="eyebrow">Portal Anggota Resmi</p>
-        <h2>Silakan Masuk Terlebih Dahulu</h2>
-        <p>
-          Akses kartu KTA digital, status sertifikasi BNSP, riwayat kredit SKP,
-          dan profil keanggotaan Anda tersimpan aman dan privat.
-        </p>
-        <div className="gate-action-buttons">
-          <Link className="button primary" href="/member/login">
-            Masuk ke Akun
-          </Link>
-          <Link className="button secondary" href="/join">
-            Daftar Anggota Baru
-          </Link>
+      <div className="member-portal-gate wrap">
+        <div className="portal-gate-card">
+          <span className="gate-icon-circle">
+            <ShieldCheck size={32} />
+          </span>
+          <p className="eyebrow">Portal Anggota Resmi</p>
+          <h2>Silakan Masuk Terlebih Dahulu</h2>
+          <p>
+            Akses kartu KTA digital, status sertifikasi BNSP, riwayat kredit SKP,
+            dan profil keanggotaan Anda tersimpan aman dan privat.
+          </p>
+          <div className="gate-action-buttons">
+            <Link className="button primary" href="/member/login">
+              Masuk ke Akun
+            </Link>
+            <Link className="button secondary" href="/join">
+              Daftar Anggota Baru
+            </Link>
+          </div>
+          {error && <p className="form-error mt-4">{error}</p>}
         </div>
-        {error && <p className="form-error mt-4">{error}</p>}
       </div>
     );
 
   const applicationStatus = data.application?.status ?? data.member.status;
+  const memberFirstName = getMemberDisplayName(data.member.name);
+
   return (
     <div className="member-dashboard">
       <div className="member-dashboard-head">
         <div>
-          <p className="eyebrow">Member workspace</p>
-          <h1>Hello, {data.member.name.split(" ")[0]}.</h1>
-          <p>Manage your membership with {data.organization.name}.</p>
+          <p className="eyebrow">Portal Anggota</p>
+          <h1>Halo, {memberFirstName}</h1>
+          <p>Kelola keanggotaan, KTA Digital, dan layanan kompetensi di {data.organization.name}.</p>
         </div>
         <button className="button member-logout" type="button" onClick={logout}>
-          <LogOut size={17} /> Sign out
+          <LogOut size={16} /> <span>Keluar</span>
         </button>
       </div>
 
@@ -324,11 +362,11 @@ export function MemberPortal() {
           <BadgeCheck size={22} />
         </span>
         <span>
-          <small>Membership status</small>
-          <strong>{applicationStatus.replace("_", " ")}</strong>
+          <small>Status Keanggotaan</small>
+          <strong>{applicationStatus === "active" ? "Aktif" : applicationStatus.replace("_", " ")}</strong>
         </span>
         <span className={`public-status ${applicationStatus}`}>
-          {applicationStatus}
+          {applicationStatus === "active" ? "Aktif" : applicationStatus}
         </span>
       </div>
       <div className="member-dashboard-grid">
@@ -338,25 +376,25 @@ export function MemberPortal() {
               <UserRound size={19} />
             </span>
             <div>
-              <h2>Profile</h2>
-              <p>Your registered information</p>
+              <h2>Profil Anggota</h2>
+              <p>Informasi data resmi terdaftar</p>
             </div>
           </div>
           <dl className="portal-details">
             <div>
-              <dt>Member number</dt>
+              <dt>Nomor KTA</dt>
               <dd>{data.member.memberNumber}</dd>
             </div>
             <div>
-              <dt>Email</dt>
+              <dt>Alamat Email</dt>
               <dd>{data.member.email ?? "—"}</dd>
             </div>
             <div>
-              <dt>Phone</dt>
+              <dt>No. WhatsApp / Telepon</dt>
               <dd>{data.member.phone ?? "—"}</dd>
             </div>
             <div>
-              <dt>Address</dt>
+              <dt>Alamat Domisili</dt>
               <dd>{data.member.address ?? "—"}</dd>
             </div>
           </dl>
@@ -367,31 +405,31 @@ export function MemberPortal() {
               <CalendarDays size={19} />
             </span>
             <div>
-              <h2>Application</h2>
-              <p>Review progress and decision</p>
+              <h2>Status Pengajuan</h2>
+              <p>Progres verifikasi dan penerbitan</p>
             </div>
           </div>
           <ol className="application-timeline">
             <li className="complete">
               <span />
-              Application received
+              Pendaftaran Diterima
             </li>
             <li className={data.emailVerified ? "complete" : ""}>
               <span />
-              Email verified
+              Email Terverifikasi
             </li>
             <li className={applicationStatus === "active" ? "complete" : ""}>
               <span />
-              Reviewed by the organization
+              Verifikasi Berkas Organisasi
             </li>
             <li className={data.card ? "complete" : ""}>
               <span />
-              Member card issued
+              KTA Digital Diterbitkan
             </li>
           </ol>
           {data.application?.rejectionReason && (
             <p className="application-feedback">
-              <strong>Review note:</strong> {data.application.rejectionReason}
+              <strong>Catatan Peninjauan:</strong> {data.application.rejectionReason}
             </p>
           )}
         </section>
