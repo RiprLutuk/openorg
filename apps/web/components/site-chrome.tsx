@@ -234,6 +234,11 @@ function HeaderContent({ site }: { site: PublicSite }) {
           href: "/technicians",
         },
         {
+          id: "workshop-locator",
+          label: "Bursa Bengkel & Toko Resmi",
+          href: "/technicians?tab=workshops",
+        },
+        {
           id: "clubs-directory",
           label: "Direktori Komunitas & Klub (TKT)",
           href: "/clubs",
@@ -806,6 +811,7 @@ export function Footer({ site }: { site: PublicSite }) {
           <div className="footer-nav-col">
             <h3>Layanan & Direktori</h3>
             <Link href="/technicians">Cari Teknisi AC KTA</Link>
+            <Link href="/technicians?tab=workshops">Bursa Bengkel & Toko AC</Link>
             <Link href="/partners">Mitra & Distributor Resmi</Link>
             <Link href="/clubs">Direktori Klub & TKT</Link>
             <Link href="/verify">Verifikasi KTA Digital</Link>
