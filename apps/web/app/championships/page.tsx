@@ -553,47 +553,100 @@ export function ChampionshipsPageContent() {
             </div>
           </div>
 
-          {/* Top 3 Podium Cards */}
+          {/* Top 3 Champion Podium Cards */}
           {topPodium.length > 0 && !searchParam && currentPage === 1 && (
             <div className="podium-grid slide-in-up mb-8">
-              {topPodium.map((pod) => (
-                <div
-                  key={pod.id}
-                  className={`podium-card rank-${pod.rank} ${pod.rank === 1 ? "champion-card" : ""}`}
-                >
-                  <div className="podium-rank-badge">
-                    {pod.rank === 1 ? (
-                      <Crown size={20} color="#f59e0b" />
-                    ) : pod.rank === 2 ? (
-                      <Medal size={20} color="#94a3b8" />
-                    ) : (
-                      <Medal size={20} color="#b45309" />
-                    )}
-                    <span>Peringkat #{pod.rank}</span>
-                  </div>
+              {topPodium.map((pod) => {
+                const isGold = pod.rank === 1;
+                const isSilver = pod.rank === 2;
+                const rankLabel = isGold
+                  ? "JUARA 1 NASIONAL"
+                  : isSilver
+                    ? "RUNNER-UP #2"
+                    : "PERINGKAT #3";
 
-                  <div className="podium-avatar">
-                    <Users size={28} />
-                  </div>
+                const initials = pod.participantName
+                  .split(" ")
+                  .slice(0, 2)
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase();
 
-                  <h3 className="podium-name">{pod.participantName}</h3>
-                  {pod.teamName && (
-                    <p className="podium-team">{pod.teamName}</p>
-                  )}
+                return (
+                  <article
+                    key={pod.id}
+                    className={`podium-card rank-${pod.rank} ${isGold ? "champion-card" : ""}`}
+                  >
+                    {/* Top Metallic Accent Line */}
+                    <div className="podium-accent-line" />
 
-                  <div className="podium-points-chip">
-                    <Star size={14} />
-                    <span>{pod.points} Total Poin</span>
-                  </div>
-
-                  {pod.achievements && (
-                    <div className="podium-achievement-box">
-                      <Sparkles size={13} color="#f59e0b" />
-                      <span>{pod.achievements}</span>
+                    {/* Background Watermark Crest */}
+                    <div className="podium-watermark" aria-hidden="true">
+                      {isGold ? <Crown size={110} /> : isSilver ? <Medal size={110} /> : <Trophy size={110} />}
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {/* Header Rank Badge */}
+                    <div className="podium-card-header">
+                      <div className="podium-rank-badge">
+                        {isGold ? (
+                          <Crown size={15} />
+                        ) : (
+                          <Medal size={15} />
+                        )}
+                        <span>{rankLabel}</span>
+                      </div>
+                      <span className="podium-season-tag">Musim {pod.seasonYear}</span>
+                    </div>
+
+                    {/* Champion Avatar Frame */}
+                    <div className="podium-avatar-wrapper">
+                      <div className="podium-avatar">
+                        <span className="podium-avatar-initials">{initials}</span>
+                      </div>
+                      <span className="podium-avatar-rank-pill">
+                        #{pod.rank}
+                      </span>
+                    </div>
+
+                    {/* Identity & Team Name */}
+                    <div className="podium-identity-block">
+                      <h3 className="podium-name">{pod.participantName}</h3>
+                      {pod.teamName && (
+                        <div className="podium-team-badge" title={pod.teamName}>
+                          <Building2 size={12} className="flex-shrink-0" />
+                          <span>{pod.teamName}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Score & Points Bento Display */}
+                    <div className="podium-score-bento">
+                      <div className="score-icon-wrap">
+                        {isGold ? (
+                          <Trophy size={17} color="#d97706" />
+                        ) : (
+                          <Star size={17} color="#0284c7" />
+                        )}
+                      </div>
+                      <div className="score-text-wrap">
+                        <span className="score-num">{pod.points}</span>
+                        <span className="score-unit">POIN</span>
+                      </div>
+                      <span className="score-category-chip">{pod.category || "HVAC/R"}</span>
+                    </div>
+
+                    {/* Citation / Official Achievement Box */}
+                    {pod.achievements && (
+                      <div className="podium-achievement-box">
+                        <div className="achievement-icon">
+                          <Sparkles size={14} />
+                        </div>
+                        <p className="achievement-text">{pod.achievements}</p>
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
             </div>
           )}
 
