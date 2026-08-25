@@ -8170,9 +8170,9 @@ function InboxManager() {
   return (
     <>
       <PageHeading
-        eyebrow="Conversations"
-        title="Inbox"
-        description="Review contact messages, applications, and form submissions as a shared workflow."
+        eyebrow="Pesan & Komunikasi"
+        title="Kotak Masuk (Inbox)"
+        description="Kelola pesan formulir kontak publik, permohonan informasi, dan konsultasi teknis dari mitra dan masyarakat."
       />
       <div className="inbox-layout">
         <section className="table-panel inbox-list">
@@ -8182,17 +8182,17 @@ function InboxManager() {
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search submissions…"
+                placeholder="Cari pengirim, subjek, atau email…"
               />
             </label>
             <select
               value={status}
               onChange={(event) => setStatus(event.target.value)}
             >
-              <option value="">All status</option>
-              <option value="new">New</option>
-              <option value="in_progress">In progress</option>
-              <option value="resolved">Resolved</option>
+              <option value="">Semua Status</option>
+              <option value="new">Baru (New)</option>
+              <option value="in_progress">Sedang Diproses</option>
+              <option value="resolved">Selesai (Resolved)</option>
               <option value="spam">Spam</option>
             </select>
           </div>
@@ -8208,8 +8208,13 @@ function InboxManager() {
                 <span>
                   <strong>{submissionTitle(item)}</strong>
                   <small>
-                    {item.formName} ·{" "}
-                    {new Date(item.createdAt).toLocaleString()}
+                    {item.subject || item.formName || "Pesan Masuk"} ·{" "}
+                    {new Date(item.createdAt).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </small>
                   <p>{submissionPreview(item)}</p>
                 </span>
@@ -8218,7 +8223,7 @@ function InboxManager() {
             ))}
           </div>
           {!query.isLoading && !items.length && (
-            <Empty message="No submissions match this view." />
+            <Empty message="Tidak ada pesan masuk yang sesuai dengan filter ini." />
           )}
         </section>
         <section className="panel submission-detail">
@@ -8226,26 +8231,64 @@ function InboxManager() {
             <>
               <div className="panel-head">
                 <div>
-                  <span className="eyebrow">{selected.formName}</span>
+                  <span className="eyebrow">{selected.subject || selected.formName || "Formulir Kontak Publik"}</span>
                   <h2>{submissionTitle(selected)}</h2>
                   <p>
-                    Received {new Date(selected.createdAt).toLocaleString()}
+                    Diterima pada {new Date(selected.createdAt).toLocaleDateString("id-ID", {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </p>
                 </div>
                 <Status value={selected.status} />
               </div>
-              <dl>
-                {Object.entries(selected.payload ?? {}).map(([key, value]) => (
-                  <div key={key}>
-                    <dt>{key.replace(/_/g, " ")}</dt>
-                    <dd>
-                      {typeof value === "string"
-                        ? value
-                        : JSON.stringify(value)}
-                    </dd>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px", margin: "16px 0" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", background: "#f8fafc", padding: "14px", borderRadius: "8px", border: "1px solid var(--line)" }}>
+                  <div>
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Email Pengirim</span>
+                    <p style={{ margin: "2px 0 0", fontSize: "13px", fontWeight: 600, color: "#0f172a" }}>{selected.email || "—"}</p>
                   </div>
-                ))}
-              </dl>
+                  <div>
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Nomor Telepon / WhatsApp</span>
+                    <p style={{ margin: "2px 0 0", fontSize: "13px", fontWeight: 600, color: "#0f172a" }}>{selected.phone || "—"}</p>
+                  </div>
+                </div>
+
+                {selected.subject && (
+                  <div>
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Perihal / Topik</span>
+                    <h3 style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 700, color: "#0f172a" }}>{selected.subject}</h3>
+                  </div>
+                )}
+
+                <div>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Isi Pesan Masuk</span>
+                  <div style={{ margin: "6px 0 0", padding: "16px", background: "#ffffff", border: "1px solid var(--line)", borderRadius: "8px", fontSize: "13.5px", lineHeight: "1.6", color: "#1e293b", whiteSpace: "pre-wrap" }}>
+                    {selected.message || (selected.payload && (selected.payload.message as string || selected.payload.description as string)) || "—"}
+                  </div>
+                </div>
+
+                {selected.payload && Object.keys(selected.payload).length > 0 && (
+                  <dl style={{ marginTop: "10px" }}>
+                    {Object.entries(selected.payload).map(([key, value]) => (
+                      <div key={key}>
+                        <dt>{key.replace(/_/g, " ")}</dt>
+                        <dd>
+                          {typeof value === "string"
+                            ? value
+                            : JSON.stringify(value)}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </div>
+
               <div className="submission-actions">
                 <button
                   type="button"
@@ -8254,7 +8297,7 @@ function InboxManager() {
                     update.mutate({ id: selected.id, nextStatus: "spam" })
                   }
                 >
-                  Mark spam
+                  Tandai Spam
                 </button>
                 <button
                   type="button"
@@ -8266,7 +8309,7 @@ function InboxManager() {
                     })
                   }
                 >
-                  Take ownership
+                  Proses Pesan
                 </button>
                 <button
                   type="button"
@@ -8275,12 +8318,12 @@ function InboxManager() {
                     update.mutate({ id: selected.id, nextStatus: "resolved" })
                   }
                 >
-                  Resolve
+                  Selesaikan & Arsipkan
                 </button>
               </div>
             </>
           ) : (
-            <Empty message="Select a submission to see its full details." />
+            <Empty message="Pilih salah satu pesan dari daftar sebelah kiri untuk membaca detail." />
           )}
         </section>
       </div>
@@ -8289,16 +8332,22 @@ function InboxManager() {
 }
 
 function submissionTitle(item: CmsSubmission) {
-  const name =
-    item.payload.name ?? item.payload.full_name ?? item.payload.email;
-  return typeof name === "string" ? name : "Anonymous submission";
+  return (
+    item.name ||
+    (item.payload && (item.payload.name as string || item.payload.full_name as string || item.payload.email as string)) ||
+    item.email ||
+    "Pengirim Anonim"
+  );
 }
 
 function submissionPreview(item: CmsSubmission) {
-  const message = item.payload.message ?? item.payload.description;
+  const message =
+    item.message ||
+    item.subject ||
+    (item.payload && (item.payload.message as string || item.payload.description as string));
   return typeof message === "string"
     ? message.slice(0, 110)
-    : "Open to view submitted fields";
+    : "Buka untuk melihat isi pesan";
 }
 
 function dateTimeInput(value?: string | null) {

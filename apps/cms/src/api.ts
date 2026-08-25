@@ -441,12 +441,17 @@ export type CmsMember = {
 
 export type CmsSubmission = {
   id: string;
-  formId: string;
-  formName: string;
-  payload: Record<string, unknown>;
+  name: string;
+  email: string;
+  phone?: string | null;
+  subject?: string | null;
+  message?: string | null;
+  formId?: string | null;
+  formName?: string | null;
+  payload?: Record<string, unknown> | null;
   status: "new" | "in_progress" | "resolved" | "spam";
   createdAt: string;
-  resolvedAt: string | null;
+  resolvedAt?: string | null;
 };
 
 export type CmsCredentialField = {
