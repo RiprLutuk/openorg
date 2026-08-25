@@ -24473,13 +24473,13 @@ img {
 }
 
 /* ==========================================================================
-   Public Workshop Detail Dossier Modal (Refactored Clean & Modern)
+   Public Workshop Place Dossier Modal (Airy, Scannable & Minimalist)
    ========================================================================== */
 .ws-detail-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(8px);
   display: grid;
   place-items: center;
@@ -24492,93 +24492,42 @@ img {
   border: 1px solid #e2e8f0;
   border-radius: 20px;
   width: 100%;
-  max-width: 660px;
-  max-height: 90vh;
+  max-width: 580px;
+  max-height: 88vh;
   display: flex;
   flex-direction: column;
   box-shadow:
-    0 25px 60px -15px rgba(15, 23, 42, 0.3),
+    0 25px 60px -15px rgba(15, 23, 42, 0.25),
     0 0 0 1px rgba(15, 23, 42, 0.05);
   overflow: hidden;
-  animation: modalCardPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modalCardPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ws-modal-mobile-handle-bar {
   display: none;
 }
 
-.ws-modal-header {
-  padding: 14px 20px;
-  border-bottom: 1px solid #f1f5f9;
-  background: #f8fafc;
-}
-
-.ws-modal-header-main {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-}
-
-.ws-modal-header-top-row {
+/* Minimal Header */
+.ws-modal-header-simple {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  gap: 10px;
 }
 
-.ws-modal-header-sub-row {
-  display: flex;
+.ws-modal-header-tag {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
-}
-
-.ws-modal-badge-verified {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 750;
-  color: #15803d;
-  background: #dcfce7;
-  border: 1px solid #86efac;
-  padding: 3px 9px;
-  border-radius: 9999px;
-}
-
-.ws-modal-badge-kta {
-  font-size: 11px;
-  color: #475569;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  padding: 3px 9px;
-  border-radius: 9999px;
-}
-
-.ws-modal-badge-distance {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
-  color: #0369a1;
-  background: #e0f2fe;
-  border: 1px solid #bae6fd;
-  padding: 3px 9px;
-  border-radius: 9999px;
-}
-
-.ws-modal-badge-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 750;
-  color: #854d0e;
-  background: #fef9c3;
-  border: 1px solid #fde047;
-  padding: 3px 8px;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 3.5px 10px;
   border-radius: 9999px;
 }
 
@@ -24589,9 +24538,8 @@ img {
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  border: 1px solid transparent;
-  background: #ffffff;
   border: 1px solid #e2e8f0;
+  background: #ffffff;
   color: #64748b;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -24604,316 +24552,255 @@ img {
   border-color: #fca5a5;
 }
 
+/* Scroll Body */
 .ws-modal-scroll-body {
-  padding: 18px 20px;
+  padding: 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   scrollbar-width: thin;
 }
 
-.ws-modal-brand-hero {
+/* Hero Section */
+.ws-modal-hero-clean {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.ws-modal-brand-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border: 1px solid #bae6fd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.ws-modal-brand-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.ws-modal-title {
-  font-size: 18px;
+.ws-modal-hero-title {
+  font-size: 20px;
   font-weight: 850;
   color: #0f172a;
-  margin: 0 0 2px;
+  margin: 0;
   line-height: 1.25;
   letter-spacing: -0.02em;
 }
 
-.ws-modal-tagline {
-  font-size: 12px;
+.ws-modal-hero-tagline {
+  font-size: 13px;
   color: #64748b;
-  margin: 0;
-  line-height: 1.4;
+  margin: 0 0 4px;
+  line-height: 1.45;
 }
 
-/* 4-Cell Bento Attribute Grid */
-.ws-modal-bento-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
-}
-
-.ws-bento-tile {
+/* Quick One-Line Meta Highlights */
+.ws-modal-quick-meta-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #f8fafc;
-  border: 1px solid #f1f5f9;
-  border-radius: 10px;
-  padding: 8px 10px;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
 }
 
-.ws-bento-icon-box {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
+.ws-meta-pill-highlight {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Sections & Chips */
+.ws-modal-section-clean {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ws-clean-section-label {
+  font-size: 11px;
+  font-weight: 750;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.ws-clean-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ws-clean-service-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 650;
+  color: #0f172a;
+  background: #f0fdf4;
+  border: 1px solid #dcfce7;
+  padding: 4px 9px;
+  border-radius: 6px;
+}
+
+.ws-clean-desc-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #475569;
+  margin: 0;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border-left: 3px solid #0284c7;
+}
+
+/* Unified Info Card (Single Card with 2 Clear Rows) */
+.ws-unified-info-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.ws-unified-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #ffffff;
+}
+
+.ws-unified-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.ws-bento-label {
-  display: block;
-  font-size: 9.5px;
-  font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  line-height: 1.1;
-  margin-bottom: 2px;
-}
-
-.ws-bento-value {
-  display: block;
-  font-size: 11.5px;
-  color: #1e293b;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.ws-modal-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.ws-section-header-clean {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.ws-modal-editorial-box {
-  background: #f8fafc;
-  border-left: 3px solid #0284c7;
-  border-radius: 3px 8px 8px 3px;
-  padding: 9px 12px;
-}
-
-.ws-modal-editorial-box p {
-  font-size: 12px;
-  line-height: 1.55;
-  color: #334155;
-  margin: 0;
-}
-
-/* Services Chips Cloud */
-.ws-modal-services-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.ws-service-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11.5px;
-  font-weight: 650;
-  color: #0f172a;
-  background: #f0f9ff;
-  border: 1px solid #e0f2fe;
-  border-radius: 7px;
-  padding: 5px 9px;
-}
-
-/* Map Card */
-.ws-modal-map-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border: 1px solid #bae6fd;
-  border-radius: 11px;
-  padding: 9px 12px;
-  flex-wrap: wrap;
-}
-
-.ws-map-card-text {
+.ws-unified-content {
   display: flex;
   flex-direction: column;
   gap: 1px;
   flex: 1;
-  min-width: 170px;
+  min-width: 0;
 }
 
-.ws-map-card-text strong {
-  font-size: 12px;
-  color: #0369a1;
-}
-
-.ws-map-card-text span {
-  font-size: 11px;
-  color: #475569;
-}
-
-.ws-btn-nav-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 750;
-  padding: 5.5px 11px;
-  border-radius: 7px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-/* Master Tech Card */
-.ws-modal-master-tech-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 11px;
-  padding: 9px 12px;
-  flex-wrap: wrap;
-}
-
-.ws-master-left {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.ws-master-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: #e0f2fe;
-  border: 1px solid #bae6fd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.ws-master-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.ws-master-role {
-  font-size: 9.5px;
+.ws-unified-label {
+  font-size: 10px;
+  font-weight: 700;
   color: #94a3b8;
-  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   line-height: 1;
 }
 
-.ws-master-name {
-  font-size: 12.5px;
+.ws-unified-title {
+  font-size: 13px;
   color: #0f172a;
-  font-weight: 800;
+  font-weight: 750;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.ws-unified-sub {
+  font-size: 11.5px;
+  color: #64748b;
   line-height: 1.2;
 }
 
-.ws-master-kta {
-  font-size: 10.5px;
-  color: #64748b;
-}
-
-.ws-btn-master-profile {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 10px;
-  border-radius: 6px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-/* Modal Sticky Bottom Action Bar */
-.ws-modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  padding: 10px 18px;
-  border-top: 1px solid #f1f5f9;
-  background: #f8fafc;
-  flex-wrap: wrap;
-}
-
-.ws-modal-footer-sub-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.ws-btn-footer-secondary {
+.ws-btn-row-action {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: 11.5px;
   font-weight: 700;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 7px;
   text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  transition: all 0.15s ease;
+}
+
+.ws-btn-row-action:hover {
+  background: #f0f9ff;
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.ws-unified-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 0;
+}
+
+/* Modal Bottom CTA Bar */
+.ws-modal-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid #f1f5f9;
   background: #ffffff;
+  flex-wrap: wrap;
+}
+
+.ws-modal-sub-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ws-btn-action-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 7.5px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  background: #f8fafc;
   border: 1px solid #cbd5e1;
   color: #334155;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.ws-btn-footer-secondary:hover {
+.ws-btn-action-pill:hover {
   background: #f1f5f9;
   border-color: #94a3b8;
   color: #0f172a;
 }
 
-.ws-btn-footer-primary {
+.ws-btn-whatsapp-main {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   border: 1px solid #059669 !important;
   color: #ffffff !important;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 750;
-  padding: 6.5px 13px;
-  border-radius: 7px;
+  padding: 8px 16px;
+  border-radius: 8px;
   text-decoration: none;
   box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
   transition: all 0.15s ease;
+  margin-left: auto;
 }
 
-.ws-btn-footer-primary:hover {
+.ws-btn-whatsapp-main:hover {
   filter: brightness(1.05);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
 }
@@ -24930,7 +24817,7 @@ img {
   .ws-detail-modal-card {
     max-width: 100%;
     border-radius: 20px 20px 0 0;
-    max-height: 88vh;
+    max-height: 85vh;
     border-bottom: none;
     border-left: none;
     border-right: none;
@@ -24947,86 +24834,66 @@ img {
     flex-shrink: 0;
   }
 
-  .ws-modal-header {
-    padding: 8px 16px 10px;
+  .ws-modal-header-simple {
+    padding: 10px 16px;
+  }
+
+  .ws-modal-header-tag {
+    font-size: 10.5px;
+    padding: 2.5px 8px;
   }
 
   .ws-modal-scroll-body {
-    padding: 12px 16px 14px;
-    gap: 11px;
+    padding: 14px 16px 16px;
+    gap: 13px;
   }
 
-  .ws-modal-brand-hero {
+  .ws-modal-hero-title {
+    font-size: 17px;
+  }
+
+  .ws-modal-hero-tagline {
+    font-size: 12px;
+  }
+
+  .ws-unified-row {
+    padding: 10px 12px;
     gap: 10px;
+    flex-wrap: wrap;
   }
 
-  .ws-modal-brand-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 9px;
-  }
-
-  .ws-modal-title {
-    font-size: 16px;
-    line-height: 1.25;
-  }
-
-  .ws-modal-tagline {
+  .ws-btn-row-action {
+    width: 100%;
+    justify-content: center;
+    padding: 5px 10px;
     font-size: 11px;
   }
 
-  /* Keep 2x2 Grid compact on mobile */
-  .ws-modal-bento-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 5px;
-  }
-
-  .ws-bento-tile {
-    padding: 6px 8px;
-    gap: 6px;
-  }
-
-  .ws-bento-icon-box {
-    width: 22px;
-    height: 22px;
-    border-radius: 5px;
-  }
-
-  .ws-bento-label {
-    font-size: 8.5px;
-    margin-bottom: 1px;
-  }
-
-  .ws-bento-value {
-    font-size: 10.5px;
-    line-height: 1.15;
-  }
-
-  /* Footer Stack */
-  .ws-modal-footer {
-    padding: 8px 14px 12px;
+  .ws-modal-bottom-bar {
+    padding: 10px 16px 14px;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
   }
 
-  .ws-modal-footer-sub-actions {
+  .ws-modal-sub-actions {
     width: 100%;
     display: flex;
-    gap: 5px;
+    gap: 6px;
   }
 
-  .ws-btn-footer-secondary {
+  .ws-btn-action-pill {
     flex: 1;
     justify-content: center;
-    padding: 6px 4px;
-    font-size: 10.5px;
+    padding: 7px 4px;
+    font-size: 11px;
   }
 
-  .ws-btn-footer-primary {
+  .ws-btn-whatsapp-main {
     width: 100%;
     justify-content: center;
-    font-size: 12px;
-    padding: 8px 12px;
+    font-size: 13px;
+    padding: 9px 14px;
+    margin-left: 0;
   }
 }
 

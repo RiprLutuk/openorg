@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Briefcase,
   Building2,
   Check,
   CheckCircle2,
@@ -239,7 +238,7 @@ export function PublicWorkshopCard({
       </article>
 
       {/* =========================================================================
-          REFACTORED CLEAN & INFORMATIVE WORKSHOP DOSSIER MODAL
+          AIRY, MODERN, SCANNABLE PLACE DOSSIER MODAL
           ========================================================================= */}
       {showDetail && (
         <div
@@ -249,187 +248,136 @@ export function PublicWorkshopCard({
           }}
         >
           <div className="ws-detail-modal-card" role="dialog" aria-modal="true">
-            {/* Mobile Sheet Drag Indicator */}
+            {/* Mobile Sheet Drag Handle */}
             <div className="ws-modal-mobile-handle-bar" aria-hidden="true" />
 
-            {/* Modal Top Bar */}
-            <div className="ws-modal-header">
-              <div className="ws-modal-header-main">
-                <div className="ws-modal-header-top-row">
-                  <span className="ws-modal-badge-verified">
-                    <ShieldCheck size={13} className="text-emerald-600" />
-                    <span>Mitra Resmi Terverifikasi</span>
-                  </span>
-                  <button
-                    type="button"
-                    className="ws-modal-close-btn"
-                    onClick={() => setShowDetail(false)}
-                    aria-label="Tutup Dialog"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-                <div className="ws-modal-header-sub-row">
-                  <span className="ws-modal-badge-kta">
-                    NRA: <strong>{workshop.memberNumber}</strong>
-                  </span>
-                  {workshop.distanceKm !== undefined && (
-                    <span className="ws-modal-badge-distance">
-                      📍 {workshop.distanceKm < 1 ? "< 1 km" : `±${Math.round(workshop.distanceKm)} km`}
-                    </span>
-                  )}
-                  <span className="ws-modal-badge-rating">
-                    <Star size={11} className="fill-amber-400 text-amber-400" />
-                    <span>{workshop.rating ? workshop.rating.toFixed(2) : "4.95"}</span>
-                  </span>
-                </div>
+            {/* Modal Minimal Header */}
+            <div className="ws-modal-header-simple">
+              <div className="ws-modal-header-tag">
+                <ShieldCheck size={14} className="text-emerald-600 flex-shrink-0" />
+                <span>Mitra Resmi Organisasi · NRA: {workshop.memberNumber}</span>
               </div>
+              <button
+                type="button"
+                className="ws-modal-close-btn"
+                onClick={() => setShowDetail(false)}
+                aria-label="Tutup Dialog"
+              >
+                <X size={18} />
+              </button>
             </div>
 
             {/* Modal Scrollable Body */}
             <div className="ws-modal-scroll-body">
-              {/* Brand Hero */}
-              <div className="ws-modal-brand-hero">
-                <div className="ws-modal-brand-icon">
-                  <Store size={26} className="text-sky-600" />
-                </div>
-                <div className="ws-modal-brand-info">
-                  <h3 className="ws-modal-title">{workshop.workshopName}</h3>
-                  <p className="ws-modal-tagline">{workshop.tagline}</p>
-                </div>
-              </div>
-
-              {/* 4-Cell Bento Attribute Grid */}
-              <div className="ws-modal-bento-grid">
-                <div className="ws-bento-tile">
-                  <div className="ws-bento-icon-box">
-                    <Tag size={14} className="text-sky-600" />
-                  </div>
-                  <div>
-                    <span className="ws-bento-label">Kategori Usaha</span>
-                    <strong className="ws-bento-value">{workshop.category}</strong>
-                  </div>
-                </div>
-
-                <div className="ws-bento-tile">
-                  <div className="ws-bento-icon-box">
-                    <MapPin size={14} className="text-sky-600" />
-                  </div>
-                  <div>
-                    <span className="ws-bento-label">Wilayah Kota</span>
-                    <strong className="ws-bento-value">{workshop.city}, {workshop.province}</strong>
-                  </div>
-                </div>
-
-                <div className="ws-bento-tile">
-                  <div className="ws-bento-icon-box">
-                    <Clock size={14} className="text-sky-600" />
-                  </div>
-                  <div>
-                    <span className="ws-bento-label">Jam Operasional</span>
-                    <strong className="ws-bento-value">{workshop.operatingHours}</strong>
-                  </div>
-                </div>
-
-                <div className="ws-bento-tile">
-                  <div className="ws-bento-icon-box">
-                    <User size={14} className="text-sky-600" />
-                  </div>
-                  <div>
-                    <span className="ws-bento-label">Penanggung Jawab</span>
-                    <strong className="ws-bento-value">{workshop.ownerName}</strong>
-                  </div>
+              {/* Title & Tagline */}
+              <div className="ws-modal-hero-clean">
+                <h3 className="ws-modal-hero-title">{workshop.workshopName}</h3>
+                <p className="ws-modal-hero-tagline">{workshop.tagline}</p>
+                
+                {/* One-Line Meta Highlights */}
+                <div className="ws-modal-quick-meta-row">
+                  <span className="ws-meta-pill-highlight">
+                    <Star size={12} className="fill-amber-400 text-amber-400" />
+                    <strong>{workshop.rating ? workshop.rating.toFixed(2) : "4.95"}</strong>
+                  </span>
+                  {workshop.distanceKm !== undefined && (
+                    <span className="ws-meta-pill-highlight">
+                      <MapPin size={12} className="text-sky-600" />
+                      <span>{workshop.distanceKm < 1 ? "< 1 km" : `±${Math.round(workshop.distanceKm)} km`}</span>
+                    </span>
+                  )}
+                  <span className="ws-meta-pill-highlight">
+                    <Clock size={12} className="text-slate-500" />
+                    <span>{workshop.operatingHours}</span>
+                  </span>
+                  <span className="ws-meta-pill-highlight">
+                    <Tag size={12} className="text-slate-500" />
+                    <span>{workshop.category.replace(/^Bengkel\s+/i, "")}</span>
+                  </span>
                 </div>
               </div>
 
-              {/* Editorial Description */}
-              <div className="ws-modal-section">
-                <div className="ws-section-header-clean">
-                  <Building2 size={15} className="text-sky-600" />
-                  <span>Tentang &amp; Profil Usaha</span>
-                </div>
-                <div className="ws-modal-editorial-box">
-                  <p>
-                    {workshop.description ||
-                      `${workshop.workshopName} adalah unit usaha spesialis tata udara & refrigerasi berlisensi resmi di bawah naungan asosiasi dengan standar operasional prosedur mutu SKKNI, instrumen diagnostik terkalibrasi, dan garansi layanan transparan.`}
-                  </p>
-                </div>
-              </div>
-
-              {/* Clean Services Tags Cloud */}
+              {/* Layanan Unggulan Chips */}
               {workshop.services && workshop.services.length > 0 && (
-                <div className="ws-modal-section">
-                  <div className="ws-section-header-clean">
-                    <Wrench size={15} className="text-sky-600" />
-                    <span>Layanan Unggulan &amp; Spesialisasi Teknis ({workshop.services.length})</span>
-                  </div>
-                  <div className="ws-modal-services-wrap">
+                <div className="ws-modal-section-clean">
+                  <h5 className="ws-clean-section-label">Layanan Unggulan:</h5>
+                  <div className="ws-clean-chips-wrap">
                     {workshop.services.map((service) => (
-                      <div key={service} className="ws-service-chip">
-                        <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
+                      <span key={service} className="ws-clean-service-chip">
+                        <Check size={12} className="text-emerald-600" />
                         <span>{service}</span>
-                      </div>
+                      </span>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Clean Location & Navigation Card */}
-              <div className="ws-modal-section">
-                <div className="ws-section-header-clean">
-                  <MapPin size={15} className="text-sky-600" />
-                  <span>Lokasi Bengkel &amp; Akses Rute</span>
-                </div>
-                <div className="ws-modal-map-card">
-                  <div className="ws-map-card-text">
-                    <strong>{workshop.address}</strong>
-                    <span>{workshop.city}, {workshop.province}</span>
+              {/* Ringkasan Profil Singkat */}
+              <div className="ws-modal-section-clean">
+                <p className="ws-clean-desc-text">
+                  {workshop.description ||
+                    `${workshop.workshopName} melayani perbaikan, instalasi, dan pemeliharaan AC bergaransi resmi dengan teknisi berlisensi SKKNI.`}
+                </p>
+              </div>
+
+              {/* Unified Clean Info Card (Lokasi & Teknisi) */}
+              <div className="ws-unified-info-card">
+                {/* Row 1: Lokasi & Maps CTA */}
+                <div className="ws-unified-row">
+                  <div className="ws-unified-icon">
+                    <MapPin size={16} className="text-sky-600" />
+                  </div>
+                  <div className="ws-unified-content">
+                    <span className="ws-unified-label">Lokasi Bengkel / Toko</span>
+                    <strong className="ws-unified-title">{workshop.address}</strong>
+                    <span className="ws-unified-sub">{workshop.city}, {workshop.province}</span>
                   </div>
                   <a
                     href={mapsDirectUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="button primary ws-btn-nav-action"
+                    className="button secondary ws-btn-row-action"
+                    title="Buka Navigasi Google Maps"
                   >
-                    <Navigation size={13} />
-                    <span>Buka Rute Google Maps</span>
-                    <ExternalLink size={12} />
+                    <Navigation size={12} />
+                    <span>Rute Maps ↗</span>
                   </a>
                 </div>
-              </div>
 
-              {/* Master Technician Credential Block */}
-              <div className="ws-modal-master-tech-card">
-                <div className="ws-master-left">
-                  <div className="ws-master-avatar">
-                    <UserCheck size={20} className="text-sky-600" />
+                <div className="ws-unified-divider" />
+
+                {/* Row 2: Pimpinan & Portofolio */}
+                <div className="ws-unified-row">
+                  <div className="ws-unified-icon">
+                    <UserCheck size={16} className="text-sky-600" />
                   </div>
-                  <div className="ws-master-info">
-                    <span className="ws-master-role">Pimpinan / Master Teknisi:</span>
-                    <strong className="ws-master-name">{workshop.ownerName}</strong>
-                    <span className="ws-master-kta">No. KTA: {workshop.memberNumber} · Terverifikasi</span>
+                  <div className="ws-unified-content">
+                    <span className="ws-unified-label">Pimpinan / Master Teknisi</span>
+                    <strong className="ws-unified-title">{workshop.ownerName}</strong>
+                    <span className="ws-unified-sub">No. KTA: {workshop.memberNumber} · Terverifikasi</span>
                   </div>
+                  <Link
+                    href={`/technicians?q=${encodeURIComponent(workshop.ownerName)}`}
+                    className="button secondary ws-btn-row-action"
+                    title="Lihat Portofolio Lengkap"
+                  >
+                    <span>Portofolio →</span>
+                  </Link>
                 </div>
-                <Link
-                  href={`/technicians?q=${encodeURIComponent(workshop.ownerName)}`}
-                  className="button secondary ws-btn-master-profile"
-                >
-                  <span>Portofolio Teknisi →</span>
-                </Link>
               </div>
             </div>
 
-            {/* Modal Sticky Bottom Action Bar */}
-            <div className="ws-modal-footer">
-              <div className="ws-modal-footer-sub-actions">
+            {/* Modal Bottom CTA Bar */}
+            <div className="ws-modal-bottom-bar">
+              <div className="ws-modal-sub-actions">
                 <button
                   type="button"
-                  className="button secondary ws-btn-footer-secondary"
+                  className="button secondary ws-btn-action-pill"
                   onClick={handleShare}
-                  title="Bagikan Tautan Profil"
+                  title="Bagikan Tautan"
                 >
                   {copied ? <Check size={13} className="text-emerald-600" /> : <Share2 size={13} />}
-                  <span>{copied ? "Tersalin!" : "Bagikan"}</span>
+                  <span>{copied ? "Tersalin" : "Bagikan"}</span>
                 </button>
 
                 {cleanWebUrl && (
@@ -437,7 +385,7 @@ export function PublicWorkshopCard({
                     href={cleanWebUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="button secondary ws-btn-footer-secondary"
+                    className="button secondary ws-btn-action-pill"
                   >
                     <Globe size={13} />
                     <span>Website</span>
@@ -447,7 +395,7 @@ export function PublicWorkshopCard({
                 {workshop.phone && (
                   <a
                     href={`tel:${workshop.phone.replace(/\D/g, "")}`}
-                    className="button secondary ws-btn-footer-secondary"
+                    className="button secondary ws-btn-action-pill"
                   >
                     <Phone size={13} />
                     <span>Telepon</span>
@@ -459,7 +407,7 @@ export function PublicWorkshopCard({
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="button primary ws-btn-footer-primary"
+                className="button primary ws-btn-whatsapp-main"
               >
                 <MessageSquare size={15} />
                 <span>Konsultasi &amp; Pesan WhatsApp</span>
