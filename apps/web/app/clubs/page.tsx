@@ -25,9 +25,12 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { ServerPagination } from "@/components/server-pagination";
+
+const ITEMS_PER_PAGE_CLUBS = 8;
 
 interface Club {
   id: string;
@@ -129,7 +132,10 @@ function getClubCategoryMeta(category: string): ClubCategoryMeta {
 }
 
 function ClubsContent() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const [clubs, setClubs] = useState<Club[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get("q") || "");
@@ -141,6 +147,9 @@ function ClubsContent() {
   );
   const [copiedTkt, setCopiedTkt] = useState<string | null>(null);
   const [activeClubModal, setActiveClubModal] = useState<Club | null>(null);
+
+  const pageParam = searchParams.get("page");
+  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
   const handleCopyTkt = (e: React.MouseEvent, tkt: string) => {
     e.stopPropagation();
@@ -156,23 +165,19 @@ function ClubsContent() {
     newProvince: string,
     newCategory: string,
   ) => {
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      if (newSearch.trim()) url.searchParams.set("q", newSearch.trim());
-      else url.searchParams.delete("q");
+    const params = new URLSearchParams(searchParams.toString());
+    if (newSearch.trim()) params.set("q", newSearch.trim());
+    else params.delete("q");
 
-      if (newProvince !== "all") url.searchParams.set("provinsi", newProvince);
-      else url.searchParams.delete("provinsi");
+    if (newProvince !== "all") params.set("provinsi", newProvince);
+    else params.delete("provinsi");
 
-      if (newCategory !== "all") url.searchParams.set("kategori", newCategory);
-      else url.searchParams.delete("kategori");
+    if (newCategory !== "all") params.set("kategori", newCategory);
+    else params.delete("kategori");
 
-      window.history.replaceState(
-        null,
-        "",
-        url.pathname + (url.search ? url.search : ""),
-      );
-    }
+    params.delete("page");
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
   };
 
   useEffect(() => {
@@ -180,7 +185,7 @@ function ClubsContent() {
       try {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
-        const res = await fetch(`${apiUrl}/v1/public/clubs`);
+        const res = await fetch(`${apiUrl}/v1/public/clubs?limit=100`);
         if (!res.ok) throw new Error("Failed to load clubs");
         const json = await res.json();
         setClubs(json.data ?? []);
@@ -216,6 +221,12 @@ function ClubsContent() {
 
     return matchSearch && matchProvince && matchCategory;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE_CLUBS));
+  const paginatedRows = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE_CLUBS,
+    currentPage * ITEMS_PER_PAGE_CLUBS,
+  );
 
   const totalMembers =
     clubs.reduce((acc, c) => acc + (c.activeMembers || 0), 0) || 1250;
@@ -397,121 +408,132 @@ function ClubsContent() {
               <p>Memuat direktori klub terdaftar...</p>
             </div>
           ) : (
-            <div className="tech-cards-grid">
-              {filtered.length > 0 ? (
-                filtered.map((club) => {
-                  const catMeta = getClubCategoryMeta(club.category);
-                  const CatIcon = catMeta.icon;
+            <>
+              <div className="tech-cards-grid">
+                {paginatedRows.length > 0 ? (
+                  paginatedRows.map((club) => {
+                    const catMeta = getClubCategoryMeta(club.category);
+                    const CatIcon = catMeta.icon;
 
-                  return (
-                    <article
-                      className="tech-card-modern club-card"
-                      key={club.id}
-                    >
-                      {/* Top Bar: TKT Badge & Category (Exact 26px Level Height) */}
-                      <div className="tech-card-top">
-                        <button
-                          type="button"
-                          className="club-tkt-badge"
-                          onClick={(e) => handleCopyTkt(e, club.codeTkt)}
-                          title={
-                            copiedTkt === club.codeTkt
-                              ? "Nomor TKT Tersalin!"
-                              : "Klik untuk menyalin nomor TKT"
-                          }
-                          aria-label={`Salin nomor TKT ${club.codeTkt}`}
-                        >
-                          {copiedTkt === club.codeTkt ? (
-                            <Check size={12} color="#16a34a" />
-                          ) : (
-                            <CheckCircle2 size={12} color="#16a34a" />
-                          )}
-                          <span>{club.codeTkt}</span>
-                        </button>
-
-                        <span
-                          className={`club-category-badge ${catMeta.bgClass}`}
-                          title={catMeta.label}
-                        >
-                          <CatIcon size={12} />
-                          <span>{catMeta.shortLabel}</span>
-                        </span>
-                      </div>
-
-                      {/* Profile Header Button */}
-                      <button
-                        type="button"
-                        className="tech-profile-btn"
-                        onClick={() => setActiveClubModal(club)}
+                    return (
+                      <article
+                        className="tech-card-modern club-card"
+                        key={club.id}
                       >
-                        <div className="tech-avatar-frame club-avatar">
-                          <Flag size={24} color="#0284c7" />
+                        {/* Top Bar: TKT Badge & Category (Exact 26px Level Height) */}
+                        <div className="tech-card-top">
+                          <button
+                            type="button"
+                            className="club-tkt-badge"
+                            onClick={(e) => handleCopyTkt(e, club.codeTkt)}
+                            title={
+                              copiedTkt === club.codeTkt
+                                ? "Nomor TKT Tersalin!"
+                                : "Klik untuk menyalin nomor TKT"
+                            }
+                            aria-label={`Salin nomor TKT ${club.codeTkt}`}
+                          >
+                            {copiedTkt === club.codeTkt ? (
+                              <Check size={12} color="#16a34a" />
+                            ) : (
+                              <CheckCircle2 size={12} color="#16a34a" />
+                            )}
+                            <span>{club.codeTkt}</span>
+                          </button>
+
+                          <span
+                            className={`club-category-badge ${catMeta.bgClass}`}
+                            title={catMeta.label}
+                          >
+                            <CatIcon size={12} />
+                            <span>{catMeta.shortLabel}</span>
+                          </span>
                         </div>
 
-                        <div className="tech-profile-copy">
-                          <h4>{club.clubName}</h4>
-                          {club.chairName && (
-                            <p className="tech-workshop-text">
-                              Ketua: {club.chairName}
-                            </p>
-                          )}
-                        </div>
-                      </button>
-
-                      {/* Meta Row: Members & Location */}
-                      <div className="club-meta-grid">
-                        <div className="tech-location-row">
-                          <MapPin size={13} color="#64748b" />
-                          <span>{club.province}</span>
-                        </div>
-                        <div className="club-members-count">
-                          <Users size={13} color="#0284c7" />
-                          <span>{club.activeMembers || 0} Anggota</span>
-                        </div>
-                      </div>
-
-                      {/* Footer Row: Clean Status & Single Detail CTA */}
-                      <div className="tech-card-footer">
-                        <span className="club-status-chip">
-                          <CheckCircle2 size={11} color="#16a34a" />
-                          <span>SK DPD Sah</span>
-                        </span>
-
+                        {/* Profile Header Button */}
                         <button
                           type="button"
-                          className="tech-detail-btn"
+                          className="tech-profile-btn"
                           onClick={() => setActiveClubModal(club)}
                         >
-                          <span>Detail Klub</span>
-                          <ArrowRight size={12} />
+                          <div className="tech-avatar-frame club-avatar">
+                            <Flag size={24} color="#0284c7" />
+                          </div>
+
+                          <div className="tech-profile-copy">
+                            <h4>{club.clubName}</h4>
+                            {club.chairName && (
+                              <p className="tech-workshop-text">
+                                Ketua: {club.chairName}
+                              </p>
+                            )}
+                          </div>
                         </button>
-                      </div>
-                    </article>
-                  );
-                })
-              ) : (
-                <div className="tech-empty-state">
-                  <Flag size={44} color="#94a3b8" />
-                  <h3>Tidak Ada Klub Sesuai Pencarian</h3>
-                  <p>
-                    Coba sesuaikan kata kunci nama klub, kode TKT, atau ubah
-                    filter wilayah.
-                  </p>
-                  <button
-                    type="button"
-                    className="button secondary btn-reset-tech"
-                    onClick={() => {
-                      setSearch("");
-                      setSelectedProvince("all");
-                      setSelectedCategory("all");
-                      updateUrl("", "all", "all");
-                    }}
-                  >
-                    Reset Filter Pencarian
-                  </button>
-                </div>
-              )}
-            </div>
+
+                        {/* Meta Row: Members & Location */}
+                        <div className="club-meta-grid">
+                          <div className="tech-location-row">
+                            <MapPin size={13} color="#64748b" />
+                            <span>{club.province}</span>
+                          </div>
+                          <div className="club-members-count">
+                            <Users size={13} color="#0284c7" />
+                            <span>{club.activeMembers || 0} Anggota</span>
+                          </div>
+                        </div>
+
+                        {/* Footer Row: Clean Status & Single Detail CTA */}
+                        <div className="tech-card-footer">
+                          <span className="club-status-chip">
+                            <CheckCircle2 size={11} color="#16a34a" />
+                            <span>SK DPD Sah</span>
+                          </span>
+
+                          <button
+                            type="button"
+                            className="tech-detail-btn"
+                            onClick={() => setActiveClubModal(club)}
+                          >
+                            <span>Detail Klub</span>
+                            <ArrowRight size={12} />
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })
+                ) : (
+                  <div className="tech-empty-state">
+                    <Flag size={44} color="#94a3b8" />
+                    <h3>Tidak Ada Klub Sesuai Pencarian</h3>
+                    <p>
+                      Coba sesuaikan kata kunci nama klub, kode TKT, atau ubah
+                      filter wilayah.
+                    </p>
+                    <button
+                      type="button"
+                      className="button secondary btn-reset-tech"
+                      onClick={() => {
+                        setSearch("");
+                        setSelectedProvince("all");
+                        setSelectedCategory("all");
+                        updateUrl("", "all", "all");
+                      }}
+                    >
+                      Reset Filter Pencarian
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Server-Side Pagination Bar */}
+              <ServerPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filtered.length}
+                pageSize={ITEMS_PER_PAGE_CLUBS}
+                itemName="Klub & Paguyuban"
+              />
+            </>
           )}
         </div>
       </section>

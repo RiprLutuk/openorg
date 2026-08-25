@@ -21,9 +21,12 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { ServerPagination } from "@/components/server-pagination";
+
+const ITEMS_PER_PAGE_POKJA = 6;
 
 interface WorkingGroup {
   id: string;
@@ -101,21 +104,43 @@ const POKJA_DETAILS: Record<
   },
 };
 
-export default function WorkingGroupsPage() {
+function WorkingGroupsContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [groups, setGroups] = useState<WorkingGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [search, setSearch] = useState(searchParams.get("q") || "");
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    searchParams.get("kategori") || "all",
+  );
   const [activeModalPokja, setActiveModalPokja] = useState<WorkingGroup | null>(
     null,
   );
+
+  const pageParam = searchParams.get("page");
+  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+
+  const updateUrl = (newSearch: string, newCat: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (newSearch.trim()) params.set("q", newSearch.trim());
+    else params.delete("q");
+
+    if (newCat !== "all") params.set("kategori", newCat);
+    else params.delete("kategori");
+
+    params.delete("page");
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
+  };
 
   useEffect(() => {
     const fetchGroups = async () => {
       try {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
-        const res = await fetch(`${apiUrl}/v1/public/working-groups`);
+        const res = await fetch(`${apiUrl}/v1/public/working-groups?limit=100`);
         if (!res.ok) throw new Error("Gagal memuat data Pokja");
         const json = await res.json();
         setGroups(json.data ?? []);
@@ -139,6 +164,12 @@ export default function WorkingGroupsPage() {
       g.description?.toLowerCase().includes(search.toLowerCase());
     return matchCategory && matchSearch;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredGroups.length / ITEMS_PER_PAGE_POKJA));
+  const paginatedRows = filteredGroups.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE_POKJA,
+    currentPage * ITEMS_PER_PAGE_POKJA,
+  );
 
   const categories = [
     { key: "all", label: "Semua Pokja" },
@@ -242,7 +273,10 @@ export default function WorkingGroupsPage() {
                   key={cat.key}
                   type="button"
                   className={`dir-cat-btn ${selectedCategory === cat.key ? "active" : ""}`}
-                  onClick={() => setSelectedCategory(cat.key)}
+                  onClick={() => {
+                    setSelectedCategory(cat.key);
+                    updateUrl(search, cat.key);
+                  }}
                 >
                   {cat.label}
                 </button>
@@ -257,14 +291,20 @@ export default function WorkingGroupsPage() {
                 type="text"
                 placeholder="Cari nama pokja, ketua, atau topik..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  updateUrl(e.target.value, selectedCategory);
+                }}
                 aria-label="Cari nama kelompok kerja, ketua, atau topik"
               />
               {search && (
                 <button
                   type="button"
                   className="search-clear-btn"
-                  onClick={() => setSearch("")}
+                  onClick={() => {
+                    setSearch("");
+                    updateUrl("", selectedCategory);
+                  }}
                   aria-label="Bersihkan pencarian"
                 >
                   <X size={14} />
@@ -275,8 +315,8 @@ export default function WorkingGroupsPage() {
 
           {/* Pokja Cards Grid */}
           <div className="pokja-cards-grid">
-            {filteredGroups.length > 0 ? (
-              filteredGroups.map((pokja) => {
+            {paginatedRows.length > 0 ? (
+              paginatedRows.map((pokja) => {
                 const detail = POKJA_DETAILS[pokja.slug] || {
                   iconType: "briefcase",
                   focusAreas: [
@@ -354,6 +394,15 @@ export default function WorkingGroupsPage() {
               </div>
             )}
           </div>
+
+          {/* Server-Side Pagination Bar */}
+          <ServerPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredGroups.length}
+            pageSize={ITEMS_PER_PAGE_POKJA}
+            itemName="Kelompok Kerja"
+          />
         </div>
       </section>
 
@@ -488,4 +537,18 @@ export default function WorkingGroupsPage() {
 
 function ChevronRightIcon({ size }: { size: number }) {
   return <ArrowRight size={size} />;
+}
+
+export default function WorkingGroupsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ color: "#64748b" }}>Memuat direktori kelompok kerja...</p>
+        </div>
+      }
+    >
+      <WorkingGroupsContent />
+    </Suspense>
+  );
 }

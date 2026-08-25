@@ -360,6 +360,8 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
           ])
           .optional(),
         search: z.string().optional(),
+        page: z.coerce.number().int().min(1).default(1),
+        limit: z.coerce.number().int().min(1).max(100).default(8),
       })
       .parse(request.query);
 
@@ -371,13 +373,31 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
       conditions.push(ilike(regulations.title, `%${query.search}%`));
     }
 
-    const rows = await db
-      .select()
-      .from(regulations)
-      .where(and(...conditions))
-      .orderBy(desc(regulations.issuedDate), desc(regulations.createdAt));
+    const offset = (query.page - 1) * query.limit;
+    const [rows, countRows] = await Promise.all([
+      db
+        .select()
+        .from(regulations)
+        .where(and(...conditions))
+        .orderBy(desc(regulations.issuedDate), desc(regulations.createdAt))
+        .limit(query.limit)
+        .offset(offset),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(regulations)
+        .where(and(...conditions)),
+    ]);
 
-    return { data: rows };
+    const total = countRows[0]?.count ?? 0;
+    return {
+      data: rows,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit) || 1,
+      },
+    };
   });
 
   // Public Complaint Evidence Upload Endpoint (Max 1MB per file, max 10 files)
@@ -543,30 +563,65 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     return { data: complaint };
   });
 
-  // Championship Standings Public API
+  // Championship Standings Public API (with pagination & search)
   app.get("/championships", async (request) => {
     const query = z
       .object({
         seasonYear: z.coerce.number().optional(),
         category: z.string().optional(),
+        search: z.string().optional(),
+        page: z.coerce.number().int().min(1).default(1),
+        limit: z.coerce.number().int().min(1).max(100).default(8),
       })
       .parse(request.query);
+
     const conditions = [];
     if (query.seasonYear)
       conditions.push(eq(championshipStandings.seasonYear, query.seasonYear));
     if (query.category)
       conditions.push(eq(championshipStandings.category, query.category));
-
-    const rows = await db
-      .select()
-      .from(championshipStandings)
-      .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(
-        asc(championshipStandings.rank),
-        desc(championshipStandings.points),
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(championshipStandings.participantName, q),
+          ilike(championshipStandings.teamName, q),
+          ilike(championshipStandings.unitName, q),
+          ilike(championshipStandings.achievements, q),
+        ),
       );
+    }
 
-    return { data: rows };
+    const whereClause = conditions.length ? and(...conditions) : undefined;
+    const offset = (query.page - 1) * query.limit;
+
+    const [rows, countRows] = await Promise.all([
+      db
+        .select()
+        .from(championshipStandings)
+        .where(whereClause)
+        .orderBy(
+          asc(championshipStandings.rank),
+          desc(championshipStandings.points),
+        )
+        .limit(query.limit)
+        .offset(offset),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(championshipStandings)
+        .where(whereClause),
+    ]);
+
+    const total = countRows[0]?.count ?? 0;
+    return {
+      data: rows,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit) || 1,
+      },
+    };
   });
 
   // Industry Statistics & Indicators Public API
@@ -582,85 +637,222 @@ export const publicRoutes: FastifyPluginAsync = async (app) => {
     return { data: rows };
   });
 
-  // Cari Teknisi Terverifikasi (ASISI / APITU)
+  // Cari Teknisi Terverifikasi (ASISI / APITU) (with pagination & filters)
   app.get("/technicians", async (request) => {
     const query = z
-      .object({ city: z.string().optional(), search: z.string().optional() })
+      .object({
+        city: z.string().optional(),
+        province: z.string().optional(),
+        search: z.string().optional(),
+        page: z.coerce.number().int().min(1).default(1),
+        limit: z.coerce.number().int().min(1).max(100).default(9),
+      })
       .parse(request.query);
+
     const conditions = [];
     if (query.city)
       conditions.push(ilike(technicianDirectories.city, `%${query.city}%`));
-    if (query.search) {
+    if (query.province)
+      conditions.push(
+        ilike(technicianDirectories.province, `%${query.province}%`),
+      );
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
       conditions.push(
         or(
-          ilike(technicianDirectories.name, `%${query.search}%`),
-          ilike(technicianDirectories.ktaNumber, `%${query.search}%`),
-          ilike(technicianDirectories.workshopName, `%${query.search}%`),
+          ilike(technicianDirectories.name, q),
+          ilike(technicianDirectories.ktaNumber, q),
+          ilike(technicianDirectories.workshopName, q),
+          ilike(technicianDirectories.skillLevel, q),
         ),
       );
     }
 
-    const rows = await db
-      .select()
-      .from(technicianDirectories)
-      .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(desc(technicianDirectories.rating));
+    const whereClause = conditions.length ? and(...conditions) : undefined;
+    const offset = (query.page - 1) * query.limit;
 
-    return { data: rows };
+    const [rows, countRows] = await Promise.all([
+      db
+        .select()
+        .from(technicianDirectories)
+        .where(whereClause)
+        .orderBy(desc(technicianDirectories.rating))
+        .limit(query.limit)
+        .offset(offset),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(technicianDirectories)
+        .where(whereClause),
+    ]);
+
+    const total = countRows[0]?.count ?? 0;
+    return {
+      data: rows,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit) || 1,
+      },
+    };
   });
 
-  // Kelompok Kerja / Pokja Advokasi (APINDO, AFTECH, idEA)
-  app.get("/working-groups", async () => {
-    const rows = await db
-      .select()
-      .from(workingGroups)
-      .where(eq(workingGroups.isActive, true))
-      .orderBy(asc(workingGroups.name));
+  // Kelompok Kerja / Pokja Advokasi (with pagination & search)
+  app.get("/working-groups", async (request) => {
+    const query = z
+      .object({
+        search: z.string().optional(),
+        page: z.coerce.number().int().min(1).default(1),
+        limit: z.coerce.number().int().min(1).max(100).default(6),
+      })
+      .parse(request.query);
 
-    return { data: rows };
+    const conditions = [eq(workingGroups.isActive, true)];
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      const searchOr = or(
+        ilike(workingGroups.name, q),
+        ilike(workingGroups.chairName, q),
+        ilike(workingGroups.category, q),
+        ilike(workingGroups.description, q),
+      );
+      if (searchOr) {
+        conditions.push(searchOr);
+      }
+    }
+
+    const whereClause = and(...conditions);
+    const offset = (query.page - 1) * query.limit;
+    const [rows, countRows] = await Promise.all([
+      db
+        .select()
+        .from(workingGroups)
+        .where(whereClause)
+        .orderBy(asc(workingGroups.name))
+        .limit(query.limit)
+        .offset(offset),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(workingGroups)
+        .where(whereClause),
+    ]);
+
+    const total = countRows[0]?.count ?? 0;
+    return {
+      data: rows,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit) || 1,
+      },
+    };
   });
 
-  // Direktori Klub & Pengprov TKT (IMI, APITU)
+  // Direktori Klub & Pengprov TKT (with pagination & filters)
   app.get("/clubs", async (request) => {
     const query = z
-      .object({ province: z.string().optional() })
+      .object({
+        province: z.string().optional(),
+        search: z.string().optional(),
+        page: z.coerce.number().int().min(1).default(1),
+        limit: z.coerce.number().int().min(1).max(100).default(8),
+      })
       .parse(request.query);
+
     const conditions = [];
     if (query.province)
       conditions.push(ilike(registeredClubs.province, `%${query.province}%`));
-
-    const rows = await db
-      .select()
-      .from(registeredClubs)
-      .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(desc(registeredClubs.activeMembers));
-
-    return { data: rows };
-  });
-
-  // Verifikasi Mitra Prinsipal, Distributor & Rekanan Resmi (HVAC/R)
-  const handleGetPartners = async (request: any) => {
-    const query = z
-      .object({ search: z.string().optional() })
-      .parse(request.query);
-    const conditions = [];
-    if (query.search) {
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
       conditions.push(
         or(
-          ilike(lenderRegistries.brandName, `%${query.search}%`),
-          ilike(lenderRegistries.companyName, `%${query.search}%`),
-          ilike(lenderRegistries.licenseNumber, `%${query.search}%`),
+          ilike(registeredClubs.clubName, q),
+          ilike(registeredClubs.codeTkt, q),
+          ilike(registeredClubs.chairName, q),
         ),
       );
     }
 
-    const rows = await db
-      .select()
-      .from(lenderRegistries)
-      .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(asc(lenderRegistries.brandName));
+    const whereClause = conditions.length ? and(...conditions) : undefined;
+    const offset = (query.page - 1) * query.limit;
 
-    return { data: rows };
+    const [rows, countRows] = await Promise.all([
+      db
+        .select()
+        .from(registeredClubs)
+        .where(whereClause)
+        .orderBy(desc(registeredClubs.activeMembers))
+        .limit(query.limit)
+        .offset(offset),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(registeredClubs)
+        .where(whereClause),
+    ]);
+
+    const total = countRows[0]?.count ?? 0;
+    return {
+      data: rows,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit) || 1,
+      },
+    };
+  });
+
+  // Verifikasi Mitra Prinsipal, Distributor & Rekanan Resmi (with pagination & search)
+  const handleGetPartners = async (request: any) => {
+    const query = z
+      .object({
+        search: z.string().optional(),
+        page: z.coerce.number().int().min(1).default(1),
+        limit: z.coerce.number().int().min(1).max(100).default(8),
+      })
+      .parse(request.query);
+
+    const conditions = [];
+    if (query.search?.trim()) {
+      const q = `%${query.search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(lenderRegistries.brandName, q),
+          ilike(lenderRegistries.companyName, q),
+          ilike(lenderRegistries.licenseNumber, q),
+          ilike(lenderRegistries.sectorType, q),
+        ),
+      );
+    }
+
+    const whereClause = conditions.length ? and(...conditions) : undefined;
+    const offset = (query.page - 1) * query.limit;
+
+    const [rows, countRows] = await Promise.all([
+      db
+        .select()
+        .from(lenderRegistries)
+        .where(whereClause)
+        .orderBy(asc(lenderRegistries.brandName))
+        .limit(query.limit)
+        .offset(offset),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(lenderRegistries)
+        .where(whereClause),
+    ]);
+
+    const total = countRows[0]?.count ?? 0;
+    return {
+      data: rows,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit) || 1,
+      },
+    };
   };
 
   app.get("/partners", handleGetPartners);

@@ -23,9 +23,12 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { ServerPagination } from "@/components/server-pagination";
+
+const ITEMS_PER_PAGE_PARTNERS = 8;
 
 interface Lender {
   id: string;
@@ -211,7 +214,10 @@ const DEFAULT_PARTNERS: Lender[] = [
 ];
 
 function LendersContent() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const [lenders, setLenders] = useState<Lender[]>(DEFAULT_PARTNERS);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState(searchParams.get("q") || "");
@@ -223,21 +229,20 @@ function LendersContent() {
     null,
   );
 
+  const pageParam = searchParams.get("page");
+  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+
   const updateUrl = (newSearch: string, newSector: string) => {
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      if (newSearch.trim()) url.searchParams.set("q", newSearch.trim());
-      else url.searchParams.delete("q");
+    const params = new URLSearchParams(searchParams.toString());
+    if (newSearch.trim()) params.set("q", newSearch.trim());
+    else params.delete("q");
 
-      if (newSector !== "all") url.searchParams.set("sektor", newSector);
-      else url.searchParams.delete("sektor");
+    if (newSector !== "all") params.set("sektor", newSector);
+    else params.delete("sektor");
 
-      window.history.replaceState(
-        null,
-        "",
-        url.pathname + (url.search ? url.search : ""),
-      );
-    }
+    params.delete("page");
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
   };
 
   useEffect(() => {
@@ -245,7 +250,7 @@ function LendersContent() {
       try {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
-        const res = await fetch(`${apiUrl}/v1/public/partners`);
+        const res = await fetch(`${apiUrl}/v1/public/partners?limit=100`);
         if (!res.ok) throw new Error("Failed to load partners");
         const json = await res.json();
         if (json.data && json.data.length > 0) {
@@ -295,6 +300,12 @@ function LendersContent() {
 
     return matchSearch && matchSector;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE_PARTNERS));
+  const paginatedRows = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE_PARTNERS,
+    currentPage * ITEMS_PER_PAGE_PARTNERS,
+  );
 
   return (
     <div className="lenders-page-suite">
@@ -447,130 +458,141 @@ function LendersContent() {
               <p>Memuat direktori mitra & distributor terakreditasi...</p>
             </div>
           ) : (
-            <div className="tech-cards-grid">
-              {filtered.length > 0 ? (
-                filtered.map((partner) => {
-                  const catMeta = getPartnerSectorMeta(partner.sectorType);
-                  const CatIcon = catMeta.icon;
+            <>
+              <div className="tech-cards-grid">
+                {paginatedRows.length > 0 ? (
+                  paginatedRows.map((partner) => {
+                    const catMeta = getPartnerSectorMeta(partner.sectorType);
+                    const CatIcon = catMeta.icon;
 
-                  return (
-                    <article
-                      className="tech-card-modern lender-card"
-                      key={partner.id}
-                    >
-                      {/* Top Bar: SK Kemitraan Badge & Category (Exact 26px Height) */}
-                      <div className="tech-card-top">
-                        <button
-                          type="button"
-                          className="partner-sk-badge"
-                          onClick={(e) =>
-                            handleCopyLicense(e, partner.licenseNumber)
-                          }
-                          title={
-                            copiedLicense === partner.licenseNumber
-                              ? "Nomor SK Tersalin!"
-                              : "Klik untuk menyalin nomor SK"
-                          }
-                          aria-label={`Salin SK ${partner.licenseNumber}`}
-                        >
-                          {copiedLicense === partner.licenseNumber ? (
-                            <Check size={12} color="#16a34a" />
-                          ) : (
-                            <CheckCircle2 size={12} color="#16a34a" />
-                          )}
-                          <span>{partner.licenseNumber}</span>
-                        </button>
-
-                        <span
-                          className={`partner-cat-badge ${catMeta.bgClass}`}
-                          title={catMeta.label}
-                        >
-                          <CatIcon size={12} />
-                          <span>{catMeta.shortLabel}</span>
-                        </span>
-                      </div>
-
-                      {/* Profile Header Button */}
-                      <button
-                        type="button"
-                        className="tech-profile-btn"
-                        onClick={() => setActiveLenderModal(partner)}
+                    return (
+                      <article
+                        className="tech-card-modern lender-card"
+                        key={partner.id}
                       >
-                        <div className="tech-avatar-frame lender-avatar">
-                          <CatIcon size={24} color={catMeta.color} />
-                        </div>
-
-                        <div className="tech-profile-copy">
-                          <h4>{partner.brandName}</h4>
-                          <p className="tech-workshop-text">
-                            {partner.companyName}
-                          </p>
-                        </div>
-                      </button>
-
-                      {/* License Info Box */}
-                      <div className="lender-license-row">
-                        <small>Status Kemitraan Organisasi:</small>
-                        <strong>
-                          {partner.ojkStatus || "Mitra Resmi Terakreditasi"}
-                        </strong>
-                      </div>
-
-                      {/* Footer Row: Actions */}
-                      <div className="tech-card-footer">
-                        <span className="club-status-chip">
-                          <CheckCircle2 size={11} color="#16a34a" />
-                          <span>Terverifikasi DPP</span>
-                        </span>
-
-                        <div className="tech-actions-quick">
-                          {partner.websiteUrl && (
-                            <a
-                              href={partner.websiteUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn-quick-wa"
-                              title="Buka Website Resmi Mitra"
-                            >
-                              <ExternalLink size={12} />
-                              <span>Website</span>
-                            </a>
-                          )}
+                        {/* Top Bar: SK Kemitraan Badge & Category (Exact 26px Height) */}
+                        <div className="tech-card-top">
                           <button
                             type="button"
-                            className="tech-detail-btn"
-                            onClick={() => setActiveLenderModal(partner)}
+                            className="partner-sk-badge"
+                            onClick={(e) =>
+                              handleCopyLicense(e, partner.licenseNumber)
+                            }
+                            title={
+                              copiedLicense === partner.licenseNumber
+                                ? "Nomor SK Tersalin!"
+                                : "Klik untuk menyalin nomor SK"
+                            }
+                            aria-label={`Salin SK ${partner.licenseNumber}`}
                           >
-                            <span>Detail</span>
-                            <ArrowRight size={12} />
+                            {copiedLicense === partner.licenseNumber ? (
+                              <Check size={12} color="#16a34a" />
+                            ) : (
+                              <CheckCircle2 size={12} color="#16a34a" />
+                            )}
+                            <span>{partner.licenseNumber}</span>
                           </button>
+
+                          <span
+                            className={`partner-cat-badge ${catMeta.bgClass}`}
+                            title={catMeta.label}
+                          >
+                            <CatIcon size={12} />
+                            <span>{catMeta.shortLabel}</span>
+                          </span>
                         </div>
-                      </div>
-                    </article>
-                  );
-                })
-              ) : (
-                <div className="tech-empty-state">
-                  <ShieldCheck size={44} color="#94a3b8" />
-                  <h3>Mitra / Distributor Tidak Ditemukan</h3>
-                  <p>
-                    Periksa kembali kata kunci pencarian atau kategori kemitraan
-                    yang Anda pilih.
-                  </p>
-                  <button
-                    type="button"
-                    className="button secondary btn-reset-tech"
-                    onClick={() => {
-                      setSearch("");
-                      setSelectedSector("all");
-                      updateUrl("", "all");
-                    }}
-                  >
-                    Reset Filter Pencarian
-                  </button>
-                </div>
-              )}
-            </div>
+
+                        {/* Profile Header Button */}
+                        <button
+                          type="button"
+                          className="tech-profile-btn"
+                          onClick={() => setActiveLenderModal(partner)}
+                        >
+                          <div className="tech-avatar-frame lender-avatar">
+                            <CatIcon size={24} color={catMeta.color} />
+                          </div>
+
+                          <div className="tech-profile-copy">
+                            <h4>{partner.brandName}</h4>
+                            <p className="tech-workshop-text">
+                              {partner.companyName}
+                            </p>
+                          </div>
+                        </button>
+
+                        {/* License Info Box */}
+                        <div className="lender-license-row">
+                          <small>Status Kemitraan Organisasi:</small>
+                          <strong>
+                            {partner.ojkStatus || "Mitra Resmi Terakreditasi"}
+                          </strong>
+                        </div>
+
+                        {/* Footer Row: Actions */}
+                        <div className="tech-card-footer">
+                          <span className="club-status-chip">
+                            <CheckCircle2 size={11} color="#16a34a" />
+                            <span>Terverifikasi DPP</span>
+                          </span>
+
+                          <div className="tech-actions-quick">
+                            {partner.websiteUrl && (
+                              <a
+                                href={partner.websiteUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-quick-wa"
+                                title="Buka Website Resmi Mitra"
+                              >
+                                <ExternalLink size={12} />
+                                <span>Website</span>
+                              </a>
+                            )}
+                            <button
+                              type="button"
+                              className="tech-detail-btn"
+                              onClick={() => setActiveLenderModal(partner)}
+                            >
+                              <span>Detail</span>
+                              <ArrowRight size={12} />
+                            </button>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })
+                ) : (
+                  <div className="tech-empty-state">
+                    <ShieldCheck size={44} color="#94a3b8" />
+                    <h3>Mitra / Distributor Tidak Ditemukan</h3>
+                    <p>
+                      Periksa kembali kata kunci pencarian atau kategori kemitraan
+                      yang Anda pilih.
+                    </p>
+                    <button
+                      type="button"
+                      className="button secondary btn-reset-tech"
+                      onClick={() => {
+                        setSearch("");
+                        setSelectedSector("all");
+                        updateUrl("", "all");
+                      }}
+                    >
+                      Reset Filter Pencarian
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Server-Side Pagination Bar */}
+              <ServerPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filtered.length}
+                pageSize={ITEMS_PER_PAGE_PARTNERS}
+                itemName="Mitra & Distributor"
+              />
+            </>
           )}
 
           {/* Member Workshop Network Spotlight Box */}

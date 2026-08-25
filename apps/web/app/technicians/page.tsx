@@ -42,6 +42,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { NATIONAL_16_WORKSHOPS } from "@/components/home-featured-workshops";
 import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
+import { ServerPagination } from "@/components/server-pagination";
 
 interface Technician {
   id: string;
@@ -1171,70 +1172,14 @@ function TechniciansContent() {
           )}
 
           {/* 3. Server-Side URL-Driven Pagination Bar (Swiss Design) */}
-          {totalPages > 1 && (
-            <nav
-              className="stories-pagination-bar"
-              aria-label="Navigasi Halaman Direktori"
-            >
-              <div className="pagination-info">
-                Halaman <strong>{safePage}</strong> dari <strong>{totalPages}</strong> (Total <strong>{totalItems}</strong> data)
-              </div>
-
-              <div className="pagination-controls">
-                <button
-                  type="button"
-                  className="page-nav-btn"
-                  onClick={() => handlePageChange(safePage - 1)}
-                  disabled={safePage <= 1}
-                  aria-label="Halaman Sebelumnya"
-                >
-                  <ChevronLeft size={14} />
-                  <span>Sebelumnya</span>
-                </button>
-
-                <div className="page-numbers-group">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((p) => {
-                      return (
-                        p === 1 ||
-                        p === totalPages ||
-                        Math.abs(p - safePage) <= 1
-                      );
-                    })
-                    .map((p, index, array) => {
-                      const prevPage = array[index - 1];
-                      const showEllipsis = prevPage && p - prevPage > 1;
-
-                      return (
-                        <div key={p} style={{ display: "flex", alignItems: "center" }}>
-                          {showEllipsis && <span className="px-1 text-slate-400 text-xs">...</span>}
-                          <button
-                            type="button"
-                            className={`page-num-btn ${safePage === p ? "active" : ""}`}
-                            onClick={() => handlePageChange(p)}
-                            aria-label={`Buka Halaman ${p}`}
-                            aria-current={safePage === p ? "page" : undefined}
-                          >
-                            {p}
-                          </button>
-                        </div>
-                      );
-                    })}
-                </div>
-
-                <button
-                  type="button"
-                  className="page-nav-btn"
-                  onClick={() => handlePageChange(safePage + 1)}
-                  disabled={safePage >= totalPages}
-                  aria-label="Halaman Berikutnya"
-                >
-                  <span>Berikutnya</span>
-                  <ChevronRight size={14} />
-                </button>
-              </div>
-            </nav>
-          )}
+          <ServerPagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={itemsPerPage}
+            itemName={activeTab === "workshops" ? "Bengkel & Toko" : "Teknisi Terdaftar"}
+            onPageChange={handlePageChange}
+          />
         </div>
       </section>
 

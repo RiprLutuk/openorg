@@ -1,30 +1,26 @@
 "use client";
 
+import { Suspense, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
-  Award,
   Building2,
   Calendar,
   CheckCircle2,
-  Compass,
   Crown,
   Flag,
-  Flame,
   Gauge,
   Loader2,
   MapPin,
   Medal,
   Search,
-  ShieldCheck,
   Sparkles,
   Star,
   Trophy,
   Users,
-  Wrench,
   X,
-  Zap,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { ServerPagination } from "@/components/server-pagination";
 
 interface ChampionshipStanding {
   id: string;
@@ -330,22 +326,67 @@ export const FALLBACK_CHAMPIONSHIPS: ChampionshipStanding[] = [
   },
 ];
 
-export default function ChampionshipsPage() {
+const ITEMS_PER_PAGE_CHAMPIONSHIPS = 8;
+
+export function ChampionshipsPageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [standings, setStandings] = useState<ChampionshipStanding[]>(FALLBACK_CHAMPIONSHIPS);
   const [isLoading, setIsLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [selectedSeason, setSelectedSeason] = useState<number>(2026);
+  const [totalCount, setTotalCount] = useState<number>(FALLBACK_CHAMPIONSHIPS.length);
+
+  // URL-driven query parameters
+  const pageParam = searchParams.get("page");
+  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const searchParam = searchParams.get("q") ?? "";
+  const seasonParam = searchParams.get("season");
+  const selectedSeason = seasonParam ? parseInt(seasonParam, 10) : 2026;
+
+  const [search, setSearch] = useState(searchParam);
+
+  const updateQueryParams = (updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, val]) => {
+      if (val === null || val === "" || (key === "page" && val === "1") || (key === "season" && val === "2026")) {
+        params.delete(key);
+      } else {
+        params.set(key, val);
+      }
+    });
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
+  };
+
+  const handleSeasonChange = (season: number) => {
+    updateQueryParams({ season: season.toString(), page: "1" });
+  };
+
+  const handleSearchChange = (val: string) => {
+    setSearch(val);
+    updateQueryParams({ q: val ? val : null, page: "1" });
+  };
 
   useEffect(() => {
     const fetchChampionships = async () => {
       try {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
-        const res = await fetch(`${apiUrl}/v1/public/championships`);
+        const query = new URLSearchParams();
+        if (selectedSeason) query.set("seasonYear", selectedSeason.toString());
+        if (searchParam) query.set("search", searchParam);
+        query.set("page", currentPage.toString());
+        query.set("limit", ITEMS_PER_PAGE_CHAMPIONSHIPS.toString());
+
+        const res = await fetch(`${apiUrl}/v1/public/championships?${query.toString()}`);
         if (!res.ok) throw new Error("Gagal memuat data kejuaraan");
         const json = await res.json();
         if (Array.isArray(json.data) && json.data.length > 0) {
           setStandings(json.data);
+          if (json.meta?.total !== undefined) {
+            setTotalCount(json.meta.total);
+          }
         }
       } catch (err) {
         console.error(err);
@@ -354,14 +395,14 @@ export default function ChampionshipsPage() {
       }
     };
     void fetchChampionships();
-  }, []);
+  }, [selectedSeason, searchParam, currentPage]);
 
   const filtered = standings.filter((row) => {
     const matchSeason = !row.seasonYear || row.seasonYear === selectedSeason;
     if (!matchSeason) return false;
 
-    if (!search) return true;
-    const q = search.toLowerCase();
+    if (!searchParam) return true;
+    const q = searchParam.toLowerCase();
     return (
       row.participantName.toLowerCase().includes(q) ||
       row.unitName?.toLowerCase().includes(q) ||
@@ -370,6 +411,13 @@ export default function ChampionshipsPage() {
       row.achievements?.toLowerCase().includes(q)
     );
   });
+
+  // Client-side windowing if API returned full list, otherwise use API items
+  const totalFilteredCount = filtered.length > ITEMS_PER_PAGE_CHAMPIONSHIPS ? filtered.length : Math.max(filtered.length, totalCount);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE_CHAMPIONSHIPS));
+  const paginatedRows = filtered.length > ITEMS_PER_PAGE_CHAMPIONSHIPS
+    ? filtered.slice((currentPage - 1) * ITEMS_PER_PAGE_CHAMPIONSHIPS, currentPage * ITEMS_PER_PAGE_CHAMPIONSHIPS)
+    : filtered;
 
   const topPodium = filtered.slice(0, 3);
 
@@ -466,7 +514,7 @@ export default function ChampionshipsPage() {
               <button
                 type="button"
                 className={`dir-cat-btn ${selectedSeason === 2026 ? "active" : ""}`}
-                onClick={() => setSelectedSeason(2026)}
+                onClick={() => handleSeasonChange(2026)}
               >
                 <Trophy size={14} />
                 <span>Musim 2026 (Aktif)</span>
@@ -474,7 +522,7 @@ export default function ChampionshipsPage() {
               <button
                 type="button"
                 className={`dir-cat-btn ${selectedSeason === 2025 ? "active" : ""}`}
-                onClick={() => setSelectedSeason(2025)}
+                onClick={() => handleSeasonChange(2025)}
               >
                 <Calendar size={14} />
                 <span>Musim 2025</span>
@@ -489,14 +537,14 @@ export default function ChampionshipsPage() {
                 type="text"
                 placeholder="Cari kontestan, kontingen DPD, atau bengkel..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 aria-label="Cari kontestan, kontingen DPD, atau bengkel"
               />
               {search && (
                 <button
                   type="button"
                   className="search-clear-btn"
-                  onClick={() => setSearch("")}
+                  onClick={() => handleSearchChange("")}
                   aria-label="Bersihkan pencarian"
                 >
                   <X size={14} />
@@ -506,9 +554,9 @@ export default function ChampionshipsPage() {
           </div>
 
           {/* Top 3 Podium Cards */}
-          {topPodium.length > 0 && !search && (
+          {topPodium.length > 0 && !searchParam && currentPage === 1 && (
             <div className="podium-grid slide-in-up mb-8">
-              {topPodium.map((pod, idx) => (
+              {topPodium.map((pod) => (
                 <div
                   key={pod.id}
                   className={`podium-card rank-${pod.rank} ${pod.rank === 1 ? "champion-card" : ""}`}
@@ -560,7 +608,7 @@ export default function ChampionshipsPage() {
                 <h3>Papan Skor Nasional Musim {selectedSeason}</h3>
               </div>
               <span className="partner-cat-badge">
-                {filtered.length} Kontestan Tercatat
+                {totalFilteredCount} Kontestan Tercatat
               </span>
             </div>
 
@@ -583,8 +631,8 @@ export default function ChampionshipsPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filtered.length > 0 ? (
-                        filtered.map((row) => (
+                      {paginatedRows.length > 0 ? (
+                        paginatedRows.map((row) => (
                           <tr
                             key={row.id}
                             className={`leaderboard-row row-rank-${row.rank}`}
@@ -661,8 +709,8 @@ export default function ChampionshipsPage() {
 
                 {/* 2. Mobile Cards View (Visible <= 640px) */}
                 <div className="leaderboard-mobile-list">
-                  {filtered.length > 0 ? (
-                    filtered.map((row) => (
+                  {paginatedRows.length > 0 ? (
+                    paginatedRows.map((row) => (
                       <div
                         key={row.id}
                         className={`leaderboard-mobile-card rank-${row.rank}`}
@@ -736,6 +784,15 @@ export default function ChampionshipsPage() {
               </>
             )}
           </div>
+
+          {/* Server-Side Pagination Bar */}
+          <ServerPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalFilteredCount}
+            pageSize={ITEMS_PER_PAGE_CHAMPIONSHIPS}
+            itemName="Kontestan"
+          />
         </div>
       </section>
 
@@ -755,5 +812,19 @@ export default function ChampionshipsPage() {
         memberSecondaryCta={{ label: "Verifikasi KTA", href: "/verify" }}
       />
     </div>
+  );
+}
+
+export default function ChampionshipsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center py-32">
+          <Loader2 size={32} className="animate-spin text-slate-400" />
+        </div>
+      }
+    >
+      <ChampionshipsPageContent />
+    </Suspense>
   );
 }

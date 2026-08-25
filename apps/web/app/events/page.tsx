@@ -36,6 +36,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { SmartImage } from "@/components/smart-image";
+import { ServerPagination } from "@/components/server-pagination";
 
 const EVENTS_PER_PAGE = 6;
 
@@ -788,60 +789,15 @@ export default function EventsPage() {
                     })}
                   </div>
 
-                  {/* Numbered Pagination Toolbar */}
-                  {totalPages > 1 && (
-                    <div className="stories-pagination-bar">
-                      <div className="pagination-info">
-                        <span>
-                          Menampilkan{" "}
-                          <strong>
-                            {startIndex + 1} - {endIndex}
-                          </strong>{" "}
-                          dari <strong>{catalogEvents.length}</strong> Agenda
-                          Pelatihan
-                        </span>
-                      </div>
-                      <div className="pagination-controls">
-                        <button
-                          type="button"
-                          className="page-nav-btn"
-                          disabled={safeCurrentPage === 1}
-                          onClick={() => handlePageChange(safeCurrentPage - 1)}
-                        >
-                          <ChevronLeft size={14} />
-                          <span>Sebelumnya</span>
-                        </button>
-
-                        <div className="page-numbers-group">
-                          {Array.from(
-                            { length: totalPages },
-                            (_, idx) => idx + 1,
-                          ).map((pageNum) => (
-                            <button
-                              key={pageNum}
-                              type="button"
-                              className={`page-num-btn ${
-                                pageNum === safeCurrentPage ? "active" : ""
-                              }`}
-                              onClick={() => handlePageChange(pageNum)}
-                            >
-                              {pageNum}
-                            </button>
-                          ))}
-                        </div>
-
-                        <button
-                          type="button"
-                          className="page-nav-btn"
-                          disabled={safeCurrentPage === totalPages}
-                          onClick={() => handlePageChange(safeCurrentPage + 1)}
-                        >
-                          <span>Selanjutnya</span>
-                          <ChevronRight size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  {/* Server-Side Pagination Bar */}
+                  <ServerPagination
+                    currentPage={safeCurrentPage}
+                    totalPages={totalPages}
+                    totalItems={catalogEvents.length}
+                    pageSize={EVENTS_PER_PAGE}
+                    itemName="Agenda Pelatihan"
+                    onPageChange={handlePageChange}
+                  />
                 </>
               ) : (
                 <div className="empty-state">

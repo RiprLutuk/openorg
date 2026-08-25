@@ -22607,6 +22607,51 @@ img {
   box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
 }
 
+.page-nav-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+}
+
+.page-nav-btn.icon-only {
+  padding: 0 8px;
+}
+
+.page-num-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 34px;
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .stories-pagination-bar {
+    padding: 12px;
+    margin: 20px 0;
+  }
+
+  .nav-btn-text {
+    display: none;
+  }
+
+  .page-nav-btn {
+    padding: 0 10px;
+  }
+
+  .page-num-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+}
+
 /* Smart Image Fallback Suite */
 .smart-fallback-container {
   width: 100%;

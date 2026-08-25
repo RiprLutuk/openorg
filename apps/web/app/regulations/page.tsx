@@ -13,9 +13,12 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { ServerPagination } from "@/components/server-pagination";
+
+const ITEMS_PER_PAGE_REGULATIONS = 8;
 
 interface Regulation {
   id: string;
@@ -100,7 +103,10 @@ const tabs = [
 ];
 
 function RegulationsContent() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const rawParam =
     searchParams.get("kategori") ||
     searchParams.get("cat") ||
@@ -112,6 +118,9 @@ function RegulationsContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(initialCategory);
   const [search, setSearch] = useState(searchParams.get("q") || "");
+
+  const pageParam = searchParams.get("page");
+  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
   // Sync state if URL query params change (e.g. back/forward navigation)
   useEffect(() => {
@@ -127,43 +136,31 @@ function RegulationsContent() {
     }
   }, [searchParams]);
 
+  const updateUrl = (updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, val]) => {
+      if (val === null || val === "" || (key === "page" && val === "1") || (key === "kategori" && val === "semua")) {
+        params.delete(key);
+      } else {
+        params.set(key, val);
+      }
+    });
+    // clean up aliases
+    params.delete("cat");
+    params.delete("category");
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
+  };
+
   const handleTabChange = (key: string) => {
     setActiveTab(key);
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      if (key === "all") {
-        url.searchParams.delete("kategori");
-        url.searchParams.delete("cat");
-        url.searchParams.delete("category");
-      } else {
-        const friendlySlug = categoryToSlug[key] || key;
-        url.searchParams.set("kategori", friendlySlug);
-        url.searchParams.delete("cat");
-        url.searchParams.delete("category");
-      }
-      window.history.replaceState(
-        null,
-        "",
-        url.pathname + (url.search ? url.search : ""),
-      );
-    }
+    const friendlySlug = categoryToSlug[key] || key;
+    updateUrl({ kategori: friendlySlug === "semua" ? null : friendlySlug, page: null });
   };
 
   const handleSearchChange = (val: string) => {
     setSearch(val);
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      if (val.trim()) {
-        url.searchParams.set("q", val.trim());
-      } else {
-        url.searchParams.delete("q");
-      }
-      window.history.replaceState(
-        null,
-        "",
-        url.pathname + (url.search ? url.search : ""),
-      );
-    }
+    updateUrl({ q: val.trim() ? val.trim() : null, page: null });
   };
 
   useEffect(() => {
@@ -171,7 +168,7 @@ function RegulationsContent() {
       try {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000";
-        const res = await fetch(`${apiUrl}/v1/public/regulations`);
+        const res = await fetch(`${apiUrl}/v1/public/regulations?limit=100`);
         if (!res.ok) throw new Error("Failed to load regulations");
         const json = await res.json();
         setRegulations(json.data ?? []);
@@ -202,6 +199,12 @@ function RegulationsContent() {
       item.summary?.toLowerCase().includes(search.toLowerCase());
     return matchTab && matchSearch;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE_REGULATIONS));
+  const paginatedRows = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE_REGULATIONS,
+    currentPage * ITEMS_PER_PAGE_REGULATIONS,
+  );
 
   return (
     <div className="regulations-page-suite">
@@ -377,104 +380,115 @@ function RegulationsContent() {
               <p>Memuat repository dokumen resmi...</p>
             </div>
           ) : (
-            <div className="reg-grid-modern">
-              {filtered.length > 0 ? (
-                filtered.map((item) => {
-                  const cat = categoryLabels[item.category] ?? {
-                    label: item.category,
-                    badgeClass: "badge-gov",
-                    color: "#38bdf8",
-                  };
-                  return (
-                    <article key={item.id} className="reg-card-modern">
-                      <div className="reg-card-top">
-                        <span
-                          className="reg-category-pill"
-                          style={{
-                            color: cat.color,
-                            background: `${cat.color}15`,
-                            borderColor: `${cat.color}30`,
-                          }}
-                        >
-                          {cat.label}
-                        </span>
-                        {item.number && (
-                          <span className="reg-number-chip">
-                            No. {item.number}
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="reg-title">{item.title}</h3>
-
-                      {item.summary && (
-                        <p className="reg-summary-text">{item.summary}</p>
-                      )}
-
-                      <div className="reg-card-meta">
-                        {item.issuedDate && (
-                          <span className="reg-meta-date">
-                            <Calendar size={13} />
-                            <span>
-                              {new Date(item.issuedDate).toLocaleDateString(
-                                "id-ID",
-                                {
-                                  day: "numeric",
-                                  month: "short",
-                                  year: "numeric",
-                                },
-                              )}
-                            </span>
-                          </span>
-                        )}
-                        <span className="reg-meta-downloads">
-                          <Download size={13} />
-                          <span>{item.downloadCount} Unduhan</span>
-                        </span>
-                      </div>
-
-                      <div className="reg-card-bottom">
-                        {item.fileUrl ? (
-                          <a
-                            href={item.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn-download-pdf"
+            <>
+              <div className="reg-grid-modern">
+                {paginatedRows.length > 0 ? (
+                  paginatedRows.map((item) => {
+                    const cat = categoryLabels[item.category] ?? {
+                      label: item.category,
+                      badgeClass: "badge-gov",
+                      color: "#38bdf8",
+                    };
+                    return (
+                      <article key={item.id} className="reg-card-modern">
+                        <div className="reg-card-top">
+                          <span
+                            className="reg-category-pill"
+                            style={{
+                              color: cat.color,
+                              background: `${cat.color}15`,
+                              borderColor: `${cat.color}30`,
+                            }}
                           >
-                            <Download size={15} />
-                            <span>Unduh Naskah PDF</span>
-                            <ArrowRight size={14} />
-                          </a>
-                        ) : (
-                          <span className="badge-physical-doc">
-                            Arsip Fisik Sekretariat
+                            {cat.label}
                           </span>
+                          {item.number && (
+                            <span className="reg-number-chip">
+                              No. {item.number}
+                            </span>
+                          )}
+                        </div>
+
+                        <h3 className="reg-title">{item.title}</h3>
+
+                        {item.summary && (
+                          <p className="reg-summary-text">{item.summary}</p>
                         )}
-                      </div>
-                    </article>
-                  );
-                })
-              ) : (
-                <div className="reg-empty-state">
-                  <FileText size={44} color="#94a3b8" />
-                  <h3>Tidak Ada Dokumen yang Cocok</h3>
-                  <p>
-                    Tidak ditemukan dokumen dengan kata kunci &ldquo;{search}
-                    &rdquo; pada kategori ini.
-                  </p>
-                  <button
-                    type="button"
-                    className="button secondary btn-reset-search"
-                    onClick={() => {
-                      handleTabChange("all");
-                      handleSearchChange("");
-                    }}
-                  >
-                    Tampilkan Semua Dokumen
-                  </button>
-                </div>
-              )}
-            </div>
+
+                        <div className="reg-card-meta">
+                          {item.issuedDate && (
+                            <span className="reg-meta-date">
+                              <Calendar size={13} />
+                              <span>
+                                {new Date(item.issuedDate).toLocaleDateString(
+                                  "id-ID",
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  },
+                                )}
+                              </span>
+                            </span>
+                          )}
+                          <span className="reg-meta-downloads">
+                            <Download size={13} />
+                            <span>{item.downloadCount} Unduhan</span>
+                          </span>
+                        </div>
+
+                        <div className="reg-card-bottom">
+                          {item.fileUrl ? (
+                            <a
+                              href={item.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-download-pdf"
+                            >
+                              <Download size={15} />
+                              <span>Unduh Naskah PDF</span>
+                              <ArrowRight size={14} />
+                            </a>
+                          ) : (
+                            <span className="badge-physical-doc">
+                              Arsip Fisik Sekretariat
+                            </span>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  })
+                ) : (
+                  <div className="reg-empty-state">
+                    <FileText size={44} color="#94a3b8" />
+                    <h3>Tidak Ada Dokumen yang Cocok</h3>
+                    <p>
+                      Tidak ditemukan dokumen dengan kata kunci &ldquo;{search}
+                      &rdquo; pada kategori ini.
+                    </p>
+                    <button
+                      type="button"
+                      className="button secondary btn-reset-search"
+                      onClick={() => {
+                        handleTabChange("all");
+                        handleSearchChange("");
+                      }}
+                    >
+                      Tampilkan Semua Dokumen
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Server-Side Pagination Bar */}
+              <ServerPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filtered.length}
+                pageSize={ITEMS_PER_PAGE_REGULATIONS}
+                itemName="Dokumen Regulasi"
+              />
+            </>
           )}
         </div>
       </section>
