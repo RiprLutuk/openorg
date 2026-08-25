@@ -3714,130 +3714,304 @@ function ContentEditor({
 function EventsManager() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [editor, setEditor] = useState<CmsEvent | "new" | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
   const query = useQuery({
-    queryKey: ["events", search],
-    queryFn: () =>
-      api<{ data: CmsEvent[] }>(
-        `/v1/admin/events?limit=100&search=${encodeURIComponent(search)}`,
-      ),
+    queryKey: ["events"],
+    queryFn: () => api<{ data: CmsEvent[] }>("/v1/admin/events?limit=100"),
   });
-  const items = query.data?.data ?? [];
-  const paginatedItems = items.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
 
   const remove = useMutation({
     mutationFn: (id: string) =>
       api(`/v1/admin/events/${id}`, { method: "DELETE" }),
     onSuccess: () => {
+      toast.success("Agenda kegiatan berhasil dihapus.");
       void client.invalidateQueries({ queryKey: ["events"] });
       void client.invalidateQueries({ queryKey: ["dashboard"] });
     },
+    onError: (err) => {
+      toast.error(err.message || "Gagal menghapus agenda.");
+    },
   });
+
   if (editor === "new") return <EventEditor onClose={() => setEditor(null)} />;
   if (editor)
     return <EventEditor event={editor} onClose={() => setEditor(null)} />;
+
+  const rawItems = query.data?.data ?? [];
+  const filtered = rawItems.filter((item) => {
+    if (statusFilter !== "all" && item.status !== statusFilter) return false;
+    if (!search.trim()) return true;
+    const term = search.toLowerCase();
+    return (
+      item.title.toLowerCase().includes(term) ||
+      item.slug.toLowerCase().includes(term) ||
+      (item.locationName && item.locationName.toLowerCase().includes(term))
+    );
+  });
+
+  const paginatedItems = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
     <>
       <PageHeading
-        eyebrow="Programs"
-        title="Events"
-        description="Plan public, private, in-person, virtual, and hybrid activities from one calendar."
+        eyebrow="Program & Kegiatan"
+        title="Agenda & Pelatihan"
+        description="Kelola jadwal Musda/Munas, workshop teknologi pendingin, sertifikasi BNSP, dan pelatihan teknisi."
         action={
           <button
             type="button"
             className="button primary"
             onClick={() => setEditor("new")}
           >
-            <Plus size={18} /> New event
+            <Plus size={16} /> <span>Tambah Agenda</span>
           </button>
         }
       />
+
       <div className="table-panel">
         <div className="table-toolbar">
           <label className="search-field">
-            <Search size={18} />
+            <Search size={16} />
             <input
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search events…"
+              placeholder="Cari nama agenda atau lokasi..."
             />
           </label>
-          <span className="result-count">
-            {items.length} events
-          </span>
-        </div>
-        <div className="data-table">
-          <div className="table-row events-row table-head">
-            <span>Event</span>
-            <span>Schedule</span>
-            <span>Status</span>
-            <span />
-          </div>
-          {paginatedItems.map((item) => (
-            <div className="table-row events-row" key={item.id}>
-              <span className="primary-cell">
-                <span className="doc-icon">
-                  <CalendarDays size={18} />
-                </span>
-                <span>
-                  <strong>{item.title}</strong>
-                  <small>{item.locationName ?? "Location not set"}</small>
-                </span>
-              </span>
-              <span>
-                <strong>{new Date(item.startsAt).toLocaleDateString()}</strong>
-                <small className="block-muted">
-                  {new Date(item.startsAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </small>
-              </span>
-              <Status value={item.status} />
-              <span className="row-actions">
-                <button
-                  type="button"
-                  className="icon-button"
-                  title="Edit Agenda"
-                  aria-label={`Edit ${item.title}`}
-                  onClick={() => setEditor(item)}
-                >
-                  <Pencil size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-button danger"
-                  title="Hapus Agenda"
-                  aria-label={`Delete ${item.title}`}
-                  onClick={() =>
-                    confirm(`Delete ${item.title}?`) && remove.mutate(item.id)
-                  }
-                >
-                  <Trash2 size={16} />
-                </button>
-              </span>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div className="compact-filter">
+              <label>Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+              >
+                <option value="all">Semua Status</option>
+                <option value="published">Published</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="draft">Draft</option>
+                <option value="review">Review</option>
+                <option value="archived">Archived</option>
+              </select>
             </div>
-          ))}
+
+            <span className="result-count">{filtered.length} agenda</span>
+          </div>
         </div>
-        {!query.isLoading && !items.length && (
-          <Empty message="No events match this view." />
+
+        {query.isLoading ? (
+          <PageLoading />
+        ) : filtered.length === 0 ? (
+          <Empty message="Tidak ada agenda kegiatan yang sesuai dengan filter pencarian." />
+        ) : (
+          <>
+            <div className="table-responsive">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: "45%" }}>Nama Agenda & Lokasi</th>
+                    <th style={{ width: "22%" }}>Jadwal & Waktu</th>
+                    <th style={{ width: "15%" }}>Kapasitas</th>
+                    <th style={{ width: "10%" }}>Status</th>
+                    <th style={{ width: "8%", textAlign: "right" }}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedItems.map((item) => {
+                    const startDate = new Date(item.startsAt);
+                    const isUpcoming = startDate.getTime() >= Date.now();
+                    return (
+                      <tr key={item.id}>
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: "12px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: "36px",
+                                height: "36px",
+                                borderRadius: "8px",
+                                background: isUpcoming ? "#eff6ff" : "#f1f5f9",
+                                color: isUpcoming ? "#0284c7" : "#64748b",
+                                display: "grid",
+                                placeItems: "center",
+                                flexShrink: 0,
+                                marginTop: "2px",
+                              }}
+                            >
+                              <CalendarDays size={18} />
+                            </div>
+                            <div>
+                              <div
+                                style={{
+                                  fontWeight: 700,
+                                  color: "#0f172a",
+                                  fontSize: "13.5px",
+                                  lineHeight: "1.4",
+                                }}
+                              >
+                                {item.title}
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "5px",
+                                  color: "#64748b",
+                                  fontSize: "12px",
+                                  marginTop: "4px",
+                                }}
+                              >
+                                <MapPin size={13} color="#94a3b8" />
+                                <span>
+                                  {item.locationName ||
+                                    (item.meetingUrl
+                                      ? "Online (Zoom / Google Meet)"
+                                      : "Lokasi belum ditentukan")}
+                                </span>
+                                {item.meetingUrl && (
+                                  <span
+                                    className="tag-badge"
+                                    style={{
+                                      marginLeft: "4px",
+                                      fontSize: "10px",
+                                    }}
+                                  >
+                                    Virtual
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div
+                            style={{
+                              fontWeight: 650,
+                              color: "#1e293b",
+                              fontSize: "12.5px",
+                            }}
+                          >
+                            {startDate.toLocaleDateString("id-ID", {
+                              weekday: "short",
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </div>
+                          <div
+                            style={{
+                              color: "#64748b",
+                              fontSize: "11.5px",
+                              marginTop: "2px",
+                            }}
+                          >
+                            Pukul{" "}
+                            {startDate.toLocaleTimeString("id-ID", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}{" "}
+                            WIB
+                          </div>
+                        </td>
+                        <td>
+                          <div
+                            style={{
+                              fontSize: "12.5px",
+                              color: "#334155",
+                              fontWeight: 550,
+                            }}
+                          >
+                            {item.capacity
+                              ? `${item.capacity} Peserta`
+                              : "Kuota Terbuka"}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "11px",
+                              color: isUpcoming ? "#059669" : "#94a3b8",
+                            }}
+                          >
+                            {isUpcoming ? "Pendaftaran Aktif" : "Selesai"}
+                          </div>
+                        </td>
+                        <td>
+                          <Status value={item.status} />
+                        </td>
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gap: "6px",
+                            }}
+                          >
+                            <a
+                              href={`${PUBLIC_SITE_URL}/events/${item.slug}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="icon-button"
+                              title="Lihat di Web Publik"
+                            >
+                              <ExternalLink size={15} />
+                            </a>
+                            <button
+                              type="button"
+                              className="icon-button"
+                              title="Edit Agenda"
+                              onClick={() => setEditor(item)}
+                            >
+                              <Edit2 size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              className="icon-button danger"
+                              title="Hapus Agenda"
+                              onClick={() =>
+                                confirm(`Hapus agenda "${item.title}"?`) &&
+                                remove.mutate(item.id)
+                              }
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <TablePagination
+              currentPage={currentPage}
+              totalItems={filtered.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
+          </>
         )}
-        <TablePagination
-          currentPage={currentPage}
-          totalItems={items.length}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={setPageSize}
-        />
       </div>
     </>
   );
