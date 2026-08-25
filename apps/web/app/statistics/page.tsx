@@ -14,6 +14,7 @@ import {
   FileSpreadsheet,
   Globe2,
   LineChart,
+  Loader2,
   Percent,
   Search,
   ShieldCheck,
@@ -28,6 +29,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { generateStatisticsPdf } from "@/lib/generate-statistics-pdf";
 
 interface IndustryStatistic {
   id: string;
@@ -64,6 +66,7 @@ const STATS_EXPLANATIONS: Record<string, { desc: string; benchmark: string }> =
 export default function StatisticsPage() {
   const [statsList, setStatsList] = useState<IndustryStatistic[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
 
@@ -317,13 +320,30 @@ export default function StatisticsPage() {
             <div className="stats-banner-action">
               <button
                 type="button"
-                className="button secondary"
-                onClick={() =>
-                  alert("Mengunduh Laporan Statistik Tahunan HVAC/R 2026...")
-                }
+                className="button secondary flex items-center gap-2"
+                disabled={isDownloading}
+                onClick={async () => {
+                  setIsDownloading(true);
+                  try {
+                    await generateStatisticsPdf(statsList);
+                  } catch (err) {
+                    console.error("Gagal mengunduh PDF:", err);
+                  } finally {
+                    setIsDownloading(false);
+                  }
+                }}
               >
-                <Download size={14} />
-                <span>Unduh Laporan (PDF)</span>
+                {isDownloading ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    <span>Menyiapkan PDF...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download size={14} />
+                    <span>Unduh Laporan (PDF)</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
