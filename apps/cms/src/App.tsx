@@ -5135,7 +5135,7 @@ function KtaCardModal({
   });
 
   const cardData = cardQuery.data?.data;
-  const cardCode = cardData?.card.code ?? `KTA-${member.memberNumber}`;
+  const cardCode = cardData?.card.code || member.memberNumber;
 
   useEffect(() => {
     if (!cardCode) return;

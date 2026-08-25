@@ -870,30 +870,55 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
         .orderBy(desc(membershipCards.version))
         .limit(1);
 
-      if (!card) {
-        const cardCode = `KTA-${randomUUID().slice(0, 8).toUpperCase()}`;
-        const [created] = await db
-          .insert(membershipCards)
-          .values({
-            memberId: id,
-            code: cardCode,
-            version: 1,
-            isActive: true,
-          })
-          .returning();
-        card = created;
-      }
-
       const [site] = await db
         .select()
         .from(siteSettings)
         .where(eq(siteSettings.id, "default"))
         .limit(1);
 
+      let memberNumber = member.member.memberNumber;
+      if (
+        memberNumber.startsWith("REG-") ||
+        memberNumber.startsWith("APP-") ||
+        memberNumber.startsWith("KTA-")
+      ) {
+        memberNumber = generateKtaNumber({
+          orgName: site?.name,
+          unitName: member.unit?.name,
+          unitCode: member.unit?.code,
+          unitSlug: member.unit?.slug,
+          date: new Date(),
+        });
+        await db
+          .update(members)
+          .set({ memberNumber, status: "active" })
+          .where(eq(members.id, id));
+      }
+
+      if (!card || card.code !== memberNumber) {
+        if (card) {
+          await db
+            .update(membershipCards)
+            .set({ revokedAt: new Date(), isActive: false })
+            .where(eq(membershipCards.id, card.id));
+        }
+        const [created] = await db
+          .insert(membershipCards)
+          .values({
+            memberId: id,
+            code: memberNumber,
+            version: (card?.version ?? 0) + 1,
+            isActive: true,
+          })
+          .returning();
+        card = created;
+      }
+
       return {
         data: {
           member: {
             ...member.member,
+            memberNumber,
             unitName: member.unit?.name ?? null,
           },
           card,
@@ -915,13 +940,42 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
     async (request) => {
       const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
       const [member] = await db
-        .select()
+        .select({
+          member: members,
+          unit: organizationUnits,
+        })
         .from(members)
+        .leftJoin(organizationUnits, eq(members.unitId, organizationUnits.id))
         .where(eq(members.id, id))
         .limit(1);
 
       if (!member)
         throw new AppError(404, "MEMBER_NOT_FOUND", "Member not found.");
+
+      const [site] = await db
+        .select()
+        .from(siteSettings)
+        .where(eq(siteSettings.id, "default"))
+        .limit(1);
+
+      let memberNumber = member.member.memberNumber;
+      if (
+        memberNumber.startsWith("REG-") ||
+        memberNumber.startsWith("APP-") ||
+        memberNumber.startsWith("KTA-")
+      ) {
+        memberNumber = generateKtaNumber({
+          orgName: site?.name,
+          unitName: member.unit?.name,
+          unitCode: member.unit?.code,
+          unitSlug: member.unit?.slug,
+          date: new Date(),
+        });
+        await db
+          .update(members)
+          .set({ memberNumber, status: "active" })
+          .where(eq(members.id, id));
+      }
 
       const [existing] = await db
         .select()
@@ -943,12 +997,11 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
           .where(eq(membershipCards.id, existing.id));
       }
 
-      const cardCode = `KTA-${randomUUID().slice(0, 8).toUpperCase()}`;
       const [newCard] = await db
         .insert(membershipCards)
         .values({
           memberId: id,
-          code: cardCode,
+          code: memberNumber,
           version: nextVersion,
           isActive: true,
         })
