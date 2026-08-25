@@ -96,9 +96,13 @@ export function PublicWorkshopCard({
       <article className="standard-workshop-card">
         {/* 1. Header: Kategori & Status Resmi */}
         <div className="ws-card-header-row">
-          <span className="ws-cat-pill">
+          <span className="ws-cat-pill" title={workshop.category}>
             <Store size={12} className="text-sky-600 flex-shrink-0" />
-            <span className="truncate">{workshop.category}</span>
+            <span>
+              {workshop.category
+                .replace(/^Bengkel\s+/i, "")
+                .replace(/& Manifold Digital/i, "& Manifold")}
+            </span>
           </span>
           <div className="ws-badge-group">
             {is24h && <span className="ws-pill-24h">24 Jam</span>}
