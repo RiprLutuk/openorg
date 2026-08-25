@@ -214,7 +214,7 @@ export async function sendEmailVerificationNotification(
 }
 
 /**
- * Send approval & KTA Digital notification (via WhatsApp + Email)
+ * Send approval & KTA Digital notification (via Email + WhatsApp)
  */
 export async function sendApplicationApprovedNotification(
   payload: ApprovalNotificationPayload,
@@ -222,36 +222,98 @@ export async function sendApplicationApprovedNotification(
   const { name, email, phone, memberNumber, cardCode, cardUrl, portalUrl } =
     payload;
 
-  const emailSubject =
-    "Selamat! Keanggotaan Anda di APTI Indonesia Telah Disetujui (KTA Digital)";
+  const emailSubject = `Selamat! Keanggotaan Anda di APTI Indonesia Telah Disetujui (No. KTA: ${memberNumber})`;
   const emailHtml = `
-    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
-      <h2 style="color: #15803d; margin-top: 0;">🎉 Pendaftaran Keanggotaan Disetujui!</h2>
-      <p>Halo <strong>${name}</strong>,</p>
-      <p>Selamat! Permohonan keanggotaan Anda di <strong>Asosiasi Praktisi Tata Udara & Pendingin Indonesia (APTI)</strong> telah resmi disetujui dan diverifikasi.</p>
-      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; margin: 20px 0;">
-        <p style="margin: 4px 0;"><strong>Nomor Registrasi Anggota:</strong> <span style="color: #0284c7; font-weight: bold;">${memberNumber}</span></p>
-        <p style="margin: 4px 0;"><strong>Kode KTA Digital:</strong> <code>${cardCode}</code></p>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Keanggotaan Disetujui</title>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <div style="max-width: 600px; margin: 30px auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+        
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); padding: 32px 24px; text-align: center; color: #ffffff;">
+          <div style="display: inline-block; background: rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 12px;">
+            KEANGGOTAAN RESMI AKTIF
+          </div>
+          <h1 style="margin: 0; font-size: 24px; font-weight: 800; line-height: 1.3;">Selamat, Permohonan KTA Anda Telah Disetujui! 🎉</h1>
+          <p style="margin: 8px 0 0; font-size: 14px; color: #e0f2fe;">Asosiasi Pengusaha & Teknisi Pendingin Indonesia (APTI)</p>
+        </div>
+
+        <!-- Body Content -->
+        <div style="padding: 32px 28px;">
+          <p style="font-size: 16px; color: #1e293b; margin-top: 0;">Halo <strong>${name}</strong>,</p>
+          <p style="font-size: 14px; color: #475569; line-height: 1.6;">
+            Kami dengan bangga memberitahukan bahwa permohonan keanggotaan Anda di <strong>APTI Indonesia</strong> telah <strong>diverifikasi dan resmi disetujui</strong> oleh Pengurus.
+          </p>
+
+          <!-- KTA Number Highlight Box -->
+          <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 20px; margin: 24px 0; text-align: center;">
+            <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+              Nomor KTA Resmi
+            </div>
+            <div style="font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 22px; font-weight: 800; color: #0284c7; letter-spacing: 1px; margin-bottom: 8px;">
+              ${memberNumber}
+            </div>
+            <div style="font-size: 13px; color: #64748b;">
+              Kode KTA Digital: <code style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 12px;">${cardCode}</code>
+            </div>
+          </div>
+
+          <!-- Benefits Bullet Points -->
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 16px; margin-bottom: 28px;">
+            <div style="font-size: 13px; font-weight: 700; color: #166534; margin-bottom: 8px;">✨ Fasilitas & Hak Anggota Aktif:</div>
+            <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #15803d; line-height: 1.6;">
+              <li>Kartu Tanda Anggota (KTA) Digital resmi ber-QR Code untuk verifikasi publik.</li>
+              <li>Akses pelatihan teknis, sertifikasi BNSP, & akumulasi kredit SKP/CPD.</li>
+              <li>Pencantuman profil terverifikasi pada Direktori Teknisi Resmi Indonesia.</li>
+              <li>Akses musyawarah, workshop, dan jaringan mitra distributor resmi asosiasi.</li>
+            </ul>
+          </div>
+
+          <!-- CTA Buttons -->
+          <div style="text-align: center; margin: 32px 0 16px;">
+            <a href="${cardUrl}" style="background: #0284c7; color: #ffffff; padding: 14px 28px; font-size: 14px; font-weight: 700; text-decoration: none; border-radius: 8px; display: inline-block; margin: 6px; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);">
+              Buka KTA Digital & QR Code
+            </a>
+            <a href="${portalUrl}" style="background: #0f172a; color: #ffffff; padding: 14px 28px; font-size: 14px; font-weight: 700; text-decoration: none; border-radius: 8px; display: inline-block; margin: 6px;">
+              Masuk Portal Anggota
+            </a>
+          </div>
+
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 24px;">
+            Tautan langsung verifikasi kartu:<br/>
+            <a href="${cardUrl}" style="color: #0284c7; word-break: break-all;">${cardUrl}</a>
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8;">
+          <p style="margin: 0 0 4px;"><strong>Dewan Pimpinan Pusat (DPP) APTI Indonesia</strong></p>
+          <p style="margin: 0;">Asosiasi Pengusaha & Teknisi Pendingin Indonesia</p>
+        </div>
+
       </div>
-      <div style="text-align: center; margin: 28px 0;">
-        <a href="${cardUrl}" style="background: #166534; color: #ffffff; padding: 12px 24px; font-weight: bold; text-decoration: none; border-radius: 8px; display: inline-block; margin-right: 12px;">Lihat KTA Digital & QR Code</a>
-        <a href="${portalUrl}" style="background: #0284c7; color: #ffffff; padding: 12px 24px; font-weight: bold; text-decoration: none; border-radius: 8px; display: inline-block;">Masuk Portal Anggota</a>
-      </div>
-      <p style="font-size: 13px; color: #64748b;">Simpan nomor anggota dan KTA Digital Anda untuk keperluan verifikasi kompetensi, keikutsertaan workshop, dan fasilitas asosiasi.</p>
-    </div>
+    </body>
+    </html>
   `;
 
-  // 1. Send Email
-  void sendEmailMessage(email, emailSubject, emailHtml).catch(() => {});
+  // 1. Send Email via Resend
+  await sendEmailMessage(email, emailSubject, emailHtml).catch((err) => {
+    process.stderr.write(`[Notification Error] Failed to send approval email: ${String(err)}\n`);
+  });
 
-  // 2. Send WhatsApp message via WAHA
+  // 2. Send WhatsApp message via WAHA if phone is provided
   if (phone) {
     const waText =
       `🎉 *Selamat Sdr/i ${name}!*\n\n` +
       `Pendaftaran keanggotaan Anda di *APTI Indonesia* telah resmi *DISETUJUI*.\n\n` +
-      `📌 *No. Anggota:* ${memberNumber}\n` +
-      `🪪 *Kode KTA:* ${cardCode}\n\n` +
-      `Akses Kartu KTA Digital Anda dengan QR Code verifikasi:\n` +
+      `📌 *Nomor KTA Resmi:* ${memberNumber}\n` +
+      `🪪 *Kode KTA Digital:* ${cardCode}\n\n` +
+      `Akses Kartu KTA Digital Anda dengan QR Code verifikasi publik:\n` +
       `👉 ${cardUrl}\n\n` +
       `Masuk ke Portal Anggota untuk memantau kredit SKP dan agenda:\n` +
       `👉 ${portalUrl}\n\n` +
