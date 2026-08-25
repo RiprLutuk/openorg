@@ -178,6 +178,22 @@ export function InteractiveStructurePreview({ structure }: Props) {
                 <article
                   className={`leader-card-refined ${isNational ? "is-national" : ""}`}
                   key={item.assignment.id}
+                  onClick={() =>
+                    setActiveLeaderModal({
+                      member: item.member,
+                      position: pos
+                        ? {
+                            title: pos.title,
+                            description: pos.description ?? null,
+                          }
+                        : null,
+                      unit: unit
+                        ? { name: unit.name, type: unit.type }
+                        : null,
+                      startsAt: item.assignment.startsAt,
+                      endsAt: item.assignment.endsAt,
+                    })
+                  }
                 >
                   {/* Top Bar: Unit Badge & Verified SK */}
                   <div className="leader-card-top-bar">
@@ -194,31 +210,12 @@ export function InteractiveStructurePreview({ structure }: Props) {
 
                     <span className="leader-sk-badge">
                       <CheckCircle2 size={11} color="#16a34a" />
-                      <span>SK DPP Terverifikasi</span>
+                      <span>SK DPP Sah</span>
                     </span>
                   </div>
 
                   {/* Profile Header: Avatar & Info */}
-                  <button
-                    type="button"
-                    className="leader-profile-btn"
-                    onClick={() =>
-                      setActiveLeaderModal({
-                        member: item.member,
-                        position: pos
-                          ? {
-                              title: pos.title,
-                              description: pos.description ?? null,
-                            }
-                          : null,
-                        unit: unit
-                          ? { name: unit.name, type: unit.type }
-                          : null,
-                        startsAt: item.assignment.startsAt,
-                        endsAt: item.assignment.endsAt,
-                      })
-                    }
-                  >
+                  <div className="leader-profile-main">
                     <div className="leader-avatar-frame">
                       {item.member.avatarUrl ? (
                         <img
@@ -245,7 +242,7 @@ export function InteractiveStructurePreview({ structure }: Props) {
                         {pos?.title ?? "Pengurus Organisasi"}
                       </p>
                     </div>
-                  </button>
+                  </div>
 
                   {/* Card Footer: KTA Number + Quick Action */}
                   <div className="leader-card-bottom-row">
@@ -258,10 +255,10 @@ export function InteractiveStructurePreview({ structure }: Props) {
                       title="Klik untuk menyalin nomor KTA"
                     >
                       <QrCode size={12} />
-                      <span>{item.member.memberNumber}</span>
+                      <span className="leader-kta-code">{item.member.memberNumber}</span>
                       {copiedKta === item.member.memberNumber ? (
                         <span className="copy-indicator success">
-                          <Check size={11} /> Salin!
+                          <Check size={11} />
                         </span>
                       ) : (
                         <span className="copy-indicator">
@@ -270,29 +267,10 @@ export function InteractiveStructurePreview({ structure }: Props) {
                       )}
                     </button>
 
-                    <button
-                      type="button"
-                      className="leader-detail-btn"
-                      onClick={() =>
-                        setActiveLeaderModal({
-                          member: item.member,
-                          position: pos
-                            ? {
-                                title: pos.title,
-                                description: pos.description ?? null,
-                              }
-                            : null,
-                          unit: unit
-                            ? { name: unit.name, type: unit.type }
-                            : null,
-                          startsAt: item.assignment.startsAt,
-                          endsAt: item.assignment.endsAt,
-                        })
-                      }
-                    >
+                    <span className="leader-detail-link">
                       <span>Detail</span>
-                      <ArrowRight size={12} />
-                    </button>
+                      <ArrowRight size={13} className="detail-arrow-icon" />
+                    </span>
                   </div>
                 </article>
               );
