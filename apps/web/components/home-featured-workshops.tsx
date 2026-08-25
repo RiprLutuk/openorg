@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Compass,
+  Globe,
   MapPin,
   Pause,
   Play,
@@ -306,7 +307,7 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
     city: "Malang",
     province: "Jawa Timur",
     address: "Jl. Soekarno Hatta No. 78, Lowokwaru",
-    whatsapp: "081333445566",
+    whatsapp: "08133445566",
     phone: "0341489123",
     googleMapsUrl: "Jl. Soekarno Hatta No. 78, Lowokwaru, Malang",
     operatingHours: "08.00 - 18.00",
@@ -363,6 +364,9 @@ export const NATIONAL_16_WORKSHOPS: PublicWorkshopData[] = [
   },
 ];
 
+// Maximum distance in KM considered "nearby" (e.g. within same metropolitan/regional cluster)
+const MAX_NEARBY_RADIUS_KM = 180;
+
 // Helper to compute Haversine distance in KM
 function computeDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Earth radius in km
@@ -413,6 +417,7 @@ export function HomeFeaturedWorkshops() {
   const [selectedCat, setSelectedCat] = useState<string>("all");
   const [isAutoPlay, setIsAutoPlay] = useState<boolean>(true);
   const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [onlyNearby, setOnlyNearby] = useState<boolean>(true);
   const [geoState, setGeoState] = useState<{
     status: "idle" | "requesting" | "active" | "denied";
     userLat?: number | undefined;
@@ -447,6 +452,7 @@ export function HomeFeaturedWorkshops() {
       nearestCity: customCityName || withDistances[0]?.city || undefined,
       source,
     });
+    setOnlyNearby(true);
   };
 
   // Direct User-Gesture Trigger for Browser GPS
@@ -466,31 +472,32 @@ export function HomeFeaturedWorkshops() {
       },
       (err) => {
         console.warn("Browser GPS permission not granted or timeout:", err.message);
-        // Try fallback to IP geolocation
-        fetch("https://ipwho.is/")
-          .then((r) => r.json())
-          .then((data) => {
-            if (data?.success && data?.latitude && data?.longitude) {
-              applyLocationSort(data.latitude, data.longitude, getStoredWorkshops(), "ip", data.city || data.region);
-            } else {
-              setGeoState({ status: "denied" });
-              setWorkshops(shuffleArray(getStoredWorkshops()));
-            }
-          })
-          .catch(() => {
-            setGeoState({ status: "denied" });
-            setWorkshops(shuffleArray(getStoredWorkshops()));
-          });
+        // Fallback to IP geolocation
+        detectLocationFromIp(getStoredWorkshops());
       },
       { timeout: 8000, enableHighAccuracy: true }
     );
+  };
+
+  const detectLocationFromIp = (combined: PublicWorkshopData[]) => {
+    fetch("https://ipwho.is/")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && data?.latitude && data?.longitude) {
+          applyLocationSort(data.latitude, data.longitude, combined, "ip", data.city || data.region);
+        } else {
+          setWorkshops(shuffleArray(combined));
+        }
+      })
+      .catch(() => {
+        setWorkshops(shuffleArray(combined));
+      });
   };
 
   // On mount: Automatic IP Geolocation & Check existing GPS permissions
   useEffect(() => {
     const combined = getStoredWorkshops();
 
-    // 1. Check if browser GPS permission is already granted
     if (typeof window !== "undefined" && navigator.permissions && navigator.permissions.query) {
       navigator.permissions
         .query({ name: "geolocation" as PermissionName })
@@ -516,21 +523,6 @@ export function HomeFeaturedWorkshops() {
     }
   }, []);
 
-  const detectLocationFromIp = (combined: PublicWorkshopData[]) => {
-    fetch("https://ipwho.is/")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.success && data?.latitude && data?.longitude) {
-          applyLocationSort(data.latitude, data.longitude, combined, "ip", data.city || data.region);
-        } else {
-          setWorkshops(shuffleArray(combined));
-        }
-      })
-      .catch(() => {
-        setWorkshops(shuffleArray(combined));
-      });
-  };
-
   const handleShuffle = () => {
     setGeoState({ status: "idle" });
     const combined = getStoredWorkshops().map((w) => {
@@ -548,12 +540,40 @@ export function HomeFeaturedWorkshops() {
     }
   };
 
-  const categories = Array.from(new Set(workshops.map((w) => w.category).filter(Boolean)));
+  // Count how many workshops fall strictly in nearby range
+  const nearbyWorkshops = workshops.filter(
+    (w) => w.distanceKm !== undefined && w.distanceKm <= MAX_NEARBY_RADIUS_KM
+  );
+  const nearbyCount = nearbyWorkshops.length;
 
+  // Filter list: If location active & onlyNearby is true, strictly show nearby workshops!
   const filtered = workshops.filter((w) => {
-    if (selectedCat === "all") return true;
-    return w.category === selectedCat;
+    // 1. Category match
+    if (selectedCat !== "all" && w.category !== selectedCat) {
+      return false;
+    }
+
+    // 2. Strict Nearby Proximity Filtering
+    if (geoState.status === "active" && onlyNearby && w.distanceKm !== undefined) {
+      // If we have at least 1 workshop within radius, strictly exclude faraway ones
+      if (nearbyCount > 0) {
+        return w.distanceKm <= MAX_NEARBY_RADIUS_KM;
+      }
+      // If none under 180km (e.g. remote area), take the nearest 4
+      const indexInSorted = workshops.findIndex((item) => item.id === w.id);
+      return indexInSorted < 4;
+    }
+
+    return true;
   });
+
+  const categories = Array.from(
+    new Set(
+      (geoState.status === "active" && onlyNearby && nearbyCount > 0 ? nearbyWorkshops : workshops)
+        .map((w) => w.category)
+        .filter(Boolean)
+    )
+  );
 
   // Auto-scroll loop effect (pauses on hover or touch)
   useEffect(() => {
@@ -590,7 +610,8 @@ export function HomeFeaturedWorkshops() {
           <p>
             {geoState.status === "active" ? (
               <span className="ws-geo-active-text">
-                📍 Menampilkan bengkel &amp; toko terdekat dari lokasi Anda (Prioritas Wilayah: {geoState.nearestCity || "Sekitar Anda"}).
+                📍 Menampilkan {filtered.length} bengkel &amp; toko resmi di sekitar {geoState.nearestCity || "lokasi Anda"}
+                {onlyNearby && nearbyCount > 0 ? ` (Radius < ${MAX_NEARBY_RADIUS_KM} km)` : " (Seluruh Indonesia)"}.
               </span>
             ) : (
               `${workshops.length}+ bengkel AC resmi, klinik modul inverter & penyedia suku cadang berlisensi di seluruh Indonesia.`
@@ -606,7 +627,7 @@ export function HomeFeaturedWorkshops() {
               className={`ws-cat-filter-btn ${selectedCat === "all" ? "active" : ""}`}
               onClick={() => setSelectedCat("all")}
             >
-              Semua ({workshops.length})
+              Semua ({filtered.length})
             </button>
             {categories.map((cat) => (
               <button
@@ -621,27 +642,37 @@ export function HomeFeaturedWorkshops() {
           </div>
 
           <div className="ws-carousel-controls-group">
-            {/* Geolocation Button */}
-            <button
-              type="button"
-              className={`btn-geo-location ${geoState.status === "active" ? "active" : ""}`}
-              onClick={requestUserLocation}
-              disabled={geoState.status === "requesting"}
-              title={
-                geoState.status === "active"
-                  ? "Lokasi aktif: Menampilkan bengkel terdekat. Klik untuk deteksi GPS presisi tinggi."
-                  : "Klik untuk mendeteksi lokasi GPS Anda dan mengurutkan bengkel terdekat"
-              }
-            >
-              <Compass size={13} className={geoState.status === "requesting" ? "animate-spin" : ""} />
-              <span>
-                {geoState.status === "active"
-                  ? `Terdekat (${geoState.nearestCity || "Aktif"}) ✓`
-                  : geoState.status === "requesting"
-                  ? "Mendeteksi..."
-                  : "📍 Dekat Saya"}
-              </span>
-            </button>
+            {/* Geolocation / Nearby Scope Toggle */}
+            {geoState.status === "active" ? (
+              <button
+                type="button"
+                className={`btn-geo-location ${onlyNearby ? "active" : ""}`}
+                onClick={() => setOnlyNearby((prev) => !prev)}
+                title={
+                  onlyNearby
+                    ? "Sedang menampilkan bengkel terdekat. Klik untuk melihat seluruh Indonesia."
+                    : "Sedang menampilkan seluruh Indonesia. Klik untuk menyaring bengkel terdekat saja."
+                }
+              >
+                <MapPin size={13} />
+                <span>
+                  {onlyNearby
+                    ? `📍 Wilayah Anda (${nearbyCount || filtered.length})`
+                    : "🌐 Seluruh Indonesia (16)"}
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn-geo-location"
+                onClick={requestUserLocation}
+                disabled={geoState.status === "requesting"}
+                title="Deteksi lokasi saya untuk menampilkan bengkel terdekat di wilayah Anda"
+              >
+                <Compass size={13} className={geoState.status === "requesting" ? "animate-spin" : ""} />
+                <span>{geoState.status === "requesting" ? "Mendeteksi..." : "📍 Dekat Saya"}</span>
+              </button>
+            )}
 
             {/* Fair Shuffle */}
             <button
@@ -686,7 +717,7 @@ export function HomeFeaturedWorkshops() {
             </div>
 
             <Link href="/bengkel" className="button primary btn-view-all-hero">
-              <span>Semua Bengkel</span>
+              <span>Bursa Lengkap</span>
               <ArrowRight size={14} />
             </Link>
           </div>

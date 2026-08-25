@@ -16,6 +16,8 @@ import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { NATIONAL_16_WORKSHOPS } from "@/components/home-featured-workshops";
 import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
 
+const MAX_NEARBY_RADIUS_KM = 180;
+
 function computeDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -64,6 +66,7 @@ function WorkshopsPageContent() {
   const [search, setSearch] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [onlyNearby, setOnlyNearby] = useState<boolean>(true);
   const [geoState, setGeoState] = useState<{
     status: "idle" | "requesting" | "active" | "denied";
     userLat?: number | undefined;
@@ -93,6 +96,7 @@ function WorkshopsPageContent() {
       userLng: lng,
       nearestCity: customCityName || withDistances[0]?.city || undefined,
     });
+    setOnlyNearby(true);
   };
 
   const requestUserLocation = () => {
@@ -169,10 +173,25 @@ function WorkshopsPageContent() {
     setWorkshops(shuffleArray(combined));
   };
 
+  const nearbyWorkshops = workshops.filter(
+    (w) => w.distanceKm !== undefined && w.distanceKm <= MAX_NEARBY_RADIUS_KM
+  );
+  const nearbyCount = nearbyWorkshops.length;
+
   const provinces = Array.from(new Set(workshops.map((w) => w.province).filter(Boolean)));
   const categories = Array.from(new Set(workshops.map((w) => w.category).filter(Boolean)));
 
   const filtered = workshops.filter((ws) => {
+    // 1. Proximity filter if location active and onlyNearby is true
+    if (geoState.status === "active" && onlyNearby && ws.distanceKm !== undefined) {
+      if (nearbyCount > 0) {
+        if (ws.distanceKm > MAX_NEARBY_RADIUS_KM) return false;
+      } else {
+        const indexInSorted = workshops.findIndex((item) => item.id === ws.id);
+        if (indexInSorted >= 4) return false;
+      }
+    }
+
     const matchSearch =
       !search ||
       ws.workshopName.toLowerCase().includes(search.toLowerCase()) ||
@@ -197,7 +216,13 @@ function WorkshopsPageContent() {
           </div>
           <h1>Direktori Bengkel AC &amp; Toko Mitra Resmi</h1>
           <p>
-            Temukan bengkel pendingin resmi, klinik reparasi modul PCB inverter, dan distributor suku cadang terdaftar di seluruh wilayah Indonesia.
+            {geoState.status === "active" && onlyNearby ? (
+              <span>
+                📍 Menampilkan {filtered.length} bengkel terdekat di sekitar wilayah {geoState.nearestCity || "Anda"} (Radius &lt; {MAX_NEARBY_RADIUS_KM} km).
+              </span>
+            ) : (
+              "Temukan bengkel pendingin resmi, klinik reparasi modul PCB inverter, dan distributor suku cadang terdaftar di seluruh wilayah Indonesia."
+            )}
           </p>
 
           <div className="tech-hero-stats">
@@ -244,16 +269,28 @@ function WorkshopsPageContent() {
 
             <div className="tech-filter-group">
               {/* Geolocation Button */}
-              <button
-                type="button"
-                className={`tech-toggle-btn ${geoState.status === "active" ? "active" : ""}`}
-                onClick={requestUserLocation}
-                disabled={geoState.status === "requesting"}
-                title="Deteksi lokasi saya untuk menampilkan bengkel terdekat"
-              >
-                <Compass size={13} className={geoState.status === "requesting" ? "animate-spin" : ""} />
-                <span>{geoState.status === "active" ? "Lokasi Dekat ✓" : "Dekat Saya"}</span>
-              </button>
+              {geoState.status === "active" ? (
+                <button
+                  type="button"
+                  className={`tech-toggle-btn ${onlyNearby ? "active" : ""}`}
+                  onClick={() => setOnlyNearby((prev) => !prev)}
+                  title="Beralih antara hanya bengkel terdekat atau seluruh Indonesia"
+                >
+                  <MapPin size={13} />
+                  <span>{onlyNearby ? `📍 Wilayah Anda (${filtered.length})` : "🌐 Seluruh Indonesia"}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="tech-toggle-btn"
+                  onClick={requestUserLocation}
+                  disabled={geoState.status === "requesting"}
+                  title="Deteksi lokasi saya untuk menampilkan bengkel terdekat"
+                >
+                  <Compass size={13} className={geoState.status === "requesting" ? "animate-spin" : ""} />
+                  <span>{geoState.status === "requesting" ? "Mendeteksi..." : "📍 Dekat Saya"}</span>
+                </button>
+              )}
 
               {provinces.length > 0 && (
                 <select
@@ -333,6 +370,7 @@ function WorkshopsPageContent() {
                     setSearch("");
                     setSelectedProvince("all");
                     setSelectedCategory("all");
+                    setOnlyNearby(false);
                   }}
                 >
                   Reset Semua Filter
