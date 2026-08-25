@@ -12412,15 +12412,24 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
+  margin-bottom: 28px;
 }
 
 .reg-tabs-list {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 2px;
+  max-width: 100%;
+}
+
+.reg-tabs-list::-webkit-scrollbar {
+  display: none;
 }
 
 .reg-tab-btn {
@@ -12433,6 +12442,8 @@ img {
   border: 1px solid #cbd5e1;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .reg-tab-btn:hover {
@@ -12738,6 +12749,16 @@ img {
   .reg-controls-panel {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+  }
+
+  .reg-tabs-list {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 2px 2px 6px 2px;
   }
 
   .reg-search-box {
