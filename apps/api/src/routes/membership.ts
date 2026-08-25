@@ -197,63 +197,15 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
           memberId: member?.id,
           status: "applicant",
           emailVerificationSent: true,
-          verificationUrl:
-            config.NODE_ENV !== "production" ? verificationUrl : undefined,
         },
       });
     },
   );
 
-  app.get("/verify-email", async (request, reply) => {
-    const { token } = z
-      .object({ token: z.string().min(10) })
-      .parse(request.query);
-
-    const tokenHash = hashMemberSessionToken(token);
-    const [account] = await db
-      .select({
-        id: memberAccounts.id,
-        email: memberAccounts.email,
-        memberId: memberAccounts.memberId,
-      })
-      .from(memberAccounts)
-      .where(
-        and(
-          eq(memberAccounts.verificationTokenHash, tokenHash),
-          gt(memberAccounts.verificationTokenExpiresAt, new Date()),
-        ),
-      )
-      .limit(1);
-
-    if (!account) {
-      throw new AppError(
-        400,
-        "INVALID_OR_EXPIRED_TOKEN",
-        "Tautan verifikasi tidak valid atau sudah kedaluwarsa. Silakan minta tautan verifikasi baru.",
-      );
-    }
-
-    const now = new Date();
-    await db
-      .update(memberAccounts)
-      .set({
-        emailVerifiedAt: now,
-        verificationTokenHash: null,
-        verificationTokenExpiresAt: null,
-        updatedAt: now,
-      })
-      .where(eq(memberAccounts.id, account.id));
-
-    return reply.send({
-      data: {
-        email: account.email,
-        verified: true,
-        verifiedAt: now.toISOString(),
-      },
-    });
-  });
-
-  app.post("/verify-email", async (request, reply) => {
+  app.post(
+    "/verify-email",
+    { config: { rateLimit: { max: 10, timeWindow: "15 minutes" } } },
+    async (request, reply) => {
     const { token } = z
       .object({ token: z.string().min(10) })
       .parse(request.body);
@@ -365,8 +317,6 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
         data: {
           message: "Tautan verifikasi baru berhasil dikirimkan.",
           email: result.account.email,
-          verificationUrl:
-            config.NODE_ENV !== "production" ? verificationUrl : undefined,
         },
       });
     },

@@ -32,8 +32,6 @@ export function MembershipRegistration({
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
-  const [verificationUrl, setVerificationUrl] = useState<string | null>(null);
-
   useEffect(() => {
     memberApi<{ data: { units: Unit[] } }>("/v1/public/structure")
       .then((result) => setUnits(result.data.units))
@@ -70,8 +68,8 @@ export function MembershipRegistration({
     const value = (key: string) => String(data.get(key) ?? "").trim();
     const nextEmail = value("email").toLowerCase();
     try {
-      const response = await memberApi<{
-        data: { memberId?: string; verificationUrl?: string };
+      await memberApi<{
+        data: { memberId?: string };
       }>("/v1/public/membership/register", {
         method: "POST",
         body: JSON.stringify({
@@ -86,9 +84,6 @@ export function MembershipRegistration({
           consent: data.get("consent") === "on",
         }),
       });
-      if (response.data.verificationUrl) {
-        setVerificationUrl(response.data.verificationUrl);
-      }
       toast.success("Pendaftaran anggota berhasil dikirimkan ke Sekretariat!");
       setStage("done");
     } catch (reason) {
@@ -114,63 +109,10 @@ export function MembershipRegistration({
         </p>
         <h2>Permohonan Anda Sedang Ditinjau</h2>
         <p>
-          Tautan aktivasi akun dan verifikasi email telah dikirimkan ke alamat
-          email dan nomor WhatsApp Anda untuk keamanan penerbitan KTA Digital.
+          Tautan aktivasi akun dan verifikasi email resmi telah dikirimkan ke
+          alamat email yang Anda daftarkan. Silakan buka kotak masuk atau folder spam
+          email Anda untuk mengonfirmasi keanggotaan.
         </p>
-
-        {verificationUrl && (
-          <div
-            style={{
-              background: "#eff6ff",
-              border: "1px solid #bfdbfe",
-              borderRadius: "14px",
-              padding: "16px",
-              margin: "16px 0",
-              textAlign: "left",
-            }}
-          >
-            <h4
-              style={{
-                fontSize: "13.5px",
-                fontWeight: 800,
-                color: "#1e40af",
-                margin: "0 0 6px",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-              }}
-            >
-              <ShieldCheck size={16} color="#2563eb" />
-              Tautan Verifikasi Langsung (Mode Development):
-            </h4>
-            <p
-              style={{
-                fontSize: "12px",
-                color: "#475569",
-                margin: "0 0 10px",
-              }}
-            >
-              Karena menggunakan domain sandbox pengujian (Resend Dev), Anda
-              dapat langsung memverifikasi akun Anda secara instan melalui tombol
-              di bawah:
-            </p>
-            <a
-              href={verificationUrl}
-              className="button primary"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                padding: "8px 16px",
-                fontSize: "13px",
-                textDecoration: "none",
-              }}
-            >
-              <span>Verifikasi Email Akun Saya Sekarang</span>
-              <ArrowRight size={14} />
-            </a>
-          </div>
-        )}
 
         <div
           style={{

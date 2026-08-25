@@ -260,28 +260,22 @@ export function MemberPortal() {
   const [learning, setLearning] = useState<LearningData | null>(null);
   const [billing, setBilling] = useState<BillingData | null>(null);
   const [resendPending, setResendPending] = useState(false);
-  const [resendDirectUrl, setResendDirectUrl] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const handleDirectResendVerification = async () => {
     if (!data?.member?.email) return;
     setResendPending(true);
-    setResendDirectUrl(null);
     try {
       const res = await memberApi<{
         data: {
           message: string;
           alreadyVerified?: boolean;
-          verificationUrl?: string;
         };
       }>("/v1/public/membership/resend-verification", {
         method: "POST",
         body: JSON.stringify({ email: data.member.email.trim().toLowerCase() }),
       });
-      if (res.data.verificationUrl) {
-        setResendDirectUrl(res.data.verificationUrl);
-      }
       toast.success(
         res.data.message ||
           "Tautan verifikasi resmi telah berhasil dikirimkan ke email Anda!",
@@ -515,46 +509,30 @@ export function MemberPortal() {
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-            {resendDirectUrl ? (
-              <a
-                className="button primary verify-btn"
-                href={resendDirectUrl}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  textDecoration: "none",
-                }}
-              >
-                <ShieldCheck size={14} />
-                <span>Verifikasi Akun Sekarang</span>
-              </a>
-            ) : (
-              <button
-                type="button"
-                className="button primary verify-btn"
-                onClick={handleDirectResendVerification}
-                disabled={resendPending}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  cursor: resendPending ? "not-allowed" : "pointer",
-                }}
-              >
-                {resendPending ? (
-                  <>
-                    <RefreshCw className="spin-icon" size={14} />
-                    <span>Mengirimkan Email…</span>
-                  </>
-                ) : (
-                  <>
-                    <Mail size={14} />
-                    <span>Kirim Email Verifikasi</span>
-                  </>
-                )}
-              </button>
-            )}
+            <button
+              type="button"
+              className="button primary verify-btn"
+              onClick={handleDirectResendVerification}
+              disabled={resendPending}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                cursor: resendPending ? "not-allowed" : "pointer",
+              }}
+            >
+              {resendPending ? (
+                <>
+                  <RefreshCw className="spin-icon" size={14} />
+                  <span>Mengirimkan Email…</span>
+                </>
+              ) : (
+                <>
+                  <Mail size={14} />
+                  <span>Kirim Email Verifikasi</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}
@@ -750,41 +728,30 @@ export function MemberPortal() {
                           alamat email terlebih dahulu.
                         </p>
                         <div className="lock-overlay-actions">
-                          {resendDirectUrl ? (
-                            <a
-                              href={resendDirectUrl}
-                              className="button primary"
-                              style={{ display: "inline-flex", alignItems: "center", gap: "6px", textDecoration: "none" }}
-                            >
-                              <ShieldCheck size={14} />
-                              <span>Verifikasi Akun Sekarang</span>
-                            </a>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={handleDirectResendVerification}
-                              disabled={resendPending}
-                              className="button primary"
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "6px",
-                                cursor: resendPending ? "not-allowed" : "pointer",
-                              }}
-                            >
-                              {resendPending ? (
-                                <>
-                                  <RefreshCw className="spin-icon" size={14} />
-                                  <span>Mengirimkan Email…</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Mail size={14} />
-                                  <span>Kirim Email Verifikasi Sekarang</span>
-                                </>
-                              )}
-                            </button>
-                          )}
+                          <button
+                            type="button"
+                            onClick={handleDirectResendVerification}
+                            disabled={resendPending}
+                            className="button primary"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              cursor: resendPending ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            {resendPending ? (
+                              <>
+                                <RefreshCw className="spin-icon" size={14} />
+                                <span>Mengirimkan Email…</span>
+                              </>
+                            ) : (
+                              <>
+                                <Mail size={14} />
+                                <span>Kirim Email Verifikasi Sekarang</span>
+                              </>
+                            )}
+                          </button>
                           <Link
                             href="/member/verify-email"
                             className="button secondary"
@@ -904,7 +871,6 @@ export function MemberPortal() {
               onReload={loadPortal}
               onResendVerification={handleDirectResendVerification}
               resendPending={resendPending}
-              resendDirectUrl={resendDirectUrl}
             />
           </div>
         )}
@@ -927,7 +893,6 @@ export function MemberPortal() {
               onReload={loadPortal}
               onResendVerification={handleDirectResendVerification}
               resendPending={resendPending}
-              resendDirectUrl={resendDirectUrl}
             />
           </div>
         )}
@@ -1062,14 +1027,12 @@ function MemberLearning({
   onReload,
   onResendVerification,
   resendPending,
-  resendDirectUrl,
 }: {
   data: LearningData;
   emailVerified: boolean;
   onReload: () => void;
   onResendVerification?: () => void;
   resendPending?: boolean;
-  resendDirectUrl?: string | null;
 }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -1117,16 +1080,7 @@ function MemberLearning({
               membuka akses pendaftaran pelatihan dan akumulasi poin SKP.
             </p>
           </div>
-          {resendDirectUrl ? (
-            <a
-              href={resendDirectUrl}
-              className="button primary portal-lock-verify-btn"
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px", textDecoration: "none" }}
-            >
-              <ShieldCheck size={14} />
-              <span>Verifikasi Akun Sekarang</span>
-            </a>
-          ) : onResendVerification ? (
+          {onResendVerification ? (
             <button
               type="button"
               onClick={onResendVerification}
@@ -2151,7 +2105,6 @@ function MemberWorkshopPromo({
   onReload,
   onResendVerification,
   resendPending,
-  resendDirectUrl,
 }: {
   member: PortalData["member"];
   emailVerified: boolean;
@@ -2159,7 +2112,6 @@ function MemberWorkshopPromo({
   onReload: () => void;
   onResendVerification?: () => void;
   resendPending?: boolean;
-  resendDirectUrl?: string | null;
 }) {
   const existingMeta = (member.metadata?.workshopAd as Record<string, any>) || {};
 
@@ -2475,16 +2427,7 @@ function MemberWorkshopPromo({
               email akun Anda terverifikasi untuk menjamin validitas bisnis.
             </p>
           </div>
-          {resendDirectUrl ? (
-            <a
-              href={resendDirectUrl}
-              className="button primary portal-lock-verify-btn"
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px", textDecoration: "none" }}
-            >
-              <ShieldCheck size={14} />
-              <span>Verifikasi Akun Sekarang</span>
-            </a>
-          ) : onResendVerification ? (
+          {onResendVerification ? (
             <button
               type="button"
               onClick={onResendVerification}
