@@ -2265,19 +2265,20 @@ function MemberWorkshopPromo({
     setProvince(newProv);
     const availableRegs = getRegenciesByProvince(newProv);
     const firstReg = availableRegs[0];
+    let targetCity = city;
     if (!availableRegs.some((r) => r.nama === city)) {
-      const selectedReg = firstReg?.nama || "";
-      setCity(selectedReg);
+      targetCity = firstReg?.nama || "";
+      setCity(targetCity);
       setDistrict("");
       setVillage("");
       if (firstReg?.kodepos) {
         setPostalCode(firstReg.kodepos);
       }
-      const coords = getCityCoordinates(selectedReg, newProv);
-      setLatitude(coords.lat);
-      setLongitude(coords.lng);
-      setGpsSource("auto");
     }
+    const coords = getCityCoordinates(targetCity, newProv);
+    setLatitude(coords.lat);
+    setLongitude(coords.lng);
+    setGpsSource("auto");
   };
 
   const handleCityChange = (newCity: string) => {
@@ -2633,24 +2634,59 @@ function MemberWorkshopPromo({
                 <div>
                   <strong>Titik Koordinat GPS Usaha (Pencarian Terdekat)</strong>
                   <p>
-                    Otomatis dihitung dari {city || province}:{" "}
-                    <code>{latitude.toFixed(4)}, {longitude.toFixed(4)}</code>{" "}
-                    {gpsSource === "gps" && <span className="gps-source-tag">📍 GPS Presisi</span>}
-                    {gpsSource === "maps" && <span className="gps-source-tag">🗺️ Google Maps</span>}
-                    {gpsSource === "auto" && <span className="gps-source-tag-auto">🏙️ Titik Kota</span>}
+                    {gpsSource === "auto" && (
+                      <>
+                        Otomatis disinkronkan dari {city || province}:{" "}
+                        <code>{latitude.toFixed(4)}, {longitude.toFixed(4)}</code>{" "}
+                        <span className="gps-source-tag-auto">🏙️ Titik Wilayah</span>
+                      </>
+                    )}
+                    {gpsSource === "gps" && (
+                      <>
+                        Sensor GPS perangkat Anda saat ini:{" "}
+                        <code>{latitude.toFixed(4)}, {longitude.toFixed(4)}</code>{" "}
+                        <span className="gps-source-tag">📍 GPS Presisi</span>
+                      </>
+                    )}
+                    {gpsSource === "maps" && (
+                      <>
+                        Titik dari Google Maps:{" "}
+                        <code>{latitude.toFixed(4)}, {longitude.toFixed(4)}</code>{" "}
+                        <span className="gps-source-tag">🗺️ Google Maps</span>
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
-              <button
-                type="button"
-                className="button secondary btn-detect-portal-gps"
-                onClick={handleDetectCurrentGps}
-                disabled={isDetectingGps}
-                title="Gunakan posisi GPS perangkat Anda saat ini sebagai titik lokasi workshop"
-              >
-                <MapPin size={13} className={isDetectingGps ? "animate-spin" : ""} />
-                <span>{isDetectingGps ? "Membaca..." : "📍 Ambil Titik GPS Saya"}</span>
-              </button>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+                {gpsSource === "gps" && (
+                  <button
+                    type="button"
+                    className="button secondary"
+                    style={{ fontSize: "12px", padding: "6px 10px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                    onClick={() => {
+                      const coords = getCityCoordinates(city, province);
+                      setLatitude(coords.lat);
+                      setLongitude(coords.lng);
+                      setGpsSource("auto");
+                    }}
+                    title="Kembalikan koordinat sesuai alamat/kota yang dipilih di formulir"
+                  >
+                    <RefreshCw size={12} />
+                    <span>🔄 Sinkronkan ke {city || province}</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="button secondary btn-detect-portal-gps"
+                  onClick={handleDetectCurrentGps}
+                  disabled={isDetectingGps}
+                  title="Gunakan posisi GPS perangkat Anda saat ini sebagai titik lokasi workshop"
+                >
+                  <MapPin size={13} className={isDetectingGps ? "animate-spin" : ""} />
+                  <span>{isDetectingGps ? "Membaca..." : "📍 Ambil Titik GPS Saya"}</span>
+                </button>
+              </div>
             </div>
           </div>
 
