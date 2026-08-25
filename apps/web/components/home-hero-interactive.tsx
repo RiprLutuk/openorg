@@ -212,8 +212,17 @@ export function HomeHeroInteractive({ site, unitCount, eventCount }: Props) {
                       </small>
                     </div>
                   </div>
-                  <div className="kta-security-chip">
-                    <span className="chip-gold-lines" />
+                  <div className="kta-security-chip" title="Enkripsi Digital & Kredensial Resmi Anti-Pemalsuan">
+                    <div className="kta-chip-hologram">
+                      <ShieldCheck size={14} className="kta-chip-shield-icon" />
+                      <span className="kta-chip-nfc-symbol" title="NFC Contactless Digital Verification">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                          <path d="M8.5 16.5a5 5 0 0 1 0-9" />
+                          <path d="M12 19a8.5 8.5 0 0 1 0-14" />
+                          <path d="M15.5 21.5a12 12 0 0 1 0-19" />
+                        </svg>
+                      </span>
+                    </div>
                   </div>
                 </div>
 

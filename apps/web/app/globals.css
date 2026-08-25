@@ -4554,9 +4554,6 @@ img {
     font-size: 11px;
   }
 }
-    background: #e2e8f0;
-  }
-}
 
 /* --- Interactive Card Component (Digital KTA & Simulator) --- */
 .hero-card-column {
@@ -4699,23 +4696,30 @@ img {
 }
 
 .kta-security-chip {
-  width: 34px;
-  height: 26px;
-  border-radius: 6px;
-  background: #f0f9ff;
+  padding: 3px 6px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   border: 1px solid #bae6fd;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08);
 }
 
-.chip-gold-lines {
-  position: absolute;
-  inset: 3px;
-  border: 1px solid rgba(2, 132, 199, 0.25);
-  border-radius: 2px;
+.kta-chip-hologram {
+  display: flex;
+  align-items: center;
+  gap: 3.5px;
+}
+
+.kta-chip-shield-icon {
+  color: #0284c7;
+}
+
+.kta-chip-nfc-symbol {
+  color: #0369a1;
+  display: flex;
+  align-items: center;
 }
 
 .kta-card-body {
