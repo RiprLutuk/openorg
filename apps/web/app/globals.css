@@ -23810,7 +23810,7 @@ img {
   background: #ffffff;
   border-top: 1px solid #f1f5f9;
   border-bottom: 1px solid #f1f5f9;
-  padding: 36px 0;
+  padding: 32px 0;
 }
 
 /* Compact Header */
@@ -23820,7 +23820,7 @@ img {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .pill-badge-eyebrow {
@@ -23831,7 +23831,7 @@ img {
   border: 1px solid #bae6fd;
   border-radius: 9999px;
   padding: 3px 10px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 750;
   color: #0369a1;
   letter-spacing: 0.3px;
@@ -23839,7 +23839,7 @@ img {
 }
 
 .section-title-compact {
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 850;
   color: #0f172a;
   letter-spacing: -0.02em;
@@ -23848,7 +23848,7 @@ img {
 }
 
 .section-subtitle-compact {
-  font-size: 13px;
+  font-size: 12.5px;
   color: #64748b;
   margin: 0;
   line-height: 1.4;
@@ -23874,6 +23874,7 @@ img {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .btn-shuffle-fair:hover {
@@ -23920,6 +23921,7 @@ img {
   border-radius: 8px;
   text-decoration: none;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .btn-view-all-compact:hover {
@@ -23943,12 +23945,12 @@ img {
 .filter-chip {
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
+  padding: 4px 11px;
   border-radius: 9999px;
   border: 1px solid #e2e8f0;
   background: #f8fafc;
   color: #475569;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -23974,16 +23976,17 @@ img {
 
 .horizontal-workshop-carousel {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   padding: 4px 2px 14px;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
+  -webkit-overflow-scrolling: touch;
 }
 
 .horizontal-workshop-carousel::-webkit-scrollbar {
-  height: 6px;
+  height: 5px;
 }
 
 .horizontal-workshop-carousel::-webkit-scrollbar-thumb {
@@ -23997,19 +24000,12 @@ img {
   scroll-snap-align: start;
 }
 
-@media (max-width: 640px) {
-  .carousel-item-slide {
-    flex: 0 0 280px;
-    max-width: 280px;
-  }
-}
-
 /* Clean Workshop Card Layout (Used in Carousel & Grid) */
 .clean-workshop-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  padding: 14px;
+  padding: 13px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -24042,8 +24038,8 @@ img {
   background: #f0f9ff;
   border: 1px solid #bae6fd;
   border-radius: 5px;
-  padding: 1.5px 6px;
-  max-width: 170px;
+  padding: 2px 6px;
+  max-width: 160px;
 }
 
 .card-badge-group {
@@ -24067,7 +24063,7 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
   color: #15803d;
   background: #dcfce7;
@@ -24104,10 +24100,10 @@ img {
   background: #f8fafc;
   border: 1px solid #f1f5f9;
   border-radius: 8px;
-  padding: 6px 8px;
+  padding: 5px 8px;
 }
 
-.meta-chip {
+.meta-line {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -24115,36 +24111,78 @@ img {
   color: #334155;
 }
 
-.card-map-box {
+/* Styled Map Banner with Direct Navigation */
+.card-map-banner {
   position: relative;
-  border-radius: 8px;
+  border-radius: 9px;
   overflow: hidden;
-  border: 1px solid #e2e8f0;
-  background: #e2e8f0;
+  border: 1px solid #e0f2fe;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  min-height: 52px;
 }
 
-.map-overlay-btn {
+.card-map-banner:hover {
+  border-color: #7dd3fc;
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  transform: translateY(-1px);
+}
+
+.map-banner-grid-backdrop {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  inset: 0;
+  opacity: 0.15;
+  background-image: radial-gradient(#0284c7 1px, transparent 1px);
+  background-size: 8px 8px;
+  pointer-events: none;
+}
+
+.map-banner-pin-pulse {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #0284c7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(2, 132, 199, 0.3);
+}
+
+.map-banner-pin-pulse .pin-icon {
+  position: relative;
+  z-index: 1;
+}
+
+.map-banner-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.map-addr-text {
+  font-size: 10.5px;
+  font-weight: 650;
+  color: #0369a1;
+  line-height: 1.25;
+}
+
+.map-nav-action {
   display: inline-flex;
   align-items: center;
   gap: 3px;
   font-size: 9.5px;
   font-weight: 700;
   color: #0284c7;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  padding: 2px 6px;
-  text-decoration: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.15s ease;
-}
-
-.map-overlay-btn:hover {
-  background: #f0f9ff;
-  border-color: #0284c7;
 }
 
 .card-services-cloud {
@@ -24164,7 +24202,7 @@ img {
   border: 1px solid #e0f2fe;
   padding: 1.5px 5px;
   border-radius: 4px;
-  max-width: 140px;
+  max-width: 130px;
 }
 
 .service-mini-tag.more-tag {
@@ -24179,7 +24217,7 @@ img {
   justify-content: space-between;
   gap: 6px;
   border-top: 1px solid #f1f5f9;
-  padding-top: 8px;
+  padding-top: 7px;
   margin-top: auto;
 }
 
@@ -24190,7 +24228,7 @@ img {
 }
 
 .owner-lbl {
-  font-size: 8.5px;
+  font-size: 8px;
   color: #94a3b8;
   line-height: 1;
 }
@@ -24217,8 +24255,8 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 25px;
+  height: 25px;
   border-radius: 6px;
   border: 1px solid #cbd5e1;
   background: #f8fafc;
@@ -24240,9 +24278,9 @@ img {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border: 1px solid #059669;
   color: #ffffff;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 750;
-  padding: 4px 8px;
+  padding: 4px 7px;
   border-radius: 6px;
   text-decoration: none;
   transition: all 0.15s ease;
@@ -24261,16 +24299,15 @@ img {
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   border: 1px solid #bae6fd;
   border-radius: 12px;
-  padding: 10px 16px;
-  margin-top: 18px;
-  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin-top: 16px;
 }
 
 .promo-strip-text {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 11.5px;
   color: #0369a1;
   flex: 1;
 }
@@ -24280,12 +24317,12 @@ img {
 }
 
 .btn-promo-join {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 750;
   color: #0284c7;
   background: #ffffff;
   border: 1px solid #7dd3fc;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-radius: 6px;
   text-decoration: none;
   white-space: nowrap;
@@ -24301,7 +24338,7 @@ img {
 .home-workshops-grid-compact {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
   margin-top: 16px;
   width: 100%;
 }
@@ -24321,6 +24358,67 @@ img {
 @media (max-width: 600px) {
   .home-workshops-grid-compact {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile Specific Polish for Showcase Section */
+@media (max-width: 640px) {
+  .home-workshops-showcase-section {
+    padding: 24px 0;
+  }
+
+  .showcase-header-compact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .section-title-compact {
+    font-size: 19px;
+    line-height: 1.25;
+  }
+
+  .section-subtitle-compact {
+    font-size: 12px;
+  }
+
+  .header-actions-block {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .carousel-arrows-pair {
+    display: none; /* Swipe gesture is standard on mobile */
+  }
+
+  .btn-shuffle-fair,
+  .btn-view-all-compact {
+    flex: 1;
+    justify-content: center;
+    font-size: 11px;
+    padding: 7px 8px;
+    text-align: center;
+  }
+
+  .carousel-item-slide {
+    flex: 0 0 calc(100vw - 56px);
+    max-width: 320px;
+    scroll-snap-align: center;
+  }
+
+  .compact-member-promo-strip {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .btn-promo-join {
+    text-align: center;
+    padding: 7px 12px;
   }
 }
 

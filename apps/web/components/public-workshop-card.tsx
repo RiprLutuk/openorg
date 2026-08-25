@@ -56,11 +56,9 @@ export function PublicWorkshopCard({
       ? workshop.googleMapsUrl
       : `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
 
-  const mapsEmbedUrl = `https://maps.google.com/maps?q=${mapsQuery}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
-
   const cleanWhatsapp = workshop.whatsapp.replace(/\D/g, "");
   const waUrl = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(
-    `Halo ${workshop.workshopName}, saya ingin konsultasi/order layanan melalui direktori resmi organisasi.`,
+    `Halo ${workshop.workshopName}, saya menemukan profil workshop Anda di Direktori Resmi APTI Indonesia.`,
   )}`;
 
   const cleanWebUrl = workshop.website
@@ -71,16 +69,16 @@ export function PublicWorkshopCard({
 
   return (
     <article className="clean-workshop-card">
-      {/* 1. Header: Kategori & Status Resmi */}
+      {/* 1. Top Bar: Kategori & Status */}
       <div className="card-top-bar">
         <span className="card-cat-pill">
-          <Store size={11} className="text-sky-600" />
+          <Store size={10.5} className="text-sky-600 flex-shrink-0" />
           <span className="truncate">{workshop.category}</span>
         </span>
         <div className="card-badge-group">
-          {is24h && <span className="pill-24h">24 Jam</span>}
+          {is24h && <span className="pill-24h">24J</span>}
           <span className="pill-verified" title="Mitra Resmi Terverifikasi">
-            <ShieldCheck size={11} className="text-emerald-600" />
+            <ShieldCheck size={10} className="text-emerald-600 flex-shrink-0" />
             <span>Resmi</span>
           </span>
         </div>
@@ -96,40 +94,39 @@ export function PublicWorkshopCard({
         </p>
       </div>
 
-      {/* 3. Lokasi & Jam Operasional */}
+      {/* 3. Lokasi & Jam Operasional Ringkas */}
       <div className="card-meta-chips">
-        <span className="meta-chip location-chip" title={`${workshop.address}, ${workshop.city}`}>
+        <div className="meta-line truncate">
           <MapPin size={11} className="text-sky-500 flex-shrink-0" />
           <span className="truncate">{workshop.city}, {workshop.province}</span>
-        </span>
-        <span className="meta-chip hours-chip">
+        </div>
+        <div className="meta-line truncate">
           <Clock size={11} className="text-slate-400 flex-shrink-0" />
           <span className="truncate">{workshop.operatingHours}</span>
-        </span>
+        </div>
       </div>
 
-      {/* 4. Compact Google Maps Preview */}
-      <div className="card-map-box">
-        <iframe
-          title={`Peta Lokasi ${workshop.workshopName}`}
-          src={mapsEmbedUrl}
-          width="100%"
-          height="85"
-          loading="lazy"
-          style={{ border: 0, display: "block" }}
-          allowFullScreen={false}
-        />
-        <a
-          href={mapsDirectUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="map-overlay-btn"
-          title="Buka Navigasi Rute Maps"
-        >
-          <Navigation size={10} />
-          <span>Rute</span>
-        </a>
-      </div>
+      {/* 4. Styled Visual Map Card with Direct Navigation */}
+      <a
+        href={mapsDirectUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="card-map-banner"
+        title="Buka Navigasi Rute Google Maps"
+      >
+        <div className="map-banner-grid-backdrop" />
+        <div className="map-banner-pin-pulse">
+          <MapPin size={16} className="pin-icon" />
+          <span className="pulse-ring" />
+        </div>
+        <div className="map-banner-info">
+          <span className="map-addr-text truncate">{workshop.address || workshop.city}</span>
+          <span className="map-nav-action">
+            <Navigation size={10} />
+            <span>Buka Rute Maps</span>
+          </span>
+        </div>
+      </a>
 
       {/* 5. Layanan Spesialisasi */}
       {workshop.services && workshop.services.length > 0 && (
@@ -137,7 +134,7 @@ export function PublicWorkshopCard({
           {workshop.services.slice(0, 2).map((srv) => (
             <span key={srv} className="service-mini-tag truncate">
               <Wrench size={9} className="text-sky-500 flex-shrink-0" />
-              <span>{srv}</span>
+              <span className="truncate">{srv}</span>
             </span>
           ))}
           {workshop.services.length > 2 && (
@@ -155,7 +152,7 @@ export function PublicWorkshopCard({
           <Link
             href={`/verify?code=${encodeURIComponent(workshop.memberNumber)}`}
             className="owner-name-link truncate"
-            title={`KTA: ${workshop.memberNumber}`}
+            title={`No. KTA: ${workshop.memberNumber}`}
           >
             <strong>{workshop.ownerName}</strong>
           </Link>
