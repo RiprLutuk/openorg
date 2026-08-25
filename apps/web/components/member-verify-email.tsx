@@ -49,13 +49,17 @@ export function MemberVerifyEmail({
     setError("");
     try {
       const res = await memberApi<{
-        data: { email: string; verified: boolean };
+        data: { email: string; verified: boolean; redirectTo?: string };
       }>("/v1/public/membership/verify-email", {
         method: "POST",
         body: JSON.stringify({ token: cleanToken }),
       });
       setSuccess(true);
       setVerifiedEmail(res.data.email);
+      const target = res.data.redirectTo || "/member";
+      setTimeout(() => {
+        window.location.href = target;
+      }, 750);
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -192,19 +196,38 @@ export function MemberVerifyEmail({
               <CheckCircle2 size={36} color="#16a34a" />
             </div>
             <p className="eyebrow" style={{ color: "#16a34a", fontWeight: 700 }}>
-              Verifikasi Selesai
+              Verifikasi Berhasil! 🎉
             </p>
             <h2 style={{ fontSize: "1.45rem", margin: "0.25rem 0 0.5rem", color: "#0f172a" }}>
-              Email Berhasil Diverifikasi! 🎉
+              Akun Aktif & Terverifikasi
             </h2>
-            <p style={{ fontSize: "0.9rem", color: "#64748b", margin: "0 0 1.5rem" }}>
-              Alamat email <strong style={{ color: "#0f172a" }}>{verifiedEmail}</strong> telah aktif. Akun Anda kini siap digunakan untuk masuk ke portal resmi.
+            <p style={{ fontSize: "0.9rem", color: "#64748b", margin: "0 0 1.25rem" }}>
+              Email <strong style={{ color: "#0f172a" }}>{verifiedEmail}</strong> telah terverifikasi. Token telah dinonaktifkan demi keamanan.
             </p>
 
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                background: "#f0f9ff",
+                borderRadius: "20px",
+                color: "#0284c7",
+                fontSize: "13px",
+                fontWeight: 600,
+                marginBottom: "1.5rem",
+              }}
+            >
+              <RefreshCw className="spin-icon" size={14} />
+              <span>Mengalihkan ke Portal Anggota…</span>
+            </div>
+
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              <Link
+              <a
                 className="button primary"
-                href="/member/login"
+                href="/member"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -217,9 +240,9 @@ export function MemberVerifyEmail({
                   textDecoration: "none",
                 }}
               >
-                <span>Masuk ke Portal Anggota</span>
+                <span>Buka Portal Anggota Sekarang</span>
                 <ArrowRight size={16} />
-              </Link>
+              </a>
 
               <Link
                 href="/"

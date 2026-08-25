@@ -206,53 +206,85 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
     "/verify-email",
     { config: { rateLimit: { max: 10, timeWindow: "15 minutes" } } },
     async (request, reply) => {
-    const { token } = z
-      .object({ token: z.string().min(10) })
-      .parse(request.body);
+      const { token } = z
+        .object({ token: z.string().min(10) })
+        .parse(request.body);
 
-    const tokenHash = hashMemberSessionToken(token);
-    const [account] = await db
-      .select({
-        id: memberAccounts.id,
-        email: memberAccounts.email,
-        memberId: memberAccounts.memberId,
-      })
-      .from(memberAccounts)
-      .where(
-        and(
-          eq(memberAccounts.verificationTokenHash, tokenHash),
-          gt(memberAccounts.verificationTokenExpiresAt, new Date()),
-        ),
-      )
-      .limit(1);
+      const tokenHash = hashMemberSessionToken(token);
+      const [result] = await db
+        .select({
+          account: memberAccounts,
+          member: members,
+        })
+        .from(memberAccounts)
+        .innerJoin(members, eq(memberAccounts.memberId, members.id))
+        .where(
+          and(
+            eq(memberAccounts.verificationTokenHash, tokenHash),
+            gt(memberAccounts.verificationTokenExpiresAt, new Date()),
+          ),
+        )
+        .limit(1);
 
-    if (!account) {
-      throw new AppError(
-        400,
-        "INVALID_OR_EXPIRED_TOKEN",
-        "Tautan verifikasi tidak valid atau sudah kedaluwarsa.",
-      );
-    }
+      if (!result) {
+        throw new AppError(
+          400,
+          "INVALID_OR_EXPIRED_TOKEN",
+          "Tautan verifikasi tidak valid atau sudah kedaluwarsa.",
+        );
+      }
 
-    const now = new Date();
-    await db
-      .update(memberAccounts)
-      .set({
-        emailVerifiedAt: now,
-        verificationTokenHash: null,
-        verificationTokenExpiresAt: null,
-        updatedAt: now,
-      })
-      .where(eq(memberAccounts.id, account.id));
+      const now = new Date();
+      const sessionToken = newMemberSessionToken();
 
-    return reply.send({
-      data: {
-        email: account.email,
-        verified: true,
-        verifiedAt: now.toISOString(),
-      },
-    });
-  });
+      await db.transaction(async (tx) => {
+        // 1. Immediately invalidate verification token so it cannot be used again
+        await tx
+          .update(memberAccounts)
+          .set({
+            emailVerifiedAt: now,
+            verificationTokenHash: null,
+            verificationTokenExpiresAt: null,
+            lastLoginAt: now,
+            updatedAt: now,
+          })
+          .where(eq(memberAccounts.id, result.account.id));
+
+        // 2. Establish authenticated member session
+        await tx.insert(memberSessions).values({
+          memberAccountId: result.account.id,
+          tokenHash: hashMemberSessionToken(sessionToken),
+          ipAddress: request.ip,
+          userAgent: request.headers["user-agent"]?.slice(0, 500),
+          expiresAt: new Date(Date.now() + MEMBER_SESSION_TTL_SECONDS * 1000),
+        });
+      });
+
+      // 3. Set member session cookie
+      reply.setCookie(config.MEMBER_SESSION_COOKIE_NAME, sessionToken, {
+        httpOnly: true,
+        secure: config.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: MEMBER_SESSION_TTL_SECONDS,
+      });
+
+      return reply.send({
+        data: {
+          email: result.account.email,
+          verified: true,
+          verifiedAt: now.toISOString(),
+          member: {
+            id: result.member.id,
+            name: result.member.name,
+            status: result.member.status,
+            memberNumber: result.member.memberNumber,
+          },
+          redirectTo: "/member",
+        },
+      });
+    },
+  );
 
   app.post(
     "/resend-verification",
