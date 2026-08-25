@@ -35,6 +35,7 @@ export function MemberVerifyEmail({
   const [resendPending, setResendPending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
   const [resendSuccess, setResendSuccess] = useState(false);
+  const [directUrl, setDirectUrl] = useState<string | null>(null);
 
   const verifyToken = useCallback(async (token: string) => {
     if (!token) return;
@@ -72,14 +73,22 @@ export function MemberVerifyEmail({
     setResendPending(true);
     setResendMessage("");
     setResendSuccess(false);
+    setDirectUrl(null);
     try {
       const res = await memberApi<{
-        data: { message: string; alreadyVerified?: boolean };
+        data: {
+          message: string;
+          alreadyVerified?: boolean;
+          verificationUrl?: string;
+        };
       }>("/v1/public/membership/resend-verification", {
         method: "POST",
         body: JSON.stringify({ email: resendEmail.trim().toLowerCase() }),
       });
       setResendSuccess(true);
+      if (res.data.verificationUrl) {
+        setDirectUrl(res.data.verificationUrl);
+      }
       setResendMessage(
         res.data.message ||
           "Tautan verifikasi baru telah berhasil dikirimkan ke alamat email / WhatsApp Anda.",
@@ -311,6 +320,43 @@ export function MemberVerifyEmail({
               >
                 {resendSuccess ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
                 <span>{resendMessage}</span>
+              </div>
+            )}
+
+            {directUrl && (
+              <div
+                style={{
+                  padding: "12px 14px",
+                  borderRadius: "10px",
+                  background: "#eff6ff",
+                  border: "1px solid #bfdbfe",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <ShieldCheck size={16} color="#2563eb" />
+                  <span style={{ fontSize: "12.5px", fontWeight: 700, color: "#1e40af" }}>
+                    Tautan Verifikasi Instan:
+                  </span>
+                </div>
+                <a
+                  href={directUrl}
+                  className="button primary"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                    padding: "8px 14px",
+                    fontSize: "12.5px",
+                    textDecoration: "none",
+                  }}
+                >
+                  <span>Verifikasi Email Akun Ini Sekarang</span>
+                  <ArrowRight size={14} />
+                </a>
               </div>
             )}
 

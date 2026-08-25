@@ -365,6 +365,8 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
         data: {
           message: "Tautan verifikasi baru berhasil dikirimkan.",
           email: result.account.email,
+          verificationUrl:
+            config.NODE_ENV !== "production" ? verificationUrl : undefined,
         },
       });
     },
