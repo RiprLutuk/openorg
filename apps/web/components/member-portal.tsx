@@ -465,7 +465,7 @@ export function MemberPortal() {
         <section className="portal-card-section">
           <div className="portal-section-heading">
             <div>
-              <p className="eyebrow">Digital Credential</p>
+              <p className="eyebrow">KTA Digital Resmi</p>
               <h2>Kartu Tanda Anggota (KTA) Digital</h2>
               <p>
                 Kartu anggota resmi berstandar ID Card. Download kartu (PNG)
@@ -565,11 +565,10 @@ function MemberBilling({ data }: { data: BillingData }) {
     <section className="portal-billing-section">
       <div className="portal-section-heading">
         <div>
-          <p className="eyebrow">Billing & benefits</p>
-          <h2>Your financial membership record</h2>
+          <p className="eyebrow">Iuran & Manfaat</p>
+          <h2>Catatan Iuran & Manfaat Anggota</h2>
           <p>
-            Review official invoices, confirmed payments, and access unlocked by
-            settlement.
+            Pantau tagihan resmi, status pembayaran iuran tahunan, dan hak benefit keanggotaan aktif Anda.
           </p>
         </div>
       </div>
@@ -578,11 +577,11 @@ function MemberBilling({ data }: { data: BillingData }) {
           <WalletCards size={20} />
         </span>
         <div>
-          <small>Active benefits</small>
+          <small>Manfaat & Hak Aktif</small>
           <strong>
             {activeBenefits.length
               ? activeBenefits.map((item) => item.label).join(" · ")
-              : "No paid benefit package yet"}
+              : "Belum ada paket manfaat aktif"}
           </strong>
         </div>
       </div>
@@ -591,16 +590,16 @@ function MemberBilling({ data }: { data: BillingData }) {
           <div className="member-learning-head">
             <div className="member-learning-head-copy">
               <ReceiptText size={18} />
-              <strong>Invoices</strong>
+              <strong>Daftar Tagihan & Iuran</strong>
             </div>
-            <small>{outstanding.length} awaiting settlement</small>
+            <small>{outstanding.length > 0 ? `${outstanding.length} menunggu pembayaran` : "Semua Lunas"}</small>
           </div>
           <div className="member-invoice-list">
             {data.invoices.map((invoice) => (
               <article key={invoice.id}>
                 <div>
                   <span className={`billing-status ${invoice.effectiveStatus}`}>
-                    {invoice.effectiveStatus}
+                    {invoice.effectiveStatus === "paid" ? "Lunas" : invoice.effectiveStatus === "pending" ? "Menunggu" : invoice.effectiveStatus}
                   </span>
                   <strong>{invoice.invoiceNumber}</strong>
                   <small>
@@ -611,15 +610,15 @@ function MemberBilling({ data }: { data: BillingData }) {
                   <strong>{formatMemberMoney(invoice.total)}</strong>
                   <small>
                     {invoice.outstanding > 0
-                      ? `${formatMemberMoney(invoice.outstanding)} outstanding`
-                      : "Settled"}
+                      ? `${formatMemberMoney(invoice.outstanding)} belum dibayar`
+                      : "Lunas"}
                   </small>
                 </div>
               </article>
             ))}
             {!data.invoices.length && (
               <p className="learning-empty">
-                No invoice has been issued to this account.
+                Belum ada tagihan atau iuran yang diterbitkan untuk akun ini.
               </p>
             )}
           </div>
@@ -628,9 +627,9 @@ function MemberBilling({ data }: { data: BillingData }) {
           <div className="member-learning-head">
             <div className="member-learning-head-copy">
               <BadgeCheck size={18} />
-              <strong>Benefit wallet</strong>
+              <strong>Dompet Hak & Akses Manfaat</strong>
             </div>
-            <small>Access granted from paid products</small>
+            <small>Akses aktif dari status anggota</small>
           </div>
           <div className="member-entitlement-list">
             {data.entitlements.map((item) => (
@@ -641,18 +640,17 @@ function MemberBilling({ data }: { data: BillingData }) {
                 <div>
                   <strong>{item.label}</strong>
                   <small>
-                    {item.effectiveStatus} ·{" "}
+                    {item.effectiveStatus === "active" ? "Aktif" : item.effectiveStatus} ·{" "}
                     {item.endsAt
-                      ? `until ${formatDate(item.endsAt)}`
-                      : "no expiry"}
+                      ? `s/d ${formatDate(item.endsAt)}`
+                      : "Berlaku Permanen"}
                   </small>
                 </div>
               </article>
             ))}
             {!data.entitlements.length && (
               <p className="learning-empty">
-                Benefits will appear here automatically after a qualifying
-                invoice is paid.
+                Daftar manfaat keanggotaan akan otomatis tampil di sini setelah iuran diverifikasi.
               </p>
             )}
           </div>
@@ -697,7 +695,7 @@ function MemberLearning({
       });
       onReload();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Enrollment failed.");
+      setError(reason instanceof Error ? reason.message : "Pendaftaran pelatihan gagal.");
     } finally {
       setPendingId(null);
     }
@@ -706,7 +704,7 @@ function MemberLearning({
     <section className="portal-learning-section">
       <div className="portal-section-heading">
         <div>
-          <p className="eyebrow">Academy & Credit Ledger</p>
+          <p className="eyebrow">Akademi & Kredit SKP</p>
           <h2>Catatan Pelatihan & Kredit SKP</h2>
           <p>
             Daftar kegiatan pelatihan teknis, sertifikasi BNSP, dan pantau
@@ -717,7 +715,7 @@ function MemberLearning({
 
       {!emailVerified && (
         <div className="portal-lock-banner">
-          <ShieldAlert size={20} className="text-amber-500" />
+          <ShieldAlert size={20} className="text-amber-500 flex-shrink-0" />
           <div className="portal-lock-banner-copy">
             <strong>Pendaftaran Pelatihan Terkunci</strong>
             <p>
@@ -729,7 +727,7 @@ function MemberLearning({
             href="/member/verify-email"
             className="button secondary portal-lock-verify-btn"
           >
-            Verifikasi Email
+            Verifikasi Email Sekarang
           </Link>
         </div>
       )}
@@ -738,24 +736,28 @@ function MemberLearning({
       <div className="member-credit-balances">
         {data.balances.map((balance) => (
           <article key={balance.scheme.id}>
-            <span>
-              <Award size={19} />
-            </span>
-            <div>
-              <strong>{balance.amount}</strong>
-              <small>{balance.scheme.unitLabel}</small>
+            <div className="credit-balance-top">
+              <span>
+                <Award size={19} />
+              </span>
+              <div>
+                <strong>{balance.amount}</strong>
+                <small>{balance.scheme.unitLabel || "SKP"}</small>
+              </div>
             </div>
             <p>{balance.scheme.name}</p>
           </article>
         ))}
         {!data.balances.length && (
           <article className="empty-credit-balance">
-            <span>
-              <Award size={19} />
-            </span>
-            <div>
-              <strong>0</strong>
-              <small>verified credits</small>
+            <div className="credit-balance-top">
+              <span>
+                <Award size={19} />
+              </span>
+              <div>
+                <strong>0</strong>
+                <small>SKP</small>
+              </div>
             </div>
             <p>Poin SKP pelatihan yang selesai akan tampil otomatis di sini.</p>
           </article>
@@ -777,7 +779,7 @@ function MemberLearning({
                   <strong>{new Date(item.activity.startsAt).getDate()}</strong>
                   <small>
                     {new Date(item.activity.startsAt).toLocaleDateString(
-                      undefined,
+                      "id-ID",
                       { month: "short" },
                     )}
                   </small>
@@ -785,7 +787,7 @@ function MemberLearning({
                 <div>
                   <strong>{item.activity.title}</strong>
                   <small>
-                    {item.status}
+                    {item.status === "enrolled" ? "Terdaftar" : item.status}
                     {item.attendance ? ` · ${item.attendance.status}` : ""}
                     {item.scheme
                       ? ` · ${item.activity.creditAmount} ${item.scheme.unitLabel}`
@@ -813,7 +815,7 @@ function MemberLearning({
                 <span className="learning-calendar">
                   <strong>{new Date(activity.startsAt).getDate()}</strong>
                   <small>
-                    {new Date(activity.startsAt).toLocaleDateString(undefined, {
+                    {new Date(activity.startsAt).toLocaleDateString("id-ID", {
                       month: "short",
                     })}
                   </small>
@@ -840,7 +842,7 @@ function MemberLearning({
                       <span>Terkunci</span>
                     </span>
                   ) : pendingId === activity.id ? (
-                    "Joining…"
+                    "Mendaftar…"
                   ) : (
                     "Daftar"
                   )}
@@ -918,7 +920,7 @@ function MemberWorkshopPromo({
   const existingMeta = (member.metadata?.workshopAd as Record<string, any>) || {};
 
   const [workshopName, setWorkshopName] = useState(
-    existingMeta.workshopName || member.companyName || `${member.name.split(" ")[0]} Cooling Workshop`,
+    existingMeta.workshopName || member.companyName || `Bengkel Pendingin ${getMemberDisplayName(member.name)}`,
   );
   const [tagline, setTagline] = useState(
     existingMeta.tagline || "Solusi Tata Udara Profesional, Berlisensi & Bergaransi",
@@ -1384,11 +1386,10 @@ function MemberCredentials({
     <section className="portal-credentials-section">
       <div className="portal-section-heading">
         <div>
-          <p className="eyebrow">ComplyFlow</p>
-          <h2>Credentials & requirements</h2>
+          <p className="eyebrow">Kepatuhan & Sertifikasi</p>
+          <h2>Standar Kualifikasi & Sertifikasi Profesi</h2>
           <p>
-            Requirement set: {data.membershipType.replaceAll("-", " ")}.
-            Verification status is checked against the configured trust level.
+            Persyaratan kompetensi teknis dan verifikasi dokumen sertifikasi resmi untuk status keanggotaan Anda.
           </p>
         </div>
         {data.requirements.length > 0 && (
@@ -1408,7 +1409,7 @@ function MemberCredentials({
               </>
             ) : (
               <>
-                <Plus size={17} /> Submit credential
+                <Plus size={17} /> Ajukan Sertifikat
               </>
             )}
           </button>
@@ -1432,20 +1433,19 @@ function MemberCredentials({
               </span>
               <div>
                 <small>
-                  {requirement.rule.replace("_", " ")} · requires{" "}
-                  {requirement.requiredVerificationLevel.replaceAll("_", " ")}
+                  {requirement.rule === "required" ? "Wajib Dipenuhi" : requirement.rule === "optional" ? "Opsional" : "Salah Satu (Pilihan)"} · Verifikasi {requirement.requiredVerificationLevel.replaceAll("_", " ")}
                 </small>
                 <h3>{requirement.scheme.name}</h3>
                 <p>
                   {credential
-                    ? `${credential.credentialNumber ?? "No number"} · ${credential.effectiveStatus.replaceAll("_", " ")}`
+                    ? `${credential.credentialNumber ?? "Tanpa nomor"} · ${credential.effectiveStatus === "active" ? "Aktif" : credential.effectiveStatus.replaceAll("_", " ")}`
                     : requirement.scheme.description}
                 </p>
               </div>
               <span
                 className={`credential-result ${requirement.satisfied ? "satisfied" : ""}`}
               >
-                {requirement.satisfied ? "Satisfied" : "Action needed"}
+                {requirement.satisfied ? "Terverifikasi" : "Perlu Diajukan"}
               </span>
               <button
                 type="button"
@@ -1463,9 +1463,9 @@ function MemberCredentials({
                     <Lock size={12} /> Terkunci
                   </>
                 ) : credential ? (
-                  "Renew / replace"
+                  "Perbarui Berkas"
                 ) : (
-                  "Submit"
+                  "Ajukan"
                 )}
               </button>
             </article>
@@ -1473,9 +1473,12 @@ function MemberCredentials({
         })}
         {!data.requirements.length && (
           <div className="credential-none">
-            <ShieldCheck size={22} />
+            <span className="credential-none-icon">
+              <BadgeCheck size={24} />
+            </span>
+            <strong>Standar Kualifikasi Terpenuhi</strong>
             <p>
-              No credential requirements are assigned to this membership type.
+              Tipe keanggotaan Anda saat ini tidak memerlukan berkas verifikasi sertifikasi tambahan.
             </p>
           </div>
         )}
@@ -1487,29 +1490,30 @@ function MemberCredentials({
               <ShieldCheck size={23} />
             </span>
             <div>
-              <p className="eyebrow">Submit for verification</p>
+              <p className="eyebrow">Pengajuan Dokumen Verifikasi</p>
               <h2>{selectedScheme.name}</h2>
             </div>
           </div>
           {error && <p className="form-error full">{error}</p>}
           <label htmlFor="portal-cred-number">
-            Credential number
-            <input id="portal-cred-number" name="credentialNumber" />
+            Nomor Sertifikat / Registrasi
+            <input id="portal-cred-number" name="credentialNumber" placeholder="Contoh: REG-BNSP-2026-XXXX" />
           </label>
           <label htmlFor="portal-cred-issuer">
-            Issuer
+            Lembaga Penerbit
             <input
               id="portal-cred-issuer"
               name="issuerName"
+              placeholder="Contoh: BNSP / LSP TPTU"
               defaultValue={selectedScheme.issuerName ?? ""}
             />
           </label>
           <label htmlFor="portal-cred-issued-at">
-            Issued date
+            Tanggal Terbit
             <input id="portal-cred-issued-at" name="issuedAt" type="date" />
           </label>
           <label htmlFor="portal-cred-expires-at">
-            Expiry date
+            Tanggal Kedaluwarsa
             <input id="portal-cred-expires-at" name="expiresAt" type="date" />
           </label>
           {selectedScheme.fields.map((field) => (
@@ -1522,7 +1526,7 @@ function MemberCredentials({
                   required={field.required}
                   defaultValue=""
                 >
-                  <option value="">Select…</option>
+                  <option value="">Pilih…</option>
                   {field.options?.map((option) => (
                     <option key={option} value={option}>
                       {option}
@@ -1540,29 +1544,29 @@ function MemberCredentials({
             </label>
           ))}
           <label htmlFor="portal-cred-source-url" className="full">
-            Official registry / source URL
+            Tautan Registri / Verifikasi Resmi (Opsional)
             <input
               id="portal-cred-source-url"
               name="sourceUrl"
               type="url"
-              placeholder="https://"
+              placeholder="https://..."
             />
           </label>
           <label htmlFor="portal-cred-evidence-label">
-            Evidence label
+            Keterangan Dokumen Bukti
             <input
               id="portal-cred-evidence-label"
               name="evidenceLabel"
-              placeholder="Certificate or registry record"
+              placeholder="Sertifikat Fisik / Transkrip Uji Kompetensi"
             />
           </label>
           <label htmlFor="portal-cred-evidence-url">
-            Evidence URL
+            Tautan File Bukti / Dokumen PDF (Opsional)
             <input
               id="portal-cred-evidence-url"
               name="evidenceUrl"
               type="url"
-              placeholder="https://"
+              placeholder="https://..."
             />
           </label>
           <div className="member-form-actions full">
@@ -1571,10 +1575,10 @@ function MemberCredentials({
               type="button"
               onClick={() => setSelectedScheme(null)}
             >
-              Cancel
+              Batal
             </button>
             <button className="button primary" type="submit" disabled={pending}>
-              {pending ? "Submitting…" : "Submit for verification"}
+              {pending ? "Mengirimkan…" : "Kirim Dokumen Verifikasi"}
             </button>
           </div>
         </form>

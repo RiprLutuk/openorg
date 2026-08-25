@@ -2813,54 +2813,72 @@ img {
 }
 .member-credit-balances {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
-}
-@media (max-width: 640px) {
-  .member-credit-balances {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
 }
 .member-credit-balances article {
-  display: grid;
-  grid-template-columns: 38px auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   gap: 10px;
-  align-items: center;
-  padding: 14px;
+  padding: 16px 18px;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 14px;
   background: #f8fafc;
+  transition: all 0.15s ease;
 }
-.member-credit-balances article > span {
+.member-credit-balances article:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+.credit-balance-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.credit-balance-top > span {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   place-items: center;
   color: #0284c7;
   border-radius: 10px;
   background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  flex-shrink: 0;
 }
-.member-credit-balances strong,
-.member-credit-balances small {
-  display: block;
-}
-.member-credit-balances strong {
-  font-size: 20px;
+.credit-balance-top strong {
+  font-size: 24px;
   line-height: 1;
   color: #0f172a;
   font-weight: 800;
+  display: block;
 }
-.member-credit-balances small {
+.credit-balance-top small {
   margin-top: 3px;
   color: #64748b;
-  font-size: 9.5px;
+  font-size: 11px;
+  font-weight: 700;
+  display: block;
+  text-transform: uppercase;
 }
 .member-credit-balances p {
-  grid-column: 1 / -1;
-  margin: 4px 0 0;
-  color: #475569;
-  font-size: 11px;
+  margin: 0;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+@media (max-width: 640px) {
+  .member-credit-balances {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .member-credit-balances article {
+    padding: 14px 16px;
+  }
 }
 .member-learning-grid {
   display: grid;
@@ -3084,16 +3102,38 @@ img {
   border-radius: 6px;
 }
 .credential-none {
-  min-height: 100px;
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  color: #64748b;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  font-size: 12px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  gap: 10px;
 }
-.credential-none svg {
-  color: #0284c7;
+.credential-none-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+  display: grid;
+  place-items: center;
+}
+.credential-none strong {
+  font-size: 14.5px;
+  font-weight: 750;
+  color: #0f172a;
+}
+.credential-none p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #64748b;
+  max-width: 420px;
+  margin: 0;
 }
 .portal-credential-form {
   margin-top: 18px;
@@ -21088,29 +21128,73 @@ img {
   gap: 16px;
   background: #fffbeb;
   border: 1px solid #fde68a;
-  border-radius: 12px;
-  padding: 14px 18px;
-  margin-bottom: 20px;
+  border-left: 4px solid #f59e0b;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.05);
+}
+
+.portal-lock-banner-copy {
+  flex: 1;
+  min-width: 0;
 }
 
 .portal-lock-banner-copy strong {
   display: block;
   font-size: 14px;
-  color: #b45309;
-  margin-bottom: 2px;
+  font-weight: 750;
+  color: #92400e;
+  margin-bottom: 3px;
 }
 
 .portal-lock-banner-copy p {
-  font-size: 12.5px;
-  color: #475569;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #b45309;
   margin: 0;
 }
 
 .portal-lock-verify-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   white-space: nowrap;
-  font-size: 12.5px !important;
-  padding: 6px 14px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  padding: 8px 18px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  background: #f59e0b !important;
+  color: #ffffff !important;
+  border: 1px solid #d97706 !important;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
+  transition: all 0.15s ease;
+  flex-shrink: 0;
   margin-left: auto;
+}
+
+.portal-lock-verify-btn:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .portal-lock-banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 14px 16px;
+  }
+  .portal-lock-verify-btn {
+    width: 100%;
+    height: 40px !important;
+    font-size: 13.5px !important;
+    margin-left: 0 !important;
+  }
 }
 
 .btn-gated-locked {
