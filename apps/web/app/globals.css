@@ -22460,13 +22460,74 @@ img {
 }
 
 /* ==========================================================================
-   Dynamic & Responsive Workshop Ad Card & Device Preview Modes
+   Dynamic & Responsive Workshop Ad Card & Studio Preview Canvas
    ========================================================================== */
+.promo-form-section-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.promo-form-section-card:focus-within {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.promo-form-section-card.publish-card {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.form-section-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.form-section-title-row h4 {
+  font-size: 13.5px;
+  font-weight: 750;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.form-section-title-row p {
+  font-size: 11.5px;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
 .workshop-ad-preview-side {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.preview-studio-stage {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 4px 24px -4px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
   gap: 14px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .preview-top-controls-bar {
@@ -22480,12 +22541,33 @@ img {
 .preview-header-label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   font-size: 11px;
   font-weight: 750;
-  letter-spacing: 0.08em;
-  color: #0284c7;
+  letter-spacing: 0.06em;
+  color: #0369a1;
   text-transform: uppercase;
+}
+
+.live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  display: inline-block;
+  animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.15);
+  }
 }
 
 .preview-device-switch-pill {
@@ -22525,51 +22607,45 @@ img {
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
 
-/* Preview Viewport Wrapper */
-.preview-viewport-wrapper {
-  width: 100%;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+/* Studio Canvas Backdrop */
+.preview-canvas-backdrop {
+  background: #f8fafc;
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+  background-size: 18px 18px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 24px 16px;
   display: flex;
   justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.preview-viewport-wrapper.mode-grid {
-  max-width: 380px;
-  margin: 0 auto;
-}
-
-.preview-viewport-wrapper.mode-mobile {
-  max-width: 320px;
-  margin: 0 auto;
-  padding: 12px 10px;
-  background: #0f172a;
-  border-radius: 28px;
-  box-shadow: 0 16px 36px -8px rgba(15, 23, 42, 0.3), 0 0 0 1px #1e293b;
-}
-
-.preview-viewport-wrapper.mode-compact {
-  max-width: 290px;
-  margin: 0 auto;
-}
-
-.preview-viewport-wrapper.mode-full {
-  max-width: 100%;
-}
-
-/* Card Mockup (Dynamic Component) */
+/* --------------------------------------------------------------------------
+   Variant 1: Grid Mode Card (~380px standard)
+   -------------------------------------------------------------------------- */
 .public-workshop-card-mockup {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 18px 20px;
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.02);
   position: relative;
   width: 100%;
+  max-width: 380px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 12px;
   transition: all 0.2s ease;
+}
+
+.mode-grid-card {
+  width: 100%;
+  max-width: 380px;
 }
 
 .workshop-card-top {
@@ -22585,7 +22661,7 @@ img {
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  font-weight: 650;
+  font-weight: 700;
   color: #0369a1;
   background: #f0f9ff;
   border: 1px solid #bae6fd;
@@ -22598,7 +22674,7 @@ img {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  max-width: 180px;
 }
 
 .card-top-right-badges {
@@ -22618,16 +22694,14 @@ img {
   background: #fef2f2;
   border: 1px solid #fecaca;
   padding: 2px 6px;
-  border-radius: 6px;
-  white-space: nowrap;
+  border-radius: 5px;
 }
 
 .published-indicator {
-  font-size: 10.5px;
-  font-weight: 750;
+  font-size: 11px;
+  font-weight: 700;
   padding: 2px 7px;
   border-radius: 6px;
-  white-space: nowrap;
 }
 
 .published-indicator.live {
@@ -22637,9 +22711,9 @@ img {
 }
 
 .published-indicator.draft {
-  color: #64748b;
+  color: #475569;
   background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #cbd5e1;
 }
 
 .workshop-card-header-block {
@@ -22649,43 +22723,38 @@ img {
 }
 
 .workshop-card-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   color: #0f172a;
   margin: 0;
+  line-height: 1.25;
   letter-spacing: -0.015em;
-  line-height: 1.3;
 }
 
 .workshop-card-tagline {
   font-size: 12px;
   color: #64748b;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
-/* Card Meta List */
 .workshop-card-meta {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 8px 10px;
+  gap: 6px;
   background: #f8fafc;
   border: 1px solid #f1f5f9;
-  border-radius: 8px;
+  border-radius: 10px;
+  padding: 8px 10px;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   font-size: 11.5px;
-  color: #475569;
+  color: #334155;
   min-width: 0;
-}
-
-.meta-icon {
-  flex-shrink: 0;
 }
 
 .meta-item span {
@@ -22768,7 +22837,7 @@ img {
   line-height: 1.45;
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -22776,27 +22845,26 @@ img {
 .workshop-card-services {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 4px;
 }
 
 .mini-service-chip {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  padding: 2px 7px;
-  border-radius: 6px;
   font-size: 10.5px;
-  color: #475569;
-  white-space: nowrap;
+  font-weight: 600;
+  color: #0369a1;
+  background: #f0f9ff;
+  border: 1px solid #e0f2fe;
+  padding: 2px 6px;
+  border-radius: 5px;
 }
 
 .mini-service-chip.count-chip {
-  color: #0284c7;
-  background: #f0f9ff;
-  border-color: #bae6fd;
-  font-weight: 650;
+  color: #64748b;
+  background: #f8fafc;
+  border-color: #e2e8f0;
 }
 
 /* Card Footer */
@@ -22813,7 +22881,7 @@ img {
 .owner-verified-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-size: 10.5px;
   font-weight: 650;
   color: #15803d;
@@ -22856,26 +22924,20 @@ img {
 }
 
 .btn-contact-mock {
-  background: #10b981;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border: 1px solid #059669;
   color: #ffffff;
-  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.25);
+  font-weight: 700;
 }
 
 .btn-contact-mock:hover {
-  background: #059669;
+  filter: brightness(1.05);
   transform: translateY(-1px);
 }
 
 /* --------------------------------------------------------------------------
-   Variant 1: Grid Mode Card
-   -------------------------------------------------------------------------- */
-.mode-grid-card {
-  width: 100%;
-}
-
-/* --------------------------------------------------------------------------
-   Variant 2: Mobile Smartphone Mockup Frame
+   Variant 2: Mobile Smartphone Mockup Frame (~320px)
    -------------------------------------------------------------------------- */
 .card-mock-phone-frame {
   width: 100%;
@@ -23024,13 +23086,14 @@ img {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  background: #10b981;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 11.5px;
   font-weight: 700;
   text-decoration: none;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.25);
 }
 
 .mobile-btn-map {
@@ -23049,7 +23112,7 @@ img {
 }
 
 /* --------------------------------------------------------------------------
-   Variant 3: Compact Sidebar / List Mini-Widget
+   Variant 3: Compact Sidebar / List Mini-Widget (~290px)
    -------------------------------------------------------------------------- */
 .card-mock-compact-widget {
   display: flex;
@@ -23182,13 +23245,13 @@ img {
 }
 
 .compact-action-btn.wa {
-  background: #10b981;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
   border: 1px solid #059669;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
 }
 
 .compact-action-btn.wa:hover {
-  background: #059669;
   transform: scale(1.05);
 }
 
@@ -23204,7 +23267,7 @@ img {
 }
 
 /* --------------------------------------------------------------------------
-   Variant 4: Wide 2-Column Split Hero Banner
+   Variant 4: Wide 2-Column Split Hero Banner (100%)
    -------------------------------------------------------------------------- */
 .card-mock-full-banner {
   display: grid;
@@ -23319,7 +23382,7 @@ img {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #10b981;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border: 1px solid #059669;
   color: #ffffff;
   padding: 10px 16px;
@@ -23332,7 +23395,7 @@ img {
 }
 
 .full-btn-whatsapp-cta:hover {
-  background: #059669;
+  filter: brightness(1.05);
   transform: translateY(-1px);
 }
 
