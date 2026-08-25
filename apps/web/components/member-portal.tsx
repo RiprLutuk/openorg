@@ -1142,7 +1142,7 @@ function SearchableMultiSelect({
 interface SearchableSingleSelectProps {
   label: string;
   placeholder?: string;
-  options: Array<{ value: string; label: string; sublabel?: string }>;
+  options: Array<{ value: string; label: string; sublabel?: string | undefined }>;
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
@@ -1257,7 +1257,7 @@ function SearchableSingleSelect({
                 <div
                   key={opt.value}
                   className={`single-select-option-item ${isSelected ? "selected" : ""}`}
-                  onClick={() => handleSelect(opt.label)}
+                  onClick={() => handleSelect(opt.value)}
                 >
                   <div className="option-label-group">
                     <span className="option-main-label">{opt.label}</span>
@@ -1380,7 +1380,13 @@ function MemberWorkshopPromo({
   }, [province, city]);
 
   useEffect(() => {
-    const foundDist = districtList.find((d) => d.nama === district);
+    const foundDist = districtList.find(
+      (d) =>
+        d.nama === district ||
+        `Kec. ${d.nama}` === district ||
+        d.kode === district ||
+        d.nama.toLowerCase() === district.toLowerCase(),
+    );
     if (foundDist?.kode) {
       fetchVillagesFromApi(foundDist.kode).then((vils) => {
         setVillageList(vils);
@@ -1623,7 +1629,7 @@ function MemberWorkshopPromo({
               disabled={districtList.length === 0}
             />
             <SearchableSingleSelect
-              label="Kelurahan / Desa & Kode Pos"
+              label="Kelurahan / Desa"
               placeholder={
                 villageList.length > 0
                   ? `Pilih Kelurahan/Desa (${villageList.length} kelurahan)…`
@@ -1632,7 +1638,7 @@ function MemberWorkshopPromo({
               options={villageList.map((v) => ({
                 value: v.nama,
                 label: v.nama,
-                sublabel: `Kode Pos: ${v.kodepos || "—"} · Kode: ${v.kode}`,
+                sublabel: v.kodepos ? `Kode Pos: ${v.kodepos}` : undefined,
               }))}
               value={village}
               onChange={handleVillageChange}
