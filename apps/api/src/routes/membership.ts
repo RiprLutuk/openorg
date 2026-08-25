@@ -17,7 +17,10 @@ import {
   siteSettings,
 } from "../db/schema";
 import { AppError } from "../lib/errors";
-import { generateKtaNumber } from "../lib/kta";
+import {
+  generateKtaNumber,
+  generateRegistrationNumber,
+} from "../lib/kta";
 import {
   hashMemberSessionToken,
   MEMBER_SESSION_TTL_SECONDS,
@@ -129,17 +132,7 @@ export const publicMembershipRoutes: FastifyPluginAsync = async (app) => {
           "An account with this email or phone number already exists.",
         );
 
-      const [settings] = await db
-        .select({ name: siteSettings.name, slug: siteSettings.slug })
-        .from(siteSettings)
-        .limit(1);
-      const orgName = settings?.name || "APTI";
-
-      const memberNumber = generateKtaNumber({
-        orgName,
-        unitCode,
-        date: new Date(),
-      });
+      const memberNumber = generateRegistrationNumber();
 
       const passwordHash = await hash(input.password, {
         algorithm: 2,
@@ -757,7 +750,8 @@ export const adminMembershipRoutes: FastifyPluginAsync = async (app) => {
 
           if (
             existingMem?.memberNumber &&
-            existingMem.memberNumber.split(".").length === 4
+            !existingMem.memberNumber.startsWith("REG-") &&
+            !existingMem.memberNumber.startsWith("APP-")
           ) {
             memberNumber = existingMem.memberNumber;
           } else {
