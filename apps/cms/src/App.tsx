@@ -1284,8 +1284,8 @@ function Dashboard({
 
       {/* Visual Analytics & Charts Section */}
       <div
-        className="dashboard-grid mb-4"
-        style={{ gridTemplateColumns: "1.2fr 0.8fr", gap: "14px" }}
+        className="dashboard-grid"
+        style={{ gridTemplateColumns: "1.2fr 0.8fr", gap: "16px", marginBottom: "20px" }}
       >
         {/* Chart 1: Monthly Growth Trends */}
         <div className="chart-card">
@@ -1432,7 +1432,7 @@ function Dashboard({
       {/* Dual Activity Feed Grid */}
       <div
         className="dashboard-grid"
-        style={{ gridTemplateColumns: "1fr 1fr", gap: "14px" }}
+        style={{ gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}
       >
         {/* Left Feed: Recent Content */}
         <section className="panel" style={{ margin: 0 }}>
