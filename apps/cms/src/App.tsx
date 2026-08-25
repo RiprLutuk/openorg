@@ -5199,9 +5199,9 @@ function AcademyManager() {
   return (
     <>
       <PageHeading
-        eyebrow="Academy & Credit Ledger"
-        title="Learning operations"
-        description="Run training, verify attendance, and issue SKP, CPD, or compliance credits from one auditable workflow."
+        eyebrow="Akademi & Kredit Profesi"
+        title="Pelatihan & Sertifikasi SKP"
+        description="Kelola agenda pelatihan teknis HVAC/R, presensi kehadiran peserta, dan penerbitan Satuan Kredit Profesi (SKP) resmi organisasi."
         action={
           <div className="heading-actions">
             <button
@@ -5209,51 +5209,53 @@ function AcademyManager() {
               type="button"
               onClick={() => setEditor("scheme")}
             >
-              <Award size={17} /> Credit scheme
+              <Award size={16} /> <span>Skema SKP</span>
             </button>
             <button
               className="button primary"
               type="button"
               onClick={() => setEditor("activity")}
             >
-              <Plus size={17} /> New activity
+              <Plus size={16} /> <span>Tambah Kegiatan</span>
             </button>
           </div>
         }
       />
       <div className="academy-stats governance-stats">
         <article>
-          <BookOpen size={20} />
-          <span>
+          <BookOpen size={24} />
+          <div>
             <strong>{activities.length}</strong>
-            <small>Learning activities</small>
-          </span>
+            <small>Kegiatan Pelatihan</small>
+          </div>
         </article>
         <article>
-          <Users size={20} />
-          <span>
+          <Users size={24} />
+          <div>
             <strong>{totalEnrollments}</strong>
-            <small>Enrollments</small>
-          </span>
+            <small>Total Peserta Terdaftar</small>
+          </div>
         </article>
         <article>
-          <Award size={20} />
-          <span>
-            <strong>{completedCredits}</strong>
-            <small>Credit value completed</small>
-          </span>
+          <Award size={24} />
+          <div>
+            <strong>{completedCredits} SKP</strong>
+            <small>Kredit Profesi Diterbitkan</small>
+          </div>
         </article>
       </div>
       <div className="academy-layout inbox-layout">
         <section className="panel academy-activity-list">
           <div className="panel-head academy-panel-head">
             <div>
-              <span className="eyebrow">Program calendar</span>
-              <h2>Activities</h2>
+              <span className="eyebrow">Kalender Agenda</span>
+              <h2>Daftar Kegiatan Pelatihan</h2>
             </div>
             <div className="academy-scheme-pills">
               {schemes.map((scheme) => (
-                <span key={scheme.id}>{scheme.code}</span>
+                <span key={scheme.id} title={scheme.name}>
+                  {scheme.code}
+                </span>
               ))}
             </div>
           </div>
@@ -5264,6 +5266,7 @@ function AcademyManager() {
                   item.activityId === activity.id &&
                   item.status !== "cancelled",
               ).length;
+              const d = new Date(activity.startsAt);
               return (
                 <button
                   type="button"
@@ -5272,24 +5275,28 @@ function AcademyManager() {
                   onClick={() => setSelectedId(activity.id)}
                 >
                   <span className="academy-date">
-                    <strong>{new Date(activity.startsAt).getDate()}</strong>
+                    <strong>{d.getDate()}</strong>
                     <small>
-                      {new Date(activity.startsAt).toLocaleDateString(
-                        undefined,
-                        { month: "short" },
-                      )}
+                      {d.toLocaleDateString("id-ID", { month: "short" })}
                     </small>
                   </span>
                   <span className="academy-activity-copy">
                     <small>
                       {activity.code} ·{" "}
-                      {(activity.deliveryMode ?? "onsite").replace("_", " ")}
+                      {activity.deliveryMode === "onsite"
+                        ? "Tatap Muka (Onsite)"
+                        : activity.deliveryMode === "online"
+                          ? "Daring (Online)"
+                          : activity.deliveryMode === "hybrid"
+                            ? "Hybrid"
+                            : "Mandiri (Self-paced)"}
+                      {activity.creditAmount ? ` · ${activity.creditAmount} SKP` : ""}
                     </small>
                     <strong>{activity.title}</strong>
                     <span>
                       {enrolled}
                       {activity.capacity ? ` / ${activity.capacity}` : ""}{" "}
-                      enrolled
+                      Peserta Terdaftar
                     </span>
                   </span>
                   <Status value={activity.status} />
@@ -5297,7 +5304,7 @@ function AcademyManager() {
               );
             })}
             {!activities.length && (
-              <Empty message="Create the first learning activity to open enrollment." />
+              <Empty message="Belum ada kegiatan pelatihan yang dijadwalkan." />
             )}
           </div>
         </section>
@@ -5306,12 +5313,16 @@ function AcademyManager() {
             <>
               <div className="panel-head academy-panel-head">
                 <div>
-                  <span className="eyebrow">Attendance & awards</span>
+                  <span className="eyebrow">Presensi & Penerbitan SKP</span>
                   <h2>{selected.title}</h2>
                   <p>
                     {selected.creditAmount ?? 0}{" "}
-                    {selected.scheme?.unitLabel ?? "credits"} ·{" "}
-                    {new Date(selected.startsAt).toLocaleString()}
+                    {selected.scheme?.unitLabel ?? "SKP"} ·{" "}
+                    {new Date(selected.startsAt).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
                   </p>
                 </div>
                 <button
@@ -5320,58 +5331,73 @@ function AcademyManager() {
                   onClick={() => setEditor("enrollment")}
                   disabled={selected.status === "completed"}
                 >
-                  <Plus size={16} /> Add participant
+                  <Plus size={15} /> Tambah Peserta
                 </button>
               </div>
               <div className="academy-roster-list">
-                {roster.map((item) => (
-                  <article key={item.id}>
-                    <span className="roster-avatar">
-                      {(item.member?.name ?? "AG").slice(0, 2).toUpperCase()}
-                    </span>
-                    <div>
-                      <strong>{item.member?.name ?? "Anggota"}</strong>
-                      <small>
-                        {item.member?.memberNumber ?? "—"} · {item.status}
-                      </small>
-                    </div>
-                    <div className="attendance-actions">
-                      {(["present", "late", "absent"] as const).map(
-                        (status) => (
-                          <button
-                            type="button"
-                            key={status}
-                            className={
-                              item.attendance?.status === status ? "active" : ""
-                            }
-                            disabled={
-                              selected.status === "completed" ||
-                              attendance.isPending
-                            }
-                            onClick={() =>
-                              attendance.mutate({
-                                memberId: item.memberId,
-                                status,
-                              })
-                            }
-                          >
-                            {status}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                  </article>
-                ))}
+                {roster.map((item) => {
+                  const initials = (item.member?.name ?? "AG")
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase();
+                  return (
+                    <article key={item.id}>
+                      <span className="roster-avatar">{initials}</span>
+                      <div className="roster-info">
+                        <strong>{item.member?.name ?? "Anggota Teknisi"}</strong>
+                        <small>
+                          {item.member?.memberNumber ?? "—"} ·{" "}
+                          {item.status === "confirmed"
+                            ? "Terkonfirmasi"
+                            : item.status === "completed"
+                              ? "Lulus / Selesai"
+                              : "Terdaftar"}
+                        </small>
+                      </div>
+                      <div className="attendance-actions">
+                        {(["present", "late", "absent"] as const).map(
+                          (status) => (
+                            <button
+                              type="button"
+                              key={status}
+                              data-status={status}
+                              className={
+                                item.attendance?.status === status ? "active" : ""
+                              }
+                              disabled={
+                                selected.status === "completed" ||
+                                attendance.isPending
+                              }
+                              onClick={() =>
+                                attendance.mutate({
+                                  memberId: item.memberId,
+                                  status,
+                                })
+                              }
+                            >
+                              {status === "present"
+                                ? "Hadir"
+                                : status === "late"
+                                  ? "Terlambat"
+                                  : "Absen"}
+                            </button>
+                          ),
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
                 {!roster.length && (
-                  <Empty message="No one is enrolled in this activity yet." />
+                  <Empty message="Belum ada anggota yang mendaftar pada kegiatan ini." />
                 )}
               </div>
               <div className="academy-complete-bar">
                 <div>
-                  <strong>Complete activity & issue credit</strong>
+                  <strong>Selesaikan Kegiatan & Terbitkan SKP</strong>
                   <small>
-                    Only present or late participants receive a ledger entry.
-                    Re-running is safe.
+                    Hanya peserta berstatus Hadir atau Terlambat yang akan menerima entri kredit SKP resmi.
                   </small>
                 </div>
                 <button
@@ -5382,17 +5408,17 @@ function AcademyManager() {
                   }
                   onClick={() => complete.mutate(selected)}
                 >
-                  <Award size={17} />{" "}
+                  <Award size={16} />{" "}
                   {selected.status === "completed"
-                    ? "Completed"
+                    ? "Telah Selesai"
                     : complete.isPending
-                      ? "Issuing…"
-                      : "Complete & award"}
+                      ? "Menerbitkan…"
+                      : "Sahkan & Terbitkan SKP"}
                 </button>
               </div>
             </>
           ) : (
-            <Empty message="Select an activity to operate its roster." />
+            <Empty message="Pilih salah satu kegiatan di daftar sebelah kiri untuk mengelola presensi." />
           )}
         </section>
       </div>

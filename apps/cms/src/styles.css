@@ -1605,6 +1605,239 @@ select:focus,
   gap: 20px;
 }
 
+/* Academy & Continuous Learning */
+.academy-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(440px, 1.1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.academy-scheme-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.academy-scheme-pills span {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #0369a1;
+  background: #e0f2fe;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.academy-activities {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  max-height: 700px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.academy-activities button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.academy-activities button:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.academy-activities button.active {
+  background: #f0f9ff;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 1px #0284c7;
+}
+
+.academy-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 48px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  flex-shrink: 0;
+  color: #0284c7;
+}
+
+.academy-date strong {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.academy-date small {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.academy-activity-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.academy-activity-copy small {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.academy-activity-copy strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.academy-activity-copy span {
+  font-size: 11.5px;
+  color: #0284c7;
+  font-weight: 600;
+}
+
+.academy-roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.academy-roster-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.roster-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 800;
+  font-size: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.roster-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.roster-info strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.roster-info small {
+  display: block;
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+.attendance-actions {
+  display: flex;
+  gap: 4px;
+  background: #e2e8f0;
+  padding: 3px;
+  border-radius: 8px;
+}
+
+.attendance-actions button {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: all 0.12s ease;
+}
+
+.attendance-actions button.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.attendance-actions button.active[data-status="present"] {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.attendance-actions button.active[data-status="late"] {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+.attendance-actions button.active[data-status="absent"] {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.academy-complete-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin-top: 16px;
+}
+
+.academy-complete-bar strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #166534;
+}
+
+.academy-complete-bar small {
+  display: block;
+  font-size: 11.5px;
+  color: #15803d;
+  margin-top: 2px;
+}
+
 /* Governance & Organizational Structure */
 .governance-stats {
   display: grid;
