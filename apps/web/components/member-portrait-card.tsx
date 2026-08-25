@@ -139,8 +139,13 @@ export function MemberPortraitCard({
     }
   };
 
-  const dpdText = member.unitName || "DPP NASIONAL";
-  const positionText = member.positionName || "CERTIFIED PRACTITIONER";
+  const dpdText =
+    member.unitName ||
+    organization?.name ||
+    "Dewan Pimpinan Pusat (DPP)";
+  const positionText =
+    member.positionName ||
+    (member.status === "active" ? "ANGGOTA RESMI" : "PEMOHON");
   const initials = member.name
     .split(" ")
     .map((n) => n[0])

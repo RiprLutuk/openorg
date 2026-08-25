@@ -5242,7 +5242,11 @@ function KtaCardModal({
 
   const orgName = cardData?.organization.name ?? "APTI INDONESIA";
   const dpdText =
-    cardData?.member.unitName ?? member.unitName ?? "DPP NASIONAL";
+    cardData?.member.unitName ?? member.unitName ?? "Dewan Pimpinan Pusat (DPP)";
+  const positionText =
+    (cardData?.member as { positionName?: string })?.positionName ??
+    (member as { positionName?: string })?.positionName ??
+    (member.status === "active" ? "ANGGOTA RESMI" : "PEMOHON");
   const initials = member.name
     .split(" ")
     .map((n) => n[0])
@@ -5721,7 +5725,7 @@ function KtaCardModal({
                         padding: "1px 0",
                       }}
                     >
-                      CERTIFIED PRACTITIONER
+                      {positionText}
                     </span>
                   </div>
 

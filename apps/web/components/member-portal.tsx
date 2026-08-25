@@ -704,8 +704,10 @@ export function MemberPortal() {
                             name: data.member.name,
                             memberNumber: data.member.memberNumber || data.card.code,
                             avatarUrl: data.member.avatarUrl,
-                            unitName: (data.member as { unitName?: string }).unitName,
-                            positionName: "ANGGOTA RESMI",
+                            unitName: (data.member as { unitName?: string }).unitName || "Dewan Pimpinan Pusat (DPP)",
+                            positionName:
+                              (data.member as { positionName?: string }).positionName ||
+                              (data.member.status === "active" ? "ANGGOTA RESMI" : "PEMOHON"),
                             status: data.member.status,
                           }}
                           card={data.card}
@@ -768,8 +770,10 @@ export function MemberPortal() {
                           name: data.member.name,
                           memberNumber: data.member.memberNumber || data.card.code,
                           avatarUrl: data.member.avatarUrl,
-                          unitName: (data.member as { unitName?: string }).unitName,
-                          positionName: "ANGGOTA RESMI",
+                          unitName: (data.member as { unitName?: string }).unitName || "Dewan Pimpinan Pusat (DPP)",
+                          positionName:
+                            (data.member as { positionName?: string }).positionName ||
+                            (data.member.status === "active" ? "ANGGOTA RESMI" : "PEMOHON"),
                           status: data.member.status,
                         }}
                         card={data.card}
