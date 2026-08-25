@@ -1486,6 +1486,44 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
+  app.patch(
+    "/submissions/:id",
+    { preHandler: app.authorize("forms.write") },
+    async (request) => {
+      const { id } = idParams.parse(request.params);
+      const bodySchema = z.object({
+        status: submissionStatusInput.optional(),
+      });
+      const body = bodySchema.parse(request.body);
+      const [updated] = await db
+        .update(contactSubmissions)
+        .set({
+          ...body,
+          ...(body.status === "resolved" ? { resolvedAt: new Date() } : {}),
+        })
+        .where(eq(contactSubmissions.id, id))
+        .returning();
+      if (!updated)
+        throw new AppError(404, "SUBMISSION_NOT_FOUND", "Pesan tidak ditemukan.");
+      return { data: updated };
+    },
+  );
+
+  app.delete(
+    "/submissions/:id",
+    { preHandler: app.authorize("forms.write") },
+    async (request) => {
+      const { id } = idParams.parse(request.params);
+      const [deleted] = await db
+        .delete(contactSubmissions)
+        .where(eq(contactSubmissions.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "SUBMISSION_NOT_FOUND", "Pesan tidak ditemukan.");
+      return { data: { success: true } };
+    },
+  );
+
   // Admin Regulations Management
   app.get("/regulations", async () => {
     const rows = await db
@@ -1529,6 +1567,37 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       .returning();
 
     return reply.status(201).send({ data: row });
+  });
+
+  app.patch("/regulations/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    const updateSchema = z.object({
+      title: z.string().min(2).max(220).optional(),
+      category: z.enum([
+        "regulasi_pemerintah",
+        "se_organisasi",
+        "ad_art",
+        "posisi_kebijakan",
+      ]).optional(),
+      number: z.string().max(120).optional(),
+      issuedDate: z.string().optional(),
+      fileUrl: z.string().max(2048).optional(),
+      summary: z.string().optional(),
+      status: publicationStatusInput.optional(),
+    });
+    const body = updateSchema.parse(request.body);
+    const [row] = await db
+      .update(regulations)
+      .set({
+        ...body,
+        issuedDate: body.issuedDate ? new Date(body.issuedDate) : undefined,
+        updatedAt: new Date(),
+      })
+      .where(eq(regulations.id, id))
+      .returning();
+    if (!row)
+      throw new AppError(404, "REGULATION_NOT_FOUND", "Dokumen regulasi tidak ditemukan.");
+    return { data: row };
   });
 
   app.delete("/regulations/:id", async (request) => {
@@ -1578,6 +1647,17 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     return { data: updated };
   });
 
+  app.delete("/complaints/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    const [deleted] = await db
+      .delete(publicComplaints)
+      .where(eq(publicComplaints.id, id))
+      .returning();
+    if (!deleted)
+      throw new AppError(404, "COMPLAINT_NOT_FOUND", "Pengaduan tidak ditemukan.");
+    return { data: { success: true } };
+  });
+
   // Admin Championships & Skill Standings Manager
   app.get("/championships", async () => {
     const rows = await db
@@ -1605,6 +1685,29 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       .values(body)
       .returning();
     return reply.status(201).send({ data: row });
+  });
+
+  app.patch("/championships/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    const standingUpdateSchema = z.object({
+      seasonYear: z.number().optional(),
+      category: z.string().min(2).optional(),
+      participantName: z.string().min(2).optional(),
+      teamName: z.string().optional(),
+      unitName: z.string().optional(),
+      points: z.number().optional(),
+      rank: z.number().optional(),
+      achievements: z.string().optional(),
+    });
+    const body = standingUpdateSchema.parse(request.body);
+    const [row] = await db
+      .update(championshipStandings)
+      .set(body)
+      .where(eq(championshipStandings.id, id))
+      .returning();
+    if (!row)
+      throw new AppError(404, "CHAMPIONSHIP_NOT_FOUND", "Data kejuaraan tidak ditemukan.");
+    return { data: row };
   });
 
   app.delete("/championships/:id", async (request) => {
@@ -1640,6 +1743,30 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     const body = statSchema.parse(request.body);
     const [row] = await db.insert(industryStatistics).values(body).returning();
     return reply.status(201).send({ data: row });
+  });
+
+  app.patch("/statistics/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    const statUpdateSchema = z.object({
+      metricKey: z.string().min(2).optional(),
+      metricLabel: z.string().min(2).optional(),
+      metricValue: z.string().min(1).optional(),
+      metricUnit: z.string().optional(),
+      trendDirection: z.enum(["up", "down", "stable"]).optional(),
+      trendPercentage: z.string().optional(),
+      category: z.string().optional(),
+      period: z.string().optional(),
+      sortOrder: z.number().optional(),
+    });
+    const body = statUpdateSchema.parse(request.body);
+    const [row] = await db
+      .update(industryStatistics)
+      .set(body)
+      .where(eq(industryStatistics.id, id))
+      .returning();
+    if (!row)
+      throw new AppError(404, "STATISTIC_NOT_FOUND", "Data statistik tidak ditemukan.");
+    return { data: row };
   });
 
   app.delete("/statistics/:id", async (request) => {
@@ -1682,6 +1809,31 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     return reply.status(201).send({ data: row });
   });
 
+  app.patch("/technicians/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    const techUpdateSchema = z.object({
+      name: z.string().min(2).optional(),
+      ktaNumber: z.string().min(2).optional(),
+      skillLevel: z.string().optional(),
+      province: z.string().min(2).optional(),
+      city: z.string().min(2).optional(),
+      phone: z.string().optional(),
+      workshopName: z.string().optional(),
+      rating: z.string().optional(),
+      certifiedBnsp: z.boolean().optional(),
+      isAvailable: z.boolean().optional(),
+    });
+    const body = techUpdateSchema.parse(request.body);
+    const [row] = await db
+      .update(technicianDirectories)
+      .set({ ...body, updatedAt: new Date() })
+      .where(eq(technicianDirectories.id, id))
+      .returning();
+    if (!row)
+      throw new AppError(404, "TECHNICIAN_NOT_FOUND", "Data teknisi tidak ditemukan.");
+    return { data: row };
+  });
+
   app.delete("/technicians/:id", async (request) => {
     const { id } = idParams.parse(request.params);
     await db
@@ -1713,6 +1865,28 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     const body = clubSchema.parse(request.body);
     const [row] = await db.insert(registeredClubs).values(body).returning();
     return reply.status(201).send({ data: row });
+  });
+
+  app.patch("/clubs/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    const clubUpdateSchema = z.object({
+      clubName: z.string().min(2).optional(),
+      codeTkt: z.string().min(2).optional(),
+      province: z.string().min(2).optional(),
+      category: z.string().optional(),
+      chairName: z.string().optional(),
+      activeMembers: z.number().optional(),
+      status: z.string().optional(),
+    });
+    const body = clubUpdateSchema.parse(request.body);
+    const [row] = await db
+      .update(registeredClubs)
+      .set({ ...body, updatedAt: new Date() })
+      .where(eq(registeredClubs.id, id))
+      .returning();
+    if (!row)
+      throw new AppError(404, "CLUB_NOT_FOUND", "Data klub tidak ditemukan.");
+    return { data: row };
   });
 
   app.delete("/clubs/:id", async (request) => {
@@ -1750,6 +1924,29 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     return reply.status(201).send({ data: row });
   });
 
+  app.patch("/working-groups/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    const pokjaUpdateSchema = z.object({
+      name: z.string().min(2).optional(),
+      slug: z.string().optional(),
+      chairName: z.string().optional(),
+      category: z.string().optional(),
+      description: z.string().optional(),
+      memberCount: z.number().optional(),
+      isActive: z.boolean().optional(),
+    });
+    const body = pokjaUpdateSchema.parse(request.body);
+    const slug = body.slug || (body.name ? toSlug(body.name) : undefined);
+    const [row] = await db
+      .update(workingGroups)
+      .set({ ...body, ...(slug ? { slug } : {}) })
+      .where(eq(workingGroups.id, id))
+      .returning();
+    if (!row)
+      throw new AppError(404, "POKJA_NOT_FOUND", "Data pokja tidak ditemukan.");
+    return { data: row };
+  });
+
   app.delete("/working-groups/:id", async (request) => {
     const { id } = idParams.parse(request.params);
     await db.delete(workingGroups).where(eq(workingGroups.id, id));
@@ -1779,6 +1976,28 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
     const body = lenderSchema.parse(request.body);
     const [row] = await db.insert(lenderRegistries).values(body).returning();
     return reply.status(201).send({ data: row });
+  });
+
+  app.patch("/lenders/:id", async (request) => {
+    const { id } = idParams.parse(request.params);
+    const lenderUpdateSchema = z.object({
+      brandName: z.string().min(2).optional(),
+      companyName: z.string().min(2).optional(),
+      licenseNumber: z.string().min(2).optional(),
+      sectorType: z.string().optional(),
+      ojkStatus: z.string().optional(),
+      websiteUrl: z.string().optional(),
+      isAfpiMember: z.boolean().optional(),
+    });
+    const body = lenderUpdateSchema.parse(request.body);
+    const [row] = await db
+      .update(lenderRegistries)
+      .set(body)
+      .where(eq(lenderRegistries.id, id))
+      .returning();
+    if (!row)
+      throw new AppError(404, "LENDER_NOT_FOUND", "Data lender/mitra tidak ditemukan.");
+    return { data: row };
   });
 
   app.delete("/lenders/:id", async (request) => {

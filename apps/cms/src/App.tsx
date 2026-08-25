@@ -5,6 +5,7 @@ import {
   Activity,
   AlertCircle,
   AlertTriangle,
+  ArrowLeft,
   ArrowRight,
   Award,
   BadgeCheck,
@@ -63,7 +64,9 @@ import {
   Star,
   Trash2,
   Trophy,
+  UserMinus,
   Users,
+  UserX,
   WalletCards,
   Wrench,
   X,
@@ -379,19 +382,20 @@ export function TablePagination({
   return (
     <div className="table-pagination">
       <div className="pagination-info">
-        <span>
-          Menampilkan <strong>{startItem}</strong> - <strong>{endItem}</strong> dari{" "}
-          <strong>{totalItems}</strong> data
+        <span className="pagination-text">
+          <span className="pagination-text-full">Menampilkan </span>
+          <strong>{startItem}–{endItem}</strong> dari <strong>{totalItems}</strong> data
         </span>
         {onPageSizeChange && (
           <div className="page-size-selector">
-            <span>Per halaman:</span>
+            <span className="page-size-label">Baris:</span>
             <select
               value={pageSize}
               onChange={(e) => {
                 onPageSizeChange(Number(e.target.value));
                 onPageChange(1);
               }}
+              aria-label="Jumlah data per halaman"
             >
               {pageSizeOptions.map((opt) => (
                 <option key={opt} value={opt}>
@@ -410,14 +414,19 @@ export function TablePagination({
           disabled={currentPage <= 1}
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           title="Halaman Sebelumnya"
+          aria-label="Halaman Sebelumnya"
         >
-          <ChevronLeft size={15} />
-          <span>Sebelumnya</span>
+          <ChevronLeft size={16} />
         </button>
 
         <div className="pagination-pages">
           {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+            .filter(
+              (p) =>
+                p === 1 ||
+                p === totalPages ||
+                Math.abs(p - currentPage) <= (totalPages > 7 ? 1 : 2),
+            )
             .map((p, idx, arr) => {
               const prev = arr[idx - 1];
               const showEllipsis = prev && p - prev > 1;
@@ -428,6 +437,7 @@ export function TablePagination({
                     type="button"
                     className={`pagination-number ${currentPage === p ? "active" : ""}`}
                     onClick={() => onPageChange(p)}
+                    aria-label={`Halaman ${p}`}
                   >
                     {p}
                   </button>
@@ -442,9 +452,9 @@ export function TablePagination({
           disabled={currentPage >= totalPages}
           onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
           title="Halaman Berikutnya"
+          aria-label="Halaman Berikutnya"
         >
-          <span>Berikutnya</span>
-          <ChevronRight size={15} />
+          <ChevronRight size={16} />
         </button>
       </div>
     </div>
@@ -2010,11 +2020,17 @@ function Pages() {
         `/v1/admin/pages?limit=100&search=${encodeURIComponent(search)}`,
       ),
   });
-  const visiblePages =
-    status === "all"
-      ? (query.data?.data ?? [])
-      : (query.data?.data ?? []).filter((page) => page.status === status);
-  const paginatedPages = visiblePages.slice(
+  const allPages = query.data?.data ?? [];
+  const filteredPages = allPages.filter((page) => {
+    if (status !== "all" && page.status !== status) return false;
+    if (!search.trim()) return true;
+    const term = search.toLowerCase();
+    return (
+      page.title.toLowerCase().includes(term) ||
+      page.slug.toLowerCase().includes(term)
+    );
+  });
+  const paginatedPages = filteredPages.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
@@ -2022,117 +2038,220 @@ function Pages() {
   const remove = useMutation({
     mutationFn: (id: string) =>
       api(`/v1/admin/pages/${id}`, { method: "DELETE" }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["pages"] }),
+    onSuccess: () => {
+      toast.success("Halaman berhasil dihapus.");
+      void client.invalidateQueries({ queryKey: ["pages"] });
+    },
+    onError: (err) => {
+      toast.error(err.message || "Gagal menghapus halaman.");
+    },
   });
+
   if (editor === "new") return <PageEditor onClose={() => setEditor(null)} />;
   if (editor)
     return <PageEditor page={editor} onClose={() => setEditor(null)} />;
+
   return (
     <>
       <PageHeading
-        eyebrow="Website"
-        title="Pages"
-        description="Compose flexible pages from reusable sections. Changes stay private until you publish."
+        eyebrow="Situs Publik & Halaman Statis"
+        title="Halaman & Section Builder"
+        description="Kelola halaman publik organisasi, susun komponen dinamis (Hero, Features, Visi Misi, Stats, Form Kontak) dengan visual section builder."
         action={
           <button
             type="button"
             className="button primary"
             onClick={() => setEditor("new")}
           >
-            <Plus size={18} /> New page
+            <Plus size={16} /> <span>Buat Halaman Baru</span>
           </button>
         }
       />
       <div className="table-panel">
         <div className="table-toolbar">
           <label className="search-field">
-            <Search size={18} />
+            <Search size={16} />
             <input
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search pages…"
+              placeholder="Cari judul halaman atau slug URL..."
             />
           </label>
-          <label className="compact-filter">
-            <span>Status</span>
-            <select
-              value={status}
-              onChange={(event) => {
-                setStatus(event.target.value);
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div className="compact-filter">
+              <label>Status</label>
+              <select
+                value={status}
+                onChange={(event) => {
+                  setStatus(event.target.value);
+                  setCurrentPage(1);
+                }}
+              >
+                <option value="all">Semua Status</option>
+                <option value="published">Published</option>
+                <option value="review">In Review</option>
+                <option value="draft">Draft</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+            <span className="result-count">{filteredPages.length} halaman</span>
+          </div>
+        </div>
+
+        {query.isLoading ? (
+          <PageLoading />
+        ) : filteredPages.length === 0 ? (
+          <Empty message="Tidak ada halaman publik yang sesuai dengan filter pencarian." />
+        ) : (
+          <>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Judul Halaman & URL Slug</th>
+                  <th style={{ width: "160px" }}>Status</th>
+                  <th style={{ width: "180px" }}>Terakhir Diperbarui</th>
+                  <th className="actions-cell" style={{ width: "130px" }}>
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedPages.map((page) => (
+                  <tr key={page.id}>
+                    <td>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "38px",
+                            height: "38px",
+                            borderRadius: "8px",
+                            background: "#eff6ff",
+                            color: "#0284c7",
+                            display: "grid",
+                            placeItems: "center",
+                            flexShrink: 0,
+                            border: "1px solid #dbeafe",
+                          }}
+                        >
+                          <FileText size={18} />
+                        </div>
+                        <div>
+                          <div
+                            style={{
+                              fontWeight: 700,
+                              color: "#0f172a",
+                              fontSize: "13.5px",
+                              lineHeight: "1.3",
+                            }}
+                          >
+                            {page.title}
+                            {page.isHomepage && (
+                              <span
+                                className="tag-badge"
+                                style={{
+                                  marginLeft: "8px",
+                                  background: "#f0fdf4",
+                                  color: "#16a34a",
+                                  fontSize: "11px",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                🏠 Beranda Utama
+                              </span>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              fontFamily: "monospace",
+                              fontSize: "11.5px",
+                              color: "#64748b",
+                              marginTop: "3px",
+                            }}
+                          >
+                            /{page.slug}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <Status value={page.status} />
+                    </td>
+                    <td>
+                      <span style={{ fontSize: "12.5px", color: "#64748b" }}>
+                        {new Date(page.updatedAt).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </td>
+                    <td className="actions-cell">
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          gap: "6px",
+                        }}
+                      >
+                        <a
+                          href={`${PUBLIC_SITE_URL}/${page.slug === "home" || page.isHomepage ? "" : page.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="icon-button"
+                          title="Lihat di Web Publik"
+                          aria-label={`Lihat ${page.title}`}
+                        >
+                          <ExternalLink size={15} />
+                        </a>
+                        <button
+                          type="button"
+                          className="icon-button"
+                          title="Edit Halaman"
+                          aria-label={`Edit ${page.title}`}
+                          onClick={() => setEditor(page)}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-button danger"
+                          title="Hapus Halaman"
+                          aria-label={`Hapus ${page.title}`}
+                          onClick={() =>
+                            confirm(`Hapus halaman "${page.title}"?`) &&
+                            remove.mutate(page.id)
+                          }
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <TablePagination
+              currentPage={currentPage}
+              totalItems={filteredPages.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
                 setCurrentPage(1);
               }}
-            >
-              <option value="all">All statuses</option>
-              <option value="draft">Draft</option>
-              <option value="review">In review</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
-            </select>
-          </label>
-        </div>
-        <div className="data-table">
-          <div className="table-row table-head">
-            <span>Page</span>
-            <span>Status</span>
-            <span>Last updated</span>
-            <span />
-          </div>
-          {paginatedPages.map((page) => (
-            <div className="table-row" key={page.id}>
-              <span className="primary-cell">
-                <span className="doc-icon">
-                  <FileText size={18} />
-                </span>
-                <span>
-                  <strong>{page.title}</strong>
-                  <small>
-                    /{page.slug}
-                    {page.isHomepage ? " · Homepage" : ""}
-                  </small>
-                </span>
-              </span>
-              <Status value={page.status} />
-              <span className="muted">
-                {new Date(page.updatedAt).toLocaleDateString()}
-              </span>
-              <span className="row-actions">
-                <button
-                  type="button"
-                  className="icon-button"
-                  title="Edit Halaman"
-                  aria-label={`Edit ${page.title}`}
-                  onClick={() => setEditor(page)}
-                >
-                  <Pencil size={16} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-button danger"
-                  title="Hapus Halaman"
-                  aria-label={`Delete ${page.title}`}
-                  onClick={() =>
-                    confirm(`Delete ${page.title}?`) && remove.mutate(page.id)
-                  }
-                >
-                  <Trash2 size={16} />
-                </button>
-              </span>
-            </div>
-          ))}
-        </div>
-        {!query.data?.data.length && (
-          <Empty message="Create your first page and bring your public site to life." />
+            />
+          </>
         )}
-        <TablePagination
-          currentPage={currentPage}
-          totalItems={visiblePages.length}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={setPageSize}
-        />
       </div>
     </>
   );
@@ -2146,7 +2265,7 @@ function PageEditor({
   onClose: () => void;
 }) {
   const client = useQueryClient();
-  const [title, setTitle] = useState(page?.title ?? "Untitled page");
+  const [title, setTitle] = useState(page?.title ?? "Halaman Baru");
   const [slug, setSlug] = useState(page?.slug ?? "");
   const [status, setStatus] = useState(page?.status ?? "draft");
   const [sections, setSections] = useState<Array<Record<string, unknown>>>(
@@ -2170,69 +2289,86 @@ function PageEditor({
         },
       ),
     onSuccess: () => {
+      toast.success("Halaman berhasil disimpan.");
       client.invalidateQueries({ queryKey: ["pages"] });
       onClose();
     },
     onError: (reason) => setError(reason.message),
   });
+
   const addSection = (type: PageSection["type"]) => {
     const base = { id: crypto.randomUUID(), type };
     const presets: Record<string, Record<string, unknown>> = {
       hero: {
-        title: "A clear headline for your organization",
-        description: "Tell visitors why your work matters.",
+        title: "Headline Utama Halaman Organisasi",
+        description: "Jelaskan tujuan strategis dan poin penting bagi pengunjung.",
         alignment: "left",
-        panelTitle: "Organization command center",
+        panelTitle: "Pusat Layanan Organisasi",
         highlights: [
-          "Member registry",
-          "Credential compliance",
-          "Learning ledger",
-          "Revenue & benefits",
+          "Registri Anggota",
+          "Kepatuhan Kredensial",
+          "Logbook SKP Pelatihan",
+          "Iuran & KTA Digital",
         ],
-        proofPoints: ["CMS configurable", "Tenant secure", "Audit ready"],
+        proofPoints: ["Audit Terbuka", "Standar BNSP", "Aman & Terpercaya"],
       },
       richText: {
-        title: "Our story",
-        html: "<p>Start writing here…</p>",
+        title: "Tentang Program & Kebijakan",
+        html: "<p>Tuliskan narasi lengkap atau pasal ketentuan di sini…</p>",
         width: "narrow",
       },
       features: {
-        title: "What we do",
+        title: "Pilar Program Utama",
         columns: 3,
         variant: "cards",
         items: [
           {
-            title: "First program",
-            description: "Describe this program or benefit.",
+            title: "Program Kejuruan",
+            description: "Uraikan deskripsi manfaat program bagi anggota.",
           },
         ],
       },
-      stats: { items: [{ value: "1,000+", label: "People reached" }] },
+      stats: { items: [{ value: "8,400+", label: "Teknisi Terdaftar" }] },
       contentFeed: {
-        title: "Latest stories",
+        title: "Warta & Rilis Resmi Terkini",
         contentType: "post",
         limit: 6,
         layout: "grid",
       },
       organizationChart: {
-        title: "Our leadership",
-        description: "Introduce the people and units behind the organization.",
+        title: "Struktur Kepengurusan",
+        description: "Bagan susunan dewan pengurus dan kelompok kerja.",
         depth: 4,
       },
       cta: {
-        title: "Join our movement",
-        primaryAction: { label: "Get involved", href: "/contact" },
+        title: "Bergabung Bersama Ekosistem Kami",
+        primaryAction: { label: "Daftar Anggota", href: "/join" },
         tone: "brand",
       },
-      contact: { title: "Let’s talk", showForm: true, showMap: false },
+      contact: { title: "Hubungi Sekretariat", showForm: true, showMap: false },
     };
     setSections((current) => [...current, { ...base, ...presets[type] }]);
   };
+
+  const sectionMeta: Record<
+    PageSection["type"],
+    { label: string; desc: string }
+  > = {
+    hero: { label: "Hero Banner", desc: "Headline utama, highlight & proof points" },
+    richText: { label: "Teks Lengkap (Rich Text)", desc: "Narasi bebas, HTML, artikel panjang" },
+    features: { label: "Fitur & Program", desc: "Kartu pilar program atau keunggulan" },
+    stats: { label: "Statistik & Angka", desc: "Metrik pencapaian angka kunci" },
+    contentFeed: { label: "Warta & Berita", desc: "Feed artikel warta otomatis" },
+    organizationChart: { label: "Struktur Pengurus", desc: "Bagan pimpinan & unit kerja" },
+    cta: { label: "Call to Action (CTA)", desc: "Blok ajakan aksi & konversi" },
+    contact: { label: "Formulir Kontak", desc: "Form pesan & lokasi kantor" },
+  };
+
   return (
     <>
       <div className="editor-top">
         <button type="button" className="button ghost" onClick={onClose}>
-          ← Back
+          <ArrowLeft size={16} /> Kembali
         </button>
         <div className="editor-title">
           <input
@@ -2273,8 +2409,9 @@ function PageEditor({
             onChange={(event) => setStatus(event.target.value as typeof status)}
           >
             <option value="draft">Draft</option>
-            <option value="review">In review</option>
+            <option value="review">In Review</option>
             <option value="published">Published</option>
+            <option value="archived">Archived</option>
           </select>
           <button
             type="button"
@@ -2282,7 +2419,7 @@ function PageEditor({
             onClick={() => save.mutate()}
             disabled={save.isPending}
           >
-            <Save size={17} /> {save.isPending ? "Saving…" : "Save page"}
+            <Save size={17} /> {save.isPending ? "Menyimpan…" : "Simpan Halaman"}
           </button>
         </div>
       </div>
@@ -2298,8 +2435,8 @@ function PageEditor({
           {sections.length === 0 && (
             <div className="empty-canvas">
               <Sparkles size={28} />
-              <h3>Build this page, one section at a time</h3>
-              <p>Choose a section from the library on the right.</p>
+              <h3>Susun Halaman Ini dengan Menambahkan Section</h3>
+              <p>Pilih jenis blok konten dari pustaka komponen di sisi kanan.</p>
             </div>
           )}
           {sections.map((section, index) => (
@@ -2323,8 +2460,8 @@ function PageEditor({
           ))}
         </section>
         <aside className="section-library">
-          <h3>Section library</h3>
-          <p>Click to add a new content block.</p>
+          <h3>Pustaka Komponen (Sections)</h3>
+          <p>Klik untuk menambahkan blok section ke dalam kanvas.</p>
           {(
             [
               "hero",
@@ -2340,8 +2477,8 @@ function PageEditor({
             <button type="button" key={type} onClick={() => addSection(type)}>
               <Plus size={16} />
               <span>
-                <strong>{type.replace(/([A-Z])/g, " $1")}</strong>
-                <small>Reusable responsive section</small>
+                <strong>{sectionMeta[type]?.label || type}</strong>
+                <small>{sectionMeta[type]?.desc || "Komponen responsif"}</small>
               </span>
             </button>
           ))}
@@ -4652,6 +4789,7 @@ function CredentialQueue() {
 }
 
 function CredentialSchemes() {
+  const client = useQueryClient();
   const schemes = useQuery({
     queryKey: ["credential-schemes"],
     queryFn: () =>
@@ -4664,6 +4802,18 @@ function CredentialSchemes() {
         "/v1/admin/credentials/requirements",
       ),
   });
+
+  const deleteScheme = useMutation({
+    mutationFn: (id: string) =>
+      api(`/v1/admin/credentials/schemes/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      toast.success("Skema kredensial berhasil dihapus.");
+      void client.invalidateQueries({ queryKey: ["credential-schemes"] });
+      void client.invalidateQueries({ queryKey: ["credential-requirements"] });
+    },
+    onError: (err: Error) => toast.error(`Gagal menghapus: ${err.message}`),
+  });
+
   return (
     <div className="credential-scheme-grid">
       {schemes.data?.data.map((scheme) => {
@@ -4677,7 +4827,22 @@ function CredentialSchemes() {
               <span>
                 <ShieldCheck size={19} />
               </span>
-              <Status value={scheme.isActive ? "active" : "inactive"} />
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Status value={scheme.isActive ? "active" : "inactive"} />
+                <button
+                  type="button"
+                  className="icon-button danger"
+                  title={`Hapus skema ${scheme.name}`}
+                  aria-label={`Hapus ${scheme.name}`}
+                  onClick={() => {
+                    if (confirm(`Hapus skema kredensial "${scheme.name}"?`)) {
+                      deleteScheme.mutate(scheme.id);
+                    }
+                  }}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
             <small>
               {scheme.category} · {scheme.code}
@@ -5181,6 +5346,25 @@ function AcademyManager() {
       ),
     onSuccess: () => void invalidate(),
   });
+  const deleteActivity = useMutation({
+    mutationFn: (id: string) =>
+      api(`/v1/admin/learning/activities/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      setSelectedId(null);
+      toast.success("Kegiatan pelatihan berhasil dihapus.");
+      void invalidate();
+    },
+    onError: (err: Error) => toast.error(`Gagal menghapus: ${err.message}`),
+  });
+  const deleteEnrollment = useMutation({
+    mutationFn: (id: string) =>
+      api(`/v1/admin/learning/enrollments/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      toast.success("Peserta berhasil dihapus dari kegiatan.");
+      void invalidate();
+    },
+    onError: (err: Error) => toast.error(`Gagal menghapus: ${err.message}`),
+  });
 
   if (query.isLoading) return <PageLoading />;
   if (query.isError) return <FatalError message={query.error.message} />;
@@ -5327,14 +5511,29 @@ function AcademyManager() {
                     })}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  className="button subtle"
-                  onClick={() => setEditor("enrollment")}
-                  disabled={selected.status === "completed"}
-                >
-                  <Plus size={15} /> Tambah Peserta
-                </button>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  <button
+                    type="button"
+                    className="button subtle"
+                    onClick={() => setEditor("enrollment")}
+                    disabled={selected.status === "completed"}
+                  >
+                    <Plus size={15} /> Tambah Peserta
+                  </button>
+                  <button
+                    type="button"
+                    className="icon-button danger"
+                    title="Hapus Kegiatan Pelatihan"
+                    aria-label="Hapus Kegiatan Pelatihan"
+                    onClick={() => {
+                      if (confirm(`Hapus kegiatan pelatihan "${selected.title}"?`)) {
+                        deleteActivity.mutate(selected.id);
+                      }
+                    }}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
               <div className="academy-roster-list">
                 {roster.map((item) => {
@@ -5387,6 +5586,20 @@ function AcademyManager() {
                             </button>
                           ),
                         )}
+                        <button
+                          type="button"
+                          className="icon-button danger"
+                          title={`Keluarkan ${item.member?.name ?? "peserta"}`}
+                          aria-label={`Keluarkan ${item.member?.name ?? "peserta"}`}
+                          style={{ marginLeft: "4px" }}
+                          onClick={() => {
+                            if (confirm(`Hapus ${item.member?.name ?? "peserta"} dari daftar kegiatan?`)) {
+                              deleteEnrollment.mutate(item.id);
+                            }
+                          }}
+                        >
+                          <UserMinus size={14} />
+                        </button>
                       </div>
                     </article>
                   );
@@ -5694,8 +5907,30 @@ function GovernanceManager() {
         method: "PATCH",
         body: JSON.stringify({ endsAt: new Date().toISOString() }),
       }),
-    onSuccess: () =>
-      client.invalidateQueries({ queryKey: ["governance-overview"] }),
+    onSuccess: () => {
+      toast.success("Masa tugas pengurus telah diakhiri.");
+      void client.invalidateQueries({ queryKey: ["governance-overview"] });
+    },
+  });
+
+  const deleteUnit = useMutation({
+    mutationFn: (id: string) =>
+      api(`/v1/admin/governance/units/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      toast.success("Unit organisasi berhasil dihapus.");
+      void client.invalidateQueries({ queryKey: ["governance-overview"] });
+    },
+    onError: (reason: Error) => toast.error(`Gagal menghapus unit: ${reason.message}`),
+  });
+
+  const deletePosition = useMutation({
+    mutationFn: (id: string) =>
+      api(`/v1/admin/governance/positions/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      toast.success("Posisi jabatan berhasil dihapus.");
+      void client.invalidateQueries({ queryKey: ["governance-overview"] });
+    },
+    onError: (reason: Error) => toast.error(`Gagal menghapus posisi: ${reason.message}`),
   });
 
   if (query.isLoading) return <PageLoading />;
@@ -5798,6 +6033,20 @@ function GovernanceManager() {
                     </small>
                     <p>{unitPositions.length} Posisi Jabatan Dikonfigurasi</p>
                   </div>
+                  <button
+                    type="button"
+                    className="icon-button danger"
+                    title={`Hapus unit ${unit.name}`}
+                    aria-label={`Hapus ${unit.name}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm(`Hapus unit organisasi "${unit.name}"?`)) {
+                        deleteUnit.mutate(unit.id);
+                      }
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </article>
               );
             })}
@@ -5865,8 +6114,9 @@ function GovernanceManager() {
                         </div>
                         <button
                           type="button"
-                          className="button ghost destructive"
-                          style={{ fontSize: "11px", padding: "4px 8px" }}
+                          className="icon-button danger"
+                          title={`Akhiri masa tugas ${active.member?.name}`}
+                          aria-label={`Akhiri masa tugas ${active.member?.name}`}
                           disabled={endAppointment.isPending}
                           onClick={() => {
                             if (confirm(`Akhiri masa tugas ${active.member?.name} untuk jabatan ${position.title}?`)) {
@@ -5874,12 +6124,25 @@ function GovernanceManager() {
                             }
                           }}
                         >
-                          Selesai Tugas
+                          <UserX size={15} />
                         </button>
                       </>
                     ) : (
                       <span className="vacant">Posisi Lowong (Belum ada pejabat)</span>
                     )}
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title={`Hapus posisi ${position.title}`}
+                      aria-label={`Hapus ${position.title}`}
+                      onClick={() => {
+                        if (confirm(`Hapus posisi jabatan "${position.title}"?`)) {
+                          deletePosition.mutate(position.id);
+                        }
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 </article>
               );
@@ -8166,6 +8429,18 @@ function InboxManager() {
       void client.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
+
+  const remove = useMutation({
+    mutationFn: (id: string) =>
+      api(`/v1/admin/submissions/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      setSelected(null);
+      toast.success("Pesan berhasil dihapus.");
+      void client.invalidateQueries({ queryKey: ["submissions"] });
+      void client.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+    onError: (err: Error) => toast.error(`Gagal menghapus pesan: ${err.message}`),
+  });
   const items = query.data?.data ?? [];
   return (
     <>
@@ -8292,7 +8567,22 @@ function InboxManager() {
               <div className="submission-actions">
                 <button
                   type="button"
+                  className="icon-button danger"
+                  title="Hapus Pesan Masuk"
+                  aria-label="Hapus Pesan Masuk"
+                  disabled={remove.isPending}
+                  onClick={() => {
+                    if (confirm(`Hapus pesan dari "${submissionTitle(selected)}"?`)) {
+                      remove.mutate(selected.id);
+                    }
+                  }}
+                >
+                  <Trash2 size={16} />
+                </button>
+                <button
+                  type="button"
                   className="button ghost"
+                  disabled={update.isPending}
                   onClick={() =>
                     update.mutate({ id: selected.id, nextStatus: "spam" })
                   }
@@ -8302,6 +8592,7 @@ function InboxManager() {
                 <button
                   type="button"
                   className="button secondary"
+                  disabled={update.isPending}
                   onClick={() =>
                     update.mutate({
                       id: selected.id,
@@ -8314,6 +8605,7 @@ function InboxManager() {
                 <button
                   type="button"
                   className="button primary"
+                  disabled={update.isPending}
                   onClick={() =>
                     update.mutate({ id: selected.id, nextStatus: "resolved" })
                   }
@@ -9359,8 +9651,9 @@ function SettingsManager() {
                   <div className="nav-tree-actions">
                     <button
                       type="button"
-                      className="button secondary compact-btn"
+                      className="icon-button"
                       title="Tambah Sub-Menu under item ini"
+                      aria-label="Tambah Sub-Menu"
                       onClick={() =>
                         setNavItems(
                           navItems.map((c, i) =>
@@ -9381,7 +9674,7 @@ function SettingsManager() {
                         )
                       }
                     >
-                      <Plus size={14} /> Sub-Menu
+                      <Plus size={15} />
                     </button>
                     <button
                       type="button"
@@ -9643,27 +9936,33 @@ function RevenueManager() {
     queryKey: ["revenue-overview"],
     queryFn: () => api<{ data: CmsRevenueData }>("/v1/admin/revenue/overview"),
   });
-  const refresh = () =>
-    client.invalidateQueries({ queryKey: ["revenue-overview"] });
   const action = useMutation({
     mutationFn: ({ path, body }: { path: string; body: unknown }) =>
       api(path, { method: "POST", body: JSON.stringify(body) }),
     onSuccess: () => {
       setDialog(null);
       setError("");
-      void refresh();
+      toast.success("Data berhasil disimpan.");
+      void client.invalidateQueries({ queryKey: ["revenue-overview"] });
     },
-    onError: (reason) =>
-      setError(reason instanceof Error ? reason.message : "The action failed."),
+    onError: (reason: Error) => setError(reason.message),
   });
-  if (query.isLoading) return <PageLoading />;
-  const data = query.data?.data;
-  if (!data) return <Empty message="Revenue data is unavailable." />;
-  const invoices = data.invoices ?? [];
-  const entitlements = data.entitlements ?? [];
-  const products = data.products ?? [];
-  const segments = data.segments ?? [];
-  const campaigns = data.campaigns ?? [];
+  const remove = useMutation({
+    mutationFn: ({ path }: { path: string }) =>
+      api(path, { method: "DELETE" }),
+    onSuccess: () => {
+      toast.success("Item berhasil dihapus.");
+      void client.invalidateQueries({ queryKey: ["revenue-overview"] });
+    },
+    onError: (err: Error) => toast.error(`Gagal menghapus: ${err.message}`),
+  });
+  const overview = query.data?.data;
+  const products = overview?.products ?? [];
+  const invoices = overview?.invoices ?? [];
+  const entitlements = overview?.entitlements ?? [];
+  const members = overview?.members ?? [];
+  const segments = overview?.segments ?? [];
+  const campaigns = overview?.campaigns ?? [];
 
   const outstanding = invoices.reduce(
     (sum, invoice) =>
@@ -9711,18 +10010,21 @@ function RevenueManager() {
         path: "/v1/admin/revenue/invoices",
         body: {
           memberId: String(form.get("memberId")),
-          productId: String(form.get("productId")),
-          quantity: Number(form.get("quantity")),
-          dueAt: form.get("dueAt")
-            ? new Date(String(form.get("dueAt"))).toISOString()
-            : null,
+          lines: [
+            {
+              productId: String(form.get("productId")),
+              quantity: Number(form.get("quantity") || 1),
+            },
+          ],
+          dueDays: Number(form.get("dueDays") || 14),
           notes: String(form.get("notes") || "") || null,
         },
       });
-    if (dialog === "payment" && selectedInvoice)
+    if (dialog === "payment")
       action.mutate({
-        path: `/v1/admin/revenue/invoices/${selectedInvoice}/payments`,
+        path: "/v1/admin/revenue/payments",
         body: {
+          invoiceId: selectedInvoice,
           amount: Number(form.get("amount")),
           method: String(form.get("method")),
           reference: String(form.get("reference") || "") || null,
@@ -9735,11 +10037,8 @@ function RevenueManager() {
           name: String(form.get("name")),
           description: String(form.get("description") || "") || null,
           criteria: {
-            membershipStatuses: form.get("membershipStatus")
-              ? [String(form.get("membershipStatus"))]
-              : undefined,
-            membershipTypes: form.get("membershipType")
-              ? [String(form.get("membershipType"))]
+            membershipStatuses: form.get("status")
+              ? [String(form.get("status"))]
               : undefined,
             hasEntitlement:
               String(form.get("hasEntitlement") || "") || undefined,
@@ -9865,16 +10164,32 @@ function RevenueManager() {
                           ? `Terbayar: ${formatRevenueMoney(invoice.paid)}`
                           : "Belum Dibayar"}
                       </small>
-                      {invoice.status === "open" && (
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end", marginTop: "6px" }}>
+                        {invoice.status === "open" && (
+                          <button
+                            className="icon-button success"
+                            type="button"
+                            title="Catat Pembayaran"
+                            aria-label={`Bayar ${invoice.invoiceNumber}`}
+                            onClick={() => openPayment(invoice.id)}
+                          >
+                            <CreditCard size={15} />
+                          </button>
+                        )}
                         <button
-                          className="button small secondary"
                           type="button"
-                          style={{ marginTop: "4px", fontSize: "11px", padding: "3px 8px" }}
-                          onClick={() => openPayment(invoice.id)}
+                          className="icon-button danger"
+                          title="Hapus / Batalkan Tagihan"
+                          aria-label={`Hapus ${invoice.invoiceNumber}`}
+                          onClick={() => {
+                            if (confirm(`Hapus faktur tagihan ${invoice.invoiceNumber}?`)) {
+                              remove.mutate({ path: `/v1/admin/revenue/invoices/${invoice.id}` });
+                            }
+                          }}
                         >
-                          Catat Pembayaran
+                          <Trash2 size={14} />
                         </button>
-                      )}
+                      </div>
                     </div>
                   </article>
                 ))}
@@ -9895,7 +10210,22 @@ function RevenueManager() {
                   <article key={product.id}>
                     <div className="product-head-row">
                       <strong>{product.name}</strong>
-                      <b>{formatRevenueMoney(product.price || 0)}</b>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <b>{formatRevenueMoney(product.price || 0)}</b>
+                        <button
+                          type="button"
+                          className="icon-button danger"
+                          title={`Hapus produk ${product.name}`}
+                          aria-label={`Hapus ${product.name}`}
+                          onClick={() => {
+                            if (confirm(`Hapus produk iuran "${product.name}"?`)) {
+                              remove.mutate({ path: `/v1/admin/revenue/products/${product.id}` });
+                            }
+                          }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
                     <span className="product-meta-sub">
                       {product.code} ·{" "}
@@ -9946,6 +10276,19 @@ function RevenueManager() {
                         .join(" · ") || "Seluruh Anggota"}
                     </small>
                   </div>
+                  <button
+                    type="button"
+                    className="icon-button danger"
+                    title={`Hapus segmen ${segment.name}`}
+                    aria-label={`Hapus ${segment.name}`}
+                    onClick={() => {
+                      if (confirm(`Hapus segmen audiens "${segment.name}"?`)) {
+                        remove.mutate({ path: `/v1/admin/revenue/segments/${segment.id}` });
+                      }
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </article>
               ))}
               {!segments.length && (
@@ -10097,7 +10440,7 @@ function RevenueManager() {
                   <label>
                     Member
                     <select name="memberId" required>
-                      {data.members.map((member) => (
+                      {members.map((member) => (
                         <option key={member.id} value={member.id}>
                           {member.name} · {member.memberNumber}
                         </option>
@@ -10107,7 +10450,7 @@ function RevenueManager() {
                   <label>
                     Product
                     <select name="productId" required>
-                      {data.products
+                      {products
                         .filter((product) => product.isActive)
                         .map((product) => (
                           <option key={product.id} value={product.id}>
@@ -10207,7 +10550,7 @@ function RevenueManager() {
                   <label>
                     Audience segment
                     <select name="segmentId" required>
-                      {data.segments.map((segment) => (
+                      {segments.map((segment) => (
                         <option key={segment.id} value={segment.id}>
                           {segment.name}
                         </option>
@@ -10335,22 +10678,30 @@ function RegulationsManager() {
   const [category, setCategory] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [isCreating, setIsCreating] = useState(false);
+  const [editingItem, setEditingItem] = useState<Partial<CmsRegulation> | null>(null);
 
   const query = useQuery({
     queryKey: ["regulations"],
     queryFn: () => api<{ data: CmsRegulation[] }>("/v1/admin/regulations"),
   });
 
-  const create = useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
-      api<{ data: CmsRegulation }>("/v1/admin/regulations", {
+  const save = useMutation({
+    mutationFn: (data: Record<string, unknown>) => {
+      const id = data.id as string | undefined;
+      if (id) {
+        return api<{ data: CmsRegulation }>(`/v1/admin/regulations/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+      }
+      return api<{ data: CmsRegulation }>("/v1/admin/regulations", {
         method: "POST",
         body: JSON.stringify(data),
-      }),
+      });
+    },
     onSuccess: () => {
-      toast.success("Dokumen regulasi berhasil ditambahkan.");
-      setIsCreating(false);
+      toast.success("Dokumen regulasi berhasil disimpan.");
+      setEditingItem(null);
       void client.invalidateQueries({ queryKey: ["regulations"] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -10384,27 +10735,37 @@ function RegulationsManager() {
   return (
     <>
       <PageHeading
-        eyebrow="Governance & Policy"
-        title="Regulations & Legal Repository"
+        eyebrow="Hukum & Tata Kelola"
+        title="Dokumen Regulasi & Kebijakan"
         description="Kelola dokumen AD/ART, Surat Edaran Organisasi, Regulasi Pemerintah, dan Naskah Kebijakan publik."
         action={
           <button
             type="button"
             className="button primary"
-            onClick={() => setIsCreating(true)}
+            onClick={() =>
+              setEditingItem({
+                title: "",
+                category: "regulasi_pemerintah",
+                number: "",
+                issuedDate: new Date().toISOString().slice(0, 10),
+                fileUrl: "",
+                summary: "",
+                status: "published",
+              })
+            }
           >
             <Plus size={16} /> Tambah Dokumen
           </button>
         }
       />
-      {isCreating && (
+      {editingItem && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>Tambah Dokumen Regulasi Baru</h3>
+            <h3>{editingItem.id ? "Edit Dokumen Regulasi" : "Tambah Dokumen Regulasi Baru"}</h3>
             <button
               type="button"
               className="icon-button"
-              onClick={() => setIsCreating(false)}
+              onClick={() => setEditingItem(null)}
             >
               <X size={18} />
             </button>
@@ -10413,7 +10774,8 @@ function RegulationsManager() {
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
-              create.mutate({
+              save.mutate({
+                id: editingItem.id,
                 title: fd.get("title") as string,
                 category: fd.get("category") as string,
                 number: fd.get("number") as string,
@@ -10430,6 +10792,7 @@ function RegulationsManager() {
               <input
                 name="title"
                 required
+                defaultValue={editingItem.title ?? ""}
                 placeholder="Contoh: Peraturan Menteri No. 12 Tahun 2026..."
               />
             </label>
@@ -10438,7 +10801,7 @@ function RegulationsManager() {
               <select
                 name="category"
                 required
-                defaultValue="regulasi_pemerintah"
+                defaultValue={editingItem.category ?? "regulasi_pemerintah"}
               >
                 <option value="regulasi_pemerintah">Regulasi Pemerintah</option>
                 <option value="se_organisasi">Surat Edaran (SE)</option>
@@ -10452,22 +10815,32 @@ function RegulationsManager() {
               <span>Nomor Dokumen</span>
               <input
                 name="number"
+                defaultValue={editingItem.number ?? ""}
                 placeholder="Nomor resmi, contoh: SE/04/APTI/2026"
               />
             </label>
             <label className="field">
               <span>Tanggal Penetapan</span>
-              <input type="date" name="issuedDate" />
+              <input
+                type="date"
+                name="issuedDate"
+                defaultValue={editingItem.issuedDate ? new Date(editingItem.issuedDate).toISOString().slice(0, 10) : ""}
+              />
             </label>
             <label className="field">
               <span>Link URL Dokumen / File (PDF)</span>
-              <input name="fileUrl" placeholder="https://..." />
+              <input
+                name="fileUrl"
+                defaultValue={editingItem.fileUrl ?? ""}
+                placeholder="https://..."
+              />
             </label>
             <label className="field col-span-2">
               <span>Ringkasan / Abstrak Regulasi</span>
               <textarea
                 name="summary"
                 rows={3}
+                defaultValue={editingItem.summary ?? ""}
                 placeholder="Poin-poin penting isi regulasi..."
               />
             </label>
@@ -10475,16 +10848,16 @@ function RegulationsManager() {
               <button
                 type="button"
                 className="button ghost"
-                onClick={() => setIsCreating(false)}
+                onClick={() => setEditingItem(null)}
               >
                 Batal
               </button>
               <button
                 type="submit"
                 className="button primary"
-                disabled={create.isPending}
+                disabled={save.isPending}
               >
-                <Save size={16} /> Simpan Regulasi
+                <Save size={16} /> {editingItem.id ? "Perbarui Regulasi" : "Simpan Regulasi"}
               </button>
             </div>
           </form>
@@ -10540,16 +10913,29 @@ function RegulationsManager() {
                 <td>{item.number || "—"}</td>
                 <td>{item.downloadCount}x</td>
                 <td className="actions-cell">
-                  <button
-                    type="button"
-                    className="icon-button danger"
-                    onClick={() => {
-                      if (confirm("Hapus dokumen regulasi ini?"))
-                        remove.mutate(item.id);
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      title="Edit Dokumen Regulasi"
+                      aria-label={`Edit ${item.title}`}
+                      onClick={() => setEditingItem(item)}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Dokumen Regulasi"
+                      aria-label={`Hapus ${item.title}`}
+                      onClick={() => {
+                        if (confirm(`Hapus dokumen regulasi "${item.title}"?`))
+                          remove.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -10609,6 +10995,19 @@ function ComplaintsManager() {
     onSuccess: (res) => {
       toast.success("Status & catatan pengaduan berhasil diperbarui.");
       setSelected(res.data);
+      void client.invalidateQueries({ queryKey: ["complaints"] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: (id: string) =>
+      api<{ data: { success: boolean } }>(`/v1/admin/complaints/${id}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
+      toast.success("Pengaduan berhasil dihapus.");
+      setSelected(null);
       void client.invalidateQueries({ queryKey: ["complaints"] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -10694,7 +11093,22 @@ function ComplaintsManager() {
                       : ""}
                   </small>
                 </div>
-                <Status value={selected.status} />
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Status value={selected.status} />
+                  <button
+                    type="button"
+                    className="icon-button danger"
+                    title="Hapus Tiket Pengaduan"
+                    aria-label="Hapus Tiket Pengaduan"
+                    onClick={() => {
+                      if (confirm(`Hapus tiket pengaduan #${selected.ticketNumber}?`)) {
+                        remove.mutate(selected.id);
+                      }
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </header>
               <div className="detail-body">
                 <p>
@@ -10828,7 +11242,7 @@ function ComplaintsManager() {
 function TechniciansManager() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [editingItem, setEditingItem] = useState<Partial<CmsTechnician> | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -10837,15 +11251,23 @@ function TechniciansManager() {
     queryFn: () => api<{ data: CmsTechnician[] }>("/v1/admin/technicians"),
   });
 
-  const create = useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
-      api<{ data: CmsTechnician }>("/v1/admin/technicians", {
+  const save = useMutation({
+    mutationFn: (data: Record<string, unknown>) => {
+      const id = data.id as string | undefined;
+      if (id) {
+        return api<{ data: CmsTechnician }>(`/v1/admin/technicians/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+      }
+      return api<{ data: CmsTechnician }>("/v1/admin/technicians", {
         method: "POST",
         body: JSON.stringify(data),
-      }),
+      });
+    },
     onSuccess: () => {
-      toast.success("Teknisi berhasil didaftarkan ke direktori.");
-      setIsCreating(false);
+      toast.success("Data teknisi berhasil disimpan.");
+      setEditingItem(null);
       void client.invalidateQueries({ queryKey: ["technicians"] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -10882,27 +11304,40 @@ function TechniciansManager() {
   return (
     <>
       <PageHeading
-        eyebrow="Directory & Verification"
-        title="Verified Technicians Directory"
+        eyebrow="Direktori & Verifikasi"
+        title="Direktori Teknisi Terverifikasi"
         description="Kelola daftar teknisi pemegang KTA resmi, tingkat kualifikasi BNSP, rating, dan wilayah layanan."
         action={
           <button
             type="button"
             className="button primary"
-            onClick={() => setIsCreating(true)}
+            onClick={() =>
+              setEditingItem({
+                name: "",
+                ktaNumber: "",
+                skillLevel: "Level 3 Residensial & Split",
+                province: "DKI Jakarta",
+                city: "Jakarta Selatan",
+                phone: "",
+                workshopName: "",
+                rating: "4.9",
+                certifiedBnsp: true,
+                isAvailable: true,
+              })
+            }
           >
             <Plus size={16} /> Tambah Teknisi
           </button>
         }
       />
-      {isCreating && (
+      {editingItem && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>Pendaftaran Teknisi Baru ke Direktori</h3>
+            <h3>{editingItem.id ? "Edit Data Teknisi" : "Pendaftaran Teknisi Baru ke Direktori"}</h3>
             <button
               type="button"
               className="icon-button"
-              onClick={() => setIsCreating(false)}
+              onClick={() => setEditingItem(null)}
             >
               <X size={18} />
             </button>
@@ -10911,7 +11346,8 @@ function TechniciansManager() {
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
-              create.mutate({
+              save.mutate({
+                id: editingItem.id,
                 name: fd.get("name") as string,
                 ktaNumber: fd.get("ktaNumber") as string,
                 skillLevel: fd.get("skillLevel") as string,
@@ -10931,54 +11367,81 @@ function TechniciansManager() {
               <input
                 name="name"
                 required
+                defaultValue={editingItem.name ?? ""}
                 placeholder="Contoh: Budi Kurniawan"
               />
             </label>
             <label className="field">
               <span>Nomor KTA Resmi *</span>
-              <input name="ktaNumber" required placeholder="APTI-2026-XXXX" />
+              <input
+                name="ktaNumber"
+                required
+                defaultValue={editingItem.ktaNumber ?? ""}
+                placeholder="APTI-2026-XXXX"
+              />
             </label>
             <label className="field">
               <span>Kualifikasi / Level Keahlian</span>
               <input
                 name="skillLevel"
-                defaultValue="Level 3 Residensial & Split"
+                defaultValue={editingItem.skillLevel ?? "Level 3 Residensial & Split"}
               />
             </label>
             <label className="field">
               <span>Nama Workshop / Bengkel</span>
-              <input name="workshopName" placeholder="Contoh: Maju Jaya AC" />
+              <input
+                name="workshopName"
+                defaultValue={editingItem.workshopName ?? ""}
+                placeholder="Contoh: Maju Jaya AC"
+              />
             </label>
             <label className="field">
               <span>Provinsi *</span>
-              <input name="province" required placeholder="DKI Jakarta" />
+              <input
+                name="province"
+                required
+                defaultValue={editingItem.province ?? "DKI Jakarta"}
+                placeholder="DKI Jakarta"
+              />
             </label>
             <label className="field">
               <span>Kota / Kabupaten *</span>
-              <input name="city" required placeholder="Jakarta Selatan" />
+              <input
+                name="city"
+                required
+                defaultValue={editingItem.city ?? "Jakarta Selatan"}
+                placeholder="Jakarta Selatan"
+              />
             </label>
             <label className="field">
               <span>Nomor WhatsApp / Telepon</span>
-              <input name="phone" placeholder="081234567890" />
+              <input
+                name="phone"
+                defaultValue={editingItem.phone ?? ""}
+                placeholder="081234567890"
+              />
             </label>
             <label className="field">
               <span>Rating (1.0 - 5.0)</span>
-              <input name="rating" defaultValue="4.9" />
+              <input
+                name="rating"
+                defaultValue={editingItem.rating ?? "4.9"}
+              />
             </label>
             <div className="form-actions col-span-2">
               <button
                 type="button"
                 className="button ghost"
-                onClick={() => setIsCreating(false)}
+                onClick={() => setEditingItem(null)}
               >
                 Batal
               </button>
               <button
                 type="submit"
                 className="button primary"
-                disabled={create.isPending}
+                disabled={save.isPending}
               >
-                <Save size={16} /> Simpan Teknisi
+                <Save size={16} /> {editingItem.id ? "Perbarui Teknisi" : "Simpan Teknisi"}
               </button>
             </div>
           </form>
@@ -11022,16 +11485,29 @@ function TechniciansManager() {
                 <td>{item.workshopName || "—"}</td>
                 <td>⭐ {item.rating ?? "4.9"}</td>
                 <td className="actions-cell">
-                  <button
-                    type="button"
-                    className="icon-button danger"
-                    onClick={() => {
-                      if (confirm("Hapus teknisi dari direktori?"))
-                        remove.mutate(item.id);
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      title="Edit Data Teknisi"
+                      aria-label={`Edit ${item.name}`}
+                      onClick={() => setEditingItem(item)}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Teknisi dari Direktori"
+                      aria-label={`Hapus ${item.name}`}
+                      onClick={() => {
+                        if (confirm(`Hapus teknisi ${item.name} dari direktori?`))
+                          remove.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -11058,7 +11534,7 @@ function TechniciansManager() {
 
 function ClubsManager() {
   const client = useQueryClient();
-  const [isCreating, setIsCreating] = useState(false);
+  const [editingItem, setEditingItem] = useState<Partial<CmsClub> | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -11067,15 +11543,23 @@ function ClubsManager() {
     queryFn: () => api<{ data: CmsClub[] }>("/v1/admin/clubs"),
   });
 
-  const create = useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
-      api<{ data: CmsClub }>("/v1/admin/clubs", {
+  const save = useMutation({
+    mutationFn: (data: Record<string, unknown>) => {
+      const id = data.id as string | undefined;
+      if (id) {
+        return api<{ data: CmsClub }>(`/v1/admin/clubs/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+      }
+      return api<{ data: CmsClub }>("/v1/admin/clubs", {
         method: "POST",
         body: JSON.stringify(data),
-      }),
+      });
+    },
     onSuccess: () => {
-      toast.success("Klub berhasil didaftarkan (TKT).");
-      setIsCreating(false);
+      toast.success("Data klub berhasil disimpan.");
+      setEditingItem(null);
       void client.invalidateQueries({ queryKey: ["clubs"] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -11104,27 +11588,37 @@ function ClubsManager() {
   return (
     <>
       <PageHeading
-        eyebrow="Community & Affiliates"
-        title="Registered Clubs & TKT Registry"
+        eyebrow="Komunitas & Afiliasi"
+        title="Registri Klub Terdaftar (TKT)"
         description="Kelola tanda klub terdaftar (TKT), komunitas daerah binaan, dan ketua pengurus klub."
         action={
           <button
             type="button"
             className="button primary"
-            onClick={() => setIsCreating(true)}
+            onClick={() =>
+              setEditingItem({
+                clubName: "",
+                codeTkt: "",
+                province: "Jawa Timur",
+                category: "Komunitas Teknisi & Workshop",
+                chairName: "",
+                activeMembers: 15,
+                status: "verified",
+              })
+            }
           >
             <Plus size={16} /> Tambah Klub
           </button>
         }
       />
-      {isCreating && (
+      {editingItem && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>Pendaftaran Klub Baru (TKT)</h3>
+            <h3>{editingItem.id ? "Edit Registrasi Klub (TKT)" : "Pendaftaran Klub Baru (TKT)"}</h3>
             <button
               type="button"
               className="icon-button"
-              onClick={() => setIsCreating(false)}
+              onClick={() => setEditingItem(null)}
             >
               <X size={18} />
             </button>
@@ -11133,7 +11627,8 @@ function ClubsManager() {
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
-              create.mutate({
+              save.mutate({
+                id: editingItem.id,
                 clubName: fd.get("clubName") as string,
                 codeTkt: fd.get("codeTkt") as string,
                 province: fd.get("province") as string,
@@ -11152,27 +11647,42 @@ function ClubsManager() {
               <input
                 name="clubName"
                 required
+                defaultValue={editingItem.clubName ?? ""}
                 placeholder="Contoh: Surabaya Cooling Club"
               />
             </label>
             <label className="field">
               <span>Kode TKT Resmi *</span>
-              <input name="codeTkt" required placeholder="TKT-DPD-JTM-001" />
+              <input
+                name="codeTkt"
+                required
+                defaultValue={editingItem.codeTkt ?? ""}
+                placeholder="TKT-DPD-JTM-001"
+              />
             </label>
             <label className="field">
               <span>Provinsi *</span>
-              <input name="province" required placeholder="Jawa Timur" />
+              <input
+                name="province"
+                required
+                defaultValue={editingItem.province ?? "Jawa Timur"}
+                placeholder="Jawa Timur"
+              />
             </label>
             <label className="field">
               <span>Ketua Klub</span>
-              <input name="chairName" placeholder="Nama ketua" />
+              <input
+                name="chairName"
+                defaultValue={editingItem.chairName ?? ""}
+                placeholder="Nama ketua"
+              />
             </label>
             <label className="field">
               <span>Jumlah Anggota Aktif</span>
               <input
                 type="number"
                 name="activeMembers"
-                defaultValue={10}
+                defaultValue={editingItem.activeMembers ?? 10}
                 min={1}
               />
             </label>
@@ -11180,16 +11690,16 @@ function ClubsManager() {
               <button
                 type="button"
                 className="button ghost"
-                onClick={() => setIsCreating(false)}
+                onClick={() => setEditingItem(null)}
               >
                 Batal
               </button>
               <button
                 type="submit"
                 className="button primary"
-                disabled={create.isPending}
+                disabled={save.isPending}
               >
-                <Save size={16} /> Simpan Klub
+                <Save size={16} /> {editingItem.id ? "Perbarui Klub" : "Simpan Klub"}
               </button>
             </div>
           </form>
@@ -11220,15 +11730,29 @@ function ClubsManager() {
                 <td>{item.chairName || "—"}</td>
                 <td>{item.activeMembers} Anggota</td>
                 <td className="actions-cell">
-                  <button
-                    type="button"
-                    className="icon-button danger"
-                    onClick={() => {
-                      if (confirm("Hapus klub ini?")) remove.mutate(item.id);
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      title="Edit Data Klub"
+                      aria-label={`Edit ${item.clubName}`}
+                      onClick={() => setEditingItem(item)}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Klub"
+                      aria-label={`Hapus ${item.clubName}`}
+                      onClick={() => {
+                        if (confirm(`Hapus klub ${item.clubName}?`))
+                          remove.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -11256,6 +11780,7 @@ function ClubsManager() {
 function ChampionshipsManager() {
   const client = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
+  const [editingItem, setEditingItem] = useState<CmsChampionship | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -11264,15 +11789,30 @@ function ChampionshipsManager() {
     queryFn: () => api<{ data: CmsChampionship[] }>("/v1/admin/championships"),
   });
 
-  const create = useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
-      api<{ data: CmsChampionship }>("/v1/admin/championships", {
+  const save = useMutation({
+    mutationFn: (data: Record<string, unknown>) => {
+      if (editingItem) {
+        return api<{ data: CmsChampionship }>(
+          `/v1/admin/championships/${editingItem.id}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify(data),
+          },
+        );
+      }
+      return api<{ data: CmsChampionship }>("/v1/admin/championships", {
         method: "POST",
         body: JSON.stringify(data),
-      }),
+      });
+    },
     onSuccess: () => {
-      toast.success("Data klasemen berhasil ditambahkan.");
+      toast.success(
+        editingItem
+          ? "Data klasemen berhasil diperbarui."
+          : "Data klasemen berhasil ditambahkan.",
+      );
       setIsCreating(false);
+      setEditingItem(null);
       void client.invalidateQueries({ queryKey: ["championships"] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -11308,20 +11848,26 @@ function ChampionshipsManager() {
           <button
             type="button"
             className="button primary"
-            onClick={() => setIsCreating(true)}
+            onClick={() => {
+              setEditingItem(null);
+              setIsCreating(true);
+            }}
           >
             <Plus size={16} /> Tambah Skor Kontestan
           </button>
         }
       />
-      {isCreating && (
+      {(isCreating || editingItem) && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>Input Peringkat & Skor Kejuaraan</h3>
+            <h3>{editingItem ? "Edit Peringkat & Skor Kejuaraan" : "Input Peringkat & Skor Kejuaraan"}</h3>
             <button
               type="button"
               className="icon-button"
-              onClick={() => setIsCreating(false)}
+              onClick={() => {
+                setIsCreating(false);
+                setEditingItem(null);
+              }}
             >
               <X size={18} />
             </button>
@@ -11330,7 +11876,7 @@ function ChampionshipsManager() {
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
-              create.mutate({
+              save.mutate({
                 participantName: fd.get("participantName") as string,
                 rank: Number(fd.get("rank") || 1),
                 points: Number(fd.get("points") || 0),
@@ -11350,6 +11896,7 @@ function ChampionshipsManager() {
               <input
                 name="participantName"
                 required
+                defaultValue={editingItem?.participantName ?? ""}
                 placeholder="Nama lengkap peserta"
               />
             </label>
@@ -11358,31 +11905,49 @@ function ChampionshipsManager() {
               <input
                 type="number"
                 name="rank"
-                defaultValue={1}
+                defaultValue={editingItem?.rank ?? 1}
                 min={1}
                 required
               />
             </label>
             <label className="field">
               <span>Total Poin *</span>
-              <input type="number" name="points" defaultValue={450} required />
+              <input
+                type="number"
+                name="points"
+                defaultValue={editingItem?.points ?? 450}
+                required
+              />
             </label>
             <label className="field">
               <span>Tahun Musim (Season)</span>
-              <input type="number" name="seasonYear" defaultValue={2026} />
+              <input
+                type="number"
+                name="seasonYear"
+                defaultValue={editingItem?.seasonYear ?? 2026}
+              />
             </label>
             <label className="field">
               <span>Kontingon / DPD</span>
-              <input name="unitName" placeholder="Contoh: DPD Jawa Barat" />
+              <input
+                name="unitName"
+                defaultValue={editingItem?.unitName ?? ""}
+                placeholder="Contoh: DPD Jawa Barat"
+              />
             </label>
             <label className="field">
               <span>Nama Tim / Bengkel</span>
-              <input name="teamName" placeholder="Contoh: Bandung VRV Team" />
+              <input
+                name="teamName"
+                defaultValue={editingItem?.teamName ?? ""}
+                placeholder="Contoh: Bandung VRV Team"
+              />
             </label>
             <label className="field col-span-2">
               <span>Prestasi / Penghargaan Khusus</span>
               <input
                 name="achievements"
+                defaultValue={editingItem?.achievements ?? ""}
                 placeholder="Contoh: Juara 1 Diagnosis Inverter Tercepat"
               />
             </label>
@@ -11390,16 +11955,19 @@ function ChampionshipsManager() {
               <button
                 type="button"
                 className="button ghost"
-                onClick={() => setIsCreating(false)}
+                onClick={() => {
+                  setIsCreating(false);
+                  setEditingItem(null);
+                }}
               >
                 Batal
               </button>
               <button
                 type="submit"
                 className="button primary"
-                disabled={create.isPending}
+                disabled={save.isPending}
               >
-                <Save size={16} /> Simpan Skor
+                <Save size={16} /> {editingItem ? "Update Skor" : "Simpan Skor"}
               </button>
             </div>
           </form>
@@ -11430,16 +11998,32 @@ function ChampionshipsManager() {
                 <td>⭐ {item.points} Pts</td>
                 <td>{item.achievements || "—"}</td>
                 <td className="actions-cell">
-                  <button
-                    type="button"
-                    className="icon-button danger"
-                    onClick={() => {
-                      if (confirm("Hapus skor kontestan ini?"))
-                        remove.mutate(item.id);
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      title="Edit Skor Kontestan"
+                      aria-label={`Edit ${item.participantName}`}
+                      onClick={() => {
+                        setIsCreating(false);
+                        setEditingItem(item);
+                      }}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Skor Kontestan"
+                      aria-label={`Hapus ${item.participantName}`}
+                      onClick={() => {
+                        if (confirm(`Hapus skor kontestan ${item.participantName}?`))
+                          remove.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -11467,6 +12051,7 @@ function ChampionshipsManager() {
 function WorkingGroupsManager() {
   const client = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
+  const [editingItem, setEditingItem] = useState<CmsWorkingGroup | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -11475,15 +12060,30 @@ function WorkingGroupsManager() {
     queryFn: () => api<{ data: CmsWorkingGroup[] }>("/v1/admin/working-groups"),
   });
 
-  const create = useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
-      api<{ data: CmsWorkingGroup }>("/v1/admin/working-groups", {
+  const save = useMutation({
+    mutationFn: (data: Record<string, unknown>) => {
+      if (editingItem) {
+        return api<{ data: CmsWorkingGroup }>(
+          `/v1/admin/working-groups/${editingItem.id}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify(data),
+          },
+        );
+      }
+      return api<{ data: CmsWorkingGroup }>("/v1/admin/working-groups", {
         method: "POST",
         body: JSON.stringify(data),
-      }),
+      });
+    },
     onSuccess: () => {
-      toast.success("Kelompok kerja berhasil dibuat.");
+      toast.success(
+        editingItem
+          ? "Kelompok kerja berhasil diperbarui."
+          : "Kelompok kerja berhasil dibuat.",
+      );
       setIsCreating(false);
+      setEditingItem(null);
       void client.invalidateQueries({ queryKey: ["workingGroups"] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -11519,20 +12119,26 @@ function WorkingGroupsManager() {
           <button
             type="button"
             className="button primary"
-            onClick={() => setIsCreating(true)}
+            onClick={() => {
+              setEditingItem(null);
+              setIsCreating(true);
+            }}
           >
             <Plus size={16} /> Tambah Pokja
           </button>
         }
       />
-      {isCreating && (
+      {(isCreating || editingItem) && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>Pembentukan Pokja / Komite Baru</h3>
+            <h3>{editingItem ? "Edit Kelompok Kerja / Pokja" : "Pembentukan Pokja / Komite Baru"}</h3>
             <button
               type="button"
               className="icon-button"
-              onClick={() => setIsCreating(false)}
+              onClick={() => {
+                setIsCreating(false);
+                setEditingItem(null);
+              }}
             >
               <X size={18} />
             </button>
@@ -11541,7 +12147,7 @@ function WorkingGroupsManager() {
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
-              create.mutate({
+              save.mutate({
                 name: fd.get("name") as string,
                 category:
                   (fd.get("category") as string) ||
@@ -11559,6 +12165,7 @@ function WorkingGroupsManager() {
               <input
                 name="name"
                 required
+                defaultValue={editingItem?.name ?? ""}
                 placeholder="Contoh: Pokja Transisi Green Refrigerant"
               />
             </label>
@@ -11566,18 +12173,23 @@ function WorkingGroupsManager() {
               <span>Kategori Pokja</span>
               <input
                 name="category"
-                defaultValue="Standardisasi & Sertifikasi"
+                defaultValue={editingItem?.category ?? "Standardisasi & Sertifikasi"}
               />
             </label>
             <label className="field">
               <span>Ketua Pokja</span>
-              <input name="chairName" placeholder="Nama ketua" />
+              <input
+                name="chairName"
+                defaultValue={editingItem?.chairName ?? ""}
+                placeholder="Nama ketua"
+              />
             </label>
             <label className="field col-span-2">
               <span>Deskripsi Tugas & Mandat Pokja</span>
               <textarea
                 name="description"
                 rows={3}
+                defaultValue={editingItem?.description ?? ""}
                 placeholder="Ruang lingkup kerja pokja..."
               />
             </label>
@@ -11585,16 +12197,19 @@ function WorkingGroupsManager() {
               <button
                 type="button"
                 className="button ghost"
-                onClick={() => setIsCreating(false)}
+                onClick={() => {
+                  setIsCreating(false);
+                  setEditingItem(null);
+                }}
               >
                 Batal
               </button>
               <button
                 type="submit"
                 className="button primary"
-                disabled={create.isPending}
+                disabled={save.isPending}
               >
-                <Save size={16} /> Simpan Pokja
+                <Save size={16} /> {editingItem ? "Update Pokja" : "Simpan Pokja"}
               </button>
             </div>
           </form>
@@ -11628,15 +12243,31 @@ function WorkingGroupsManager() {
                 <td>{item.chairName || "—"}</td>
                 <td>{item.memberCount} Anggota</td>
                 <td className="actions-cell">
-                  <button
-                    type="button"
-                    className="icon-button danger"
-                    onClick={() => {
-                      if (confirm("Hapus pokja ini?")) remove.mutate(item.id);
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      title="Edit Pokja"
+                      aria-label={`Edit ${item.name}`}
+                      onClick={() => {
+                        setIsCreating(false);
+                        setEditingItem(item);
+                      }}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Pokja"
+                      aria-label={`Hapus ${item.name}`}
+                      onClick={() => {
+                        if (confirm(`Hapus pokja ${item.name}?`)) remove.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -11664,6 +12295,7 @@ function WorkingGroupsManager() {
 function LendersManager() {
   const client = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
+  const [editingItem, setEditingItem] = useState<CmsLender | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -11672,15 +12304,30 @@ function LendersManager() {
     queryFn: () => api<{ data: CmsLender[] }>("/v1/admin/lenders"),
   });
 
-  const create = useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
-      api<{ data: CmsLender }>("/v1/admin/lenders", {
+  const save = useMutation({
+    mutationFn: (data: Record<string, unknown>) => {
+      if (editingItem) {
+        return api<{ data: CmsLender }>(
+          `/v1/admin/lenders/${editingItem.id}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify(data),
+          },
+        );
+      }
+      return api<{ data: CmsLender }>("/v1/admin/lenders", {
         method: "POST",
         body: JSON.stringify(data),
-      }),
+      });
+    },
     onSuccess: () => {
-      toast.success("Mitra lender berhasil ditambahkan.");
+      toast.success(
+        editingItem
+          ? "Data mitra lender berhasil diperbarui."
+          : "Mitra lender berhasil ditambahkan.",
+      );
       setIsCreating(false);
+      setEditingItem(null);
       void client.invalidateQueries({ queryKey: ["lenders"] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -11716,20 +12363,26 @@ function LendersManager() {
           <button
             type="button"
             className="button primary"
-            onClick={() => setIsCreating(true)}
+            onClick={() => {
+              setEditingItem(null);
+              setIsCreating(true);
+            }}
           >
             <Plus size={16} /> Tambah Mitra / Lender
           </button>
         }
       />
-      {isCreating && (
+      {(isCreating || editingItem) && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>Registrasi Entitas Fintech / Pembiayaan</h3>
+            <h3>{editingItem ? "Edit Registrasi Fintech / Pembiayaan" : "Registrasi Entitas Fintech / Pembiayaan"}</h3>
             <button
               type="button"
               className="icon-button"
-              onClick={() => setIsCreating(false)}
+              onClick={() => {
+                setIsCreating(false);
+                setEditingItem(null);
+              }}
             >
               <X size={18} />
             </button>
@@ -11738,7 +12391,7 @@ function LendersManager() {
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
-              create.mutate({
+              save.mutate({
                 brandName: fd.get("brandName") as string,
                 companyName: fd.get("companyName") as string,
                 licenseNumber: fd.get("licenseNumber") as string,
@@ -11753,13 +12406,19 @@ function LendersManager() {
           >
             <label className="field">
               <span>Nama Brand / Platform *</span>
-              <input name="brandName" required placeholder="Contoh: Danamas" />
+              <input
+                name="brandName"
+                required
+                defaultValue={editingItem?.brandName ?? ""}
+                placeholder="Contoh: Danamas"
+              />
             </label>
             <label className="field">
               <span>Nama Perusahaan PT *</span>
               <input
                 name="companyName"
                 required
+                defaultValue={editingItem?.companyName ?? ""}
                 placeholder="PT Pasar Dana Pinjaman"
               />
             </label>
@@ -11768,6 +12427,7 @@ function LendersManager() {
               <input
                 name="licenseNumber"
                 required
+                defaultValue={editingItem?.licenseNumber ?? ""}
                 placeholder="KEP-102/D.05/2024"
               />
             </label>
@@ -11775,27 +12435,34 @@ function LendersManager() {
               <span>Sektor / Jenis Layanan</span>
               <input
                 name="sectorType"
-                defaultValue="P2P Lending Produktif UMKM"
+                defaultValue={editingItem?.sectorType ?? "P2P Lending Produktif UMKM"}
               />
             </label>
             <label className="field col-span-2">
               <span>Website Resmi Platform</span>
-              <input name="websiteUrl" placeholder="https://..." />
+              <input
+                name="websiteUrl"
+                defaultValue={editingItem?.websiteUrl ?? ""}
+                placeholder="https://..."
+              />
             </label>
             <div className="form-actions col-span-2">
               <button
                 type="button"
                 className="button ghost"
-                onClick={() => setIsCreating(false)}
+                onClick={() => {
+                  setIsCreating(false);
+                  setEditingItem(null);
+                }}
               >
                 Batal
               </button>
               <button
                 type="submit"
                 className="button primary"
-                disabled={create.isPending}
+                disabled={save.isPending}
               >
-                <Save size={16} /> Simpan Mitra
+                <Save size={16} /> {editingItem ? "Update Mitra" : "Simpan Mitra"}
               </button>
             </div>
           </form>
@@ -11824,16 +12491,32 @@ function LendersManager() {
                 </td>
                 <td>{item.sectorType}</td>
                 <td className="actions-cell">
-                  <button
-                    type="button"
-                    className="icon-button danger"
-                    onClick={() => {
-                      if (confirm("Hapus mitra lender ini?"))
-                        remove.mutate(item.id);
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      title="Edit Mitra"
+                      aria-label={`Edit ${item.brandName}`}
+                      onClick={() => {
+                        setIsCreating(false);
+                        setEditingItem(item);
+                      }}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Mitra Lender"
+                      aria-label={`Hapus ${item.brandName}`}
+                      onClick={() => {
+                        if (confirm(`Hapus mitra lender ${item.brandName}?`))
+                          remove.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -11861,6 +12544,7 @@ function LendersManager() {
 function StatisticsManager() {
   const client = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
+  const [editingItem, setEditingItem] = useState<CmsStatistic | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -11869,15 +12553,30 @@ function StatisticsManager() {
     queryFn: () => api<{ data: CmsStatistic[] }>("/v1/admin/statistics"),
   });
 
-  const create = useMutation({
-    mutationFn: (data: Record<string, unknown>) =>
-      api<{ data: CmsStatistic }>("/v1/admin/statistics", {
+  const save = useMutation({
+    mutationFn: (data: Record<string, unknown>) => {
+      if (editingItem) {
+        return api<{ data: CmsStatistic }>(
+          `/v1/admin/statistics/${editingItem.id}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify(data),
+          },
+        );
+      }
+      return api<{ data: CmsStatistic }>("/v1/admin/statistics", {
         method: "POST",
         body: JSON.stringify(data),
-      }),
+      });
+    },
     onSuccess: () => {
-      toast.success("Metrik statistik berhasil ditambahkan.");
+      toast.success(
+        editingItem
+          ? "Metrik statistik berhasil diperbarui."
+          : "Metrik statistik berhasil ditambahkan.",
+      );
       setIsCreating(false);
+      setEditingItem(null);
       void client.invalidateQueries({ queryKey: ["statistics"] });
     },
     onError: (err: Error) => toast.error(err.message),
@@ -11913,20 +12612,26 @@ function StatisticsManager() {
           <button
             type="button"
             className="button primary"
-            onClick={() => setIsCreating(true)}
+            onClick={() => {
+              setEditingItem(null);
+              setIsCreating(true);
+            }}
           >
             <Plus size={16} /> Tambah Metrik
           </button>
         }
       />
-      {isCreating && (
+      {(isCreating || editingItem) && (
         <section className="editor-panel mb-6">
           <header className="editor-header">
-            <h3>Tambah Metrik Indikator Baru</h3>
+            <h3>{editingItem ? "Edit Metrik Indikator" : "Tambah Metrik Indikator Baru"}</h3>
             <button
               type="button"
               className="icon-button"
-              onClick={() => setIsCreating(false)}
+              onClick={() => {
+                setIsCreating(false);
+                setEditingItem(null);
+              }}
             >
               <X size={18} />
             </button>
@@ -11935,7 +12640,7 @@ function StatisticsManager() {
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
-              create.mutate({
+              save.mutate({
                 metricKey: (fd.get("metricKey") as string)
                   .toLowerCase()
                   .replace(/\s+/g, "_"),
@@ -11958,28 +12663,50 @@ function StatisticsManager() {
               <input
                 name="metricLabel"
                 required
+                defaultValue={editingItem?.metricLabel ?? ""}
                 placeholder="Total Teknisi Tersertifikasi"
               />
             </label>
             <label className="field">
               <span>Metric Key (ID Unik) *</span>
-              <input name="metricKey" required placeholder="certified_techs" />
+              <input
+                name="metricKey"
+                required
+                defaultValue={editingItem?.metricKey ?? ""}
+                placeholder="certified_techs"
+              />
             </label>
             <label className="field">
               <span>Nilai Angka *</span>
-              <input name="metricValue" required placeholder="8,450" />
+              <input
+                name="metricValue"
+                required
+                defaultValue={editingItem?.metricValue ?? ""}
+                placeholder="8,450"
+              />
             </label>
             <label className="field">
               <span>Satuan (Unit)</span>
-              <input name="metricUnit" placeholder="Teknisi / Unit AC / %" />
+              <input
+                name="metricUnit"
+                defaultValue={editingItem?.metricUnit ?? ""}
+                placeholder="Teknisi / Unit AC / %"
+              />
             </label>
             <label className="field">
               <span>Tren Pertumbuhan</span>
-              <input name="trendPercentage" placeholder="+18.5%" />
+              <input
+                name="trendPercentage"
+                defaultValue={editingItem?.trendPercentage ?? ""}
+                placeholder="+18.5%"
+              />
             </label>
             <label className="field">
               <span>Arah Tren</span>
-              <select name="trendDirection" defaultValue="up">
+              <select
+                name="trendDirection"
+                defaultValue={editingItem?.trendDirection ?? "up"}
+              >
                 <option value="up">Naik (Up)</option>
                 <option value="down">Turun (Down)</option>
                 <option value="stable">Stabil (Stable)</option>
@@ -11987,26 +12714,35 @@ function StatisticsManager() {
             </label>
             <label className="field">
               <span>Kategori</span>
-              <input name="category" defaultValue="Keanggotaan" />
+              <input
+                name="category"
+                defaultValue={editingItem?.category ?? "Keanggotaan"}
+              />
             </label>
             <label className="field">
               <span>Periode Kuartal</span>
-              <input name="period" defaultValue="2026 Q1" />
+              <input
+                name="period"
+                defaultValue={editingItem?.period ?? "2026 Q1"}
+              />
             </label>
             <div className="form-actions col-span-2">
               <button
                 type="button"
                 className="button ghost"
-                onClick={() => setIsCreating(false)}
+                onClick={() => {
+                  setIsCreating(false);
+                  setEditingItem(null);
+                }}
               >
                 Batal
               </button>
               <button
                 type="submit"
                 className="button primary"
-                disabled={create.isPending}
+                disabled={save.isPending}
               >
-                <Save size={16} /> Simpan Metrik
+                <Save size={16} /> {editingItem ? "Update Metrik" : "Simpan Metrik"}
               </button>
             </div>
           </form>
@@ -12041,15 +12777,32 @@ function StatisticsManager() {
                   <span className="badge">{item.category}</span> · {item.period}
                 </td>
                 <td className="actions-cell">
-                  <button
-                    type="button"
-                    className="icon-button danger"
-                    onClick={() => {
-                      if (confirm("Hapus metrik ini?")) remove.mutate(item.id);
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      title="Edit Metrik"
+                      aria-label={`Edit ${item.metricLabel}`}
+                      onClick={() => {
+                        setIsCreating(false);
+                        setEditingItem(item);
+                      }}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      title="Hapus Metrik"
+                      aria-label={`Hapus ${item.metricLabel}`}
+                      onClick={() => {
+                        if (confirm(`Hapus metrik ${item.metricLabel}?`))
+                          remove.mutate(item.id);
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -12291,27 +13044,32 @@ function WilayahManager() {
                       </small>
                     </td>
                     <td className="actions-cell">
-                      <button
-                        type="button"
-                        className="button secondary small"
-                        style={{ marginRight: "6px" }}
-                        onClick={() => {
-                          setSelectedRegencyCode(r.kode);
-                          setActiveTab("districts");
-                        }}
-                      >
-                        Kecamatan
-                      </button>
-                      <button
-                        type="button"
-                        className="icon-button"
-                        onClick={() => {
-                          setEditingItem(r);
-                          setIsModalOpen(true);
-                        }}
-                      >
-                        <Pencil size={15} />
-                      </button>
+                      <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                        <button
+                          type="button"
+                          className="icon-button"
+                          title="Lihat Daftar Kecamatan"
+                          aria-label={`Kecamatan di ${r.nama}`}
+                          onClick={() => {
+                            setSelectedRegencyCode(r.kode);
+                            setActiveTab("districts");
+                          }}
+                        >
+                          <ChevronRight size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-button"
+                          title="Edit Kabupaten/Kota"
+                          aria-label={`Edit ${r.nama}`}
+                          onClick={() => {
+                            setEditingItem(r);
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -12427,13 +13185,15 @@ function WilayahManager() {
                     <td className="actions-cell">
                       <button
                         type="button"
-                        className="button secondary small"
+                        className="icon-button"
+                        title="Lihat Daftar Desa / Kelurahan"
+                        aria-label={`Desa/Kelurahan di Kec. ${d.nama}`}
                         onClick={() => {
                           setSelectedDistrictCode(d.kode);
                           setActiveTab("villages");
                         }}
                       >
-                        Lihat Desa/Kelurahan
+                        <ChevronRight size={16} />
                       </button>
                     </td>
                   </tr>
@@ -12636,13 +13396,15 @@ function WilayahManager() {
                   <td className="actions-cell">
                     <button
                       type="button"
-                      className="button secondary small"
+                      className="icon-button"
+                      title={`Lihat Daftar Kabupaten/Kota di ${p.nama}`}
+                      aria-label={`Kabupaten/Kota di ${p.nama}`}
                       onClick={() => {
                         setSelectedProvinceCode(p.kode);
                         setActiveTab("regencies");
                       }}
                     >
-                      Lihat Kota ({p.kode})
+                      <ChevronRight size={16} />
                     </button>
                   </td>
                 </tr>
@@ -12950,26 +13712,28 @@ function AdArtManager() {
                   <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
                     <button
                       type="button"
-                      className="button secondary"
-                      style={{ padding: "4px 8px" }}
+                      className="icon-button"
+                      title="Edit Bab Dokumen"
+                      aria-label={`Edit ${item.chapterNumber}`}
                       onClick={() => {
                         setEditingItem(item);
                         setIsModalOpen(true);
                       }}
                     >
-                      <Edit2 size={13} /> Edit
+                      <Edit2 size={15} />
                     </button>
                     <button
                       type="button"
-                      className="button danger"
-                      style={{ padding: "4px 8px" }}
+                      className="icon-button danger"
+                      title="Hapus Bab Dokumen"
+                      aria-label={`Hapus ${item.chapterNumber}`}
                       onClick={() => {
                         if (confirm(`Hapus ${item.chapterNumber}: ${item.title}?`)) {
                           deleteMutation.mutate(item.id);
                         }
                       }}
                     >
-                      <Trash2 size={13} />
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </td>
@@ -13290,26 +14054,28 @@ function MilestonesManager() {
                   <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
                     <button
                       type="button"
-                      className="button secondary"
-                      style={{ padding: "4px 8px" }}
+                      className="icon-button"
+                      title="Edit Tonggak Sejarah"
+                      aria-label={`Edit ${item.year} ${item.title}`}
                       onClick={() => {
                         setEditingItem(item);
                         setIsModalOpen(true);
                       }}
                     >
-                      <Edit2 size={13} /> Edit
+                      <Edit2 size={15} />
                     </button>
                     <button
                       type="button"
-                      className="button danger"
-                      style={{ padding: "4px 8px" }}
+                      className="icon-button danger"
+                      title="Hapus Tonggak Sejarah"
+                      aria-label={`Hapus ${item.year} ${item.title}`}
                       onClick={() => {
                         if (confirm(`Hapus sejarah tahun ${item.year}: ${item.title}?`)) {
                           deleteMutation.mutate(item.id);
                         }
                       }}
                     >
-                      <Trash2 size={13} />
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </td>
@@ -13588,26 +14354,28 @@ function RefrigerantsManager() {
                   <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
                     <button
                       type="button"
-                      className="button secondary"
-                      style={{ padding: "4px 8px" }}
+                      className="icon-button"
+                      title="Edit Spesifikasi Refrigeran"
+                      aria-label={`Edit ${item.code}`}
                       onClick={() => {
                         setEditingItem(item);
                         setIsModalOpen(true);
                       }}
                     >
-                      <Edit2 size={13} /> Edit
+                      <Edit2 size={15} />
                     </button>
                     <button
                       type="button"
-                      className="button danger"
-                      style={{ padding: "4px 8px" }}
+                      className="icon-button danger"
+                      title="Hapus Spesifikasi Refrigeran"
+                      aria-label={`Hapus ${item.code}`}
                       onClick={() => {
                         if (confirm(`Hapus refrigeran ${item.code}?`)) {
                           deleteMutation.mutate(item.id);
                         }
                       }}
                     >
-                      <Trash2 size={13} />
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </td>

@@ -217,7 +217,38 @@ export const adminLearningRoutes: FastifyPluginAsync = async (app) => {
       return { data: created };
     },
   );
+
+  app.delete(
+    "/activities/:id",
+    { preHandler: app.authorize("learning.write") },
+    async (request, reply) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const [deleted] = await db
+        .delete(learningActivities)
+        .where(eq(learningActivities.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "ACTIVITY_NOT_FOUND", "Kegiatan tidak ditemukan.");
+      return reply.status(204).send();
+    },
+  );
+
+  app.delete(
+    "/enrollments/:id",
+    { preHandler: app.authorize("learning.write") },
+    async (request, reply) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const [deleted] = await db
+        .delete(learningEnrollments)
+        .where(eq(learningEnrollments.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "ENROLLMENT_NOT_FOUND", "Pendaftaran tidak ditemukan.");
+      return reply.status(204).send();
+    },
+  );
 };
+
 
 export const memberLearningRoutes: FastifyPluginAsync = async (app) => {
   app.get(

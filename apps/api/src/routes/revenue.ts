@@ -261,6 +261,51 @@ export const adminRevenueRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
+  app.delete(
+    "/products/:id",
+    { preHandler: app.authorize("revenue.write") },
+    async (request, reply) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const [deleted] = await db
+        .delete(revenueProducts)
+        .where(eq(revenueProducts.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "PRODUCT_NOT_FOUND", "Produk tidak ditemukan.");
+      return reply.status(204).send();
+    },
+  );
+
+  app.delete(
+    "/segments/:id",
+    { preHandler: app.authorize("revenue.write") },
+    async (request, reply) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const [deleted] = await db
+        .delete(audienceSegments)
+        .where(eq(audienceSegments.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "SEGMENT_NOT_FOUND", "Segmen tidak ditemukan.");
+      return reply.status(204).send();
+    },
+  );
+
+  app.delete(
+    "/invoices/:id",
+    { preHandler: app.authorize("revenue.write") },
+    async (request, reply) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const [deleted] = await db
+        .delete(invoices)
+        .where(eq(invoices.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "INVOICE_NOT_FOUND", "Tagihan tidak ditemukan.");
+      return reply.status(204).send();
+    },
+  );
+
   app.get(
     "/overview",
     { preHandler: app.authorize("revenue.read") },

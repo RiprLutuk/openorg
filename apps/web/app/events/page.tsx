@@ -19,6 +19,7 @@ import {
   Flame,
   GraduationCap,
   Layers,
+  Loader2,
   MapPin,
   MessageSquare,
   Phone,
@@ -33,7 +34,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
 import { SmartImage } from "@/components/smart-image";
 import { ServerPagination } from "@/components/server-pagination";
@@ -289,7 +290,7 @@ const CATEGORIES = [
   { id: "munas", label: "Munas & Rakernas" },
 ];
 
-export default function EventsPage() {
+function EventsPageContent() {
   const [activeSuiteTab, setActiveSuiteTab] = useState<
     "agenda" | "skkni" | "tuk"
   >("agenda");
@@ -1007,5 +1008,19 @@ export default function EventsPage() {
         }}
       />
     </div>
+  );
+}
+
+export default function EventsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center py-32">
+          <Loader2 size={32} className="animate-spin text-slate-400" />
+        </div>
+      }
+    >
+      <EventsPageContent />
+    </Suspense>
   );
 }

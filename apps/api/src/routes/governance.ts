@@ -410,4 +410,59 @@ export const governanceRoutes: FastifyPluginAsync = async (app) => {
       return reply.status(204).send();
     },
   );
+
+  app.delete(
+    "/positions/:id",
+    { preHandler: app.authorize("governance.write") },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const [deleted] = await db
+        .delete(positions)
+        .where(eq(positions.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(
+          404,
+          "POSITION_NOT_FOUND",
+          "Governance position was not found.",
+        );
+      await audit(
+        request,
+        "position.delete",
+        "position",
+        id,
+        deleted,
+        undefined,
+      );
+      return reply.status(204).send();
+    },
+  );
+
+  app.delete(
+    "/units/:id",
+    { preHandler: app.authorize("governance.write") },
+    async (request, reply) => {
+      const { id } = idParams.parse(request.params);
+      const [deleted] = await db
+        .delete(organizationUnits)
+        .where(eq(organizationUnits.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(
+          404,
+          "UNIT_NOT_FOUND",
+          "Organization unit was not found.",
+        );
+      await audit(
+        request,
+        "unit.delete",
+        "organization_unit",
+        id,
+        deleted,
+        undefined,
+      );
+      return reply.status(204).send();
+    },
+  );
 };
+

@@ -157,6 +157,29 @@ export const adminCredentialRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
+  app.delete(
+    "/schemes/:id",
+    { preHandler: app.authorize("credentials.write") },
+    async (request, reply) => {
+      const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+      const [deleted] = await db
+        .delete(credentialSchemes)
+        .where(eq(credentialSchemes.id, id))
+        .returning();
+      if (!deleted)
+        throw new AppError(404, "SCHEME_NOT_FOUND", "Skema kredensial tidak ditemukan.");
+      await audit(
+        request,
+        "credential_scheme.delete",
+        "credential_scheme",
+        id,
+        deleted,
+        undefined,
+      );
+      return reply.status(204).send();
+    },
+  );
+
   app.get(
     "/issued",
     { preHandler: app.authorize("credentials.read") },
