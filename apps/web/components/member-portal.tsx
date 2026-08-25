@@ -361,12 +361,14 @@ export function MemberPortal() {
         <span className="member-status-icon">
           <BadgeCheck size={22} />
         </span>
-        <span>
+        <div className="member-status-details">
           <small>Status Keanggotaan</small>
-          <strong>{applicationStatus === "active" ? "Aktif" : applicationStatus.replace("_", " ")}</strong>
-        </span>
+          <strong>
+            {data.member.memberNumber ? `No. KTA: ${data.member.memberNumber}` : "Anggota Terdaftar"}
+          </strong>
+        </div>
         <span className={`public-status ${applicationStatus}`}>
-          {applicationStatus === "active" ? "Aktif" : applicationStatus}
+          ● {applicationStatus === "active" ? "Aktif" : applicationStatus === "pending" ? "Menunggu Verifikasi" : applicationStatus.replace("_", " ")}
         </span>
       </div>
       <div className="member-dashboard-grid">
