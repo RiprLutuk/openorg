@@ -19570,6 +19570,134 @@ img {
   color: #64748b;
 }
 
+/* Leaderboard Responsive Visibility */
+.leaderboard-desktop-view {
+  display: block;
+}
+
+.leaderboard-mobile-list {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .leaderboard-desktop-view {
+    display: none;
+  }
+
+  .leaderboard-mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: #f8fafc;
+  }
+
+  .leaderboard-table-header {
+    padding: 12px 14px;
+  }
+
+  .table-header-title h3 {
+    font-size: 14.5px;
+  }
+}
+
+.leaderboard-mobile-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.leaderboard-mobile-card:active {
+  transform: scale(0.99);
+}
+
+.leaderboard-mobile-card.rank-1 {
+  border-left: 3.5px solid #f59e0b;
+  background: linear-gradient(90deg, #fffbeb 0%, #ffffff 45%);
+}
+
+.leaderboard-mobile-card.rank-2 {
+  border-left: 3.5px solid #94a3b8;
+  background: linear-gradient(90deg, #f8fafc 0%, #ffffff 45%);
+}
+
+.leaderboard-mobile-card.rank-3 {
+  border-left: 3.5px solid #ea580c;
+  background: linear-gradient(90deg, #fff7ed 0%, #ffffff 45%);
+}
+
+.mobile-card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mobile-rank-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mobile-contestant-name {
+  font-size: 14px;
+  font-weight: 750;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-points-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0284c7;
+  font-size: 12px;
+  font-weight: 750;
+  flex-shrink: 0;
+}
+
+.mobile-card-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.mobile-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mobile-card-achievement {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  padding: 4px 8px;
+  line-height: 1.35;
+}
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .calc-workspace-grid,

@@ -2,6 +2,7 @@
 
 import {
   Award,
+  Building2,
   Calendar,
   CheckCircle2,
   Compass,
@@ -274,87 +275,171 @@ export default function ChampionshipsPage() {
                 <Loader2 size={32} className="animate-spin text-muted" />
               </div>
             ) : (
-              <div className="table-responsive">
-                <table className="leaderboard-custom-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: "90px" }}>Posisi</th>
-                      <th>Nama Kontestan & Bengkel</th>
-                      <th>Kontingen DPD / Tim</th>
-                      <th style={{ width: "140px" }}>Total Poin</th>
-                      <th>Kualifikasi & Keunggulan Uji</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.length > 0 ? (
-                      filtered.map((row) => (
-                        <tr
-                          key={row.id}
-                          className={`leaderboard-row row-rank-${row.rank}`}
-                        >
-                          <td className="rank-td">
-                            <span className={`rank-chip rank-chip-${row.rank}`}>
-                              #{row.rank}
-                            </span>
-                          </td>
-                          <td className="contestant-td">
-                            <div className="contestant-info">
-                              <strong className="contestant-name">
-                                {row.participantName}
-                              </strong>
-                              {row.unitName && (
-                                <span className="workshop-chip">
-                                  {row.unitName}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="team-td">
-                            <div className="team-cell">
-                              <MapPin size={13} color="#64748b" />
-                              <span>{row.teamName ?? "Mandiri"}</span>
-                            </div>
-                          </td>
-                          <td className="points-td">
-                            <div className="points-wrap">
-                              <Star size={13} color="#f59e0b" fill="#f59e0b" />
-                              <strong>{row.points} Pts</strong>
-                            </div>
-                          </td>
-                          <td className="achievement-td">
-                            {row.achievements ? (
-                              <div className="achievement-clean-badge">
-                                <CheckCircle2
-                                  size={13}
-                                  color="#16a34a"
-                                  style={{ flexShrink: 0 }}
-                                />
-                                <span>{row.achievements}</span>
+              <>
+                {/* 1. Desktop Table View (Visible >= 641px) */}
+                <div className="table-responsive leaderboard-desktop-view">
+                  <table className="leaderboard-custom-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: "90px" }}>Posisi</th>
+                        <th>Nama Kontestan &amp; Bengkel</th>
+                        <th>Kontingen DPD / Tim</th>
+                        <th style={{ width: "140px" }}>Total Poin</th>
+                        <th>Kualifikasi &amp; Keunggulan Uji</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.length > 0 ? (
+                        filtered.map((row) => (
+                          <tr
+                            key={row.id}
+                            className={`leaderboard-row row-rank-${row.rank}`}
+                          >
+                            <td className="rank-td">
+                              <span
+                                className={`rank-chip rank-chip-${row.rank}`}
+                              >
+                                #{row.rank}
+                              </span>
+                            </td>
+                            <td className="contestant-td">
+                              <div className="contestant-info">
+                                <strong className="contestant-name">
+                                  {row.participantName}
+                                </strong>
+                                {row.unitName && (
+                                  <span className="workshop-chip">
+                                    {row.unitName}
+                                  </span>
+                                )}
                               </div>
-                            ) : (
-                              <span className="text-muted">-</span>
-                            )}
+                            </td>
+                            <td className="team-td">
+                              <div className="team-cell">
+                                <MapPin size={13} color="#64748b" />
+                                <span>{row.teamName ?? "Mandiri"}</span>
+                              </div>
+                            </td>
+                            <td className="points-td">
+                              <div className="points-wrap">
+                                <Star
+                                  size={13}
+                                  color="#f59e0b"
+                                  fill="#f59e0b"
+                                />
+                                <strong>{row.points} Pts</strong>
+                              </div>
+                            </td>
+                            <td className="achievement-td">
+                              {row.achievements ? (
+                                <div className="achievement-clean-badge">
+                                  <CheckCircle2
+                                    size={13}
+                                    color="#16a34a"
+                                    style={{ flexShrink: 0 }}
+                                  />
+                                  <span>{row.achievements}</span>
+                                </div>
+                              ) : (
+                                <span className="text-muted">-</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="empty-table-cell">
+                            <Trophy
+                              size={36}
+                              color="#94a3b8"
+                              style={{ margin: "0 auto 8px" }}
+                            />
+                            <p>
+                              Tidak ada kontestan yang sesuai dengan kriteria
+                              pencarian.
+                            </p>
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={5} className="empty-table-cell">
-                          <Trophy
-                            size={36}
-                            color="#94a3b8"
-                            style={{ margin: "0 auto 8px" }}
-                          />
-                          <p>
-                            Tidak ada kontestan yang sesuai dengan kriteria
-                            pencarian.
-                          </p>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* 2. Mobile Cards View (Visible <= 640px) */}
+                <div className="leaderboard-mobile-list">
+                  {filtered.length > 0 ? (
+                    filtered.map((row) => (
+                      <div
+                        key={row.id}
+                        className={`leaderboard-mobile-card rank-${row.rank}`}
+                      >
+                        <div className="mobile-card-top-row">
+                          <div className="mobile-rank-badge-wrap">
+                            <span
+                              className={`rank-chip rank-chip-${row.rank}`}
+                            >
+                              #{row.rank}
+                            </span>
+                            <span className="mobile-contestant-name">
+                              {row.participantName}
+                            </span>
+                          </div>
+                          <div className="mobile-points-badge">
+                            <Star
+                              size={12}
+                              color="#f59e0b"
+                              fill="#f59e0b"
+                              style={{ flexShrink: 0 }}
+                            />
+                            <span>{row.points} Pts</span>
+                          </div>
+                        </div>
+
+                        <div className="mobile-card-meta-row">
+                          <div className="mobile-meta-item">
+                            <MapPin
+                              size={12}
+                              className="text-slate-400 flex-shrink-0"
+                            />
+                            <span>{row.teamName ?? "Mandiri"}</span>
+                          </div>
+                          {row.unitName && (
+                            <div className="mobile-meta-item">
+                              <Building2
+                                size={12}
+                                className="text-slate-400 flex-shrink-0"
+                              />
+                              <span>{row.unitName}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {row.achievements && (
+                          <div className="mobile-card-achievement">
+                            <CheckCircle2
+                              size={12}
+                              className="text-emerald-600 flex-shrink-0"
+                            />
+                            <span>{row.achievements}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="empty-table-cell">
+                      <Trophy
+                        size={32}
+                        color="#94a3b8"
+                        style={{ margin: "0 auto 8px" }}
+                      />
+                      <p>
+                        Tidak ada kontestan yang sesuai dengan kriteria
+                        pencarian.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
