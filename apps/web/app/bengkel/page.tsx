@@ -9,6 +9,7 @@ import {
   Navigation,
   Search,
   ShieldCheck,
+  Shuffle,
   Sparkles,
   Store,
   Wrench,
@@ -16,140 +17,46 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
-import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { NATIONAL_16_WORKSHOPS } from "@/components/home-featured-workshops";
+import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
 
-const SEED_WORKSHOPS: PublicWorkshopData[] = [
-  {
-    id: "ws-1",
-    workshopName: "CV Surya Mandiri Teknik",
-    tagline: "Spesialis Servis AC Inverter & VRV Komersial Bergaransi",
-    category: "Bengkel Spesialis AC Komersial (VRV/VRF/Chiller)",
-    city: "Jakarta Selatan",
-    province: "DKI Jakarta",
-    address: "Jl. Fatmawati Raya No. 45, Cilandak",
-    whatsapp: "081289123456",
-    phone: "02175901234",
-    website: "https://suryamandiriteknik.com",
-    googleMapsUrl: "Jl. Fatmawati Raya No. 45, Cilandak, Jakarta Selatan",
-    operatingHours: "Senin - Sabtu: 08.00 - 18.00 | Siap 24 Jam",
-    description:
-      "Bengkel resmi rekanan APTI spesialis tata udara komersial perkantoran, multi-inverter VRV/VRF, dan cold storage industri. Dilengkapi teknisi BNSP Level IV.",
-    services: [
-      "Cuci AC Inverter Bebas Bau",
-      "Vakum Standar SKKNI (Dua Tahap)",
-      "Recovery Freon R32 / R410A",
-      "Servis Chiller & VRV Komersial",
-      "Instalasi AC Cassette / Standing",
-    ],
-    ownerName: "Bambang Sudiro",
-    memberNumber: "APTI-2024-0012",
-    isPublished: true,
-    rating: 4.95,
-  },
-  {
-    id: "ws-2",
-    workshopName: "Toko Suku Cadang & Freon Berkah Refrigerasi",
-    tagline: "Distributor Resmi Sparepart AC, Pipa Tembaga & Freon Ramah Lingkungan",
-    category: "Toko Sparepart & Freon Ramah Lingkungan",
-    city: "Surabaya",
-    province: "Jawa Timur",
-    address: "Jl. Ngagel Jaya Selatan No. 88, Gubeng",
-    whatsapp: "081334567890",
-    phone: "0315021234",
-    website: "https://berkahrefrigerasi.com",
-    googleMapsUrl: "Jl. Ngagel Jaya Selatan No. 88, Gubeng, Surabaya",
-    operatingHours: "Senin - Sabtu: 08.00 - 17.00",
-    description:
-      "Menyediakan suku cadang asli segala merk: kompresor inverter, sensor thermistor, kapasitor original, pipa ASTM B280, manifold digital, dan freon ramah lingkungan R32 / R290.",
-    services: [
-      "Penyedia Sparepart & Freon Asli",
-      "Rental Alat Ukur & Manifold Digital",
-      "Uji Tekanan Nitrogen K3",
-      "Pengadaan Pipa Tembaga Standar",
-    ],
-    ownerName: "H. Ridwan Santoso",
-    memberNumber: "APTI-2024-0038",
-    isPublished: true,
-    rating: 4.9,
-  },
-  {
-    id: "ws-3",
-    workshopName: "Nusantara Cold & HVAC Clinic",
-    tagline: "Pusat Perbaikan Modul PCB Inverter & Instalasi Residensial Terpercaya",
-    category: "Bengkel Servis AC Residensial & Rumah Tangga",
-    city: "Bandung",
-    province: "Jawa Barat",
-    address: "Jl. Soekarno-Hatta No. 312, Buahbatu",
-    whatsapp: "081223456781",
-    phone: "0227311234",
-    website: "https://nusantaracold.id",
-    googleMapsUrl: "Jl. Soekarno-Hatta No. 312, Buahbatu, Bandung",
-    operatingHours: "Setiap Hari: 07.30 - 19.00",
-    description:
-      "Layanan servis cepat pendingin rumah tangga dan apartemen. Mengutamakan SOP vakum wajib dan SOP recovery freon tanpa buang emisi ke udara bebas.",
-    services: [
-      "Cuci AC Inverter Bebas Bau",
-      "Bongkar Pasang AC Split",
-      "Perbaikan Modul PCB Inverter",
-      "Uji Tekanan Nitrogen K3",
-    ],
-    ownerName: "Asep Sunandar",
-    memberNumber: "APTI-2024-0084",
-    isPublished: true,
-    rating: 4.88,
-  },
-  {
-    id: "ws-4",
-    workshopName: "Sentral Instrument & Tools Refrigerasi",
-    tagline: "Rental & Kalibrasi Pompa Vakum Dua Tahap & Manifold Digital",
-    category: "Rental Alat Ukur & Manifold Digital",
-    city: "Medan",
-    province: "Sumatera Utara",
-    address: "Jl. Gatot Subroto KM 6.5 No. 19",
-    whatsapp: "08116543210",
-    phone: "0618451234",
-    website: "https://sentralinstrument.com",
-    googleMapsUrl: "Jl. Gatot Subroto KM 6.5 No. 19, Medan",
-    operatingHours: "Senin - Sabtu: 08.00 - 17.30",
-    description:
-      "Mitra penyedia rental peralatan instalasi berstandar SKKNI: manifold digital Testo/Fieldpiece, recovery machine Promax, flaring kit hidrolik, dan tabung recovery bersertifikat.",
-    services: [
-      "Rental Alat Ukur & Manifold Digital",
-      "Vakum Standar SKKNI (Dua Tahap)",
-      "Recovery Freon R32 / R410A",
-      "Penyedia Sparepart & Freon Asli",
-    ],
-    ownerName: "Tengku Iskandar",
-    memberNumber: "APTI-2024-0105",
-    isPublished: true,
-    rating: 4.92,
-  },
-];
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j]!, shuffled[i]!];
+  }
+  return shuffled;
+}
 
 function WorkshopsPageContent() {
-  const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(SEED_WORKSHOPS);
+  const [workshops, setWorkshops] = useState<PublicWorkshopData[]>(NATIONAL_16_WORKSHOPS);
   const [search, setSearch] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   useEffect(() => {
     try {
+      let combined = [...NATIONAL_16_WORKSHOPS];
       const stored = localStorage.getItem("openorg_member_workshops_list");
       if (stored) {
         const parsed: PublicWorkshopData[] = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setWorkshops((prev) => {
-            const memberNums = new Set(parsed.map((p) => p.memberNumber));
-            const baseWithoutDuplicates = prev.filter((w) => !memberNums.has(w.memberNumber));
-            return [...parsed, ...baseWithoutDuplicates];
-          });
+          const memberNums = new Set(parsed.map((p) => p.memberNumber));
+          const baseWithoutDuplicates = combined.filter((w) => !memberNums.has(w.memberNumber));
+          combined = [...parsed, ...baseWithoutDuplicates];
         }
       }
+      setWorkshops(shuffleArray(combined));
     } catch {
-      // ignore
+      setWorkshops(shuffleArray(NATIONAL_16_WORKSHOPS));
     }
   }, []);
+
+  const handleShuffle = () => {
+    setWorkshops((prev) => shuffleArray(prev));
+  };
 
   const provinces = Array.from(new Set(workshops.map((w) => w.province).filter(Boolean)));
   const categories = Array.from(new Set(workshops.map((w) => w.category).filter(Boolean)));
@@ -178,27 +85,26 @@ function WorkshopsPageContent() {
           <div className="tech-hero-inner">
             <div className="tech-hero-pill">
               <Store size={14} color="#0284c7" />
-              <span>BURSA BENGKEL & TOKO RESMI NASIONAL</span>
+              <span>BURSA BENGKEL &amp; TOKO RESMI NASIONAL</span>
             </div>
 
             <h1 className="tech-hero-title">
-              Direktori Bengkel AC & Toko Suku Cadang{" "}
+              Direktori Bengkel AC &amp; Toko Suku Cadang{" "}
               <span className="text-gradient">Terverifikasi</span>
             </h1>
 
             <p className="tech-hero-lead">
-              Temukan bengkel AC resmi, sentra perbaikan modul inverter, dan penyedia suku cadang/freon
-              mitra anggota terpercaya dengan jaminan mutu dan SOP standar profesi di seluruh Indonesia.
+              Temukan {workshops.length}+ bengkel AC resmi, klinik modul inverter, dan penyedia suku cadang mitra anggota terdaftar di seluruh Indonesia.
             </p>
           </div>
 
           <div className="tech-hero-stats-panel">
             <div className="hero-stat-box">
               <strong>{workshops.length}+</strong>
-              <small>Bengkel & Toko Resmi</small>
+              <small>Bengkel &amp; Toko Resmi</small>
             </div>
             <div className="hero-stat-box">
-              <strong>38</strong>
+              <strong>{provinces.length || 38}</strong>
               <small>Cakupan Provinsi</small>
             </div>
             <div className="hero-stat-box">
@@ -218,7 +124,7 @@ function WorkshopsPageContent() {
               <Search size={18} className="search-icon" />
               <input
                 type="text"
-                placeholder="Cari nama bengkel/toko, keahlian, kota, atau nomor KTA pemilik..."
+                placeholder="Cari nama bengkel, keahlian PCB/inverter, kota, atau nomor KTA..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 aria-label="Cari bengkel atau toko"
@@ -259,7 +165,7 @@ function WorkshopsPageContent() {
                   className="tech-select-input"
                   aria-label="Filter berdasarkan kategori usaha"
                 >
-                  <option value="all">Semua Kategori Usaha ({categories.length})</option>
+                  <option value="all">Semua Kategori ({categories.length})</option>
                   {categories.map((c) => (
                     <option key={c} value={c}>
                       {c}
@@ -267,37 +173,46 @@ function WorkshopsPageContent() {
                   ))}
                 </select>
               )}
+
+              <button
+                type="button"
+                className="tech-toggle-btn"
+                onClick={handleShuffle}
+                title="Acak urutan tampilan agar adil bagi semua anggota"
+              >
+                <Shuffle size={13} />
+                <span>Rotasi Acak</span>
+              </button>
             </div>
           </div>
 
           {/* Member Registration CTA Banner */}
           <div className="workshop-member-cta-banner">
             <div className="banner-left">
-              <Sparkles size={24} color="#0284c7" />
+              <Sparkles size={22} color="#0284c7" />
               <div>
                 <strong>Punya Usaha Bengkel AC atau Toko Sparepart?</strong>
                 <p>
-                  Pasang iklan dan profil usaha Anda secara gratis di bursa direktori resmi organisasi
-                  untuk menjangkau ribuan pelanggan di seluruh Indonesia.
+                  Pasang iklan dan profil usaha Anda gratis di bursa direktori nasional ini.
                 </p>
               </div>
             </div>
             <div className="banner-right">
               <Link href="/join" className="button primary">
-                Daftar Anggota & Pasang Iklan
+                Daftar &amp; Pasang Iklan
               </Link>
             </div>
           </div>
 
           {/* Workshop Cards Grid */}
-          <div className="home-workshops-grid">
+          <div className="home-workshops-grid-compact">
             {filtered.length > 0 ? (
               filtered.map((ws) => <PublicWorkshopCard key={ws.id} workshop={ws} />)
             ) : (
               <div className="no-tech-found">
                 <Store size={44} className="text-muted" />
                 <h3>Tidak ada bengkel/toko ditemukan</h3>
-                <p>Coba gunakan kata kunci pencarian yang lebih umum atau sesuaikan filter wilayah.</p>
+                <p>Coba sesuaikan kata kunci pencarian atau reset filter wilayah.</p>
                 <button
                   type="button"
                   className="button secondary reset-filter-btn"
@@ -316,13 +231,13 @@ function WorkshopsPageContent() {
       </main>
 
       <DynamicBottomCta
-        guestTitle="Daftarkan Bengkel & Toko Resmi Anda Sekarang"
-        guestDescription="Nikmati benefit eksklusif promosi bursa direktori nasional, sertifikasi BNSP, dan akses jaringan kerja sama proyek."
+        guestTitle="Daftarkan Bengkel &amp; Toko Resmi Anda Sekarang"
+        guestDescription="Nikmati benefit promosi bursa direktori nasional, sertifikasi BNSP, dan akses jaringan kerja sama proyek."
         guestPrimaryCta={{ label: "Gabung Jadi Anggota", href: "/join" }}
-        guestSecondaryCta={{ label: "Pelajari Syarat & Regulasi", href: "/regulations" }}
-        memberTitle="Promosikan Bengkel & Toko Anda ke Seluruh Indonesia"
-        memberDescription="Perbarui informasi profil bengkel, foto workshop, titik maps, dan kontak WhatsApp Anda langsung melalui portal anggota."
-        memberPrimaryCta={{ label: "Kelola Iklan Bengkel Saya", href: "/member" }}
+        guestSecondaryCta={{ label: "Pelajari Regulasi", href: "/regulations" }}
+        memberTitle="Promosikan Bengkel &amp; Toko Anda ke Seluruh Indonesia"
+        memberDescription="Perbarui profil bengkel, titik maps, dan kontak WhatsApp Anda langsung melalui portal anggota."
+        memberPrimaryCta={{ label: "Kelola Iklan Bengkel", href: "/member" }}
       />
     </div>
   );

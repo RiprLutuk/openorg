@@ -21,6 +21,7 @@ import {
   QrCode,
   Search,
   ShieldCheck,
+  Shuffle,
   Sparkles,
   Star,
   Store,
@@ -34,6 +35,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { DynamicBottomCta } from "@/components/dynamic-bottom-cta";
+import { NATIONAL_16_WORKSHOPS } from "@/components/home-featured-workshops";
 import { PublicWorkshopCard, type PublicWorkshopData } from "@/components/public-workshop-card";
 
 interface Technician {
@@ -50,225 +52,9 @@ interface Technician {
   isAvailable: boolean;
 }
 
-export interface MemberWorkshop {
-  id: string;
-  workshopName: string;
-  tagline: string;
-  category: string;
-  city: string;
-  province: string;
-  address: string;
-  whatsapp: string;
-  phone: string;
-  website?: string;
-  googleMapsUrl?: string;
-  operatingHours: string;
-  description: string;
-  services: string[];
-  ownerName: string;
-  memberNumber: string;
-  isPublished: boolean;
-  rating?: number;
-  completedJobs?: number;
-}
+export type MemberWorkshop = PublicWorkshopData;
 
-const SEED_MEMBER_WORKSHOPS: MemberWorkshop[] = [
-  {
-    id: "ws-budi",
-    workshopName: "Jakarta Aircon Service Center",
-    tagline: "Pusat Servis AC Inverter, Multi-Split & VRV Komersial Bergaransi Resmi",
-    category: "Bengkel Spesialis AC Komersial (VRV/VRF/Chiller)",
-    city: "Jakarta Selatan",
-    province: "DKI Jakarta",
-    address: "Jl. RS Fatmawati Raya No. 45, Cilandak",
-    whatsapp: "081234567890",
-    phone: "081234567890",
-    website: "https://jakarta-aircon.co.id",
-    googleMapsUrl: "Jl. RS Fatmawati Raya No. 45, Cilandak, Jakarta Selatan",
-    operatingHours: "Senin - Sabtu: 08.00 - 18.00 | Siap Layanan Darurat 24 Jam",
-    description:
-      "Bengkel resmi berlisensi Master Level IV APTI di bawah pimpinan Budi Kurniawan. Spesialis perbaikan pendingin gedung perkantoran, multi-split VRV/VRF inverter, dan recovery ramah lingkungan.",
-    services: [
-      "Cuci AC Inverter Bebas Bau",
-      "Vakum Standar SKKNI (Dua Tahap)",
-      "Recovery Freon R32 / R410A",
-      "Servis Chiller & VRV Komersial",
-      "Instalasi AC Cassette / Standing",
-      "Perbaikan Modul PCB Inverter",
-    ],
-    ownerName: "Budi Kurniawan",
-    memberNumber: "APTI-2026-0004",
-    isPublished: true,
-    rating: 4.95,
-    completedJobs: 450,
-  },
-  {
-    id: "ws-agus",
-    workshopName: "Bandung Cold Solution",
-    tagline: "Spesialis Servis AC Split Residensial & Perawatan Berkala Rumah/Kantor",
-    category: "Bengkel Servis AC Residensial & Rumah Tangga",
-    city: "Bandung",
-    province: "Jawa Barat",
-    address: "Jl. Soekarno-Hatta No. 312, Buahbatu",
-    whatsapp: "081298765432",
-    phone: "081298765432",
-    website: "https://bandungcoldsolution.id",
-    googleMapsUrl: "Jl. Soekarno-Hatta No. 312, Buahbatu, Bandung",
-    operatingHours: "Setiap Hari: 07.30 - 19.00",
-    description:
-      "Layanan panggilan servis AC cepat residensial & apartemen. Bergaransi 30 hari dengan SOP uji kebocoran nitrogen dan pencucian bersih anti bocor.",
-    services: [
-      "Cuci AC Inverter Bebas Bau",
-      "Bongkar Pasang AC Split",
-      "Uji Tekanan Nitrogen K3",
-      "Vakum Standar SKKNI (Dua Tahap)",
-    ],
-    ownerName: "Agus Pratama",
-    memberNumber: "APTI-2026-0005",
-    isPublished: true,
-    rating: 4.88,
-    completedJobs: 380,
-  },
-  {
-    id: "ws-dewi",
-    workshopName: "Semarang Industrial HVAC",
-    tagline: "Rekayasa Tata Udara Chiller Industri & Cold Storage Jawa Tengah",
-    category: "Bengkel Spesialis AC Komersial (VRV/VRF/Chiller)",
-    city: "Semarang",
-    province: "Jawa Tengah",
-    address: "Jl. Pemuda No. 88, Semarang Tengah",
-    whatsapp: "081311223344",
-    phone: "081311223344",
-    website: "https://semaranghvac.com",
-    googleMapsUrl: "Jl. Pemuda No. 88, Semarang Tengah",
-    operatingHours: "Senin - Sabtu: 08.00 - 17.30 | Siap 24 Jam",
-    description:
-      "Pusat rekondisi dan overhaul kompresor Chiller, water cooled system, dan perakitan cold storage industri farmasi/makanan berstandar regulasi.",
-    services: [
-      "Servis Chiller & VRV Komersial",
-      "Recovery Freon R32 / R410A",
-      "Uji Tekanan Nitrogen K3",
-      "Instalasi AC Cassette / Standing",
-    ],
-    ownerName: "Dewi Lestari",
-    memberNumber: "APTI-2026-0006",
-    isPublished: true,
-    rating: 4.92,
-    completedJobs: 290,
-  },
-  {
-    id: "ws-1",
-    workshopName: "CV Surya Mandiri Teknik",
-    tagline: "Spesialis Servis AC Inverter & VRV Komersial Bergaransi",
-    category: "Bengkel Spesialis AC Komersial (VRV/VRF/Chiller)",
-    city: "Jakarta Selatan",
-    province: "DKI Jakarta",
-    address: "Jl. Fatmawati Raya No. 45, Cilandak",
-    whatsapp: "081289123456",
-    phone: "02175901234",
-    website: "https://suryamandiriteknik.com",
-    googleMapsUrl: "Jl. Fatmawati Raya No. 45, Cilandak, Jakarta Selatan",
-    operatingHours: "Senin - Sabtu: 08.00 - 18.00 | Siap 24 Jam",
-    description:
-      "Bengkel resmi rekanan APTI spesialis tata udara komersial perkantoran, multi-inverter VRV/VRF, dan cold storage industri. Dilengkapi teknisi BNSP Level IV.",
-    services: [
-      "Cuci AC Inverter Bebas Bau",
-      "Vakum Standar SKKNI (Dua Tahap)",
-      "Recovery Freon R32 / R410A",
-      "Servis Chiller & VRV Komersial",
-      "Instalasi AC Cassette / Standing",
-    ],
-    ownerName: "Bambang Sudiro",
-    memberNumber: "APTI-2024-0012",
-    isPublished: true,
-    rating: 4.95,
-    completedJobs: 420,
-  },
-  {
-    id: "ws-2",
-    workshopName: "Toko Suku Cadang & Freon Berkah Refrigerasi",
-    tagline:
-      "Distributor Resmi Sparepart AC, Pipa Tembaga & Freon Ramah Lingkungan",
-    category: "Toko Sparepart & Freon Ramah Lingkungan",
-    city: "Surabaya",
-    province: "Jawa Timur",
-    address: "Jl. Ngagel Jaya Selatan No. 88, Gubeng",
-    whatsapp: "081334567890",
-    phone: "0315021234",
-    website: "https://berkahrefrigerasi.com",
-    googleMapsUrl: "Jl. Ngagel Jaya Selatan No. 88, Gubeng, Surabaya",
-    operatingHours: "Senin - Sabtu: 08.00 - 17.00",
-    description:
-      "Menyediakan suku cadang asli segala merk: kompresor inverter, sensor thermistor, kapasitor original, pipa ASTM B280, manifold digital, dan freon ramah lingkungan R32 / R290.",
-    services: [
-      "Penyedia Sparepart & Freon Asli",
-      "Rental Alat Ukur & Manifold Digital",
-      "Uji Tekanan Nitrogen K3",
-      "Pengadaan Pipa Tembaga Standar",
-    ],
-    ownerName: "H. Ridwan Santoso",
-    memberNumber: "APTI-2024-0038",
-    isPublished: true,
-    rating: 4.9,
-    completedJobs: 860,
-  },
-  {
-    id: "ws-3",
-    workshopName: "Nusantara Cold & HVAC Clinic",
-    tagline:
-      "Pusat Perbaikan Modul PCB Inverter & Instalasi Residensial Terpercaya",
-    category: "Bengkel Servis AC Residensial & Rumah Tangga",
-    city: "Bandung",
-    province: "Jawa Barat",
-    address: "Jl. Soekarno-Hatta No. 312, Buahbatu",
-    whatsapp: "081223456781",
-    phone: "0227311234",
-    website: "https://nusantaracold.id",
-    googleMapsUrl: "Jl. Soekarno-Hatta No. 312, Buahbatu, Bandung",
-    operatingHours: "Setiap Hari: 07.30 - 19.00",
-    description:
-      "Layanan servis cepat pendingin rumah tangga dan apartemen. Mengutamakan SOP vakum wajib dan SOP recovery freon tanpa buang emisi ke udara bebas.",
-    services: [
-      "Cuci AC Inverter Bebas Bau",
-      "Bongkar Pasang AC Split",
-      "Perbaikan Modul PCB Inverter",
-      "Uji Tekanan Nitrogen K3",
-    ],
-    ownerName: "Asep Sunandar",
-    memberNumber: "APTI-2024-0084",
-    isPublished: true,
-    rating: 4.88,
-    completedJobs: 310,
-  },
-  {
-    id: "ws-4",
-    workshopName: "Sentral Instrument & Tools Refrigerasi",
-    tagline:
-      "Rental & Kalibrasi Pompa Vakum Dua Tahap & Manifold Digital",
-    category: "Rental Alat Ukur & Manifold Digital",
-    city: "Medan",
-    province: "Sumatera Utara",
-    address: "Jl. Gatot Subroto KM 6.5 No. 19",
-    whatsapp: "08116543210",
-    phone: "0618451234",
-    website: "https://sentralinstrument.com",
-    googleMapsUrl: "Jl. Gatot Subroto KM 6.5 No. 19, Medan",
-    operatingHours: "Senin - Sabtu: 08.00 - 17.30",
-    description:
-      "Mitra penyedia rental peralatan instalasi berstandar SKKNI: manifold digital Testo/Fieldpiece, recovery machine Promax, flaring kit hidrolik, dan tabung recovery bersertifikat.",
-    services: [
-      "Rental Alat Ukur & Manifold Digital",
-      "Vakum Standar SKKNI (Dua Tahap)",
-      "Recovery Freon R32 / R410A",
-      "Penyedia Sparepart & Freon Asli",
-    ],
-    ownerName: "Tengku Iskandar",
-    memberNumber: "APTI-2024-0105",
-    isPublished: true,
-    rating: 4.92,
-    completedJobs: 240,
-  },
-];
+const SEED_MEMBER_WORKSHOPS: MemberWorkshop[] = NATIONAL_16_WORKSHOPS;
 
 interface SkillTierInfo {
   levelNumber: number;
@@ -773,19 +559,40 @@ function TechniciansContent() {
                   </button>
                 </>
               ) : (
-                <select
-                  value={selectedWorkshopCat}
-                  onChange={(e) => setSelectedWorkshopCat(e.target.value)}
-                  className="tech-select-input"
-                  aria-label="Filter berdasarkan kategori bengkel/toko"
-                >
-                  <option value="all">Semua Kategori Usaha ({workshopCategories.length})</option>
-                  {workshopCategories.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
+                <>
+                  <select
+                    value={selectedWorkshopCat}
+                    onChange={(e) => setSelectedWorkshopCat(e.target.value)}
+                    className="tech-select-input"
+                    aria-label="Filter berdasarkan kategori bengkel/toko"
+                  >
+                    <option value="all">Semua Kategori ({workshopCategories.length})</option>
+                    {workshopCategories.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    type="button"
+                    className="tech-toggle-btn"
+                    onClick={() => {
+                      setWorkshops((prev) => {
+                        const copy = [...prev];
+                        for (let i = copy.length - 1; i > 0; i--) {
+                          const j = Math.floor(Math.random() * (i + 1));
+                          [copy[i], copy[j]] = [copy[j]!, copy[i]!];
+                        }
+                        return copy;
+                      });
+                    }}
+                    title="Acak urutan tampilan agar adil bagi semua anggota"
+                  >
+                    <Shuffle size={13} />
+                    <span>Rotasi Acak</span>
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -1005,7 +812,7 @@ function TechniciansContent() {
 
           {/* Results Grid: Tab 2 (Member Workshops & Stores) */}
           {activeTab === "workshops" && (
-            <div className="home-workshops-grid">
+            <div className="home-workshops-grid-compact">
               {filteredWorkshops.length > 0 ? (
                 filteredWorkshops.map((ws) => (
                   <PublicWorkshopCard key={ws.id} workshop={ws} />

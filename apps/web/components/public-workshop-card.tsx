@@ -60,7 +60,7 @@ export function PublicWorkshopCard({
 
   const cleanWhatsapp = workshop.whatsapp.replace(/\D/g, "");
   const waUrl = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(
-    `Halo ${workshop.workshopName}, saya menemukan profil usaha Anda di Direktori Resmi APTI Indonesia. Saya ingin bertanya tentang layanan Anda.`,
+    `Halo ${workshop.workshopName}, saya ingin konsultasi/order layanan melalui direktori resmi organisasi.`,
   )}`;
 
   const cleanWebUrl = workshop.website
@@ -70,155 +70,117 @@ export function PublicWorkshopCard({
     : undefined;
 
   return (
-    <article className={`public-showcase-workshop-card ${compact ? "compact-card" : ""}`}>
-      {/* Top Bar: Category pill & Verified Seal */}
-      <div className="showcase-card-header">
-        <span className="showcase-cat-badge">
-          <Store size={12} color="#0284c7" />
-          <span>{workshop.category}</span>
+    <article className="clean-workshop-card">
+      {/* 1. Header: Kategori & Status Resmi */}
+      <div className="card-top-bar">
+        <span className="card-cat-pill">
+          <Store size={11} className="text-sky-600" />
+          <span className="truncate">{workshop.category}</span>
         </span>
-        <div className="showcase-header-right">
-          {is24h && <span className="showcase-24h-badge">🚨 24 Jam</span>}
-          <span className="showcase-verified-badge" title="Mitra Resmi Terdaftar Organisasi">
-            <ShieldCheck size={12} color="#10b981" />
-            <span>Mitra Resmi</span>
+        <div className="card-badge-group">
+          {is24h && <span className="pill-24h">24 Jam</span>}
+          <span className="pill-verified" title="Mitra Resmi Terverifikasi">
+            <ShieldCheck size={11} className="text-emerald-600" />
+            <span>Resmi</span>
           </span>
         </div>
       </div>
 
-      {/* Main Title & Tagline */}
-      <div className="showcase-brand-block">
-        <h3 className="showcase-title">{workshop.workshopName}</h3>
-        {workshop.tagline && <p className="showcase-tagline">{workshop.tagline}</p>}
+      {/* 2. Nama Bengkel & Tagline Ringkas */}
+      <div className="card-brand">
+        <h4 className="card-title truncate" title={workshop.workshopName}>
+          {workshop.workshopName}
+        </h4>
+        <p className="card-tagline truncate" title={workshop.tagline}>
+          {workshop.tagline || `${workshop.category} di ${workshop.city}`}
+        </p>
       </div>
 
-      {/* Meta Location & Hours */}
-      <div className="showcase-meta-box">
-        <div className="showcase-meta-item">
-          <MapPin size={12} color="#0284c7" className="meta-icon" />
-          <span title={`${workshop.address}, ${workshop.city}, ${workshop.province}`}>
-            {[workshop.city, workshop.province].filter(Boolean).join(", ") || workshop.address}
-          </span>
-        </div>
-        <div className="showcase-meta-item">
-          <Clock size={12} color="#64748b" className="meta-icon" />
-          <span>{workshop.operatingHours}</span>
-        </div>
-        {cleanWebUrl && (
-          <div className="showcase-meta-item">
-            <Globe size={12} color="#0284c7" className="meta-icon" />
-            <a
-              href={cleanWebUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="showcase-meta-link"
-            >
-              <span>{workshop.website?.replace(/^https?:\/\//, "")}</span>
-              <ExternalLink size={10} />
-            </a>
-          </div>
-        )}
+      {/* 3. Lokasi & Jam Operasional */}
+      <div className="card-meta-chips">
+        <span className="meta-chip location-chip" title={`${workshop.address}, ${workshop.city}`}>
+          <MapPin size={11} className="text-sky-500 flex-shrink-0" />
+          <span className="truncate">{workshop.city}, {workshop.province}</span>
+        </span>
+        <span className="meta-chip hours-chip">
+          <Clock size={11} className="text-slate-400 flex-shrink-0" />
+          <span className="truncate">{workshop.operatingHours}</span>
+        </span>
       </div>
 
-      {/* Interactive Map Embed */}
-      {!compact && (
-        <div className="showcase-map-wrapper">
-          <div className="showcase-map-header">
-            <small>
-              <MapPin size={11} color="#0284c7" />
-              <span>Titik Operasional</span>
-            </small>
-            <a
-              href={mapsDirectUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="showcase-map-nav-btn"
-              title="Buka Navigasi Rute Maps"
-            >
-              <Navigation size={10} />
-              <span>Buka Rute</span>
-            </a>
-          </div>
-          <div className="showcase-map-frame">
-            <iframe
-              title={`Peta Lokasi ${workshop.workshopName}`}
-              src={mapsEmbedUrl}
-              width="100%"
-              height="115"
-              loading="lazy"
-              style={{ border: 0, display: "block" }}
-              allowFullScreen={false}
-            />
-          </div>
-        </div>
-      )}
+      {/* 4. Compact Google Maps Preview */}
+      <div className="card-map-box">
+        <iframe
+          title={`Peta Lokasi ${workshop.workshopName}`}
+          src={mapsEmbedUrl}
+          width="100%"
+          height="85"
+          loading="lazy"
+          style={{ border: 0, display: "block" }}
+          allowFullScreen={false}
+        />
+        <a
+          href={mapsDirectUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="map-overlay-btn"
+          title="Buka Navigasi Rute Maps"
+        >
+          <Navigation size={10} />
+          <span>Rute</span>
+        </a>
+      </div>
 
-      {/* Description Snippet */}
-      {workshop.description && (
-        <p className="showcase-description">{workshop.description}</p>
-      )}
-
-      {/* Services Tag Cloud */}
+      {/* 5. Layanan Spesialisasi */}
       {workshop.services && workshop.services.length > 0 && (
-        <div className="showcase-services-cloud">
-          {workshop.services.slice(0, compact ? 2 : 3).map((srv) => (
-            <span key={srv} className="showcase-service-pill">
-              <Wrench size={10} color="#0284c7" />
+        <div className="card-services-cloud">
+          {workshop.services.slice(0, 2).map((srv) => (
+            <span key={srv} className="service-mini-tag truncate">
+              <Wrench size={9} className="text-sky-500 flex-shrink-0" />
               <span>{srv}</span>
             </span>
           ))}
-          {workshop.services.length > (compact ? 2 : 3) && (
-            <span className="showcase-service-pill more-pill">
-              +{workshop.services.length - (compact ? 2 : 3)} lainnya
+          {workshop.services.length > 2 && (
+            <span className="service-mini-tag more-tag">
+              +{workshop.services.length - 2}
             </span>
           )}
         </div>
       )}
 
-      {/* Card Footer: Owner Info & Direct Action CTAs */}
-      <div className="showcase-card-footer">
-        <div className="showcase-owner-cell">
-          <small>Penanggung Jawab:</small>
+      {/* 6. Footer: Owner KTA & WhatsApp Action */}
+      <div className="card-bottom-row">
+        <div className="owner-info">
+          <small className="owner-lbl">Penanggung Jawab:</small>
           <Link
             href={`/verify?code=${encodeURIComponent(workshop.memberNumber)}`}
-            className="showcase-owner-link"
-            title="Verifikasi KTA Resmi"
+            className="owner-name-link truncate"
+            title={`KTA: ${workshop.memberNumber}`}
           >
             <strong>{workshop.ownerName}</strong>
-            <span className="showcase-kta-chip">{workshop.memberNumber}</span>
           </Link>
         </div>
 
-        <div className="showcase-actions-group">
+        <div className="card-cta-group">
           {cleanWebUrl && (
             <a
               href={cleanWebUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="showcase-btn-ghost web"
+              className="btn-card-web"
               title="Kunjungi Website Resmi"
             >
-              <Globe size={13} />
+              <Globe size={12} />
             </a>
           )}
-          <a
-            href={mapsDirectUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="showcase-btn-ghost map"
-            title="Buka Navigasi Rute Maps"
-          >
-            <Navigation size={13} />
-            <span>Rute</span>
-          </a>
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="showcase-btn-whatsapp"
-            title="Chat Pemesanan via WhatsApp"
+            className="btn-card-wa"
+            title="Chat & Order via WhatsApp"
           >
-            <MessageSquare size={13} />
+            <MessageSquare size={12} />
             <span>WhatsApp</span>
           </a>
         </div>
